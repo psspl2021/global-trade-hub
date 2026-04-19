@@ -13275,6 +13275,33 @@ export type Database = {
               isSetofReturn: true
             }
           }
+        | {
+            Args: {
+              p_limit?: number
+              p_offset?: number
+              p_sort_by?: string
+              p_sort_order?: string
+              p_status?: string
+              p_user_id: string
+              p_view_as_purchaser?: string
+            }
+            Returns: {
+              bid_count: number
+              company_id: string
+              created_at: string
+              created_by: string
+              currency: string
+              delivery_timeline: number
+              description: string
+              high_bid: number
+              id: string
+              low_bid: number
+              purchaser_id: string
+              status: string
+              title: string
+              total_po_amount: number
+            }[]
+          }
       get_scoped_auctions_count:
         | {
             Args: {
