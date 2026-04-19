@@ -225,6 +225,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
           rows = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
         }
         setAuctions(rows);
+        if (cKey) auctionCache.set(cKey, { ts: Date.now(), rows });
       }
     } catch (err: any) {
       console.error('Error fetching reverse auctions:', err);
