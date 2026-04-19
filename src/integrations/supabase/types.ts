@@ -13640,6 +13640,14 @@ export type Database = {
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      is_auction_buyer: {
+        Args: { _auction_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_auction_invited_supplier: {
+        Args: { _auction_id: string; _user_email: string; _user_id: string }
+        Returns: boolean
+      }
       is_buyer_management: { Args: { _user_id: string }; Returns: boolean }
       is_buyer_purchaser: { Args: { _user_id: string }; Returns: boolean }
       is_company_manager: {
@@ -14227,6 +14235,10 @@ export type Database = {
       }
       user_has_company_role: {
         Args: { _company_id: string; _roles: string[]; _user_id: string }
+        Returns: boolean
+      }
+      user_shares_auction_company: {
+        Args: { _auction_id: string; _user_id: string }
         Returns: boolean
       }
       validate_active_session: { Args: { p_user_id: string }; Returns: boolean }
