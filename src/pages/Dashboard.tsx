@@ -1397,6 +1397,7 @@ const Dashboard = () => {
         )}
       </main>
     </div>
+    </Suspense>
   );
 };
 
