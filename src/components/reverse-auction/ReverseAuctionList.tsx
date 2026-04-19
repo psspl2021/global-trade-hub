@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, Pencil, Search, SlidersHorizontal, ArrowUpDown, X, ChevronDown } from 'lucide-react';
+import { Gavel, Clock, TrendingDown, Trophy, XCircle, Play, ArrowRight, Timer, Pencil, Search, SlidersHorizontal, ArrowUpDown, X, ChevronDown, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useReverseAuction, ReverseAuction } from '@/hooks/useReverseAuction';
 import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -598,9 +599,41 @@ function BuyerAuctionRow({
                 </>
               )}
               {canRepublish && (
-                <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
-                  <Pencil className="w-3 h-3" /> Edit & Republish
-                </Button>
+                <>
+                  <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
+                    <Pencil className="w-3 h-3" /> Edit & Republish
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={async () => {
+                      const url = `${window.location.origin}/dashboard?view=reverse-auction&auction=${auction.id}`;
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        toast.success('Supplier invite link copied');
+                      } catch {
+                        toast.error('Failed to copy link');
+                      }
+                    }}
+                  >
+                    <Share2 className="w-3 h-3" /> Share
+                  </Button>
+                  {!isCancelled && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm('Cancel this RFQ? Suppliers will be notified.')) {
+                          cancelAuction(auction.id);
+                        }
+                      }}
+                    >
+                      <XCircle className="w-3 h-3" /> Cancel
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -765,14 +798,46 @@ function AuctionCard({
                 </Button>
               )}
               {canRepublish && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowEditDialog(true)}
-                  className="gap-1"
-                >
-                  <Pencil className="w-3 h-3" /> Edit & Republish
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowEditDialog(true)}
+                    className="gap-1"
+                  >
+                    <Pencil className="w-3 h-3" /> Edit & Republish
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={async () => {
+                      const url = `${window.location.origin}/dashboard?view=reverse-auction&auction=${auction.id}`;
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        toast.success('Supplier invite link copied');
+                      } catch {
+                        toast.error('Failed to copy link');
+                      }
+                    }}
+                  >
+                    <Share2 className="w-3 h-3" /> Share
+                  </Button>
+                  {!isCancelled && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm('Cancel this RFQ? Suppliers will be notified.')) {
+                          cancelAuction(auction.id);
+                        }
+                      }}
+                    >
+                      <XCircle className="w-3 h-3" /> Cancel
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           )}
