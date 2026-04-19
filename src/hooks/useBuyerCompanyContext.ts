@@ -17,6 +17,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole, UserRole } from '@/hooks/useUserRole';
+import { useCapabilities } from '@/hooks/useCapabilities';
 
 export type ManagementViewType = 'cfo' | 'ceo' | 'hr' | 'manager' | null;
 
@@ -73,7 +74,8 @@ const purchaserStorageKey = (userId: string) => `${STORAGE_KEY_PURCHASER_BASE}:$
 export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { user } = useAuth();
   const { role } = useUserRole(user?.id);
-  
+  const { has: hasCapability } = useCapabilities();
+
   const [purchasers, setPurchasers] = useState<CompanyPurchaser[]>([]);
   const [selectedPurchaserId, setSelectedPurchaserIdState] = useState<string | null>(null);
   const [managementView, setManagementViewState] = useState<ManagementViewType>(null);
@@ -85,8 +87,11 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   // fallback when membership data hasn't loaded yet.
   const companyRole = (purchasers.find(p => p.user_id === user?.id)?.role || role) as UserRole;
 
-  const canSelectPurchaser = [...MANAGEMENT_ROLES, ...HR_ROLES, ...PURCHASER_ROLES].includes(companyRole);
-  const canViewManagement = canSelectPurchaser; // Any buyer role can access management views
+  // Phase 2: capability-driven gating. DB has already normalized roles via
+  // get_user_scope; the UI must NOT re-fragment that logic with role arrays.
+  // `can_switch_purchaser` is granted to management/executive/HR roles only.
+  const canSelectPurchaser = hasCapability('can_switch_purchaser') || PURCHASER_ROLES.includes(companyRole);
+  const canViewManagement = hasCapability('can_view_management_dashboard') || canSelectPurchaser;
   const isManagementMode = managementView !== null;
   const isReadOnly = canViewManagement && isManagementMode;
 
