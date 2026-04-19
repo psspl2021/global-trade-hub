@@ -241,6 +241,12 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   }, [user, supplierMode, selectedPurchaserId, contextLoading]);
 
+  // Hardening: clear state immediately on scope change, before any cache/fetch
+  // logic runs. Guarantees zero stale render even if cache logic evolves.
+  useEffect(() => {
+    if (!supplierMode) setAuctions([]);
+  }, [selectedPurchaserId, supplierMode]);
+
   useEffect(() => {
     fetchAuctions();
   }, [fetchAuctions]);
