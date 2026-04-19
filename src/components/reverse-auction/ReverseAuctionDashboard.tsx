@@ -40,12 +40,12 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const { selectedPurchaserId } = useBuyerCompanyContext();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   // Scope-keyed count avoids flash-of-stale-count when switching purchasers:
   // the value is read by current scope key, so a switch instantly shows 0
   // (or the cached count for that scope) even before the fetch resolves.
   const scopeKey = `${user?.id ?? 'anon'}:${selectedPurchaserId ?? 'self'}`;
-  const auctionCount = auctionCountByScope[scopeKey] ?? 0;
+  const auctionCount = contextLoading ? 0 : (auctionCountByScope[scopeKey] ?? 0);
 
   const updateSearchParams = (updater: (params: URLSearchParams) => void) => {
     const next = new URLSearchParams(searchParams);
@@ -53,13 +53,11 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     setSearchParams(next, { replace: true });
   };
 
-  // Fetch auction count for usage meter — scoped to acting purchaser via RPC.
-  // DB enforces purchaser hard-override (cannot impersonate others).
-  // Hardening: reset count immediately on scope change so the previous
-  // purchaser's number never bleeds into the new purchaser's view, and
-  // explicitly zero on RPC error (e.g. user_not_in_company guard).
+  // Fetch auction count only after purchaser context resolves; otherwise a
+  // manager briefly fetches with null selection and paints the default/self
+  // scope before the intended purchaser scope lands.
   useEffect(() => {
-    if (!user || isSupplier) return;
+    if (!user || isSupplier || contextLoading) return;
     const key = scopeKey;
     (supabase as any)
       .rpc('get_scoped_auctions_by_purchaser', {
@@ -74,7 +72,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         }
         setAuctionCountByScope((prev) => ({ ...prev, [key]: (data || []).length }));
       });
-  }, [user, isSupplier, selectedPurchaserId, scopeKey]);
+  }, [user, isSupplier, selectedPurchaserId, scopeKey, contextLoading]);
 
   // Scope boundary hardening: selected auction must never survive an acting purchaser switch.
   useEffect(() => {

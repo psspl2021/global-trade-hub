@@ -407,12 +407,15 @@ function POHistory({ auctions }: { auctions: any[] }) {
    ═══════════════════════════════════════════════ */
 export function AuctionDashboardModules({ onSelectAuction }: Props) {
   const { user } = useAuth();
-  const { selectedPurchaserId } = useBuyerCompanyContext();
+  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || contextLoading) return;
+
+    setAuctions([]);
+    setLoading(true);
 
     const load = async () => {
       // Scoped via DB RPC for purchaser-aware filtering
@@ -426,7 +429,7 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
     };
 
     load();
-  }, [user?.id, selectedPurchaserId]);
+  }, [user?.id, selectedPurchaserId, contextLoading]);
 
   if (loading || auctions.length === 0) return null;
 
