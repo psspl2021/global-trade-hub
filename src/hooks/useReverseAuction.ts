@@ -2,7 +2,7 @@
  * Hook for reverse auction operations
  * Enterprise-grade: Anti-sniping, audit logging, ranked bids
  */
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
@@ -118,11 +118,17 @@ export function useReverseAuction(supplierMode: boolean = false) {
   const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
   const [auctions, setAuctions] = useState<ReverseAuction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const scopeVersionRef = useRef(0);
+  const requestIdRef = useRef(0);
 
   const fetchAuctions = useCallback(async (filters?: AuctionFilters) => {
     if (!user) return;
     // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
     if (!supplierMode && contextLoading) return;
+    const scopeVersion = scopeVersionRef.current;
+    const requestId = ++requestIdRef.current;
+    const shouldApply = () =>
+      scopeVersionRef.current === scopeVersion && requestIdRef.current === requestId;
 
     // Serve cache instantly for the buyer path so re-selecting a purchaser feels instant.
     // CRITICAL: When switching purchasers, if no cache exists for the new key,
@@ -133,6 +139,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     if (cKey) {
       const cached = auctionCache.get(cKey);
       if (cached) {
+        if (!shouldApply()) return;
         setAuctions(cached.rows);
         setIsLoading(false);
         if (Date.now() - cached.ts < AUCTION_CACHE_TTL_MS) {
@@ -140,10 +147,12 @@ export function useReverseAuction(supplierMode: boolean = false) {
         }
       } else {
         // No cache for THIS purchaser — wipe stale rows from previous context
+        if (!shouldApply()) return;
         setAuctions([]);
         setIsLoading(true);
       }
     } else {
+      if (!shouldApply()) return;
       setAuctions([]);
       setIsLoading(true);
     }
@@ -190,6 +199,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
 
         const { data, error } = await query;
         if (error) throw error;
+        if (!shouldApply()) return;
         setAuctions((data as unknown as ReverseAuction[]) || []);
       } else {
         // ARCHITECTURAL CONTRACT: UI = intent, DB = enforcement.
@@ -231,21 +241,29 @@ export function useReverseAuction(supplierMode: boolean = false) {
         } else if (filters?.sortBy === 'oldest') {
           rows = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
         }
+        if (!shouldApply()) return;
         setAuctions(rows);
         if (cKey) auctionCache.set(cKey, { ts: Date.now(), rows });
       }
     } catch (err: any) {
       console.error('Error fetching reverse auctions:', err);
     } finally {
-      setIsLoading(false);
+      if (shouldApply()) {
+        setIsLoading(false);
+      }
     }
   }, [user, supplierMode, selectedPurchaserId, contextLoading]);
 
   // Hardening: clear state immediately on scope change, before any cache/fetch
   // logic runs. Guarantees zero stale render even if cache logic evolves.
   useEffect(() => {
-    if (!supplierMode) setAuctions([]);
-  }, [selectedPurchaserId, supplierMode]);
+    scopeVersionRef.current += 1;
+    requestIdRef.current += 1;
+    if (!supplierMode) {
+      setAuctions([]);
+      setIsLoading(true);
+    }
+  }, [selectedPurchaserId, supplierMode, contextLoading, user?.id]);
 
   useEffect(() => {
     fetchAuctions();
