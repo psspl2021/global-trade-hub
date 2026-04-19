@@ -25,6 +25,18 @@ const RPC_BY_ENTITY: Record<ScopedEntity, string> = {
   logistics: 'get_scoped_logistics_by_purchaser',
 };
 
+/**
+ * Module-level in-memory cache keyed by RPC + arg signature.
+ * Lets re-selecting a previously-viewed purchaser render instantly
+ * (data shown immediately, fresh fetch happens in background).
+ * TTL keeps memory bounded; cache is cleared on auth change naturally
+ * because userId is part of the key.
+ */
+const CACHE_TTL_MS = 60_000;
+const scopedCache = new Map<string, { ts: number; rows: any[] }>();
+const cacheKey = (rpc: string, args: Record<string, any>) =>
+  `${rpc}|${JSON.stringify(args)}`;
+
 interface UseScopedDataOptions {
   /** Auto-refresh interval in ms. 0 disables polling. */
   pollMs?: number;
@@ -66,7 +78,55 @@ export function useScopedData<T = any>(
       setLoading(false);
       return;
     }
+    const params: Record<string, any> = {
+      p_user_id: userId,
+      p_selected_purchaser: spid,
+      p_status: s ?? null,
+      p_from: f ?? null,
+      p_to: t ?? null,
+      p_limit: l ?? 200,
+      p_offset: o ?? 0,
+    };
+    if (entity === 'auction') {
+      params.p_has_winner = hw ?? null;
+    }
+    const rpcName = RPC_BY_ENTITY[entity];
+    const key = cacheKey(rpcName, params);
+
+    // Serve cached rows immediately if fresh — switching back to a
+    // previously-viewed purchaser feels instant. Then revalidate.
+    const cached = scopedCache.get(key);
+    const now = Date.now();
+    if (cached) {
+      setData(cached.rows as T[]);
+      setLoading(false);
+      if (now - cached.ts < CACHE_TTL_MS) {
+        // Fresh enough — skip refetch entirely
+        return;
+      }
+    }
+
     try {
+      const { data: rows, error: rpcErr } = await (supabase as any).rpc(rpcName, params);
+      if (rpcErr) throw rpcErr;
+      const next = (rows || []) as T[];
+      scopedCache.set(key, { ts: Date.now(), rows: next as any[] });
+      setData(next);
+      setError(null);
+    } catch (e: any) {
+      console.error(`[useScopedData:${entity}]`, e);
+      setError(e);
+      if (!cached) setData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [entity]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    // Don't flash loading if we have cached data for this exact key
+    const { userId, selectedPurchaserId: spid, status: s, from: f, to: t, hasWinner: hw, limit: l, offset: o } = argsRef.current;
+    if (userId) {
       const params: Record<string, any> = {
         p_user_id: userId,
         p_selected_purchaser: spid,
@@ -76,35 +136,19 @@ export function useScopedData<T = any>(
         p_limit: l ?? 200,
         p_offset: o ?? 0,
       };
-      // Only the auction RPC accepts p_has_winner
-      if (entity === 'auction') {
-        params.p_has_winner = hw ?? null;
+      if (entity === 'auction') params.p_has_winner = hw ?? null;
+      if (!scopedCache.has(cacheKey(RPC_BY_ENTITY[entity], params))) {
+        setLoading(true);
       }
-      const { data: rows, error: rpcErr } = await (supabase as any).rpc(
-        RPC_BY_ENTITY[entity],
-        params
-      );
-      if (rpcErr) throw rpcErr;
-      setData((rows || []) as T[]);
-      setError(null);
-    } catch (e: any) {
-      console.error(`[useScopedData:${entity}]`, e);
-      setError(e);
-      setData([]);
-    } finally {
-      setLoading(false);
+    } else {
+      setLoading(true);
     }
-  }, [entity]);
-
-  useEffect(() => {
-    if (!enabled) return;
-    setLoading(true);
     fetchData();
     if (pollMs > 0) {
       const id = setInterval(fetchData, pollMs);
       return () => clearInterval(id);
     }
-  }, [enabled, pollMs, fetchData, user?.id, selectedPurchaserId, status, from, to, hasWinner, limit, offset]);
+  }, [enabled, pollMs, fetchData, entity, user?.id, selectedPurchaserId, status, from, to, hasWinner, limit, offset]);
 
   return { data, loading, error, refetch: fetchData };
 }
