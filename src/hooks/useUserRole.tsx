@@ -104,7 +104,13 @@ export const useUserRole = (userId: string | undefined) => {
     fetchUserRole();
   }, [userId]);
 
-  // Helper functions for governance checks
+  // ──────────────────────────────────────────────────────────────────────
+  // ⚠️  DEPRECATED — DO NOT USE FOR NEW CODE
+  // These role-string helpers re-fragment the governance model. The DB
+  // already centralizes scope via get_user_scope() — consume `useUserScope`
+  // (isManagement / isExecutive / isSelfOnly) and `useCapabilities` instead.
+  // Retained only for legacy callers; remove once all are migrated.
+  // ──────────────────────────────────────────────────────────────────────
   const isManagement = ['cfo', 'buyer_cfo', 'ceo', 'buyer_ceo', 'manager', 'buyer_manager'].includes(role || '');
   const isAdmin = role === 'admin' || role === 'ps_admin';
   const isPurchaser = ['purchaser', 'buyer_purchaser', 'buyer'].includes(role || '');
