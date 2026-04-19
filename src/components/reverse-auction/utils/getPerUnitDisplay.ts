@@ -20,18 +20,18 @@ export const getPerUnitDisplay = (
   if (quantity <= 0) return { display: '₹0', raw: 0, rounded: 0, isLowImpact: true };
 
   const raw = totalSaved / quantity;
-  const rounded = Math.round(raw * 10) / 10;
+  const rounded = Math.round(raw * 100) / 100;
 
   if (rounded > 0 && rounded < 1) {
     return { display: '< ₹1', raw, rounded, isLowImpact: true };
   }
 
-  const decimals = rounded < 10 ? 1 : 0;
+  // Always show 2 decimals so per-unit × quantity reconciles with total saved
   const formatted = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency,
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(rounded);
 
   return { display: formatted, raw, rounded, isLowImpact: raw < 1 };
