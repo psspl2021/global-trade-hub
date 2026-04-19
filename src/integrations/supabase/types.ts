@@ -12127,27 +12127,17 @@ export type Database = {
           platform_profit: number
         }[]
       }
-      approve_po_step:
-        | {
-            Args: {
-              p_idempotency_key: string
-              p_po_id: string
-              p_role: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_action?: string
-              p_idempotency_key: string
-              p_po_id: string
-              p_reason?: string
-              p_role: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      approve_po_step: {
+        Args: {
+          p_action?: string
+          p_idempotency_key: string
+          p_po_id: string
+          p_reason?: string
+          p_role: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       auction_competition_score: { Args: never; Returns: number }
       auction_revenue_daily: {
         Args: never
@@ -13104,6 +13094,20 @@ export type Database = {
         Args: { p_purchaser_id: string }
         Returns: Json
       }
+      get_purchaser_leaderboard: {
+        Args: { p_from?: string; p_to?: string; p_user_id: string }
+        Returns: {
+          avg_quality_score: number
+          avg_savings_pct: number
+          completed_auctions: number
+          display_name: string
+          purchaser_id: string
+          role: string
+          total_auctions: number
+          total_pos: number
+          total_savings: number
+        }[]
+      }
       get_revealed_supplier_contact: {
         Args: { p_requirement_id: string; p_supplier_id: string }
         Returns: {
@@ -13576,6 +13580,16 @@ export type Database = {
             }[]
           }
       get_user_company_ids: { Args: { p_user_id: string }; Returns: string[] }
+      get_user_scope: {
+        Args: { p_user_id: string }
+        Returns: {
+          company_id: string
+          is_executive: boolean
+          is_management: boolean
+          is_self_only: boolean
+          role: string
+        }[]
+      }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
