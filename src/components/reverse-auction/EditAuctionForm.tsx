@@ -364,8 +364,8 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   };
 
   const handleSave = async () => {
-    if (!isRepublishMode && editCount >= 2) {
-      toast.error('Maximum 2 edits allowed per auction');
+    if (!isRepublishMode && editCount >= 5) {
+      toast.error('Maximum 5 edits allowed per auction');
       return;
     }
     const validItems = items.filter(i => i.product_name.trim() && i.quantity.trim());
@@ -466,11 +466,11 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           </DialogTitle>
           <DialogDescription>
             Update auction details, line items, and manage suppliers.
-            <span className={`ml-2 font-medium ${editCount >= 2 ? 'text-destructive' : editCount >= 1 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-              ({editCount}/2 edits used)
+            <span className={`ml-2 font-medium ${editCount >= 5 ? 'text-destructive' : editCount >= 4 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+              ({editCount}/5 edits used)
             </span>
-            {editCount === 1 && <span className="block mt-1 text-amber-600 text-xs font-medium">⚠ Last edit remaining — make it count!</span>}
-            {editCount >= 2 && <span className="block mt-1 text-destructive text-xs font-medium">❌ No edits remaining</span>}
+            {editCount === 4 && <span className="block mt-1 text-amber-600 text-xs font-medium">⚠ Last edit remaining — make it count!</span>}
+            {editCount >= 5 && <span className="block mt-1 text-destructive text-xs font-medium">❌ No edits remaining</span>}
           </DialogDescription>
         </DialogHeader>
 
