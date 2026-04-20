@@ -209,14 +209,30 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
               />
             </div>
 
+            <CountrySelector
+              value={country}
+              onSelect={(info) => {
+                form.setValue('country', info.name, { shouldDirty: true });
+                // Clear tax id when switching region (format differs)
+                form.setValue('gstin', '', { shouldDirty: true });
+              }}
+              label="Supplier Country"
+            />
+
             <FormField
               control={form.control}
               name="gstin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>GSTIN</FormLabel>
+                  <FormLabel>{getTaxIdLabel(country)}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter GSTIN" {...field} />
+                    <TaxIdField
+                      country={country}
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      label=""
+                      id="supplier-tax-id"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
