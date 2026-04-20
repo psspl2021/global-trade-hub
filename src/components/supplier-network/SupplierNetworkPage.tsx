@@ -202,12 +202,20 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
     : null;
 
   const filtered = suppliers.filter(s => {
+    // Country filter
+    if (countryFilter === 'india' && s.is_global_supplier) return false;
+    if (countryFilter === 'global' && !s.is_global_supplier) return false;
+    // Search
     if (!search) return true;
     const q = search.toLowerCase();
     return (s.supplier_name || '').toLowerCase().includes(q) ||
       (s.company_name || '').toLowerCase().includes(q) ||
-      (s.email || '').toLowerCase().includes(q);
+      (s.email || '').toLowerCase().includes(q) ||
+      (s.location || '').toLowerCase().includes(q);
   });
+
+  const indiaCount = suppliers.filter(s => !s.is_global_supplier).length;
+  const globalCount = suppliers.filter(s => s.is_global_supplier).length;
 
   const activeBidders = suppliers.filter(s => s.participationPct && s.participationPct > 50).length;
 
