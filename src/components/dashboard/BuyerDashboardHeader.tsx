@@ -202,7 +202,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
         )}
 
         {/* Context Selectors Row */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 pt-2 border-t border-border/50">
+        <div className="flex flex-row flex-wrap items-end gap-3 sm:gap-6 pt-2 border-t border-border/50">
           {/* Purchaser Selector - Always visible for buyer roles when there are purchasers */}
           {!isLoading && purchasers.length > 0 && (
             <PurchaserSelector
