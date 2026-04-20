@@ -50,7 +50,7 @@ export function TaxIdField({
   const placeholder = getTaxIdPlaceholder(country);
 
   const validation = india && value ? validateGSTIN(value) : null;
-  const showError = validation && !validation.valid;
+  const showError = validation && !validation.isValid;
 
   return (
     <div className={cn('space-y-1.5', className)}>
@@ -70,7 +70,7 @@ export function TaxIdField({
         className={cn(showError && 'border-destructive')}
       />
       {showError && (
-        <p className="text-[11px] text-destructive">{validation?.error}</p>
+        <p className="text-[11px] text-destructive">{validation?.errors?.[0] ?? 'Invalid GSTIN format'}</p>
       )}
       {!india && (
         <p className="text-[11px] text-muted-foreground">
