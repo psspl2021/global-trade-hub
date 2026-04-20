@@ -26,6 +26,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [countryFilter, setCountryFilter] = useState<'all' | 'india' | 'global'>('all');
 
   // Add form
   const [showAdd, setShowAdd] = useState(false);
