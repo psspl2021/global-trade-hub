@@ -586,7 +586,7 @@ function BuyerAuctionRow({
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
                     <Pencil className="w-3 h-3" />
-                    Edit ({(auction as any).buyer_edit_count || 0}/2)
+                    Edit ({(auction as any).buyer_edit_count || 0}/5)
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>
@@ -772,10 +772,10 @@ function AuctionCard({
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
                     <Pencil className="w-3 h-3" />
-                    Edit ({(auction as any).buyer_edit_count || 0}/2)
+                    Edit ({(auction as any).buyer_edit_count || 0}/5)
                   </Button>
-                  {((auction as any).buyer_edit_count || 0) >= 1 && (
-                    <span className="text-xs text-amber-600 font-medium flex items-center">⚠ {((auction as any).buyer_edit_count || 0) >= 2 ? 'No edits left' : 'Last edit remaining'}</span>
+                  {((auction as any).buyer_edit_count || 0) >= 4 && (
+                    <span className="text-xs text-amber-600 font-medium flex items-center">⚠ {((auction as any).buyer_edit_count || 0) >= 5 ? 'No edits left' : 'Last edit remaining'}</span>
                   )}
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>

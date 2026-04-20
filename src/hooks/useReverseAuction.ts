@@ -457,8 +457,8 @@ export function useReverseAuction(supplierMode: boolean = false) {
     deadline?: string | null;
     line_items?: { product_name: string; quantity: number; unit: string; description?: string; category?: string; unit_price?: number }[];
   }, currentEditCount: number = 0) => {
-    if (currentEditCount >= 2) {
-      toast.error('Maximum 2 edits allowed per auction');
+    if (currentEditCount >= 5) {
+      toast.error('Maximum 5 edits allowed per auction');
       return false;
     }
     try {
