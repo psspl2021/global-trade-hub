@@ -787,7 +787,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave} disabled={isSaving || isLoading || (!isRepublishMode && editCount >= 2)} className="gap-1">
             <Save className="w-3 h-3" />
-            {isSaving ? 'Saving...' : isRepublishMode ? 'Republish Auction' : `Save Changes (${editCount}/2)`}
+            {isSaving ? 'Saving...' : isRepublishMode ? 'Republish Auction' : `Save Changes (${editCount}/5)`}
           </Button>
         </DialogFooter>
       </DialogContent>
