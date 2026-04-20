@@ -219,24 +219,11 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
               label="Supplier Country"
             />
 
-            <FormField
-              control={form.control}
-              name="gstin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{getTaxIdLabel(country)}</FormLabel>
-                  <FormControl>
-                    <TaxIdField
-                      country={country}
-                      value={field.value || ''}
-                      onChange={field.onChange}
-                      label=""
-                      id="supplier-tax-id"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TaxIdField
+              country={country}
+              value={form.watch('gstin') || ''}
+              onChange={(v) => form.setValue('gstin', v, { shouldDirty: true })}
+              id="supplier-tax-id"
             />
 
             <FormField
