@@ -588,6 +588,7 @@ function BuyerAuctionRow({
                     <Pencil className="w-3 h-3" />
                     Edit ({(auction as any).buyer_edit_count || 0}/5)
                   </Button>
+                  <ShareAuctionMenu auctionId={auction.id} title={auction.title} />
                   <Button size="sm" variant="outline" onClick={() => cancelAuction(auction.id)}>Cancel</Button>
                 </>
               )}
@@ -596,6 +597,7 @@ function BuyerAuctionRow({
                   <Button size="sm" onClick={() => onSelect?.(auction)} className="gap-1">
                     <Gavel className="w-3 h-3" /> View Live
                   </Button>
+                  <ShareAuctionMenu auctionId={auction.id} title={auction.title} />
                   <Button size="sm" variant="destructive" onClick={() => completeAuction(auction.id)}>
                     End & Award
                   </Button>
