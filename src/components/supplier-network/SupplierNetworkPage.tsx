@@ -12,8 +12,10 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 import {
   ArrowLeft, UserPlus, Users, Trophy, MessageCircle,
-  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck,
+  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck, Pencil,
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 interface SupplierNetworkPageProps {
   userId: string;
@@ -35,12 +37,64 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [newLocation, setNewLocation] = useState('');
   const [adding, setAdding] = useState(false);
 
+  // Edit state
+  const [editingSupplier, setEditingSupplier] = useState<any | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editGstin, setEditGstin] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = (s: any) => {
+    setEditingSupplier(s);
+    setEditName(s.company_name || s.supplier_name || '');
+    setEditEmail(s.email || '');
+    setEditPhone(s.phone || '');
+    setEditCategory(s.category || '');
+    setEditGstin(s.gstin || '');
+    setEditLocation(s.location || '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSupplier) return;
+    if (!editName.trim()) { toast.error('Supplier name is required'); return; }
+    const gstin = editGstin.trim().toUpperCase();
+    if (gstin && !/^[0-9A-Z]{15}$/.test(gstin)) {
+      toast.error('GSTIN must be 15 alphanumeric characters');
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase
+        .from('buyer_suppliers')
+        .update({
+          supplier_name: editName.trim(),
+          company_name: editName.trim(),
+          email: editEmail.trim() || null,
+          phone: editPhone.trim() || null,
+          category: editCategory.trim() || null,
+          gstin: gstin || null,
+          location: editLocation.trim() || null,
+        } as any)
+        .eq('id', editingSupplier.id)
+        .eq('buyer_id', userId);
+      if (error) throw error;
+      toast.success('Supplier updated');
+      setEditingSupplier(null);
+      loadSuppliers();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally { setSavingEdit(false); }
+  };
+
   const loadSuppliers = async () => {
     setLoading(true);
     const [suppRes, partRes] = await Promise.all([
       supabase
         .from('buyer_suppliers')
-        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability')
+        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability, category, gstin, location')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false }),
       supabase
@@ -381,6 +435,9 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                     <Button size="sm" variant="ghost" className="h-7 px-2 text-primary hover:bg-primary/10" onClick={() => toast.success(`Invite resent to ${s.email || s.supplier_name}`)}>
                       <Mail className="w-3.5 h-3.5" />
                     </Button>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-muted-foreground hover:text-foreground" onClick={() => openEdit(s)} aria-label="Edit supplier">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               </Card>
@@ -388,6 +445,49 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
           })}
         </div>
       )}
+
+      {/* Edit Supplier Dialog */}
+      <Dialog open={!!editingSupplier} onOpenChange={(o) => !o && setEditingSupplier(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Supplier</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Company / Supplier name *</Label>
+              <Input value={editName} onChange={e => setEditName(e.target.value)} className="h-9" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Email</Label>
+                <Input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="h-9" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Phone</Label>
+                <Input value={editPhone} onChange={e => setEditPhone(e.target.value)} className="h-9" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Category</Label>
+                <Input value={editCategory} onChange={e => setEditCategory(e.target.value)} className="h-9" maxLength={80} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Location</Label>
+                <Input value={editLocation} onChange={e => setEditLocation(e.target.value)} className="h-9" maxLength={120} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">GST Number (15 chars)</Label>
+              <Input value={editGstin} onChange={e => setEditGstin(e.target.value.toUpperCase())} className="h-9 uppercase" maxLength={15} />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setEditingSupplier(null)} disabled={savingEdit}>Cancel</Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>{savingEdit ? 'Saving...' : 'Save Changes'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
