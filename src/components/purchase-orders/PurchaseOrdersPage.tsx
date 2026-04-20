@@ -54,11 +54,12 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
     );
     setAuctionPOs(enriched);
 
-    // Load manual POs with execution status
+    // Load manual POs scoped to the acting purchaser (falls back to caller).
+    const effectivePurchaser = selectedPurchaserId || userId;
     const { data: poData } = await supabase
       .from('purchase_orders')
       .select('id, po_number, vendor_name, status, total_amount, currency, order_date')
-      .eq('supplier_id', userId)
+      .eq('purchaser_id', effectivePurchaser)
       .order('created_at', { ascending: false });
     setManualPOs(poData || []);
   }, [userId, selectedPurchaserId]);
