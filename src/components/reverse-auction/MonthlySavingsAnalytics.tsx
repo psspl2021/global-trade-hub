@@ -3,7 +3,7 @@
  * Inspired by SAP Ariba Cost Savings layout
  * Shows: KPI summary, monthly savings bar chart, sourcing spend trend
  */
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -57,14 +57,22 @@ export function MonthlySavingsAnalytics() {
   const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showExpanded, setShowExpanded] = useState(false);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!user?.id) return;
 
     const fetchData = async () => {
+      const requestId = ++requestIdRef.current;
+      const shouldApply = () => requestIdRef.current === requestId;
+
+      setAuctions([]);
+      setAllAuctions([]);
+      setLoading(true);
+
       const sixMonthsAgoIso = subMonths(new Date(), 6).toISOString();
       // DB-side window filter for the recent set; full set fetched once for all-time KPIs.
-      const [recentRes, allRes, supplierRes] = await Promise.all([
+      const [recentRes, allRes] = await Promise.all([
         (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
           p_user_id: user.id,
           p_selected_purchaser: selectedPurchaserId,
@@ -74,11 +82,8 @@ export function MonthlySavingsAnalytics() {
           p_user_id: user.id,
           p_selected_purchaser: selectedPurchaserId,
         }),
-        supabase
-          .from('buyer_suppliers')
-          .select('id')
-          .eq('buyer_id', user.id),
       ]);
+      if (!shouldApply()) return;
 
       const recent = ((recentRes.data || []) as any[])
         .slice()
@@ -86,8 +91,15 @@ export function MonthlySavingsAnalytics() {
 
       setAuctions(recent);
       setAllAuctions((allRes.data || []) as any[]);
-      setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
+
+      const { data: supplierData } = await supabase
+        .from('buyer_suppliers')
+        .select('id')
+        .eq('buyer_id', user.id);
+
+      if (!shouldApply()) return;
+      setSupplierCount((supplierData || []).length);
     };
 
     fetchData();
