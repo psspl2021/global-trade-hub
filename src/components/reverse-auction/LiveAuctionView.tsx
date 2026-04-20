@@ -446,9 +446,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     try {
       await placeBid(user.id, price, auction);
       setBidPrice('');
+      setBidDisplayValue('');
       toast({
         title: "Bid placed 🚀",
-        description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
+        description: `Your bid of ${formatCurrency(price)} (${bidCurrency}) is now competing for L1`,
       });
       document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
     } finally {
