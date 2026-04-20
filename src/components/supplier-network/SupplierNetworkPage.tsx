@@ -404,10 +404,23 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                       {s.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {s.email}</span>}
                       {s.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {s.phone}</span>}
                     </div>
+                    {s.category && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {s.category.split(',').slice(0, 4).map((cat: string, i: number) => {
+                          const c = cat.trim();
+                          if (!c) return null;
+                          return (
+                            <Badge key={i} variant="secondary" className="text-[10px] font-normal">
+                              {c}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
                     {s.profileCompleteness > 0 && s.profileCompleteness < 100 && (
                       <div className="flex items-center gap-2 mt-1.5">
                         <div className="h-1 flex-1 max-w-[80px] bg-muted rounded-full overflow-hidden">
