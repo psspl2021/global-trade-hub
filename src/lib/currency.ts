@@ -266,6 +266,30 @@ export function useCurrencyFormatter() {
   const fmtCompact = useMemo(() => (val: number) => formatCompact(val, currency), [currency]);
   const fmtNumber = useMemo(() => (val: number) => formatNumber(val, currency), [currency]);
 
+  /**
+   * Convert an INR-stored value into the user's local currency for DISPLAY.
+   * Use this on every screen showing money that's stored as INR in the DB.
+   * For INR users, this is a no-op.
+   */
+  const fmtFromINR = useMemo(
+    () => (inrValue: number) => {
+      if (currency === 'INR') return formatCurrency(inrValue, 'INR');
+      const rate = FX_RATES[currency] ?? 0;
+      const converted = inrValue * rate;
+      return `≈ ${formatCurrency(converted, currency)}`;
+    },
+    [currency]
+  );
+
+  const fmtCompactFromINR = useMemo(
+    () => (inrValue: number) => {
+      if (currency === 'INR') return formatCompact(inrValue, 'INR');
+      const rate = FX_RATES[currency] ?? 0;
+      return `≈ ${formatCompact(inrValue * rate, currency)}`;
+    },
+    [currency]
+  );
+
   return {
     currency,
     symbol,
@@ -274,5 +298,8 @@ export function useCurrencyFormatter() {
     fmt,
     fmtCompact,
     fmtNumber,
+    fmtFromINR,
+    fmtCompactFromINR,
+    isGlobal: currency !== 'INR',
   };
 }
