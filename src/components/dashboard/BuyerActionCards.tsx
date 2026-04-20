@@ -234,27 +234,27 @@ export function BuyerActionCards({
   ];
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2.5 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((card) => (
         <Card
           key={card.title}
           variant="interactive"
-          className="p-5 flex flex-col justify-between group"
+          className="p-3.5 sm:p-5 flex flex-col justify-between group active:scale-[0.99] transition-transform"
           onClick={card.onClick}
         >
           {/* Top Row: Icon + Title + Badge */}
           <div>
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg ${card.iconBg} flex items-center justify-center`}>
-                  <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+            <div className="flex items-start justify-between mb-2 sm:mb-3 gap-2">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg ${card.iconBg} flex items-center justify-center shrink-0`}>
+                  <card.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${card.iconColor}`} />
                 </div>
-                <h3 className="font-semibold text-foreground">{card.title}</h3>
+                <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{card.title}</h3>
               </div>
               {card.badge && (
                 <Badge
                   variant={card.badge.variant}
-                  className={`text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider ${
+                  className={`text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider shrink-0 ${
                     card.badge.label === 'LIVE'
                       ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
                       : ''
@@ -266,13 +266,13 @@ export function BuyerActionCards({
             </div>
 
             {/* Description */}
-            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2.5 sm:mb-3 leading-relaxed line-clamp-2 sm:line-clamp-none">
               {card.description}
             </p>
 
             {/* Live Metrics */}
             {card.metrics && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 sm:mb-4 bg-muted/50 rounded-md px-2.5 py-1.5">
                 <TrendingUp className="w-3 h-3 text-primary shrink-0" />
                 {card.metrics}
               </div>
@@ -280,10 +280,10 @@ export function BuyerActionCards({
           </div>
 
           {/* CTAs */}
-          <div className="flex items-center gap-2 mt-auto pt-2">
+          <div className="flex items-center gap-2 mt-auto pt-1 sm:pt-2">
             <Button
               size="sm"
-              className="flex-1"
+              className="flex-1 h-9"
               onClick={(e) => {
                 e.stopPropagation();
                 card.primaryCTA.onClick();
@@ -295,7 +295,7 @@ export function BuyerActionCards({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs gap-1 text-muted-foreground hover:text-primary"
+                className="hidden sm:flex text-xs gap-1 text-muted-foreground hover:text-primary"
                 onClick={(e) => {
                   e.stopPropagation();
                   card.secondaryCTA!.onClick();

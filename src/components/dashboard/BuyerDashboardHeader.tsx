@@ -23,7 +23,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
 import { GovernanceNotificationBell } from '@/components/governance/GovernanceNotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins, Trophy } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins, Trophy, MoreVertical } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
@@ -32,6 +32,13 @@ import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
@@ -100,32 +107,37 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
   }, [user]);
 
   return (
-    <header className="border-b bg-card">
+    <header className="border-b bg-card sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-card/95">
       <ImpersonationBanner />
-      <div className="container mx-auto px-4 py-3 sm:py-4">
+      <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-4">
         {/* Top row: Logo and actions */}
-        <div className="flex items-center justify-between mb-3">
-          <Link to="/" className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <img 
               src={procureSaathiLogo} 
               alt="ProcureSaathi Logo" 
-              className="h-14 sm:h-20 w-auto object-contain cursor-pointer"
+              className="h-10 sm:h-20 w-auto object-contain cursor-pointer"
               width={80}
               height={80}
               loading="eager"
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
-            {/* Auction Credits Badge */}
+            {/* Auction Credits Badge — compact on mobile */}
              {remainingCredits !== null && (
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${remainingCredits <= 2 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
-                <Coins className="h-4 w-4" />
-                <span>{remainingCredits} Credits</span>
-                {isTrial && <span className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded">Trial</span>}
+              <button
+                onClick={() => navigate('/auction-credits')}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${remainingCredits <= 2 ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                aria-label={`${remainingCredits} auction credits remaining`}
+              >
+                <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="tabular-nums">{remainingCredits}</span>
+                <span className="hidden sm:inline">Credits</span>
+                {isTrial && <span className="hidden sm:inline text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded">Trial</span>}
                 {remainingCredits <= 2 && (
-                  <span className="text-xs">⚠ Low</span>
+                  <span className="hidden sm:inline text-xs">⚠ Low</span>
                 )}
-              </div>
+              </button>
             )}
             <NotificationBell />
             <GovernanceNotificationBell />
@@ -140,6 +152,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
                 Management
               </Button>
             )}
+            {/* Desktop actions */}
             <Button 
               variant="outline" 
               size="sm" 
@@ -152,15 +165,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             <Button 
               variant="outline" 
               size="icon" 
-              className="h-8 w-8 sm:hidden" 
-              onClick={() => navigate('/')}
-            >
-              <Home className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-8 w-8 sm:h-10 sm:w-10" 
+              className="hidden sm:flex sm:h-10 sm:w-10" 
               onClick={onOpenSettings}
             >
               <Settings className="h-4 w-4" />
@@ -177,17 +182,46 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-8 w-8 sm:hidden" 
-              onClick={async () => {
-                await signOut();
-                navigate('/');
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+
+            {/* Mobile: consolidated menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 sm:hidden"
+                  aria-label="Open menu"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52 bg-popover z-50">
+                {canViewLeaderboard && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate('/management/leaderboard')}>
+                      <Trophy className="h-4 w-4 mr-2" /> Management
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={() => navigate('/')}>
+                  <Home className="h-4 w-4 mr-2" /> Home
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onOpenSettings}>
+                  <Settings className="h-4 w-4 mr-2" /> Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await signOut();
+                    navigate('/');
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
