@@ -233,6 +233,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
   }, [auction, toast]);
 
   const [isAwarding, setIsAwarding] = useState(false);
+  const [showPOGenerator, setShowPOGenerator] = useState(false);
 
   const handleAwardBid = useCallback(async (supplierId: string) => {
     if (isAwarding) return;
