@@ -659,6 +659,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         incoterm: incoterm || undefined,
         origin_country: originCountry || undefined,
         shipment_mode: shipmentMode || undefined,
+        hs_code: hsCode || undefined,
+        port_of_loading: portOfLoading || undefined,
+        port_of_discharge: portOfDischarge || undefined,
         line_items: validItems.map(i => ({
           product_name: i.product,
           category: category,
