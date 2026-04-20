@@ -492,7 +492,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         }
       }
 
-      toast.success(`Auction updated! (${currentEditCount + 1}/2 edits used)`);
+      toast.success(`Auction updated! (${currentEditCount + 1}/5 edits used)`);
       fetchAuctions();
       return true;
     } catch (err: any) {
@@ -561,7 +561,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
   }) => {
     if (!user) return;
     try {
-      const { error } = await (supabase as any).rpc('republish_reverse_auction', {
+      const { data: republishedAuction, error } = await (supabase as any).rpc('republish_reverse_auction', {
         p_auction_id: auctionId,
         p_auction_start: newSchedule?.auction_start ?? null,
         p_auction_end: newSchedule?.auction_end ?? null,
@@ -571,23 +571,28 @@ export function useReverseAuction(supplierMode: boolean = false) {
       });
       if (error) throw error;
 
-      const [auctionRes, suppliersRes] = await Promise.all([
-        supabase
-          .from('reverse_auctions')
-          .select('id, title, product_slug, quantity, unit, auction_start')
-          .eq('id', auctionId)
-          .single(),
-        supabase
+      const { data: suppliers, error: suppliersError } = await supabase
           .from('reverse_auction_suppliers')
           .select('id, supplier_id, supplier_email, is_active')
           .eq('auction_id', auctionId)
-          .eq('is_active', true),
-      ]);
+          .eq('is_active', true);
 
-      if (auctionRes.error) throw auctionRes.error;
-      if (suppliersRes.error) throw suppliersRes.error;
+      if (suppliersError) throw suppliersError;
 
-      const activeSuppliers = suppliersRes.data || [];
+      const auctionData = republishedAuction as {
+        id: string;
+        title: string;
+        product_slug: string;
+        quantity: number;
+        unit: string;
+        auction_start: string | null;
+      } | null;
+
+      if (!auctionData) {
+        throw new Error('Republish succeeded but no auction data was returned');
+      }
+
+      const activeSuppliers = suppliers || [];
       const missingEmailSupplierIds = Array.from(
         new Set(
           activeSuppliers
@@ -635,7 +640,6 @@ export function useReverseAuction(supplierMode: boolean = false) {
           .eq('auction_id', auctionId)
           .eq('is_active', true);
 
-        const auctionData = auctionRes.data;
         const product = auctionData.product_slug.replace(/_/g, ', ').replace(/-/g, ' ');
         const quantity = `${auctionData.quantity} ${auctionData.unit}`;
         const auctionLink = `https://www.procuresaathi.com/reverse-auction/${auctionId}`;
