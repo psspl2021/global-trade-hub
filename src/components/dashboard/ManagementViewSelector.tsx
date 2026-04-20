@@ -151,15 +151,15 @@ export function ManagementViewSelector({
 
   return (
     <>
-      <div className={`flex flex-col gap-1 ${className}`}>
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+      <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${className}`}>
+        <label className="shrink-0 whitespace-nowrap text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
           <ShieldCheck className="h-3 w-3" />
           Management View
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <Select value={selectedView || 'none'} onValueChange={handleViewChange}>
-            <SelectTrigger className="w-full sm:w-[280px] bg-background border-border">
-              <div className="flex items-center gap-2">
+            <SelectTrigger className="w-[280px] bg-background border-border">
+              <div className="flex items-center gap-2 min-w-0">
                 {selectedView && isCurrentViewVerified ? (
                   <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 ) : (
@@ -216,7 +216,7 @@ export function ManagementViewSelector({
               })}
             </SelectContent>
           </Select>
-          
+
           {selectedView && (
             <Button
               variant="ghost"

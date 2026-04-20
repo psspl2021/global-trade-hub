@@ -53,18 +53,18 @@ export function PurchaserSelector({
 
   return (
     <>
-      <div className={`flex flex-col gap-1 ${className}`}>
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${className}`}>
+        <label className="shrink-0 whitespace-nowrap text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Acting Purchaser (View as)
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <Select
             value={selectedPurchaserId || undefined}
             onValueChange={onSelect}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full sm:w-[240px] bg-background border-border">
-              <div className="flex items-center gap-2">
+            <SelectTrigger className="w-[280px] bg-background border-border">
+              <div className="flex items-center gap-2 min-w-0">
                 <Eye className="h-4 w-4 text-primary" />
                 <SelectValue placeholder="Select Acting Purchaser">
                   {selectedPurchaser && (
@@ -119,9 +119,6 @@ export function PurchaserSelector({
             </Button>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground/80 mt-0.5">
-          Switches dashboard scope only. Identity unchanged.
-        </p>
       </div>
 
       <AddPurchaserModal open={showAddModal} onOpenChange={setShowAddModal} />
