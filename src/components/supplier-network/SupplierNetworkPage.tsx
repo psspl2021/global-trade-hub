@@ -283,6 +283,28 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         </div>
       )}
 
+      {/* Country filter chips — only show if buyer has any global suppliers */}
+      {globalCount > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[11px] text-muted-foreground mr-1">Filter:</span>
+          {([
+            { key: 'all', label: `All (${suppliers.length})` },
+            { key: 'india', label: `🇮🇳 India (${indiaCount})` },
+            { key: 'global', label: `🌍 Global (${globalCount})` },
+          ] as const).map(opt => (
+            <Button
+              key={opt.key}
+              size="sm"
+              variant={countryFilter === opt.key ? 'default' : 'outline'}
+              className="h-7 px-2.5 text-[11px]"
+              onClick={() => setCountryFilter(opt.key)}
+            >
+              {opt.label}
+            </Button>
+          ))}
+        </div>
+      )}
+
       {/* Actions: Add + Search */}
       <div className="flex gap-2">
         <Button size="sm" className="gap-1.5" onClick={() => setShowAdd(true)}>
@@ -294,7 +316,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         <div className="flex-1 relative">
           <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search suppliers..."
+            placeholder="Search suppliers, location..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="h-8 text-sm pl-8"
