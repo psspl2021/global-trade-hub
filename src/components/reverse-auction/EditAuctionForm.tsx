@@ -435,11 +435,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
       }
       // If auction was cancelled/completed/expired, republish first (resets edit count + status to scheduled)
       if (isRepublishMode) {
-        const republished = await republishAuction(auction.id);
-        if (!republished) {
-          toast.error('Failed to republish auction');
-          return;
-        }
+        await republishAuction(auction.id);
       }
       const result = await updateAuction(auction.id, updates, isRepublishMode ? 0 : editCount);
 
