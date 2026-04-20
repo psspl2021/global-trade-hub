@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CountrySelector } from '@/components/global/CountrySelector';
-import { TaxIdField, isIndia, getTaxIdLabel } from '@/components/global/TaxIdField';
+import { TaxIdField, isIndia } from '@/components/global/TaxIdField';
 
 const supplierSchema = z.object({
   supplier_name: z.string().min(1, 'Supplier name is required'),
