@@ -46,10 +46,14 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
       email: '',
       phone: '',
       address: '',
+      country: 'India',
       gstin: '',
       notes: '',
     },
   });
+
+  const country = form.watch('country') || 'India';
+  const indiaSelected = isIndia(country);
 
   const { data: existingSupplier } = useQuery({
     queryKey: ['buyer-supplier', editId],
