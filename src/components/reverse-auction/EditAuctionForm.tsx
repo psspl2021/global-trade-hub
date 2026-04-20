@@ -56,7 +56,8 @@ interface EditAuctionFormProps {
 }
 
 export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: EditAuctionFormProps) {
-  const { updateAuction } = useReverseAuction();
+  const { updateAuction, republishAuction } = useReverseAuction();
+  const isRepublishMode = ['cancelled', 'completed', 'expired'].includes((auction as any).status);
 
   const [title, setTitle] = useState('');
   const [isManualTitle, setIsManualTitle] = useState(false);
