@@ -78,6 +78,7 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
         email: existingSupplier.email || '',
         phone: existingSupplier.phone || '',
         address: existingSupplier.address || '',
+        country: (existingSupplier as any).country || 'India',
         gstin: existingSupplier.gstin || '',
         notes: existingSupplier.notes || '',
       });
@@ -88,6 +89,7 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
         email: '',
         phone: '',
         address: '',
+        country: 'India',
         gstin: '',
         notes: '',
       });
@@ -96,14 +98,18 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
 
   const mutation = useMutation({
     mutationFn: async (data: SupplierFormData) => {
-      const supplierData = {
+      const isIndian = isIndia(data.country);
+      const supplierData: any = {
         buyer_id: userId,
         supplier_name: data.supplier_name,
         company_name: data.company_name || null,
         email: data.email || null,
         phone: data.phone || null,
         address: data.address || null,
-        gstin: data.gstin || null,
+        country: data.country || 'India',
+        gstin: isIndian ? (data.gstin || null) : null,
+        // Non-India tax IDs are stored in gstin column too (single source) — but we mark via is_global_supplier
+        ...(isIndian ? {} : { gstin: data.gstin || null, is_global_supplier: true, export_capability: true }),
         notes: data.notes || null,
       };
 
