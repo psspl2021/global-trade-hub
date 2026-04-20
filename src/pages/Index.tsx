@@ -15,16 +15,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
-import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
-import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
-import { AILinkingSection } from '@/components/seo';
-import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
-import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { Footer } from '@/components/landing/Footer';
-import HighDemandSection from '@/components/landing/HighDemandSection';
+
+// Lazy load below-the-fold landing sections (mobile perf)
+const DemoRequestForm = lazy(() => import('@/components/landing/DemoRequestForm').then(m => ({ default: m.DemoRequestForm })));
+const LazyFAQ = lazy(() => import('@/components/landing/LazyFAQ').then(m => ({ default: m.LazyFAQ })));
+const AILinkingSection = lazy(() => import('@/components/seo').then(m => ({ default: m.AILinkingSection })));
+const LiveBuyerDemandSection = lazy(() => import('@/components/landing/LiveBuyerDemandSection').then(m => ({ default: m.LiveBuyerDemandSection })));
+const HowItWorksSection = lazy(() => import('@/components/landing/HowItWorksSection').then(m => ({ default: m.HowItWorksSection })));
+const Footer = lazy(() => import('@/components/landing/Footer').then(m => ({ default: m.Footer })));
+const HighDemandSection = lazy(() => import('@/components/landing/HighDemandSection'));
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
