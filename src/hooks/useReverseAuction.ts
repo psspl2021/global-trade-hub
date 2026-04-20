@@ -204,22 +204,19 @@ export function useReverseAuction(supplierMode: boolean = false) {
       } else {
         // ARCHITECTURAL CONTRACT: UI = intent, DB = enforcement.
         // All buyer-side auction reads go through the scoped RPC.
-        // The RPC hard-overrides p_selected_purchaser for purchaser roles
-        // (DB self-scopes). Never query reverse_auctions directly here.
-        const { data, error } = await (supabase as any).rpc(
-          'get_scoped_auctions_by_purchaser',
-          {
-            p_user_id: user.id,
-            p_selected_purchaser: selectedPurchaserId,
-            p_status: filters?.status === 'cancelled' ? 'cancelled' : null,
-            p_from: null,
-            p_to: null,
-            p_has_winner: null,
-            p_limit: 200,
-            p_offset: 0,
-          }
-        );
-        if (error) throw error;
+        // Routed through shared deduped fetcher so parallel components
+        // (list, modules, savings) reuse a single RPC roundtrip.
+        const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
+        const data = await fetchScopedAuctions({
+          p_user_id: user.id,
+          p_selected_purchaser: selectedPurchaserId,
+          p_status: filters?.status === 'cancelled' ? 'cancelled' : null,
+          p_from: null,
+          p_to: null,
+          p_has_winner: null,
+          p_limit: 200,
+          p_offset: 0,
+        });
 
         // Client-side filters that the RPC doesn't accept
         let rows = ((data as any[]) || []) as ReverseAuction[];

@@ -418,12 +418,11 @@ export function AuctionDashboardModules({ onSelectAuction }: Props) {
     setLoading(true);
 
     const load = async () => {
-      // Scoped via DB RPC for purchaser-aware filtering
-      const { data } = await (supabase as any).rpc('get_scoped_auctions_by_purchaser', {
+      const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
+      const data = await fetchScopedAuctions({
         p_user_id: user.id,
         p_selected_purchaser: selectedPurchaserId,
       });
-
       setAuctions(data || []);
       setLoading(false);
     };

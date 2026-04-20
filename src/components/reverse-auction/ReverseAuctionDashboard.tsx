@@ -59,19 +59,22 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   useEffect(() => {
     if (!user || isSupplier || contextLoading) return;
     const key = scopeKey;
-    (supabase as any)
-      .rpc('get_scoped_auctions_by_purchaser', {
-        p_user_id: user.id,
-        p_selected_purchaser: selectedPurchaserId,
-      })
-      .then(({ data, error }: any) => {
-        if (error) {
-          console.warn('[ReverseAuctionDashboard] auction count RPC error:', error);
-          setAuctionCountByScope((prev) => ({ ...prev, [key]: 0 }));
-          return;
-        }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
+        const data = await fetchScopedAuctions({
+          p_user_id: user.id,
+          p_selected_purchaser: selectedPurchaserId,
+        });
+        if (cancelled) return;
         setAuctionCountByScope((prev) => ({ ...prev, [key]: (data || []).length }));
-      });
+      } catch (error: any) {
+        console.warn('[ReverseAuctionDashboard] auction count RPC error:', error);
+        if (!cancelled) setAuctionCountByScope((prev) => ({ ...prev, [key]: 0 }));
+      }
+    })();
+    return () => { cancelled = true; };
   }, [user, isSupplier, selectedPurchaserId, scopeKey, contextLoading]);
 
   // Scope boundary hardening: selected auction must never survive an acting purchaser switch.
