@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,10 +26,17 @@ const STAGE_CONFIG = [
 export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageProps) {
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
   const { selectedPurchaserId } = useBuyerCompanyContext();
 
   useEffect(() => {
     const load = async () => {
+      const requestId = ++requestIdRef.current;
+      const shouldApply = () => requestIdRef.current === requestId;
+
+      setAuctions([]);
+      setLoading(true);
+
       // Scoped + status-filtered at DB layer. Only winner-bearing rows remain client-side.
       const { data: scoped } = await (supabase as any).rpc(
         'get_scoped_auctions_by_purchaser',
@@ -39,6 +46,7 @@ export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageP
           p_status: 'completed',
         }
       );
+      if (!shouldApply()) return;
       const data = (scoped || []).filter((a: any) => a.winner_supplier_id);
 
       // Enrich with supplier company names
@@ -53,6 +61,7 @@ export function ExecutionTrackingPage({ userId, onBack }: ExecutionTrackingPageP
           return { ...a, supplier_company_name: sup?.supplier_company_name || '—', stage: 'awarded' };
         })
       );
+      if (!shouldApply()) return;
       setAuctions(enriched);
       setLoading(false);
     };
