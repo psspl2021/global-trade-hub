@@ -29,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatCompact as sharedFmtCompact, getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
 import { LiveInviteSupplier } from './LiveInviteSupplier';
+import { MultiCurrencyBidInput } from '@/components/global/MultiCurrencyBidInput';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
