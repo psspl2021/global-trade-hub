@@ -435,6 +435,9 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                     <Button size="sm" variant="ghost" className="h-7 px-2 text-primary hover:bg-primary/10" onClick={() => toast.success(`Invite resent to ${s.email || s.supplier_name}`)}>
                       <Mail className="w-3.5 h-3.5" />
                     </Button>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-muted-foreground hover:text-foreground" onClick={() => openEdit(s)} aria-label="Edit supplier">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               </Card>
