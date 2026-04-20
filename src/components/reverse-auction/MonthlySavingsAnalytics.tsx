@@ -184,7 +184,28 @@ export function MonthlySavingsAnalytics() {
     );
   }
 
-  if (auctions.length === 0) return null;
+  const hasData = auctions.length > 0;
+
+  if (!hasData) {
+    return (
+      <Card className="p-4 border-l-4 border-l-emerald-500/40">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/70 to-teal-600/70 shadow-sm">
+            <BarChart3 className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Cost Savings</p>
+            <p className="text-[11px] text-muted-foreground">
+              {selectedPurchaserId
+                ? 'No reverse auction savings recorded for this purchaser in the last 6 months.'
+                : 'Procurement savings from Reverse Auctions — last 6 months'}
+            </p>
+          </div>
+          <Badge variant="outline" className="text-xs text-muted-foreground">No data yet</Badge>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4">
