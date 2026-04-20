@@ -14,6 +14,8 @@ import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Tro
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
 import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
 
@@ -48,15 +50,22 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-export function MonthlySavingsAnalytics() {
+interface MonthlySavingsAnalyticsProps {
+  defaultExpanded?: boolean;
+  hideToggle?: boolean;
+}
+
+export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = false }: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
   const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showExpanded, setShowExpanded] = useState(false);
+  const [showExpanded, setShowExpanded] = useState(defaultExpanded);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -216,33 +225,48 @@ export function MonthlySavingsAnalytics() {
     );
   }
 
+  // On mobile, the expanded analytics are heavy and noisy in-feed.
+  // Tapping the card on mobile navigates to a dedicated full page instead.
+  const handleCardClick = () => {
+    if (hideToggle) return;
+    if (isMobile) {
+      navigate('/dashboard/cost-savings');
+      return;
+    }
+    setShowExpanded(!showExpanded);
+  };
+
+  const isExpanded = hideToggle ? true : showExpanded;
+
   return (
     <div className="space-y-4">
       {/* Clickable Cost Savings Card */}
-      <Card
-        variant="interactive"
-        className={`p-4 group hover:shadow-md transition-all cursor-pointer border-l-4 border-l-emerald-500 ${showExpanded ? 'ring-1 ring-emerald-500/20' : ''}`}
-        onClick={() => setShowExpanded(!showExpanded)}
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
-            <BarChart3 className="w-4 h-4 text-white" />
+      {!hideToggle && (
+        <Card
+          variant="interactive"
+          className={`p-4 group hover:shadow-md transition-all cursor-pointer border-l-4 border-l-emerald-500 ${isExpanded && !isMobile ? 'ring-1 ring-emerald-500/20' : ''}`}
+          onClick={handleCardClick}
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+              <BarChart3 className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">Cost Savings</p>
+              <p className="text-[11px] text-muted-foreground">Procurement savings from Reverse Auctions — last 6 months</p>
+            </div>
+            {totalSavings > 0 && (
+              <Badge variant="outline" className="text-xs font-bold text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400 mr-2">
+                {formatCompact(totalSavings)} saved
+              </Badge>
+            )}
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded && !isMobile ? 'rotate-180' : ''} ${isMobile ? '-rotate-90' : ''}`} />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Cost Savings</p>
-            <p className="text-[11px] text-muted-foreground">Procurement savings from Reverse Auctions — last 6 months</p>
-          </div>
-          {totalSavings > 0 && (
-            <Badge variant="outline" className="text-xs font-bold text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400 mr-2">
-              {formatCompact(totalSavings)} saved
-            </Badge>
-          )}
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showExpanded ? 'rotate-180' : ''}`} />
-        </div>
-      </Card>
+        </Card>
+      )}
 
-      {/* Expanded Content */}
-      {showExpanded && (
+      {/* Expanded Content — never shown inline on mobile (use dedicated page) */}
+      {isExpanded && (!isMobile || hideToggle) && (
         <div className="space-y-4">
           {/* Savings Narrative — scannable chips */}
           {totalSavings > 0 && (
