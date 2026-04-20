@@ -35,6 +35,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showPurchaseOrders, setShowPurchaseOrders] = useState(false);
   const [showExecutionTracking, setShowExecutionTracking] = useState(false);
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
+  const [showAllAuctions, setShowAllAuctions] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const [auctionCountByScope, setAuctionCountByScope] = useState<Record<string, number>>({});
   const navigate = useNavigate();
