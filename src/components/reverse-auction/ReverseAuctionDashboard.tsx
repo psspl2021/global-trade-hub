@@ -22,7 +22,7 @@ import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DASHBOARD_LOCKIN_COPY } from '@/lib/global-positioning';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe, ListOrdered } from 'lucide-react';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
