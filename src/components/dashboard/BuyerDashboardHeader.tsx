@@ -23,7 +23,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
 import { GovernanceNotificationBell } from '@/components/governance/GovernanceNotificationBell';
-import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins, Trophy } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, AlertTriangle, Home, Coins, Trophy, MoreVertical } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
@@ -32,6 +32,13 @@ import { PurchaserSelector } from './PurchaserSelector';
 import { ManagementViewSelector } from './ManagementViewSelector';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 
