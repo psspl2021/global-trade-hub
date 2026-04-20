@@ -108,6 +108,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     setShowPurchaseOrders(auctionView === 'purchase-orders');
     setShowExecutionTracking(auctionView === 'execution-tracking');
     setShowAuctionCredits(auctionView === 'auction-credits');
+    setShowAllAuctions(auctionView === 'all-auctions');
   }, [searchParams]);
 
   const setAuctionView = (view: string | null) => {
