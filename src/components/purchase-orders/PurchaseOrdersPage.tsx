@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,11 +25,18 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const [refreshKey, setRefreshKey] = useState(0);
   const [auctionPOs, setAuctionPOs] = useState<any[]>([]);
   const [manualPOs, setManualPOs] = useState<any[]>([]);
+  const requestIdRef = useRef(0);
   const { role } = useUserRole(userId);
   const { allowed: canCreatePO, blocking_po_id, blocking_po_title, message: blockMessage } = useCanCreatePO(userId);
   const { selectedPurchaserId } = useBuyerCompanyContext();
 
   const loadData = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+    const shouldApply = () => requestIdRef.current === requestId;
+
+    setAuctionPOs([]);
+    setManualPOs([]);
+
     // Auctions are scoped via RPC — DB filters by status; we only keep rows with a winner.
     const { data: scopedAuctions } = await (supabase as any).rpc(
       'get_scoped_auctions_by_purchaser',
@@ -39,6 +46,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         p_status: 'completed',
       }
     );
+    if (!shouldApply()) return;
     const auctionData = (scopedAuctions || []).filter((a: any) => a.winner_supplier_id);
 
     const enriched = await Promise.all(
@@ -52,6 +60,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         return { ...a, po_number: `PO-${a.id.slice(0, 8).toUpperCase()}`, supplier_company_name: sup?.supplier_company_name || '—', status: 'draft' };
       })
     );
+    if (!shouldApply()) return;
     setAuctionPOs(enriched);
 
     // Load manual POs scoped to the acting purchaser (falls back to caller).
@@ -61,6 +70,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
       .select('id, po_number, vendor_name, status, total_amount, currency, order_date')
       .eq('purchaser_id', effectivePurchaser)
       .order('created_at', { ascending: false });
+    if (!shouldApply()) return;
     setManualPOs(poData || []);
   }, [userId, selectedPurchaserId]);
 
