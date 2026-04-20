@@ -570,7 +570,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             return (
               <button
                 key={step}
-                onClick={() => { setBidPrice(Math.floor(quick).toString()); setBidError(''); }}
+                onClick={() => {
+                  const inr = Math.floor(quick);
+                  setBidPrice(inr.toString());
+                  setBidDisplayValue(bidCurrency === 'INR' ? inr.toString() : (inr / (bidFxRate || 1)).toFixed(2));
+                  setBidError('');
+                }}
                 className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
               >
                 -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(quick))})
