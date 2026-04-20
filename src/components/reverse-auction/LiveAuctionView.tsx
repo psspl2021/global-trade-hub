@@ -1165,7 +1165,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               </div>
             </div>
           ) : (
-            <div className="mb-4">
+            <div className="mb-4 space-y-2">
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={() => setShowPOGenerator(false)}>
+                  Exit — don't generate PO
+                </Button>
+              </div>
               <AuctionPOGenerator
                 auction={auction}
                 winnerSupplierId={auction.winner_supplier_id}
