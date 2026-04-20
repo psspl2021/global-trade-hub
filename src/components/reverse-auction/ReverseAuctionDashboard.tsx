@@ -259,30 +259,31 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   return (
     <div className="space-y-6">
       {/* Header with lock-in positioning */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
             <Gavel className="w-5 h-5 text-primary" />
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-foreground">{DASHBOARD_LOCKIN_COPY.title}</h2>
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5" />
-              {DASHBOARD_LOCKIN_COPY.subtitle}
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">{DASHBOARD_LOCKIN_COPY.title}</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{DASHBOARD_LOCKIN_COPY.subtitle}</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {!isSupplier && (
-            <Button variant="outline" onClick={() => setShowWarRoom(true)} className="gap-2">
+            <Button variant="outline" onClick={() => setShowWarRoom(true)} className="gap-2 flex-1 sm:flex-none">
               <Target className="w-4 h-4" />
               War Room
             </Button>
           )}
           {!isSupplier && (
-            <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2">
+            <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2 flex-1 sm:flex-none">
               <Sparkles className="w-4 h-4" />
-              Create Global Auction
+              <span className="sm:hidden">Create Auction</span>
+              <span className="hidden sm:inline">Create Global Auction</span>
             </Button>
           )}
         </div>
