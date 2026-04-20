@@ -312,7 +312,8 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
           )}
         </div>
       )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
