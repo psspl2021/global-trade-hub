@@ -27,6 +27,7 @@ import LayoutGate from "@/components/LayoutGate";
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CostSavingsPage = lazy(() => import("./pages/CostSavingsPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -284,6 +285,7 @@ const BotAwareRouter = () => {
         {/* Role-Based Dashboard Routes - STRICT SEPARATION */}
         {/* Purchaser Dashboard: buyer_purchaser, purchaser, buyer */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/cost-savings" element={<CostSavingsPage />} />
         <Route path="/governance/intelligence/action/:actionType" element={<IntelligenceActionPage />} />
 
         {/* CEO Control Layer */}
