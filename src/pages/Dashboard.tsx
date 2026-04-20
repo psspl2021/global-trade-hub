@@ -32,14 +32,16 @@ import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, 
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotificationBell } from '@/components/NotificationBell';
-import { BuyerRequirementsList } from '@/components/BuyerRequirementsList';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
-import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeader';
-import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
-import { AIRFQGenerator } from '@/components/AIRFQGenerator';
-import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+
+// Lazy: heavy components not needed for first paint of dashboard shell
+const BuyerRequirementsList = lazy(() => import('@/components/BuyerRequirementsList').then(m => ({ default: m.BuyerRequirementsList })));
+const ProfileCompletionModal = lazy(() => import('@/components/ProfileCompletionModal').then(m => ({ default: m.ProfileCompletionModal })));
+const BuyerActionCards = lazy(() => import('@/components/dashboard/BuyerActionCards').then(m => ({ default: m.BuyerActionCards })));
+const AIRFQGenerator = lazy(() => import('@/components/AIRFQGenerator').then(m => ({ default: m.AIRFQGenerator })));
+const BuyerDiscoveryHub = lazy(() => import('@/components/BuyerDiscoveryHub').then(m => ({ default: m.BuyerDiscoveryHub })));
 
 // Lazy-loaded sub-views (only fetched when the user opens them)
 const SupplierCatalog = lazy(() => import('@/components/SupplierCatalog').then(m => ({ default: m.SupplierCatalog })));
