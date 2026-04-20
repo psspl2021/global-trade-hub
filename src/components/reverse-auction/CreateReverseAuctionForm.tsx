@@ -145,6 +145,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [incoterm, setIncoterm] = useState('');
   const [originCountry, setOriginCountry] = useState('India');
   const [shipmentMode, setShipmentMode] = useState('');
+  const [hsCode, setHsCode] = useState('');
+  const [portOfLoading, setPortOfLoading] = useState('');
+  const [portOfDischarge, setPortOfDischarge] = useState('');
 
   // ── AI Title (Feature #1) — auto-fill but allow manual override ──
   const [auctionTitle, setAuctionTitle] = useState('');
@@ -656,6 +659,9 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         incoterm: incoterm || undefined,
         origin_country: originCountry || undefined,
         shipment_mode: shipmentMode || undefined,
+        hs_code: hsCode || undefined,
+        port_of_loading: portOfLoading || undefined,
+        port_of_discharge: portOfDischarge || undefined,
         line_items: validItems.map(i => ({
           product_name: i.product,
           category: category,
@@ -1033,6 +1039,36 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                   </Select>
                 </div>
               </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">HS Code</Label>
+                  <Input
+                    value={hsCode}
+                    onChange={e => setHsCode(e.target.value)}
+                    placeholder="e.g. 7208.10"
+                    maxLength={12}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Port of Loading</Label>
+                  <Input
+                    value={portOfLoading}
+                    onChange={e => setPortOfLoading(e.target.value)}
+                    placeholder="e.g. Shanghai"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Port of Discharge</Label>
+                  <Input
+                    value={portOfDischarge}
+                    onChange={e => setPortOfDischarge(e.target.value)}
+                    placeholder="e.g. Mumbai (JNPT)"
+                  />
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                💡 HS codes & ports help suppliers quote accurate landed costs and customs duties.
+              </p>
             </div>
           )}
 
