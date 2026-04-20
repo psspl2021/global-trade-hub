@@ -1,16 +1,30 @@
 import { Link } from "react-router-dom";
-import { demandProducts } from "@/data/demandProducts";
 import { TrendingUp } from "lucide-react";
 
 /**
  * Trending Procurement Categories — internal link boost for crawl priority.
- * Surfaces top 12 demand pages directly from homepage for authority distribution.
+ *
+ * PERF: Previously imported the full `demandProducts` dataset (342 KB / 10k+
+ * lines) just to render 12 link labels on the homepage, which dominated FCP.
+ * Now we hard-code the top 12 slugs/names — they're the same first 12 entries
+ * from the canonical taxonomy and only change when product priorities change.
  */
+const TRENDING_PAGES: { slug: string; name: string }[] = [
+  { slug: 'hr-coil-india', name: 'HR Coil' },
+  { slug: 'cr-coil-india', name: 'CR Coil' },
+  { slug: 'hr-sheet-india', name: 'HR Sheet' },
+  { slug: 'cr-sheet-india', name: 'CR Sheet' },
+  { slug: 'ms-plates-india', name: 'MS Plates' },
+  { slug: 'galvanized-coils-india', name: 'Galvanized Coils' },
+  { slug: 'chequered-plates-india', name: 'Chequered Plates' },
+  { slug: 'color-coated-sheets-india', name: 'Color Coated Sheets' },
+  { slug: 'tmt-bars-india', name: 'TMT Bars' },
+  { slug: 'ms-angles-india', name: 'MS Angles' },
+  { slug: 'ms-channels-india', name: 'MS Channels' },
+  { slug: 'ms-beams-india', name: 'MS Beams' },
+];
+
 export default function TrendingProcurementCategories() {
-  const topPages = demandProducts.slice(0, 12);
-
-  if (!topPages.length) return null;
-
   return (
     <section className="py-12 px-4 bg-background border-t border-border/40">
       <div className="max-w-6xl mx-auto">
@@ -24,7 +38,7 @@ export default function TrendingProcurementCategories() {
           High-demand industrial materials with active buyer interest and verified supplier availability.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {topPages.map((p) => (
+          {TRENDING_PAGES.map((p) => (
             <Link
               key={p.slug}
               to={`/demand/${p.slug}`}
