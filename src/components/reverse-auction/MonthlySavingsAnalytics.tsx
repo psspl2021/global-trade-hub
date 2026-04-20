@@ -14,6 +14,8 @@ import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Tro
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
 import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
 
