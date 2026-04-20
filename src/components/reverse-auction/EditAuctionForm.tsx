@@ -433,9 +433,28 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           updates.auction_end = new Date(start.getTime() + durationMinutes * 60000).toISOString();
         }
       }
-      // If auction was cancelled/completed/expired, republish first (resets edit count + status to scheduled)
+
+      // Republish/scheduled: start time MUST be in the future, otherwise the
+      // time-derived status auto-flips to "live" without the buyer pressing Start.
+      if ((isRepublishMode || (auction as any).status === 'scheduled') && updates.auction_start) {
+        const startMs = new Date(updates.auction_start).getTime();
+        if (startMs <= Date.now()) {
+          toast.error('Start time must be in the future. Please pick a future date & time.');
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // If auction was cancelled/completed/expired, republish first with the
+      // NEW schedule so the DB never keeps the stale past start time.
       if (isRepublishMode) {
-        await republishAuction(auction.id);
+        await republishAuction(auction.id, updates.auction_start && updates.auction_end ? {
+          auction_start: updates.auction_start,
+          auction_end: updates.auction_end,
+          starting_price: updates.starting_price,
+          quantity: updates.quantity,
+          unit: updates.unit,
+        } : undefined);
       }
       const result = await updateAuction(auction.id, updates, isRepublishMode ? 0 : editCount);
 
