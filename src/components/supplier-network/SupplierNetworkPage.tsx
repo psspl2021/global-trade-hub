@@ -30,6 +30,9 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newGstin, setNewGstin] = useState('');
+  const [newLocation, setNewLocation] = useState('');
   const [adding, setAdding] = useState(false);
 
   const loadSuppliers = async () => {
@@ -105,6 +108,12 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
 
   const handleAdd = async () => {
     if (!newName.trim()) { toast.error('Supplier name is required'); return; }
+    // Lightweight GSTIN sanity check (India: 15 chars alphanumeric). Optional.
+    const gstin = newGstin.trim().toUpperCase();
+    if (gstin && !/^[0-9A-Z]{15}$/.test(gstin)) {
+      toast.error('GSTIN must be 15 alphanumeric characters');
+      return;
+    }
     setAdding(true);
     try {
       const { error } = await supabase.from('buyer_suppliers').insert({
@@ -113,10 +122,14 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         email: newEmail.trim() || null,
         phone: newPhone.trim() || null,
         company_name: newName.trim(),
-      });
+        category: newCategory.trim() || null,
+        gstin: gstin || null,
+        location: newLocation.trim() || null,
+      } as any);
       if (error) throw error;
       toast.success(`${newName.trim()} added to your network`);
       setNewName(''); setNewEmail(''); setNewPhone('');
+      setNewCategory(''); setNewGstin(''); setNewLocation('');
       setShowAdd(false);
       loadSuppliers();
     } catch (err: any) {
@@ -255,6 +268,29 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                 className="h-9"
               />
             </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                placeholder="Category (e.g. Steel, Chemicals)"
+                value={newCategory}
+                onChange={e => setNewCategory(e.target.value)}
+                className="h-9"
+                maxLength={80}
+              />
+              <Input
+                placeholder="Location (City / Region)"
+                value={newLocation}
+                onChange={e => setNewLocation(e.target.value)}
+                className="h-9"
+                maxLength={120}
+              />
+            </div>
+            <Input
+              placeholder="GST Number (optional, 15 chars)"
+              value={newGstin}
+              onChange={e => setNewGstin(e.target.value.toUpperCase())}
+              className="h-9 uppercase"
+              maxLength={15}
+            />
             <div className="flex gap-2 pt-1">
               <Button size="sm" onClick={handleAdd} disabled={adding}>
                 {adding ? 'Adding...' : 'Add to Network'}
