@@ -15,16 +15,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/useSEO';
-import { LazyFAQ } from '@/components/landing/LazyFAQ';
 import { StickySignupBanner } from '@/components/StickySignupBanner';
-import { DemoRequestForm } from '@/components/landing/DemoRequestForm';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
-import { AILinkingSection } from '@/components/seo';
-import { LiveBuyerDemandSection } from '@/components/landing/LiveBuyerDemandSection';
-import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { Footer } from '@/components/landing/Footer';
-import HighDemandSection from '@/components/landing/HighDemandSection';
+
+// Lazy load below-the-fold landing sections (mobile perf)
+const DemoRequestForm = lazy(() => import('@/components/landing/DemoRequestForm').then(m => ({ default: m.DemoRequestForm })));
+const LazyFAQ = lazy(() => import('@/components/landing/LazyFAQ').then(m => ({ default: m.LazyFAQ })));
+const AILinkingSection = lazy(() => import('@/components/seo').then(m => ({ default: m.AILinkingSection })));
+const LiveBuyerDemandSection = lazy(() => import('@/components/landing/LiveBuyerDemandSection').then(m => ({ default: m.LiveBuyerDemandSection })));
+const HowItWorksSection = lazy(() => import('@/components/landing/HowItWorksSection').then(m => ({ default: m.HowItWorksSection })));
+const Footer = lazy(() => import('@/components/landing/Footer').then(m => ({ default: m.Footer })));
+const HighDemandSection = lazy(() => import('@/components/landing/HighDemandSection'));
 
 // Lazy load below-the-fold components
 const LiveSupplierStock = lazy(() => import('@/components/LiveSupplierStock').then(m => ({ default: m.LiveSupplierStock })));
@@ -230,20 +232,28 @@ const Index = () => {
               </div>
               
               <div className="mt-6 animate-slide-up" style={{ animationDelay: '300ms' }}>
-                <DemoRequestForm />
+                <Suspense fallback={null}>
+                  <DemoRequestForm />
+                </Suspense>
               </div>
             </div>
           </div>
         </section>
 
         {/* ===== HIGH DEMAND SECTION (Revenue-Weighted) ===== */}
-        <HighDemandSection />
+        <Suspense fallback={<SectionFallback />}>
+          <HighDemandSection />
+        </Suspense>
 
         {/* ===== SECTION 3: LIVE BUYER DEMAND SECTION ===== */}
-        <LiveBuyerDemandSection />
+        <Suspense fallback={<SectionFallback />}>
+          <LiveBuyerDemandSection />
+        </Suspense>
 
         {/* ===== SECTION 4: HOW IT WORKS (AI-FIRST FLOW) ===== */}
-        <HowItWorksSection />
+        <Suspense fallback={<SectionFallback />}>
+          <HowItWorksSection />
+        </Suspense>
 
         {/* ===== SECTION 5: BUYER VS SUPPLIER VALUE SPLIT ===== */}
         <section className="py-16 sm:py-24 bg-muted/30">
@@ -437,7 +447,9 @@ const Index = () => {
         </section>
 
         {/* ===== SECTION 8: AEO FAQ SECTION ===== */}
-        <LazyFAQ />
+        <Suspense fallback={<SectionFallback />}>
+          <LazyFAQ />
+        </Suspense>
 
         {/* ===== SECTION 9: FINAL CTA STRIP ===== */}
         <section className="py-14 sm:py-20 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5 relative overflow-hidden">
@@ -528,7 +540,9 @@ const Index = () => {
       <StickySignupBanner />
 
       {/* Footer */}
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-muted/20" />}>
+        <Footer />
+      </Suspense>
 
       {/* Live Stock Dialog */}
       {showLiveStock && (
