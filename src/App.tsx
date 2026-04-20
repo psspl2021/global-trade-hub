@@ -15,7 +15,11 @@ import { SEMTracker } from "@/components/SEMTracker";
 import { GlobalDemandTracker } from "@/components/GlobalDemandTracker";
 import { LanguagePrompt } from "@/components/landing/LanguagePrompt";
 import { isBot } from "@/utils/isBot";
-import { SEOStaticRenderer } from "@/components/seo/SEOStaticRenderer";
+// PERF: Lazy — pulls in 342 KB demandProducts + 94 KB signalPages, only
+// needed when serving bots. Keeping it static added ~1.5s to landing FCP.
+const SEOStaticRenderer = lazy(() =>
+  import("@/components/seo/SEOStaticRenderer").then((m) => ({ default: m.SEOStaticRenderer }))
+);
 import { isMarketplacePath } from "@/pages/marketplace/UniversalSEORoute";
 import { StickyRFQCTA } from "@/components/conversion/StickyRFQCTA";
 import LayoutGate from "@/components/LayoutGate";
