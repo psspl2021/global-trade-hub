@@ -469,27 +469,13 @@ export function useReverseAuction(supplierMode: boolean = false) {
       });
       if (error) throw error;
 
-      // Replace line items: insert first, then delete old (safe against partial failure)
-      if (line_items && line_items.length > 0) {
-        const itemsToInsert = line_items.map(li => ({
-          auction_id: auctionId,
-          product_name: li.product_name,
-          quantity: li.quantity,
-          unit: li.unit,
-          category: li.category || null,
-          description: li.description || null,
-          unit_price: li.unit_price || 0,
-        }));
-        const { data: oldItems } = await supabase
-          .from('reverse_auction_items')
-          .select('id')
-          .eq('auction_id', auctionId);
-        const { error: insertErr } = await supabase.from('reverse_auction_items').insert(itemsToInsert as any);
-        if (insertErr) throw insertErr;
-        if (oldItems && oldItems.length > 0) {
-          const oldIds = oldItems.map((o: any) => o.id);
-          await supabase.from('reverse_auction_items').delete().in('id', oldIds);
-        }
+      // Replace line items via SECURITY DEFINER RPC to avoid direct table permission failures
+      if (line_items) {
+        const { error: itemsError } = await (supabase as any).rpc('replace_reverse_auction_items', {
+          p_auction_id: auctionId,
+          p_items: line_items,
+        });
+        if (itemsError) throw itemsError;
       }
 
       toast.success(`Auction updated! (${currentEditCount + 1}/5 edits used)`);

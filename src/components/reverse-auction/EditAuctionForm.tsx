@@ -182,40 +182,38 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
     const loadData = async () => {
       setIsLoading(true);
 
-      // Load auction + items + suppliers in parallel
-      const [auctionRes, itemsRes, suppliersRes] = await Promise.all([
-        supabase.from('reverse_auctions').select('*').eq('id', auction.id).single(),
+      // Use the already-loaded auction prop for core details to avoid blocked direct reads,
+      // and fetch only related rows that are permitted.
+      const [itemsRes, suppliersRes] = await Promise.all([
         supabase.from('reverse_auction_items').select('*').eq('auction_id', auction.id).order('created_at'),
         supabase.from('reverse_auction_suppliers').select('*').eq('auction_id', auction.id),
       ]);
 
-      if (auctionRes.data) {
-        const a = auctionRes.data as any;
-        setTitle(a.title || '');
-        initialTitleRef.current = a.title || '';
-        setIsManualTitle(false);
-        setDescription(a.description || '');
-        setStartingPrice(String(a.starting_price || ''));
-        setQuantity(String(a.quantity || ''));
-        setUnit(a.unit || 'MT');
-        setDestinationCountry(a.destination_country || 'India');
-        setDestinationState(a.destination_state || '');
-        setDeliveryAddress(a.delivery_address || '');
-        setPaymentTerms(a.payment_terms || '');
-        setCertifications(a.certifications || '');
-        setQualityStandards(a.quality_standards || '');
-        setDeadline(a.deadline ? new Date(a.deadline).toISOString().split('T')[0] : '');
-        setReservePrice(a.reserve_price ? String(a.reserve_price) : '');
-        setMinBidStepPct(a.minimum_bid_step_pct || 0.25);
-        setTransactionType(a.transaction_type || 'domestic');
-        if (a.auction_start) {
-          const sd = new Date(a.auction_start);
-          setStartDate(sd.toISOString().split('T')[0]);
-          setStartTime(sd.toTimeString().slice(0, 5));
-          if (a.auction_end) {
-            const dur = Math.round((new Date(a.auction_end).getTime() - sd.getTime()) / 60000);
-            setDurationMinutes(dur > 0 ? dur : 30);
-          }
+      const a = auction as any;
+      setTitle(a.title || '');
+      initialTitleRef.current = a.title || '';
+      setIsManualTitle(false);
+      setDescription(a.description || '');
+      setStartingPrice(String(a.starting_price || ''));
+      setQuantity(String(a.quantity || ''));
+      setUnit(a.unit || 'MT');
+      setDestinationCountry(a.destination_country || 'India');
+      setDestinationState(a.destination_state || '');
+      setDeliveryAddress(a.delivery_address || '');
+      setPaymentTerms(a.payment_terms || '');
+      setCertifications(a.certifications || '');
+      setQualityStandards(a.quality_standards || '');
+      setDeadline(a.deadline ? new Date(a.deadline).toISOString().split('T')[0] : '');
+      setReservePrice(a.reserve_price ? String(a.reserve_price) : '');
+      setMinBidStepPct(a.minimum_bid_step_pct || 0.25);
+      setTransactionType(a.transaction_type || 'domestic');
+      if (a.auction_start) {
+        const sd = new Date(a.auction_start);
+        setStartDate(sd.toISOString().split('T')[0]);
+        setStartTime(sd.toTimeString().slice(0, 5));
+        if (a.auction_end) {
+          const dur = Math.round((new Date(a.auction_end).getTime() - sd.getTime()) / 60000);
+          setDurationMinutes(dur > 0 ? dur : 30);
         }
       }
 
@@ -804,7 +802,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={isSaving || isLoading || (!isRepublishMode && editCount >= 2)} className="gap-1">
+          <Button onClick={handleSave} disabled={isSaving || isLoading || (!isRepublishMode && editCount >= 5)} className="gap-1">
             <Save className="w-3 h-3" />
             {isSaving ? 'Saving...' : isRepublishMode ? 'Republish Auction' : `Save Changes (${editCount}/5)`}
           </Button>
