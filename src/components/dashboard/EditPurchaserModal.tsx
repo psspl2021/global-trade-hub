@@ -59,7 +59,16 @@ export function EditPurchaserModal({
   const [displayName, setDisplayName] = useState('');
   const [role, setRole] = useState('buyer_purchaser');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [customCategory, setCustomCategory] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleAddCustomCategory = () => {
+    const value = customCategory.trim();
+    if (value && !selectedCategories.includes(value)) {
+      setSelectedCategories([...selectedCategories, value]);
+      setCustomCategory('');
+    }
+  };
 
   useEffect(() => {
     if (purchaser && open) {
@@ -171,7 +180,31 @@ export function EditPurchaserModal({
 
           {/* Categories */}
           <div className="space-y-2">
-            <Label>Assigned Categories</Label>
+            <Label>Assigned Categories / Products</Label>
+            <p className="text-xs text-muted-foreground">
+              Pick from the list, or type a specific product / sub-category (e.g. "OPC 53 Cement", "TMT Fe550").
+            </p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Type custom category or product..."
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomCategory();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddCustomCategory}
+                disabled={!customCategory.trim()}
+              >
+                Add
+              </Button>
+            </div>
             <Select onValueChange={handleAddCategory}>
               <SelectTrigger>
                 <SelectValue placeholder="Add category..." />
