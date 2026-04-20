@@ -268,6 +268,29 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                 className="h-9"
               />
             </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                placeholder="Category (e.g. Steel, Chemicals)"
+                value={newCategory}
+                onChange={e => setNewCategory(e.target.value)}
+                className="h-9"
+                maxLength={80}
+              />
+              <Input
+                placeholder="Location (City / Region)"
+                value={newLocation}
+                onChange={e => setNewLocation(e.target.value)}
+                className="h-9"
+                maxLength={120}
+              />
+            </div>
+            <Input
+              placeholder="GST Number (optional, 15 chars)"
+              value={newGstin}
+              onChange={e => setNewGstin(e.target.value.toUpperCase())}
+              className="h-9 uppercase"
+              maxLength={15}
+            />
             <div className="flex gap-2 pt-1">
               <Button size="sm" onClick={handleAdd} disabled={adding}>
                 {adding ? 'Adding...' : 'Add to Network'}
