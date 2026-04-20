@@ -48,15 +48,21 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-export function MonthlySavingsAnalytics() {
+interface MonthlySavingsAnalyticsProps {
+  defaultExpanded?: boolean;
+  hideToggle?: boolean;
+}
+
+export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = false }: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
+  const navigate = (typeof window !== 'undefined') ? null : null;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
   const [supplierCount, setSupplierCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showExpanded, setShowExpanded] = useState(false);
+  const [showExpanded, setShowExpanded] = useState(defaultExpanded);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
