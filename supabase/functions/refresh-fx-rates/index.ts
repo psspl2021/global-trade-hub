@@ -3,8 +3,12 @@
  * Fetches latest FX rates anchored to INR from the free exchangerate.host API
  * and upserts into public.fx_rates. Designed to be called by pg_cron daily.
  */
-import { corsHeaders } from '@supabase/supabase-js/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2.95.0';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 const SUPPORTED = ['USD','EUR','GBP','AED','SAR','QAR','KES','NGN','JPY','CNY','VND','SGD','AUD'];
 
