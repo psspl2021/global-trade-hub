@@ -13807,6 +13807,10 @@ export type Database = {
         Args: { p_po_id: string; p_user_id: string }
         Returns: boolean
       }
+      replace_reverse_auction_items: {
+        Args: { p_auction_id: string; p_items: Json }
+        Returns: undefined
+      }
       republish_reverse_auction: {
         Args: {
           p_auction_end?: string
