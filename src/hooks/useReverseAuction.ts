@@ -79,6 +79,9 @@ export interface CreateAuctionInput {
   incoterm?: string;
   origin_country?: string;
   shipment_mode?: string;
+  hs_code?: string;
+  port_of_loading?: string;
+  port_of_discharge?: string;
 }
 
 /** Returns bids sorted by price with rank (L1=1, L2=2, etc.) */
@@ -297,6 +300,9 @@ export function useReverseAuction(supplierMode: boolean = false) {
           incoterm: input.incoterm || null,
           origin_country: input.origin_country || null,
           shipment_mode: input.shipment_mode || null,
+          hs_code: input.hs_code || null,
+          port_of_loading: input.port_of_loading || null,
+          port_of_discharge: input.port_of_discharge || null,
         },
       });
 
