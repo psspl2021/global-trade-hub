@@ -577,20 +577,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             );
           })}
         </div>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-            <Input
-              type="number"
-              inputMode="numeric"
-              className="pl-8"
-              placeholder={`Enter below ${Math.floor(currentLowest)}`}
-              value={bidPrice}
-              onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <MultiCurrencyBidInput
+              value={bidDisplayValue}
+              onChange={({ displayValue, inrValue, currency, fxRate }) => {
+                setBidDisplayValue(displayValue);
+                setBidCurrency(currency);
+                setBidFxRate(fxRate);
+                setBidPrice(inrValue ? String(inrValue) : '');
+                setBidError('');
+              }}
+              defaultCurrency={bidCurrency}
+              label={`Your Bid (compared in ₹ — must be below ${Math.floor(currentLowest)})`}
+              disabled={isPlacing}
             />
           </div>
-          <Button onClick={handlePlaceBid} disabled={!isValidBid || isPlacing}>
+          <Button
+            onClick={handlePlaceBid}
+            disabled={!isValidBid || isPlacing}
+            className="sm:w-auto w-full"
+          >
             {isPlacing ? 'Placing...' : '🚀 Bid'}
           </Button>
         </div>
