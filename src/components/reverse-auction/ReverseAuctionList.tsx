@@ -15,6 +15,7 @@ import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
 import { EditAuctionForm } from './EditAuctionForm';
+import { ShareAuctionMenu } from './ShareAuctionMenu';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },
