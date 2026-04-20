@@ -364,7 +364,7 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
   };
 
   const handleSave = async () => {
-    if (editCount >= 2) {
+    if (!isRepublishMode && editCount >= 2) {
       toast.error('Maximum 2 edits allowed per auction');
       return;
     }
@@ -433,7 +433,15 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
           updates.auction_end = new Date(start.getTime() + durationMinutes * 60000).toISOString();
         }
       }
-      const result = await updateAuction(auction.id, updates, editCount);
+      // If auction was cancelled/completed/expired, republish first (resets edit count + status to scheduled)
+      if (isRepublishMode) {
+        const republished = await republishAuction(auction.id);
+        if (!republished) {
+          toast.error('Failed to republish auction');
+          return;
+        }
+      }
+      const result = await updateAuction(auction.id, updates, isRepublishMode ? 0 : editCount);
 
       if (result) {
         onOpenChange(false);
@@ -781,9 +789,9 @@ export function EditAuctionForm({ auction, open, onOpenChange, onUpdated }: Edit
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={isSaving || isLoading || editCount >= 2} className="gap-1">
+          <Button onClick={handleSave} disabled={isSaving || isLoading || (!isRepublishMode && editCount >= 2)} className="gap-1">
             <Save className="w-3 h-3" />
-            {isSaving ? 'Saving...' : `Save Changes (${editCount}/2)`}
+            {isSaving ? 'Saving...' : isRepublishMode ? 'Republish Auction' : `Save Changes (${editCount}/2)`}
           </Button>
         </DialogFooter>
       </DialogContent>
