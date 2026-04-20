@@ -120,7 +120,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   }, [auction?.status]);
   const { updateAuction, cancelAuction } = useReverseAuction();
-  const [bidPrice, setBidPrice] = useState('');
+  const [bidPrice, setBidPrice] = useState('');           // INR-equivalent (used by all validation/RPC)
+  const [bidDisplayValue, setBidDisplayValue] = useState(''); // Raw entry in supplier's currency
+  const [bidCurrency, setBidCurrency] = useState('INR');
+  const [bidFxRate, setBidFxRate] = useState(1);
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
