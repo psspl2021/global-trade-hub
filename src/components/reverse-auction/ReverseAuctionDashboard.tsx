@@ -235,6 +235,27 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     );
   }
 
+  if (showAllAuctions && !isSupplier) {
+    return (
+      <div className="space-y-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setAuctionView(null)}
+          className="gap-2 -ml-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Button>
+        <ReverseAuctionList
+          onSelectAuction={selectAuction}
+          isBuyer={!isSupplier}
+          isSupplier={isSupplier}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with lock-in positioning */}
