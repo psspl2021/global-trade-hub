@@ -37,6 +37,58 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [newLocation, setNewLocation] = useState('');
   const [adding, setAdding] = useState(false);
 
+  // Edit state
+  const [editingSupplier, setEditingSupplier] = useState<any | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editGstin, setEditGstin] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = (s: any) => {
+    setEditingSupplier(s);
+    setEditName(s.company_name || s.supplier_name || '');
+    setEditEmail(s.email || '');
+    setEditPhone(s.phone || '');
+    setEditCategory(s.category || '');
+    setEditGstin(s.gstin || '');
+    setEditLocation(s.location || '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSupplier) return;
+    if (!editName.trim()) { toast.error('Supplier name is required'); return; }
+    const gstin = editGstin.trim().toUpperCase();
+    if (gstin && !/^[0-9A-Z]{15}$/.test(gstin)) {
+      toast.error('GSTIN must be 15 alphanumeric characters');
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase
+        .from('buyer_suppliers')
+        .update({
+          supplier_name: editName.trim(),
+          company_name: editName.trim(),
+          email: editEmail.trim() || null,
+          phone: editPhone.trim() || null,
+          category: editCategory.trim() || null,
+          gstin: gstin || null,
+          location: editLocation.trim() || null,
+        } as any)
+        .eq('id', editingSupplier.id)
+        .eq('buyer_id', userId);
+      if (error) throw error;
+      toast.success('Supplier updated');
+      setEditingSupplier(null);
+      loadSuppliers();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally { setSavingEdit(false); }
+  };
+
   const loadSuppliers = async () => {
     setLoading(true);
     const [suppRes, partRes] = await Promise.all([
