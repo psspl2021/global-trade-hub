@@ -30,6 +30,7 @@ export function CEOIntelligenceView({ data }: { data: CompanyIntelligenceData })
         topPurchasers={topPurchasers}
         stageCounts={stageCounts}
         baseCurrency={base}
+        detailHref="/governance/ceo/purchase-orders"
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <IntelligenceMetricCard
