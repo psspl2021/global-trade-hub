@@ -398,20 +398,20 @@ const Dashboard = () => {
             </p>
           </div>
         ) : isBuyerRole ? (
-          <div className="mb-4 sm:mb-8">
-            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
+          <div className="mb-3 sm:mb-8">
+            <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
               Welcome back, {selectedPurchaser?.display_name || user?.user_metadata?.contact_person || 'User'}!
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-xs sm:text-base text-muted-foreground truncate">
               {user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
         ) : (
-          <div className="mb-4 sm:mb-8">
-            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
+          <div className="mb-3 sm:mb-8">
+            <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
               Welcome back, {user?.user_metadata?.contact_person || 'User'}!
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-xs sm:text-base text-muted-foreground truncate">
               {user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
@@ -454,9 +454,10 @@ const Dashboard = () => {
         {isBuyerRole && !activeManagementView && (
            <div className="space-y-4 sm:space-y-6">
             {/* Governance Banner */}
-            <div className="bg-sky-600 text-white py-2 px-4 rounded-lg">
-              <p className="text-sm text-center font-medium">
-                This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.
+            <div className="bg-sky-600 text-white py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg">
+              <p className="text-[11px] sm:text-sm text-center font-medium leading-snug">
+                <span className="sm:hidden">Execution dashboard • Savings tracked by AI</span>
+                <span className="hidden sm:inline">This is an execution dashboard. Savings are tracked by AI. Incentives are declared by management.</span>
               </p>
             </div>
 
