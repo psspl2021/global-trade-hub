@@ -21,9 +21,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { User, Package, UserPlus, Eye } from 'lucide-react';
+import { User, UserPlus, Eye, Pencil } from 'lucide-react';
 import { CompanyPurchaser } from '@/hooks/useBuyerCompanyContext';
 import { AddPurchaserModal } from './AddPurchaserModal';
+import { EditPurchaserModal } from './EditPurchaserModal';
 
 interface PurchaserSelectorProps {
   purchasers: CompanyPurchaser[];
@@ -43,6 +44,15 @@ export function PurchaserSelector({
   canAddPurchasers = true,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPurchaser, setEditingPurchaser] = useState<CompanyPurchaser | null>(null);
+
+  const formatNameWithCategories = (p: CompanyPurchaser) => {
+    const cats = p.assigned_categories || [];
+    if (cats.length === 0) return p.display_name;
+    const shown = cats.slice(0, 2).join(', ');
+    const suffix = cats.length > 2 ? `, +${cats.length - 2}` : '';
+    return `${p.display_name} (${shown}${suffix})`;
+  };
 
   const selectedPurchaser = useMemo(
     () => purchasers.find((p) => p.user_id === selectedPurchaserId),
@@ -69,7 +79,7 @@ export function PurchaserSelector({
                 <SelectValue placeholder="Select Acting Purchaser">
                   {selectedPurchaser && (
                     <span className="truncate">
-                      {selectedPurchaser.display_name}
+                      {formatNameWithCategories(selectedPurchaser)}
                       {selectedPurchaser.is_current_user && ' (You)'}
                     </span>
                   )}
@@ -81,25 +91,29 @@ export function PurchaserSelector({
                 <SelectItem
                   key={purchaser.user_id}
                   value={purchaser.user_id}
-                  className="cursor-pointer"
+                  className="cursor-pointer pr-10"
                 >
                   <div className="flex items-center gap-2 py-1 w-full">
                     <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                      <span className="font-medium">
-                        {purchaser.display_name}
-                        {purchaser.is_current_user && (
-                          <span className="text-primary ml-1">(You)</span>
-                        )}
-                      </span>
-                      {purchaser.assigned_categories?.length > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Package className="h-3 w-3" />
-                          {purchaser.assigned_categories.slice(0, 3).join(', ')}
-                          {purchaser.assigned_categories.length > 3 && '...'}
-                        </div>
+                    <span className="font-medium truncate">
+                      {formatNameWithCategories(purchaser)}
+                      {purchaser.is_current_user && (
+                        <span className="text-primary ml-1">(You)</span>
                       )}
-                    </div>
+                    </span>
+                    <button
+                      type="button"
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setEditingPurchaser(purchaser);
+                      }}
+                      className="ml-auto p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground flex-shrink-0"
+                      title="Edit user"
+                      aria-label="Edit user"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </SelectItem>
               ))}
@@ -122,6 +136,16 @@ export function PurchaserSelector({
       </div>
 
       <AddPurchaserModal open={showAddModal} onOpenChange={setShowAddModal} />
+      <EditPurchaserModal
+        open={!!editingPurchaser}
+        onOpenChange={(o) => !o && setEditingPurchaser(null)}
+        purchaser={editingPurchaser}
+        onSuccess={() => {
+          setEditingPurchaser(null);
+          // Trigger context refetch via custom event
+          window.dispatchEvent(new Event('ps-purchaser-change'));
+        }}
+      />
     </>
   );
 }
