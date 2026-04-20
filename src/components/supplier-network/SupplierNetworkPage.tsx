@@ -445,6 +445,49 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
           })}
         </div>
       )}
+
+      {/* Edit Supplier Dialog */}
+      <Dialog open={!!editingSupplier} onOpenChange={(o) => !o && setEditingSupplier(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Supplier</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Company / Supplier name *</Label>
+              <Input value={editName} onChange={e => setEditName(e.target.value)} className="h-9" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Email</Label>
+                <Input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} className="h-9" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Phone</Label>
+                <Input value={editPhone} onChange={e => setEditPhone(e.target.value)} className="h-9" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Category</Label>
+                <Input value={editCategory} onChange={e => setEditCategory(e.target.value)} className="h-9" maxLength={80} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Location</Label>
+                <Input value={editLocation} onChange={e => setEditLocation(e.target.value)} className="h-9" maxLength={120} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">GST Number (15 chars)</Label>
+              <Input value={editGstin} onChange={e => setEditGstin(e.target.value.toUpperCase())} className="h-9 uppercase" maxLength={15} />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setEditingSupplier(null)} disabled={savingEdit}>Cancel</Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>{savingEdit ? 'Saving...' : 'Save Changes'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
