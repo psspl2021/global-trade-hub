@@ -8,8 +8,10 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Workflow, Users } from 'lucide-react';
 import { formatBaseAmount } from './IntelligenceMetricCard';
+import { Link } from 'react-router-dom';
 
 type Stage =
   | 'PO_CREATED'
@@ -87,11 +89,13 @@ export function POLifecyclePanel({
   topPurchasers,
   stageCounts,
   baseCurrency = 'INR',
+  detailHref,
 }: {
   pos?: POLifecycleRow[];
   topPurchasers?: PurchaserStats[];
   stageCounts?: Record<string, number>;
   baseCurrency?: string;
+  detailHref?: string;
 }) {
   const rows = Array.isArray(pos) ? pos : [];
   const purchasers = Array.isArray(topPurchasers) ? topPurchasers : [];
@@ -114,10 +118,17 @@ export function POLifecyclePanel({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Workflow className="h-4 w-4 text-primary" />
-          PO Lifecycle &amp; Purchaser Attribution
-        </CardTitle>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Workflow className="h-4 w-4 text-primary" />
+            PO Lifecycle &amp; Purchaser Attribution
+          </CardTitle>
+          {detailHref ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to={detailHref}>Open Purchase Orders</Link>
+            </Button>
+          ) : null}
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Stage pipeline */}
