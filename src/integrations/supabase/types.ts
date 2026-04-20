@@ -2327,6 +2327,7 @@ export type Database = {
         Row: {
           address: string | null
           buyer_id: string
+          category: string | null
           company_name: string | null
           created_at: string
           email: string | null
@@ -2335,6 +2336,7 @@ export type Database = {
           id: string
           is_global_supplier: boolean | null
           is_onboarded: boolean | null
+          location: string | null
           notes: string | null
           phone: string | null
           supplier_name: string
@@ -2343,6 +2345,7 @@ export type Database = {
         Insert: {
           address?: string | null
           buyer_id: string
+          category?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
@@ -2351,6 +2354,7 @@ export type Database = {
           id?: string
           is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
+          location?: string | null
           notes?: string | null
           phone?: string | null
           supplier_name: string
@@ -2359,6 +2363,7 @@ export type Database = {
         Update: {
           address?: string | null
           buyer_id?: string
+          category?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
@@ -2367,6 +2372,7 @@ export type Database = {
           id?: string
           is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
+          location?: string | null
           notes?: string | null
           phone?: string | null
           supplier_name?: string
