@@ -59,7 +59,8 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
   const { selectedPurchaserId } = useBuyerCompanyContext();
-  const navigate = (typeof window !== 'undefined') ? null : null;
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [auctions, setAuctions] = useState<any[]>([]);
   const [allAuctions, setAllAuctions] = useState<any[]>([]);
   const [supplierCount, setSupplierCount] = useState(0);
