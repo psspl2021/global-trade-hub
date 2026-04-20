@@ -94,7 +94,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
     const [suppRes, partRes] = await Promise.all([
       supabase
         .from('buyer_suppliers')
-        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability')
+        .select('id, supplier_name, company_name, email, phone, is_onboarded, created_at, is_global_supplier, export_capability, category, gstin, location')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false }),
       supabase
