@@ -447,7 +447,9 @@ const Index = () => {
         </section>
 
         {/* ===== SECTION 8: AEO FAQ SECTION ===== */}
-        <LazyFAQ />
+        <Suspense fallback={<SectionFallback />}>
+          <LazyFAQ />
+        </Suspense>
 
         {/* ===== SECTION 9: FINAL CTA STRIP ===== */}
         <section className="py-14 sm:py-20 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5 relative overflow-hidden">
@@ -538,7 +540,9 @@ const Index = () => {
       <StickySignupBanner />
 
       {/* Footer */}
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-muted/20" />}>
+        <Footer />
+      </Suspense>
 
       {/* Live Stock Dialog */}
       {showLiveStock && (
