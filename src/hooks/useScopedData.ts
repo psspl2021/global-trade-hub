@@ -71,11 +71,10 @@ export function useScopedData<T = any>(
   const argsRef = useRef({ userId: user?.id, selectedPurchaserId, status, from, to, hasWinner, limit, offset });
   argsRef.current = { userId: user?.id, selectedPurchaserId, status, from, to, hasWinner, limit, offset };
 
-  // Hardening: clear state immediately on scope change, before cache/fetch
-  // logic runs. Deterministic — no stale render under any cache evolution.
-  useEffect(() => {
-    setData([]);
-  }, [selectedPurchaserId]);
+  // Note: scope-change clearing is handled inside fetchData — it serves
+  // cached rows instantly when present, and only clears to [] when no
+  // cache exists for the new key. Clearing unconditionally here caused a
+  // visible "data → blank → data" double-render flash.
 
   const fetchData = useCallback(async () => {
     const { userId, selectedPurchaserId: spid, status: s, from: f, to: t, hasWinner: hw, limit: l, offset: o } = argsRef.current;
