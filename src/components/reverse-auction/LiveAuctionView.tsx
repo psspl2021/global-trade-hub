@@ -1135,22 +1135,43 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         <>
           <div className="rounded-[0.625rem] bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 mb-4 flex items-center gap-3">
             <Trophy className="w-6 h-6 text-amber-600 shrink-0" />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
                 🏆 Auction Awarded — Winner: {formatCurrency(auction.winning_price || currentLowest)}
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                You can now generate a Purchase Order below
+                {showPOGenerator
+                  ? 'Generate the Purchase Order below'
+                  : 'Would you like to generate a Purchase Order for this award?'}
               </p>
             </div>
           </div>
-          <div className="mb-4">
-            <AuctionPOGenerator
-              auction={auction}
-              winnerSupplierId={auction.winner_supplier_id}
-              winningPrice={auction.winning_price || currentLowest}
-            />
-          </div>
+          {!showPOGenerator ? (
+            <div className="rounded-[0.625rem] border border-border bg-card p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">Do you want to generate a Purchase Order?</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  You can generate it now or come back later from this auction.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowPOGenerator(false)}>
+                  Not now
+                </Button>
+                <Button size="sm" onClick={() => setShowPOGenerator(true)}>
+                  Yes, generate PO
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-4">
+              <AuctionPOGenerator
+                auction={auction}
+                winnerSupplierId={auction.winner_supplier_id}
+                winningPrice={auction.winning_price || currentLowest}
+              />
+            </div>
+          )}
         </>
       )}
 
