@@ -15,6 +15,7 @@ import { formatDistanceToNow, isPast, format, isToday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { AuctionInviteAnalytics } from './AuctionInviteAnalytics';
 import { EditAuctionForm } from './EditAuctionForm';
+import { ShareAuctionMenu } from './ShareAuctionMenu';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: <Clock className="w-3 h-3" /> },
@@ -603,22 +604,7 @@ function BuyerAuctionRow({
                   <Button size="sm" variant="outline" onClick={() => setShowEditDialog(true)} className="gap-1">
                     <Pencil className="w-3 h-3" /> Edit & Republish
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1"
-                    onClick={async () => {
-                      const url = `${window.location.origin}/dashboard?view=reverse-auction&auction=${auction.id}`;
-                      try {
-                        await navigator.clipboard.writeText(url);
-                        toast.success('Supplier invite link copied');
-                      } catch {
-                        toast.error('Failed to copy link');
-                      }
-                    }}
-                  >
-                    <Share2 className="w-3 h-3" /> Share
-                  </Button>
+                  <ShareAuctionMenu auctionId={auction.id} title={auction.title} />
                   {!isCancelled && (
                     <Button
                       size="sm"
@@ -807,22 +793,7 @@ function AuctionCard({
                   >
                     <Pencil className="w-3 h-3" /> Edit & Republish
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1"
-                    onClick={async () => {
-                      const url = `${window.location.origin}/dashboard?view=reverse-auction&auction=${auction.id}`;
-                      try {
-                        await navigator.clipboard.writeText(url);
-                        toast.success('Supplier invite link copied');
-                      } catch {
-                        toast.error('Failed to copy link');
-                      }
-                    }}
-                  >
-                    <Share2 className="w-3 h-3" /> Share
-                  </Button>
+                  <ShareAuctionMenu auctionId={auction.id} title={auction.title} />
                   {!isCancelled && (
                     <Button
                       size="sm"
