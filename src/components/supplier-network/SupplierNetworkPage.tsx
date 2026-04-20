@@ -30,6 +30,9 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newGstin, setNewGstin] = useState('');
+  const [newLocation, setNewLocation] = useState('');
   const [adding, setAdding] = useState(false);
 
   const loadSuppliers = async () => {
@@ -105,6 +108,12 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
 
   const handleAdd = async () => {
     if (!newName.trim()) { toast.error('Supplier name is required'); return; }
+    // Lightweight GSTIN sanity check (India: 15 chars alphanumeric). Optional.
+    const gstin = newGstin.trim().toUpperCase();
+    if (gstin && !/^[0-9A-Z]{15}$/.test(gstin)) {
+      toast.error('GSTIN must be 15 alphanumeric characters');
+      return;
+    }
     setAdding(true);
     try {
       const { error } = await supabase.from('buyer_suppliers').insert({
@@ -113,10 +122,14 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         email: newEmail.trim() || null,
         phone: newPhone.trim() || null,
         company_name: newName.trim(),
-      });
+        category: newCategory.trim() || null,
+        gstin: gstin || null,
+        location: newLocation.trim() || null,
+      } as any);
       if (error) throw error;
       toast.success(`${newName.trim()} added to your network`);
       setNewName(''); setNewEmail(''); setNewPhone('');
+      setNewCategory(''); setNewGstin(''); setNewLocation('');
       setShowAdd(false);
       loadSuppliers();
     } catch (err: any) {
