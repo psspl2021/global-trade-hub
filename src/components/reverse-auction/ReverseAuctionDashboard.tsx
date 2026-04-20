@@ -344,12 +344,52 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
       {/* Monthly Savings Analytics (buyer only) */}
       {!isSupplier && <MonthlySavingsAnalytics />}
 
-      {/* Auction List */}
-      <ReverseAuctionList
-        onSelectAuction={selectAuction}
-        isBuyer={!isSupplier}
-        isSupplier={isSupplier}
-      />
+      {/* All Auctions — collapsed module card (buyer only). Click expands list. */}
+      {!isSupplier ? (
+        showAllAuctions ? (
+          <div className="space-y-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAuctionView(null)}
+              className="gap-2 -ml-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+            <ReverseAuctionList
+              onSelectAuction={selectAuction}
+              isBuyer={!isSupplier}
+              isSupplier={isSupplier}
+            />
+          </div>
+        ) : (
+          <Card
+            variant="interactive"
+            className="p-4 group hover:shadow-md transition-all border-l-4 border-l-rose-500 cursor-pointer"
+            onClick={() => setAuctionView('all-auctions')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-sm">
+                <ListOrdered className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">All Auctions</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {auctionCount > 0 ? `${auctionCount} auction${auctionCount === 1 ? '' : 's'} • view & manage` : 'View & manage all auctions'}
+                </p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-rose-500 transition-colors" />
+            </div>
+          </Card>
+        )
+      ) : (
+        <ReverseAuctionList
+          onSelectAuction={selectAuction}
+          isBuyer={!isSupplier}
+          isSupplier={isSupplier}
+        />
+      )}
     </div>
   );
 }
