@@ -226,7 +226,11 @@ const BotAwareRouter = () => {
     const isSeoPage = seoRoutes.some(pattern => pattern.test(location.pathname));
     
     if (isSeoPage) {
-      return <SEOStaticRenderer pathname={location.pathname} />;
+      return (
+        <Suspense fallback={null}>
+          <SEOStaticRenderer pathname={location.pathname} />
+        </Suspense>
+      );
     }
   }
   
