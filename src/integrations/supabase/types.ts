@@ -1612,6 +1612,7 @@ export type Database = {
           awarded_commission_value: number | null
           base_price: number | null
           bid_amount: number
+          bid_currency: string | null
           buyer_logistics_price: number | null
           buyer_material_price: number | null
           buyer_visible_price: number
@@ -1622,6 +1623,7 @@ export type Database = {
           dispatched_qty: number | null
           expected_delivery_date: string | null
           freight_cost: number | null
+          fx_rate_to_inr: number | null
           gst_percent: number | null
           id: string
           is_paid_bid: boolean
@@ -1656,6 +1658,7 @@ export type Database = {
           awarded_commission_value?: number | null
           base_price?: number | null
           bid_amount: number
+          bid_currency?: string | null
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
           buyer_visible_price: number
@@ -1666,6 +1669,7 @@ export type Database = {
           dispatched_qty?: number | null
           expected_delivery_date?: string | null
           freight_cost?: number | null
+          fx_rate_to_inr?: number | null
           gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
@@ -1700,6 +1704,7 @@ export type Database = {
           awarded_commission_value?: number | null
           base_price?: number | null
           bid_amount?: number
+          bid_currency?: string | null
           buyer_logistics_price?: number | null
           buyer_material_price?: number | null
           buyer_visible_price?: number
@@ -1710,6 +1715,7 @@ export type Database = {
           dispatched_qty?: number | null
           expected_delivery_date?: string | null
           freight_cost?: number | null
+          fx_rate_to_inr?: number | null
           gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
@@ -4126,6 +4132,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fx_rates: {
+        Row: {
+          currency_code: string
+          fetched_at: string
+          id: string
+          rate_from_inr: number
+          rate_to_inr: number
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          currency_code: string
+          fetched_at?: string
+          id?: string
+          rate_from_inr: number
+          rate_to_inr: number
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          currency_code?: string
+          fetched_at?: string
+          id?: string
+          rate_from_inr?: number
+          rate_to_inr?: number
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       google_index_queue: {
         Row: {
           created_at: string | null
@@ -6415,6 +6451,7 @@ export type Database = {
           gstin: string | null
           house_address: string | null
           id: string
+          is_global_supplier: boolean | null
           is_test_account: boolean
           is_verified_supplier: boolean | null
           kyc_verified: boolean | null
@@ -6459,6 +6496,7 @@ export type Database = {
           gstin?: string | null
           house_address?: string | null
           id: string
+          is_global_supplier?: boolean | null
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
           kyc_verified?: boolean | null
@@ -6503,6 +6541,7 @@ export type Database = {
           gstin?: string | null
           house_address?: string | null
           id?: string
+          is_global_supplier?: boolean | null
           is_test_account?: boolean
           is_verified_supplier?: boolean | null
           kyc_verified?: boolean | null
@@ -7832,11 +7871,15 @@ export type Database = {
           destination_state: string | null
           effective_state: string | null
           fast_track: boolean | null
+          hs_code: string | null
           id: string
           identity_revealed: boolean | null
           identity_revealed_at: string | null
           identity_revealed_by: string | null
+          incoterms: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_category: string
           purchaser_id: string
           quality_standards: string | null
@@ -7879,11 +7922,15 @@ export type Database = {
           destination_state?: string | null
           effective_state?: string | null
           fast_track?: boolean | null
+          hs_code?: string | null
           id?: string
           identity_revealed?: boolean | null
           identity_revealed_at?: string | null
           identity_revealed_by?: string | null
+          incoterms?: string | null
           payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
           product_category: string
           purchaser_id: string
           quality_standards?: string | null
@@ -7926,11 +7973,15 @@ export type Database = {
           destination_state?: string | null
           effective_state?: string | null
           fast_track?: boolean | null
+          hs_code?: string | null
           id?: string
           identity_revealed?: boolean | null
           identity_revealed_at?: string | null
           identity_revealed_by?: string | null
+          incoterms?: string | null
           payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
           product_category?: string
           purchaser_id?: string
           quality_standards?: string | null
@@ -8226,8 +8277,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -8235,6 +8288,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -8279,8 +8334,10 @@ export type Database = {
           destination_state?: string | null
           enable_erp_sync?: boolean
           enable_po_generation?: boolean
+          hs_code?: string | null
           id?: string
           incoterm?: string | null
+          incoterms?: string | null
           max_auto_extensions?: number | null
           max_bid_frequency_per_supplier?: number | null
           max_bids_per_supplier?: number | null
@@ -8288,6 +8345,8 @@ export type Database = {
           minimum_bid_step_pct?: number
           origin_country?: string | null
           payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
           product_slug: string
           purchaser_id: string
           quality_standards?: string | null
@@ -8332,8 +8391,10 @@ export type Database = {
           destination_state?: string | null
           enable_erp_sync?: boolean
           enable_po_generation?: boolean
+          hs_code?: string | null
           id?: string
           incoterm?: string | null
+          incoterms?: string | null
           max_auto_extensions?: number | null
           max_bid_frequency_per_supplier?: number | null
           max_bids_per_supplier?: number | null
@@ -8341,6 +8402,8 @@ export type Database = {
           minimum_bid_step_pct?: number
           origin_country?: string | null
           payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
           product_slug?: string
           purchaser_id?: string
           quality_standards?: string | null
@@ -12204,8 +12267,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -12213,6 +12278,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -12356,8 +12423,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -12365,6 +12434,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -12487,8 +12558,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -12496,6 +12569,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -12705,8 +12780,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -12714,6 +12791,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -13178,8 +13257,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -13187,6 +13268,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -13847,8 +13930,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -13856,6 +13941,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -13958,8 +14045,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -13967,6 +14056,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -14137,8 +14228,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -14146,6 +14239,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
@@ -14200,8 +14295,10 @@ export type Database = {
           destination_state: string | null
           enable_erp_sync: boolean
           enable_po_generation: boolean
+          hs_code: string | null
           id: string
           incoterm: string | null
+          incoterms: string | null
           max_auto_extensions: number | null
           max_bid_frequency_per_supplier: number | null
           max_bids_per_supplier: number | null
@@ -14209,6 +14306,8 @@ export type Database = {
           minimum_bid_step_pct: number
           origin_country: string | null
           payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
           product_slug: string
           purchaser_id: string
           quality_standards: string | null
