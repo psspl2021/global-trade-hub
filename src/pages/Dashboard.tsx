@@ -39,6 +39,7 @@ import { BuyerDashboardHeader } from '@/components/dashboard/BuyerDashboardHeade
 import { BuyerActionCards } from '@/components/dashboard/BuyerActionCards';
 import { AIRFQGenerator } from '@/components/AIRFQGenerator';
 import { BuyerDiscoveryHub } from '@/components/BuyerDiscoveryHub';
+import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 
 // Lazy-loaded sub-views (only fetched when the user opens them)
 const SupplierCatalog = lazy(() => import('@/components/SupplierCatalog').then(m => ({ default: m.SupplierCatalog })));
@@ -90,6 +91,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
+  const { selectedPurchaser } = useBuyerCompanyContext();
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   
@@ -396,7 +398,7 @@ const Dashboard = () => {
         ) : isBuyerRole ? (
           <div className="mb-4 sm:mb-8">
             <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">
-              Welcome back, {user?.user_metadata?.contact_person || 'User'}!
+              Welcome back, {selectedPurchaser?.display_name || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
               {user?.user_metadata?.company_name} • {role?.toUpperCase()}
