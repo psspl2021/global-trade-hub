@@ -232,20 +232,28 @@ const Index = () => {
               </div>
               
               <div className="mt-6 animate-slide-up" style={{ animationDelay: '300ms' }}>
-                <DemoRequestForm />
+                <Suspense fallback={null}>
+                  <DemoRequestForm />
+                </Suspense>
               </div>
             </div>
           </div>
         </section>
 
         {/* ===== HIGH DEMAND SECTION (Revenue-Weighted) ===== */}
-        <HighDemandSection />
+        <Suspense fallback={<SectionFallback />}>
+          <HighDemandSection />
+        </Suspense>
 
         {/* ===== SECTION 3: LIVE BUYER DEMAND SECTION ===== */}
-        <LiveBuyerDemandSection />
+        <Suspense fallback={<SectionFallback />}>
+          <LiveBuyerDemandSection />
+        </Suspense>
 
         {/* ===== SECTION 4: HOW IT WORKS (AI-FIRST FLOW) ===== */}
-        <HowItWorksSection />
+        <Suspense fallback={<SectionFallback />}>
+          <HowItWorksSection />
+        </Suspense>
 
         {/* ===== SECTION 5: BUYER VS SUPPLIER VALUE SPLIT ===== */}
         <section className="py-16 sm:py-24 bg-muted/30">
