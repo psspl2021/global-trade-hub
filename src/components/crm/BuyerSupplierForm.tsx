@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { CountrySelector } from '@/components/global/CountrySelector';
+import { TaxIdField, isIndia } from '@/components/global/TaxIdField';
 
 const supplierSchema = z.object({
   supplier_name: z.string().min(1, 'Supplier name is required'),
@@ -17,6 +19,7 @@ const supplierSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
+  country: z.string().optional(),
   gstin: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -43,10 +46,14 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
       email: '',
       phone: '',
       address: '',
+      country: 'India',
       gstin: '',
       notes: '',
     },
   });
+
+  const country = form.watch('country') || 'India';
+  const indiaSelected = isIndia(country);
 
   const { data: existingSupplier } = useQuery({
     queryKey: ['buyer-supplier', editId],
@@ -71,6 +78,7 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
         email: existingSupplier.email || '',
         phone: existingSupplier.phone || '',
         address: existingSupplier.address || '',
+        country: (existingSupplier as any).country || 'India',
         gstin: existingSupplier.gstin || '',
         notes: existingSupplier.notes || '',
       });
@@ -81,6 +89,7 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
         email: '',
         phone: '',
         address: '',
+        country: 'India',
         gstin: '',
         notes: '',
       });
@@ -89,14 +98,18 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
 
   const mutation = useMutation({
     mutationFn: async (data: SupplierFormData) => {
-      const supplierData = {
+      const isIndian = isIndia(data.country);
+      const supplierData: any = {
         buyer_id: userId,
         supplier_name: data.supplier_name,
         company_name: data.company_name || null,
         email: data.email || null,
         phone: data.phone || null,
         address: data.address || null,
-        gstin: data.gstin || null,
+        country: data.country || 'India',
+        gstin: isIndian ? (data.gstin || null) : null,
+        // Non-India tax IDs are stored in gstin column too (single source) — but we mark via is_global_supplier
+        ...(isIndian ? {} : { gstin: data.gstin || null, is_global_supplier: true, export_capability: true }),
         notes: data.notes || null,
       };
 
@@ -196,18 +209,21 @@ export const BuyerSupplierForm = ({ open, onOpenChange, userId, editId, onSucces
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="gstin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>GSTIN</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter GSTIN" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <CountrySelector
+              value={country}
+              onSelect={(info) => {
+                form.setValue('country', info.name, { shouldDirty: true });
+                // Clear tax id when switching region (format differs)
+                form.setValue('gstin', '', { shouldDirty: true });
+              }}
+              label="Supplier Country"
+            />
+
+            <TaxIdField
+              country={country}
+              value={form.watch('gstin') || ''}
+              onChange={(v) => form.setValue('gstin', v, { shouldDirty: true })}
+              id="supplier-tax-id"
             />
 
             <FormField
