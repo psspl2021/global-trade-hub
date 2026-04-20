@@ -12,8 +12,10 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 import {
   ArrowLeft, UserPlus, Users, Trophy, MessageCircle,
-  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck,
+  Mail, Phone, Search, RefreshCw, AlertTriangle, ShieldCheck, Pencil,
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 interface SupplierNetworkPageProps {
   userId: string;
