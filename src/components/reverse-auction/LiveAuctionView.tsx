@@ -29,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatCompact as sharedFmtCompact, getCurrencySymbol, getCurrencyLocale } from '@/lib/currency';
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
 import { LiveInviteSupplier } from './LiveInviteSupplier';
+import { MultiCurrencyBidInput } from '@/components/global/MultiCurrencyBidInput';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
@@ -119,7 +120,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     }
   }, [auction?.status]);
   const { updateAuction, cancelAuction } = useReverseAuction();
-  const [bidPrice, setBidPrice] = useState('');
+  const [bidPrice, setBidPrice] = useState('');           // INR-equivalent (used by all validation/RPC)
+  const [bidDisplayValue, setBidDisplayValue] = useState(''); // Raw entry in supplier's currency
+  const [bidCurrency, setBidCurrency] = useState('INR');
+  const [bidFxRate, setBidFxRate] = useState(1);
   const [bidError, setBidError] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
@@ -442,9 +446,10 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     try {
       await placeBid(user.id, price, auction);
       setBidPrice('');
+      setBidDisplayValue('');
       toast({
         title: "Bid placed 🚀",
-        description: `Your bid of ${formatCurrency(price)} is now competing for L1`,
+        description: `Your bid of ${formatCurrency(price)} (${bidCurrency}) is now competing for L1`,
       });
       document.getElementById("live-strip")?.scrollIntoView({ behavior: "smooth" });
     } finally {
@@ -565,7 +570,12 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             return (
               <button
                 key={step}
-                onClick={() => { setBidPrice(Math.floor(quick).toString()); setBidError(''); }}
+                onClick={() => {
+                  const inr = Math.floor(quick);
+                  setBidPrice(inr.toString());
+                  setBidDisplayValue(bidCurrency === 'INR' ? inr.toString() : (inr / (bidFxRate || 1)).toFixed(2));
+                  setBidError('');
+                }}
                 className="text-xs border border-border px-2 py-1 rounded-md hover:bg-muted transition-colors"
               >
                 -{step * auction.minimum_bid_step_pct}% ({formatCurrency(Math.floor(quick))})
@@ -573,25 +583,36 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             );
           })}
         </div>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <IndianRupee className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-            <Input
-              type="number"
-              inputMode="numeric"
-              className="pl-8"
-              placeholder={`Enter below ${Math.floor(currentLowest)}`}
-              value={bidPrice}
-              onChange={e => { setBidPrice(e.target.value); setBidError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handlePlaceBid()}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <MultiCurrencyBidInput
+              value={bidDisplayValue}
+              onChange={({ displayValue, inrValue, currency, fxRate }) => {
+                setBidDisplayValue(displayValue);
+                setBidCurrency(currency);
+                setBidFxRate(fxRate);
+                setBidPrice(inrValue ? String(inrValue) : '');
+                setBidError('');
+              }}
+              defaultCurrency={bidCurrency}
+              label={`Your Bid (compared in ₹ — must be below ${Math.floor(currentLowest)})`}
+              disabled={isPlacing}
             />
           </div>
-          <Button onClick={handlePlaceBid} disabled={!isValidBid || isPlacing}>
+          <Button
+            onClick={handlePlaceBid}
+            disabled={!isValidBid || isPlacing}
+            className="sm:w-auto w-full"
+          >
             {isPlacing ? 'Placing...' : '🚀 Bid'}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          💡 Smart suggestion: <button onClick={() => { setBidPrice(smartSuggestion.toString()); setBidError(''); }} className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">{formatCurrency(smartSuggestion)}</button>
+          💡 Smart suggestion: <button onClick={() => {
+            setBidPrice(smartSuggestion.toString());
+            setBidDisplayValue(bidCurrency === 'INR' ? smartSuggestion.toString() : (smartSuggestion / (bidFxRate || 1)).toFixed(2));
+            setBidError('');
+          }} className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">{formatCurrency(smartSuggestion)}</button>
         </p>
         {bidError && <p className="text-xs text-destructive font-medium">{bidError}</p>}
         <p className="text-xs text-muted-foreground border-t border-border pt-2">
