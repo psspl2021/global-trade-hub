@@ -17,8 +17,19 @@ interface Props {
 }
 
 export function GlobalTradePanel(p: Props) {
-  const hasAny = p.incoterm || p.hs_code || p.port_of_loading || p.port_of_discharge || p.origin_country || p.destination_country || p.shipment_mode;
-  if (!hasAny) return null;
+  // True international signals (exclude destination_country alone — buyers always have one)
+  const hasIntlSignal = !!(p.incoterm || p.hs_code || p.port_of_loading || p.port_of_discharge || p.shipment_mode);
+  const origin = (p.origin_country || '').trim().toUpperCase();
+  const dest = (p.destination_country || '').trim().toUpperCase();
+  const normalize = (c: string) => (c === 'INDIA' ? 'IN' : c);
+  const o = normalize(origin);
+  const d = normalize(dest);
+  // Cross-border only when both sides exist and differ
+  const isCrossBorder = !!o && !!d && o !== d;
+  const isInternational = hasIntlSignal || isCrossBorder;
+
+  // Nothing meaningful to show
+  if (!isInternational && !p.destination_country) return null;
 
   const Item = ({ icon: Icon, label, value }: { icon: any; label: string; value?: string | null }) =>
     value ? (
@@ -35,8 +46,12 @@ export function GlobalTradePanel(p: Props) {
     <div className="mt-3 rounded-md border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 mb-2.5">
         <Globe2 className="w-4 h-4 text-primary" />
-        <span className="text-xs font-semibold uppercase tracking-wide">Global Trade</span>
-        <Badge variant="outline" className="text-[10px]">International</Badge>
+        <span className="text-xs font-semibold uppercase tracking-wide">
+          {isInternational ? 'Global Trade' : 'Trade Details'}
+        </span>
+        <Badge variant="outline" className="text-[10px]">
+          {isInternational ? 'International' : 'Domestic'}
+        </Badge>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <Item icon={FileCode} label="Incoterm" value={p.incoterm} />
