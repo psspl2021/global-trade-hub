@@ -52,7 +52,7 @@ interface SupplierInfo {
   email: string;
   country?: string | null;
 }
-}
+
 
 interface AuctionPOGeneratorProps {
   auction: ReverseAuction;
