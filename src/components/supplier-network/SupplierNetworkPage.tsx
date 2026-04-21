@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { GlobalSupplierKYCForm } from '@/components/global/GlobalSupplierKYCForm';
 
 interface SupplierNetworkPageProps {
   userId: string;
@@ -48,6 +49,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [editGstin, setEditGstin] = useState('');
   const [editLocation, setEditLocation] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const [kycSupplierId, setKycSupplierId] = useState<string | null>(null);
 
   const openEdit = (s: any) => {
     setEditingSupplier(s);
