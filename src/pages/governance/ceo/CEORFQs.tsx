@@ -19,10 +19,9 @@ interface RFQItem {
   awarded: boolean;
 }
 
-const fmtINR = (n: number | null) =>
-  n == null ? '—' : '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n);
-
 function CEORFQsInner() {
+  const { formatAmount } = useGlobalBuyerContext();
+  const fmtINR = (n: number | null) => (n == null ? '—' : formatAmount(n));
   const [items, setItems] = useState<RFQItem[]>([]);
   const [loading, setLoading] = useState(true);
 

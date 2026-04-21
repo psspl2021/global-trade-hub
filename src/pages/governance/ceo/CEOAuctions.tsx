@@ -19,10 +19,9 @@ interface AuctionItem {
   unique_suppliers: number;
 }
 
-const fmtINR = (n: number | null) =>
-  n == null ? '—' : '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n);
-
 function CEOAuctionsInner() {
+  const { formatAmount } = useGlobalBuyerContext();
+  const fmtINR = (n: number | null) => (n == null ? '—' : formatAmount(n));
   const [items, setItems] = useState<AuctionItem[]>([]);
   const [loading, setLoading] = useState(true);
 
