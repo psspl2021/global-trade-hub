@@ -77,7 +77,7 @@ serve(async (req) => {
       .maybeSingle();
     if (aucErr || !auction) return json({ error: "Auction not found" }, 404);
 
-    if (!isServiceCall && actorUserId !== auction.buyer_id) {
+    if (!isServiceCall && !isSystemCall && actorUserId !== auction.buyer_id) {
       return json({ error: "Forbidden" }, 403);
     }
 
