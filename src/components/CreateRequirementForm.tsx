@@ -28,6 +28,7 @@ import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 import { useQueryClient } from '@tanstack/react-query';
 import { RFQDestinationSelector, type RFQType } from '@/components/rfq/RFQDestinationSelector';
 import { parseCountryString } from '@/config/countryConfig';
+import { IncotermsPicker } from '@/components/global/IncotermsPicker';
 
 interface RequirementItem {
   item_name: string;
@@ -50,6 +51,7 @@ const requirementSchema = z.object({
   quality_standards: z.string().optional(),
   certifications_required: z.string().optional(),
   payment_terms: z.string().optional(),
+  incoterms: z.string().optional(),
 });
 
 type RequirementFormData = z.infer<typeof requirementSchema>;
@@ -201,11 +203,15 @@ export function CreateRequirementForm({
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<RequirementFormData>({
     resolver: zodResolver(requirementSchema),
   });
+  const watchedTradeType = watch('trade_type');
+  const watchedIncoterms = watch('incoterms');
+  const isInternational = watchedTradeType === 'import' || watchedTradeType === 'export';
 
   // Pre-fill form when AI data is provided
   useEffect(() => {
@@ -340,6 +346,7 @@ export function CreateRequirementForm({
         quality_standards: data.quality_standards || null,
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
+        incoterms: data.incoterms || null,
         customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
         // Destination for AI matching - stored as comma-separated string
         destination_country: destinationCountryValue || null,
@@ -556,8 +563,7 @@ export function CreateRequirementForm({
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-
+          </div>
 
                     <div className="md:col-span-2 space-y-1.5">
                       <Label className="text-xs">Product Description *</Label>
@@ -680,6 +686,20 @@ export function CreateRequirementForm({
               {...register('payment_terms')}
             />
           </div>
+
+          {isInternational && (
+            <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <IncotermsPicker
+                value={watchedIncoterms || ''}
+                onChange={(v) => setValue('incoterms', v, { shouldDirty: true })}
+                label="Incoterms (Delivery Terms) *"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for {watchedTradeType === 'import' ? 'imports' : 'exports'}. Defines who pays freight, insurance, and duties.
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => handleClose(false)}>

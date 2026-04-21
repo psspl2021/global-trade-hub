@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { PurchaseOrderTimeline } from './PurchaseOrderTimeline';
 import { PurchaseOrderActions } from './PurchaseOrderActions';
@@ -10,7 +11,10 @@ import {
   type POExecutionStatus,
 } from '@/lib/po-execution-engine';
 import { cn } from '@/lib/utils';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock, AlertTriangle, Globe2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ExportDocumentsPanel } from '@/components/global/ExportDocumentsPanel';
+import { MultiCurrencyInvoiceView } from '@/components/global/MultiCurrencyInvoiceView';
+import { InternationalLogisticsButton } from '@/components/global/InternationalLogisticsButton';
 
 interface PurchaseOrderExecutionCardProps {
   po: {
@@ -44,6 +48,8 @@ function formatAmount(amount: number, currency?: string) {
 export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: PurchaseOrderExecutionCardProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [supplierConfirmed, setSupplierConfirmed] = useState<boolean | null>(null);
+  const [globalPanelOpen, setGlobalPanelOpen] = useState(false);
+  const [globalData, setGlobalData] = useState<any | null>(null);
   const currentStatus = (po.status || 'draft') as POExecutionStatus;
   const colors = PO_STATUS_COLORS[currentStatus] || PO_STATUS_COLORS.draft;
 
@@ -77,9 +83,25 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
       setSupplierConfirmed((data as any[])?.length > 0);
     };
 
+    const loadGlobal = async () => {
+      const { data } = await supabase
+        .from('purchase_orders')
+        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type')
+        .eq('id', po.id)
+        .maybeSingle();
+      if (data) setGlobalData(data);
+    };
+
     load();
     checkConfirmation();
+    loadGlobal();
   }, [po.id, currentStatus, isExternal, po.external_po_number]);
+
+  const isInternational =
+    !!globalData &&
+    ((globalData.currency && globalData.currency !== 'INR') ||
+      !!globalData.incoterms ||
+      globalData.region_type === 'global');
 
   const pendingConfirmation = isExternal && supplierConfirmed === false;
 
@@ -142,6 +164,59 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
           </div>
         )}
       </div>
+
+      {/* Global Trade Panel — only for international POs */}
+      {isInternational && (
+        <div className="border-t bg-muted/20">
+          <button
+            type="button"
+            onClick={() => setGlobalPanelOpen((o) => !o)}
+            className="w-full px-4 py-2 flex items-center justify-between text-xs font-medium hover:bg-muted/40 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <Globe2 className="w-3.5 h-3.5 text-primary" />
+              Global Trade
+              {globalData?.incoterms && (
+                <Badge variant="secondary" className="text-[10px] font-mono">{globalData.incoterms}</Badge>
+              )}
+              {globalData?.currency && globalData.currency !== 'INR' && (
+                <Badge variant="outline" className="text-[10px] font-mono">{globalData.currency}</Badge>
+              )}
+            </span>
+            {globalPanelOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {globalPanelOpen && globalData && (
+            <div className="p-4 space-y-4">
+              <MultiCurrencyInvoiceView
+                poNumber={globalData.po_number || po.po_number}
+                vendorName={globalData.vendor_name || displayName}
+                currency={globalData.currency || 'INR'}
+                totalAmount={globalData.total_amount || displayAmount}
+                baseCurrency={globalData.base_currency || 'INR'}
+                poValueBaseCurrency={globalData.po_value_base_currency}
+                exchangeRate={globalData.exchange_rate}
+                fxSource={globalData.fx_source}
+                fxTimestamp={globalData.fx_timestamp}
+                incoterms={globalData.incoterms}
+                orderDate={globalData.order_date}
+              />
+
+              <ExportDocumentsPanel purchaseOrderId={po.id} />
+
+              <div className="flex justify-end">
+                <InternationalLogisticsButton
+                  purchaseOrderId={po.id}
+                  defaultOriginCountry=""
+                  defaultDestinationCountry=""
+                  defaultIncoterms={globalData.incoterms || ''}
+                  cargoDescription={po.title || globalData.po_number || ''}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
