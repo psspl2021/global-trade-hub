@@ -169,12 +169,28 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
     try {
       if (supplierMode) {
-        const { data: invites, error: invErr } = await supabase
-          .from('reverse_auction_suppliers')
-          .select('auction_id')
-          .or(`supplier_id.eq.${user.id},supplier_email.eq.${user.email}`);
-        if (invErr) throw invErr;
-        const auctionIds = (invites || []).map((i: any) => i.auction_id);
+        // Fetch invites by ID and by email separately — PostgREST `.or` with
+        // emails (containing @ and .) can be brittle; two queries are reliable.
+        const userEmail = (user.email || '').toLowerCase();
+        const [byIdRes, byEmailRes] = await Promise.all([
+          supabase
+            .from('reverse_auction_suppliers')
+            .select('auction_id')
+            .eq('supplier_id', user.id),
+          userEmail
+            ? supabase
+                .from('reverse_auction_suppliers')
+                .select('auction_id')
+                .eq('supplier_email', userEmail)
+            : Promise.resolve({ data: [], error: null } as any),
+        ]);
+        if (byIdRes.error) throw byIdRes.error;
+        if (byEmailRes.error) throw byEmailRes.error;
+        const auctionIdSet = new Set<string>();
+        ((byIdRes.data || []) as any[]).forEach((i) => i.auction_id && auctionIdSet.add(i.auction_id));
+        ((byEmailRes.data || []) as any[]).forEach((i) => i.auction_id && auctionIdSet.add(i.auction_id));
+        const auctionIds = Array.from(auctionIdSet);
+        console.log('[useReverseAuction] Supplier invites found:', { byId: byIdRes.data?.length, byEmail: byEmailRes.data?.length, total: auctionIds.length, userEmail });
         if (auctionIds.length === 0) {
           setAuctions([]);
           setIsLoading(false);
