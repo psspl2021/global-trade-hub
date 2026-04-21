@@ -537,6 +537,11 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
                     <Button size="sm" variant="ghost" className="h-7 px-2 text-muted-foreground hover:text-foreground" onClick={() => openEdit(s)} aria-label="Edit supplier">
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
+                    {s.is_global_supplier && (
+                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setKycSupplierId(s.id)}>
+                        <ShieldCheck className="w-3.5 h-3.5 mr-1" /> KYC
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
