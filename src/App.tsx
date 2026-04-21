@@ -55,6 +55,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 const IntelligenceActionPage = lazy(() => import("./pages/governance/IntelligenceActionPage"));
+const GlobalPlanCheckoutPage = lazy(() => import("./pages/checkout/GlobalPlanCheckoutPage"));
+const CheckoutReturnPage = lazy(() => import("./pages/checkout/CheckoutReturnPage"));
 
 
 // Hub & Spoke Directory Pages
@@ -269,6 +271,8 @@ const BotAwareRouter = () => {
         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
         <Route path="/earn-with-procuresaathi" element={<EarnWithProcureSaathi />} />
         <Route path="/procurement/:slug" element={<ProcurementSignalPage />} />
+        <Route path="/checkout/global-plan" element={<GlobalPlanCheckoutPage />} />
+        <Route path="/checkout/return" element={<CheckoutReturnPage />} />
         
         {/* Hub & Spoke Directory Routes */}
         <Route path="/explore" element={<ExplorePage />} />
