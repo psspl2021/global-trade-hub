@@ -327,6 +327,37 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
         </div>
       )}
 
+      {/* Per-country multi-select chips — appears when ≥2 distinct countries */}
+      {distinctCountries.length >= 2 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[11px] text-muted-foreground mr-1">Country:</span>
+          {distinctCountries.map(c => {
+            const active = selectedCountries.has(c);
+            return (
+              <Button
+                key={c}
+                size="sm"
+                variant={active ? 'default' : 'outline'}
+                className="h-7 px-2.5 text-[11px]"
+                onClick={() => toggleCountry(c)}
+              >
+                {c} ({countryCounts[c]})
+              </Button>
+            );
+          })}
+          {selectedCountries.size > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 text-[11px] text-muted-foreground"
+              onClick={() => setSelectedCountries(new Set())}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Actions: Add + Search */}
       <div className="flex gap-2">
         <Button size="sm" className="gap-1.5" onClick={() => setShowAdd(true)}>
