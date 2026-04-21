@@ -7,6 +7,7 @@ import { BuyerPurchasesList } from '@/components/crm/BuyerPurchasesList';
 import { BuyerPurchaseForm } from '@/components/crm/BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from '@/components/crm/BuyerPurchaseViewer';
 import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
+import { POApprovalQueue } from './POApprovalQueue';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCanCreatePO } from '@/hooks/useCanCreatePO';
