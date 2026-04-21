@@ -608,7 +608,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          💡 Smart suggestion: <button onClick={() => { setBidPrice(smartSuggestion.toString()); setBidError(''); }} className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">{formatCurrency(smartSuggestion)}</button>
+          💡 Smart suggestion: <button onClick={() => {
+            setBidPrice(smartSuggestion.toString());
+            setBidDisplayValue(bidCurrency === 'INR' ? smartSuggestion.toString() : (smartSuggestion / (bidFxRate || 1)).toFixed(2));
+            setBidError('');
+          }} className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80">{formatCurrency(smartSuggestion)}</button>
         </p>
         {bidError && <p className="text-xs text-destructive font-medium">{bidError}</p>}
         <p className="text-xs text-muted-foreground border-t border-border pt-2">
