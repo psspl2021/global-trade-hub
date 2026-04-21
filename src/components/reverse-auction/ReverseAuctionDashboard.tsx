@@ -307,6 +307,19 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
             </Button>
           )}
           {!isSupplier && (
+            <Button
+              variant="outline"
+              onClick={handleSeedTestAuction}
+              disabled={isSeedingTest}
+              className="gap-2 flex-1 sm:flex-none border-dashed"
+              title="Spawn a complete global auction → auto-build PO + export docs + ERP queue"
+            >
+              {isSeedingTest ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
+              <span className="hidden md:inline">Run Live Auction Test</span>
+              <span className="md:hidden">Test</span>
+            </Button>
+          )}
+          {!isSupplier && (
             <Button onClick={() => navigate('/buyer/create-reverse-auction')} className="gap-2 flex-1 sm:flex-none">
               <Sparkles className="w-4 h-4" />
               <span className="sm:hidden">Create Auction</span>
