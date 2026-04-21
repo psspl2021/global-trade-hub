@@ -8123,27 +8123,33 @@ export type Database = {
       reverse_auction_bids: {
         Row: {
           auction_id: string
+          bid_currency: string | null
           bid_price: number
           created_at: string
           edit_count: number
+          fx_rate_to_inr: number | null
           id: string
           is_winning: boolean
           supplier_id: string
         }
         Insert: {
           auction_id: string
+          bid_currency?: string | null
           bid_price: number
           created_at?: string
           edit_count?: number
+          fx_rate_to_inr?: number | null
           id?: string
           is_winning?: boolean
           supplier_id: string
         }
         Update: {
           auction_id?: string
+          bid_currency?: string | null
           bid_price?: number
           created_at?: string
           edit_count?: number
+          fx_rate_to_inr?: number | null
           id?: string
           is_winning?: boolean
           supplier_id?: string
