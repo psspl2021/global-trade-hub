@@ -70,23 +70,29 @@ export default function GlobalPlanCheckoutPage() {
         <div className="grid lg:grid-cols-[1fr_400px] gap-6">
           {/* Payment methods */}
           <Card className="p-6">
-            <Tabs defaultValue="stripe" onValueChange={() => setShowStripe(false)}>
+            <Tabs defaultValue="cashfree" onValueChange={() => setShowStripe(false)}>
               <TabsList className="grid grid-cols-3 mb-6">
-                <TabsTrigger value="stripe" className="gap-2">
-                  <Globe className="h-4 w-4" /> Card / Global
-                </TabsTrigger>
                 <TabsTrigger value="cashfree" className="gap-2">
                   <CreditCard className="h-4 w-4" /> UPI / India
                 </TabsTrigger>
                 <TabsTrigger value="wire" className="gap-2">
                   <Building2 className="h-4 w-4" /> Wire Transfer
                 </TabsTrigger>
+                <TabsTrigger value="stripe" className="gap-2">
+                  <Globe className="h-4 w-4" /> Card / Global
+                </TabsTrigger>
               </TabsList>
 
               {/* STRIPE */}
               <TabsContent value="stripe" className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Pay by card (auto-renewing)</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-semibold">Pay by card (auto-renewing)</h3>
+                    <Badge variant="secondary" className="text-xs">Coming soon</Badge>
+                  </div>
+                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md p-3 mb-4 text-xs text-amber-900 dark:text-amber-200">
+                    International card payments are temporarily unavailable while our Stripe account approval is in progress. Please use <strong>UPI / India</strong> or <strong>Wire Transfer</strong> in the meantime.
+                  </div>
                   <p className="text-sm text-muted-foreground mb-4">
                     Instant activation. Renews every 6 months. Cancel anytime from billing portal.
                   </p>
@@ -120,8 +126,8 @@ export default function GlobalPlanCheckoutPage() {
                 </div>
 
                 {!showStripe ? (
-                  <Button onClick={() => setShowStripe(true)} className="w-full" size="lg">
-                    Continue to Payment
+                  <Button disabled className="w-full" size="lg">
+                    Card payments unavailable — use UPI or Wire
                   </Button>
                 ) : (
                   <StripeEmbeddedCheckout
