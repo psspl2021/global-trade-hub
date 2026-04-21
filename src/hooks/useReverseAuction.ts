@@ -132,10 +132,19 @@ export function useReverseAuction(supplierMode: boolean = false) {
   const scopeVersionRef = useRef(0);
   const requestIdRef = useRef(0);
 
+  // Stable refs for buyer-context values so fetchAuctions identity doesn't
+  // churn when those flip — that churn was racing the supplier list to empty.
+  const selectedPurchaserIdRef = useRef(selectedPurchaserId);
+  selectedPurchaserIdRef.current = selectedPurchaserId;
+  const contextLoadingRef = useRef(contextLoading);
+  contextLoadingRef.current = contextLoading;
+
   const fetchAuctions = useCallback(async (filters?: AuctionFilters) => {
     if (!user) return;
+    const purchaserId = selectedPurchaserIdRef.current;
+    const ctxLoading = contextLoadingRef.current;
     // Wait for purchaser context to resolve to avoid leaking other purchasers' auctions
-    if (!supplierMode && contextLoading) return;
+    if (!supplierMode && ctxLoading) return;
     const scopeVersion = scopeVersionRef.current;
     const requestId = ++requestIdRef.current;
     const shouldApply = () =>
@@ -146,7 +155,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
     // we MUST clear stale rows from the previous purchaser immediately —
     // otherwise the user sees another purchaser's auctions flash before the
     // fresh fetch returns (the "dikha phir gayab" bug).
-    const cKey = !supplierMode ? auctionCacheKey(user.id, selectedPurchaserId, filters) : null;
+    const cKey = !supplierMode ? auctionCacheKey(user.id, purchaserId, filters) : null;
     if (cKey) {
       const cached = auctionCache.get(cKey);
       if (cached) {
@@ -162,7 +171,11 @@ export function useReverseAuction(supplierMode: boolean = false) {
         setAuctions([]);
         setIsLoading(true);
       }
-    } else {
+    } else if (!supplierMode) {
+      // Buyer mode without cache key: clear stale state.
+      // Supplier mode: do NOT pre-clear here. Concurrent calls (mount +
+      // filters effect) would race each other to setAuctions([]) and the
+      // discarded earlier call would already have wiped the visible list.
       if (!shouldApply()) return;
       setAuctions([]);
       setIsLoading(true);
@@ -192,20 +205,19 @@ export function useReverseAuction(supplierMode: boolean = false) {
         const auctionIds = Array.from(auctionIdSet);
         console.log('[useReverseAuction] Supplier invites found:', { byId: byIdRes.data?.length, byEmail: byEmailRes.data?.length, total: auctionIds.length, userEmail });
         if (auctionIds.length === 0) {
-          setAuctions([]);
-          setIsLoading(false);
+          if (shouldApply()) {
+            setAuctions([]);
+            setIsLoading(false);
+          }
           return;
         }
         let query = supabase
           .from('reverse_auctions')
           .select('*')
           .in('id', auctionIds)
-          .in('status', ['scheduled', 'live', 'completed']);
+          .in('status', ['scheduled', 'live', 'completed', 'cancelled']);
 
-        // Apply server-side filters only for cancelled (completed is time-derived, handled client-side)
-        if (filters?.status === 'cancelled') {
-          query = query.eq('status', filters.status);
-        }
+        // Server-side category filter (status is fully client-side for suppliers)
         if (filters?.category && filters.category !== 'all') {
           query = query.eq('category', filters.category);
         }
@@ -225,7 +237,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         }
 
         const { data, error } = await query;
-        console.log('[useReverseAuction] Supplier auctions query result:', { count: data?.length, error, sampleIds: (data || []).slice(0, 3).map((d: any) => d.id), filters });
+        console.log('[useReverseAuction] Supplier auctions query result:', { count: data?.length, error: error?.message, sampleIds: (data || []).slice(0, 3).map((d: any) => d.id), filters });
         if (error) throw error;
         if (!shouldApply()) return;
         setAuctions((data as unknown as ReverseAuction[]) || []);
@@ -237,7 +249,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
         const data = await fetchScopedAuctions({
           p_user_id: user.id,
-          p_selected_purchaser: selectedPurchaserId,
+          p_selected_purchaser: purchaserId,
           p_status: filters?.status === 'cancelled' ? 'cancelled' : null,
           p_from: null,
           p_to: null,
@@ -277,7 +289,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         setIsLoading(false);
       }
     }
-  }, [user, supplierMode, selectedPurchaserId, contextLoading]);
+  }, [user, supplierMode]);
 
   // Hardening: clear state immediately on scope change, before any cache/fetch
   // logic runs. Guarantees zero stale render even if cache logic evolves.
@@ -296,13 +308,16 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   }, [scopeKey, supplierMode]);
 
-  useEffect(() => {
-    fetchAuctions();
-  }, [fetchAuctions]);
-
   // Stable ref to fetchAuctions so realtime effect doesn't tear down/resubscribe on every render.
   const fetchAuctionsRef = useRef(fetchAuctions);
   fetchAuctionsRef.current = fetchAuctions;
+
+  // Initial fetch + re-fetch on scope change. fetchAuctions is now stable
+  // across buyer-context changes, so we drive refetches off scopeKey itself
+  // (which encodes user / purchaser / contextLoading for buyer mode).
+  useEffect(() => {
+    fetchAuctionsRef.current();
+  }, [scopeKey]);
 
   // Realtime: refresh when supplier invitations change OR when auction status flips.
   // Channel deps are ONLY user/supplierMode — keeps a single stable subscription.
