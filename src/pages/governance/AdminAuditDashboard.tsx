@@ -680,6 +680,13 @@ export default function AdminAuditDashboard() {
             <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setCurrentView('seo-intelligence')}><Sparkles className="h-4 w-4 mr-2" />Open SEO Intelligence</Button>
           </CardContent>
         </Card>
+        <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Globe className="h-4 w-4" />FX Rates Console<Badge className="bg-white/20 text-white text-xs">Live</Badge></CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-emerald-200">View &amp; refresh INR-anchored conversion rates · auto-updated daily 02:30 IST</p>
+            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => navigate('/admin/fx-rates')}><Globe className="h-4 w-4 mr-2" />Open FX Console</Button>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
