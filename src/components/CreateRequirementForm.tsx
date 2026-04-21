@@ -203,11 +203,15 @@ export function CreateRequirementForm({
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<RequirementFormData>({
     resolver: zodResolver(requirementSchema),
   });
+  const watchedTradeType = watch('trade_type');
+  const watchedIncoterms = watch('incoterms');
+  const isInternational = watchedTradeType === 'import' || watchedTradeType === 'export';
 
   // Pre-fill form when AI data is provided
   useEffect(() => {
