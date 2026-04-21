@@ -264,6 +264,28 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
         auction_end: nowISO,
       }));
       toast({ title: '🏆 Auction Awarded', description: `Awarded to supplier at ₹${winningBid.bid_price.toLocaleString('en-IN')}` });
+
+      // Auto-build the Purchase Order (+ export docs for global, +ERP queue) — fire-and-forget
+      try {
+        const { data: buildRes, error: buildErr } = await supabase.functions.invoke(
+          'auto-build-po-from-auction',
+          { body: { auction_id: auction.id } },
+        );
+        if (buildErr) throw buildErr;
+        if (buildRes?.success) {
+          toast({
+            title: '📄 Purchase Order created',
+            description: `PO ${buildRes.po_number} built automatically${buildRes.is_global ? ' with export documents' : ''}.`,
+          });
+        }
+      } catch (buildErr: any) {
+        console.error('Auto PO build failed:', buildErr);
+        toast({
+          title: 'PO auto-build failed',
+          description: buildErr?.message || 'You can create the PO manually below.',
+          variant: 'destructive',
+        });
+      }
     } catch (err: any) {
       console.error('Award error:', err);
       toast({ title: 'Award failed', description: err.message || 'Something went wrong', variant: 'destructive' });
