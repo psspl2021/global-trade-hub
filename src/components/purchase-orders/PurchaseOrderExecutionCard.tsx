@@ -86,7 +86,7 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
     const loadGlobal = async () => {
       const { data } = await supabase
         .from('purchase_orders')
-        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type, supplier_country, destination_country')
+        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type')
         .eq('id', po.id)
         .maybeSingle();
       if (data) setGlobalData(data);
@@ -207,8 +207,8 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
               <div className="flex justify-end">
                 <InternationalLogisticsButton
                   purchaseOrderId={po.id}
-                  defaultOriginCountry={globalData.supplier_country || ''}
-                  defaultDestinationCountry={globalData.destination_country || ''}
+                  defaultOriginCountry=""
+                  defaultDestinationCountry=""
                   defaultIncoterms={globalData.incoterms || ''}
                   cargoDescription={po.title || globalData.po_number || ''}
                 />
