@@ -126,8 +126,8 @@ export default function GlobalPlanCheckoutPage() {
                 </div>
 
                 {!showStripe ? (
-                  <Button onClick={() => setShowStripe(true)} className="w-full" size="lg">
-                    Continue to Payment
+                  <Button disabled className="w-full" size="lg">
+                    Card payments unavailable — use UPI or Wire
                   </Button>
                 ) : (
                   <StripeEmbeddedCheckout
