@@ -264,7 +264,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         if (itemsError) throw itemsError;
       }
 
-      toast.success(`Purchase Order ${poNumber} sent to ${supplier.company_name || 'supplier'}`);
+      toast.success(`Purchase Order ${poNumber} submitted for approval (Manager → Head of Procurement)`);
       setSent(true);
       onPOCreated?.();
     } catch (err: any) {
@@ -281,12 +281,15 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
 
   if (sent) {
     return (
-      <Card className="border-emerald-200 bg-emerald-50/50">
+      <Card className="border-amber-200 bg-amber-50/50">
         <CardContent className="py-6 text-center space-y-2">
-          <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-          <h3 className="font-semibold text-emerald-800">Purchase Order Confirmed</h3>
-          <p className="text-sm text-emerald-700">
-            {poNumber} — {formatINR(totals.grandTotal)} to {supplier.company_name || 'Supplier'}
+          <CheckCircle2 className="w-10 h-10 text-amber-600 mx-auto" />
+          <h3 className="font-semibold text-amber-800">Submitted for Approval</h3>
+          <p className="text-sm text-amber-700">
+            {poNumber} — {formatINR(totals.grandTotal)} pending Manager → Head of Procurement sign-off
+          </p>
+          <p className="text-xs text-amber-600/80">
+            The supplier {supplier.company_name || ''} will receive the PO automatically once both approvers sign off.
           </p>
         </CardContent>
       </Card>
