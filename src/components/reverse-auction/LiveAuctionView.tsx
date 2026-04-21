@@ -30,6 +30,7 @@ import { formatCompact as sharedFmtCompact, getCurrencySymbol, getCurrencyLocale
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
 import { LiveInviteSupplier } from './LiveInviteSupplier';
 import { MultiCurrencyBidInput } from '@/components/global/MultiCurrencyBidInput';
+import { GlobalTradePanel } from '@/components/global/GlobalTradePanel';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
@@ -746,6 +747,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             <p className="text-sm text-muted-foreground mt-0.5">
               {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
             </p>
+            <GlobalTradePanel
+              incoterm={auction.incoterm}
+              hs_code={auction.hs_code}
+              port_of_loading={auction.port_of_loading}
+              port_of_discharge={auction.port_of_discharge}
+              origin_country={auction.origin_country}
+              destination_country={auction.destination_country}
+              shipment_mode={auction.shipment_mode}
+            />
           </div>
           <div className="flex items-center gap-2">
             {isLive && (

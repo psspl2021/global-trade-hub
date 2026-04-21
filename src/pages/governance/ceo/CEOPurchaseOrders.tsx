@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RequireCapability } from '@/components/governance/RequireCapability';
 import { OverridePOModal } from './OverridePOModal';
 import { format } from 'date-fns';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 
 interface POItem {
   id: string;
@@ -25,8 +26,7 @@ interface POItem {
   payment_due_date: string | null;
 }
 
-const fmtINR = (n: number) =>
-  new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n || 0);
+// Region-aware currency formatting via useGlobalBuyerContext
 
 function statusBadge(po: POItem) {
   if (po.ceo_override && !po.manager_ack_at)
@@ -39,6 +39,7 @@ function statusBadge(po: POItem) {
 }
 
 function CEOPurchaseOrdersInner() {
+  const { formatAmount } = useGlobalBuyerContext();
   const [items, setItems] = useState<POItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [overrideTarget, setOverrideTarget] = useState<POItem | null>(null);
@@ -97,7 +98,7 @@ function CEOPurchaseOrdersInner() {
                     )}
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <div className="text-lg font-semibold tabular-nums">₹{fmtINR(po.po_value)}</div>
+                    <div className="text-lg font-semibold tabular-nums">{formatAmount(po.po_value)}</div>
                     {canOverride && (
                       <Button size="sm" variant="default" onClick={() => setOverrideTarget(po)}>
                         Override & Approve

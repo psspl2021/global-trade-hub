@@ -32,6 +32,14 @@ export interface ReverseAuction {
   winning_price: number | null;
   created_at: string;
   updated_at: string;
+  // Global trade (optional — populated for international auctions)
+  incoterm?: string | null;
+  origin_country?: string | null;
+  destination_country?: string | null;
+  shipment_mode?: string | null;
+  hs_code?: string | null;
+  port_of_loading?: string | null;
+  port_of_discharge?: string | null;
 }
 
 export interface ReverseAuctionBid {

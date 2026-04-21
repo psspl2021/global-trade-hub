@@ -5,6 +5,7 @@ import { Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { RequireCapability } from '@/components/governance/RequireCapability';
 import { format } from 'date-fns';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 
 interface RFQItem {
   id: string;
@@ -18,10 +19,9 @@ interface RFQItem {
   awarded: boolean;
 }
 
-const fmtINR = (n: number | null) =>
-  n == null ? '—' : '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n);
-
 function CEORFQsInner() {
+  const { formatAmount } = useGlobalBuyerContext();
+  const fmtINR = (n: number | null) => (n == null ? '—' : formatAmount(n));
   const [items, setItems] = useState<RFQItem[]>([]);
   const [loading, setLoading] = useState(true);
 
