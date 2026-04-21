@@ -8138,6 +8138,7 @@ export type Database = {
         Row: {
           auction_type: string | null
           award_locked: boolean | null
+          base_currency: string
           bidding_deadline_at: string | null
           budget_max: number | null
           budget_min: number | null
@@ -8145,6 +8146,7 @@ export type Database = {
           buyer_id: string
           certifications_required: string | null
           created_at: string
+          currency: string
           current_lowest_bid: number | null
           customer_name: string | null
           deadline: string
@@ -8189,6 +8191,7 @@ export type Database = {
         Insert: {
           auction_type?: string | null
           award_locked?: boolean | null
+          base_currency?: string
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
@@ -8196,6 +8199,7 @@ export type Database = {
           buyer_id: string
           certifications_required?: string | null
           created_at?: string
+          currency?: string
           current_lowest_bid?: number | null
           customer_name?: string | null
           deadline: string
@@ -8240,6 +8244,7 @@ export type Database = {
         Update: {
           auction_type?: string | null
           award_locked?: boolean | null
+          base_currency?: string
           bidding_deadline_at?: string | null
           budget_max?: number | null
           budget_min?: number | null
@@ -8247,6 +8252,7 @@ export type Database = {
           buyer_id?: string
           certifications_required?: string | null
           created_at?: string
+          currency?: string
           current_lowest_bid?: number | null
           customer_name?: string | null
           deadline?: string
