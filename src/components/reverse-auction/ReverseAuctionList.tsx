@@ -219,6 +219,26 @@ export function ReverseAuctionList({ onSelectAuction, isBuyer = true, isSupplier
         </div>
       </div>
 
+      {/* ── Supplier Invitations Banner (live + reactive) ── */}
+      {isSupplier && auctions.length > 0 && (
+        <div className="rounded-[0.625rem] border border-primary/20 bg-gradient-to-r from-primary/5 to-emerald-500/5 px-4 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Gavel className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">
+              You have {auctions.length} auction invitation{auctions.length === 1 ? '' : 's'}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {liveAuctions.length > 0 && <span className="text-emerald-700 font-medium">{liveAuctions.length} live now • </span>}
+              {scheduledAuctions.length > 0 && <span>{scheduledAuctions.length} upcoming • </span>}
+              Updates appear live — no refresh needed
+            </p>
+          </div>
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+        </div>
+      )}
+
       {/* ── Results ── */}
       {filteredAuctions.length === 0 ? (
         <Card className="rounded-[0.625rem]">
