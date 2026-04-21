@@ -174,6 +174,13 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         </div>
       )}
 
+      {(isManager || isPurchaseHead) && (
+        <div className="space-y-3">
+          {isManager && <POApprovalQueue stage="manager" />}
+          {isPurchaseHead && <POApprovalQueue stage="purchase_head" />}
+        </div>
+      )}
+
       <BuyerPurchasesList
         key={refreshKey}
         userId={userId}
