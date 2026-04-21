@@ -225,6 +225,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
         }
 
         const { data, error } = await query;
+        console.log('[useReverseAuction] Supplier auctions query result:', { count: data?.length, error, sampleIds: (data || []).slice(0, 3).map((d: any) => d.id), filters });
         if (error) throw error;
         if (!shouldApply()) return;
         setAuctions((data as unknown as ReverseAuction[]) || []);
