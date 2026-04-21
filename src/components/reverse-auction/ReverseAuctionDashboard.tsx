@@ -22,7 +22,8 @@ import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DASHBOARD_LOCKIN_COPY } from '@/lib/global-positioning';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe, ListOrdered } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe, ListOrdered, FlaskConical } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -37,6 +38,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [showAllAuctions, setShowAllAuctions] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
+  const [isSeedingTest, setIsSeedingTest] = useState(false);
   const [auctionCountByScope, setAuctionCountByScope] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
