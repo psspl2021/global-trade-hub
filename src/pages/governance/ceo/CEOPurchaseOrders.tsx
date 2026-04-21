@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RequireCapability } from '@/components/governance/RequireCapability';
 import { OverridePOModal } from './OverridePOModal';
 import { format } from 'date-fns';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 
 interface POItem {
   id: string;
@@ -25,8 +26,7 @@ interface POItem {
   payment_due_date: string | null;
 }
 
-const fmtINR = (n: number) =>
-  new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n || 0);
+// Region-aware currency formatting via useGlobalBuyerContext
 
 function statusBadge(po: POItem) {
   if (po.ceo_override && !po.manager_ack_at)
