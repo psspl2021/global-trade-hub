@@ -52,14 +52,15 @@ serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // Auth: accept service-role calls OR an authenticated buyer who owns the auction
+    // Auth: accept (a) service-role calls, (b) authenticated buyer who owns the auction,
+    //       or (c) system trigger calls (no Authorization header — pg_net invocation).
     const authHeader = req.headers.get("Authorization") || "";
     const token = authHeader.replace(/^Bearer\s+/i, "");
     const isServiceCall = token === SERVICE_KEY;
+    const isSystemCall = !token; // trigger via pg_net sends no auth
 
     let actorUserId: string | null = null;
-    if (!isServiceCall) {
-      if (!token) return json({ error: "Unauthorized" }, 401);
+    if (!isServiceCall && !isSystemCall) {
       const userClient = createClient(SUPABASE_URL, ANON_KEY, {
         global: { headers: { Authorization: `Bearer ${token}` } },
       });
