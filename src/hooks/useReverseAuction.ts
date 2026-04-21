@@ -293,6 +293,35 @@ export function useReverseAuction(supplierMode: boolean = false) {
     fetchAuctions();
   }, [fetchAuctions]);
 
+  // Realtime: refresh when supplier invitations change OR when auction status flips
+  // (live → completed, new bids/winner, etc.) — supplier dashboard updates without reload.
+  useEffect(() => {
+    if (!user) return;
+    const userEmail = (user.email || '').toLowerCase();
+    const channel = supabase
+      .channel(`auction-list-${supplierMode ? 'sup' : 'buy'}-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'reverse_auction_suppliers' },
+        (payload: any) => {
+          if (!supplierMode) return;
+          const row = payload.new || payload.old || {};
+          if (row.supplier_id === user.id || (row.supplier_email || '').toLowerCase() === userEmail) {
+            fetchAuctions();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'reverse_auctions' },
+        () => fetchAuctions()
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, supplierMode, fetchAuctions]);
+
   const createAuction = async (input: CreateAuctionInput) => {
     if (!user) return null;
     try {
