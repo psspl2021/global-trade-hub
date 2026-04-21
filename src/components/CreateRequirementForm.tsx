@@ -28,6 +28,7 @@ import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
 import { useQueryClient } from '@tanstack/react-query';
 import { RFQDestinationSelector, type RFQType } from '@/components/rfq/RFQDestinationSelector';
 import { parseCountryString } from '@/config/countryConfig';
+import { IncotermsPicker } from '@/components/global/IncotermsPicker';
 
 interface RequirementItem {
   item_name: string;
@@ -50,6 +51,7 @@ const requirementSchema = z.object({
   quality_standards: z.string().optional(),
   certifications_required: z.string().optional(),
   payment_terms: z.string().optional(),
+  incoterms: z.string().optional(),
 });
 
 type RequirementFormData = z.infer<typeof requirementSchema>;
@@ -340,6 +342,7 @@ export function CreateRequirementForm({
         quality_standards: data.quality_standards || null,
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
+        incoterms: data.incoterms || null,
         customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
         // Destination for AI matching - stored as comma-separated string
         destination_country: destinationCountryValue || null,
