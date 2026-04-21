@@ -445,8 +445,15 @@ export function useReverseAuction(supplierMode: boolean = false) {
     try {
       const { error } = await (supabase as any).rpc('start_reverse_auction', { p_auction_id: auctionId });
       if (error) throw error;
-      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_STARTED', actor_id: user.id, actor_role: 'buyer' });
+      // Optimistic UI: flip auction to 'live' immediately so "View Live" appears without waiting for refetch
+      setAuctions(prev => prev.map(a =>
+        a.id === auctionId
+          ? { ...a, status: 'live', auction_start: a.auction_start || new Date().toISOString() }
+          : a
+      ));
       toast.success('Auction is now LIVE!');
+      // Fire-and-forget audit log + refetch in background (don't block UI)
+      logAuctionEvent({ auction_id: auctionId, event_type: 'AUCTION_STARTED', actor_id: user.id, actor_role: 'buyer' });
       fetchAuctions();
     } catch (err: any) {
       toast.error('Failed to start auction: ' + err.message);
