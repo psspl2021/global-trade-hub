@@ -41,6 +41,8 @@ interface AddPurchaserModalProps {
 const BUYER_ROLES = [
   { value: 'buyer_purchaser', label: 'Purchaser' },
   { value: 'buyer_manager', label: 'Manager' },
+  { value: 'purchase_head', label: 'Head of Procurement' },
+  { value: 'vp', label: 'VP' },
   { value: 'buyer_hr', label: 'HR' },
   { value: 'buyer_cfo', label: 'CFO' },
   { value: 'buyer_ceo', label: 'CEO' },
