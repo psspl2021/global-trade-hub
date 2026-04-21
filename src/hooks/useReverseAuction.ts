@@ -280,6 +280,12 @@ export function useReverseAuction(supplierMode: boolean = false) {
 
   // Hardening: clear state immediately on scope change, before any cache/fetch
   // logic runs. Guarantees zero stale render even if cache logic evolves.
+  // NOTE: In supplier mode, buyer-context (selectedPurchaserId / contextLoading)
+  // is irrelevant — bumping the scope on those changes would invalidate the
+  // in-flight supplier fetch and leave the list permanently empty.
+  const scopeKey = supplierMode
+    ? `sup|${user?.id ?? ''}`
+    : `buy|${user?.id ?? ''}|${selectedPurchaserId ?? 'self'}|${contextLoading ? 'loading' : 'ready'}`;
   useEffect(() => {
     scopeVersionRef.current += 1;
     requestIdRef.current += 1;
@@ -287,7 +293,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
       setAuctions([]);
       setIsLoading(true);
     }
-  }, [selectedPurchaserId, supplierMode, contextLoading, user?.id]);
+  }, [scopeKey, supplierMode]);
 
   useEffect(() => {
     fetchAuctions();
