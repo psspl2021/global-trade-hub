@@ -22,7 +22,8 @@ import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DASHBOARD_LOCKIN_COPY } from '@/lib/global-positioning';
-import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe, ListOrdered } from 'lucide-react';
+import { Gavel, Sparkles, Target, Loader2, Users, ArrowLeft, ShoppingCart, Truck, CreditCard, Globe, ListOrdered, FlaskConical } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ReverseAuctionDashboardProps {
   isSupplier?: boolean;
@@ -37,6 +38,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const [showAuctionCredits, setShowAuctionCredits] = useState(false);
   const [showAllAuctions, setShowAllAuctions] = useState(false);
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
+  const [isSeedingTest, setIsSeedingTest] = useState(false);
   const [auctionCountByScope, setAuctionCountByScope] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,6 +122,31 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
       }
     });
   };
+
+  // ── Test seed: spawn a complete global auction → auto-build PO + export docs + ERP queue ──
+  const handleSeedTestAuction = async () => {
+    if (isSeedingTest) return;
+    setIsSeedingTest(true);
+    const t = toast.loading('Seeding global test auction…');
+    try {
+      const { data, error } = await supabase.functions.invoke('seed-test-global-auction', { body: {} });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Seed failed');
+      toast.dismiss(t);
+      const okDocs = Object.values(data.po?.docs || {}).filter((d: any) => d?.ok).length;
+      const poInfo = data.po?.po_number
+        ? `PO ${data.po.po_number} built (${okDocs}/4 docs).`
+        : `PO build: ${data.po?.error || 'pending'}.`;
+      toast.success(`✅ Test auction "${data.auction_title}" completed. ${poInfo}`);
+      updateSearchParams((p) => p.set('auction', data.auction_id));
+    } catch (e: any) {
+      toast.dismiss(t);
+      toast.error(e.message || 'Failed to seed test auction');
+    } finally {
+      setIsSeedingTest(false);
+    }
+  };
+
 
   // Restore selected auction only if it belongs to the current scoped purchaser context.
   useEffect(() => {
@@ -277,6 +304,19 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
             <Button variant="outline" onClick={() => setShowWarRoom(true)} className="gap-2 flex-1 sm:flex-none">
               <Target className="w-4 h-4" />
               War Room
+            </Button>
+          )}
+          {!isSupplier && (
+            <Button
+              variant="outline"
+              onClick={handleSeedTestAuction}
+              disabled={isSeedingTest}
+              className="gap-2 flex-1 sm:flex-none border-dashed"
+              title="Spawn a complete global auction → auto-build PO + export docs + ERP queue"
+            >
+              {isSeedingTest ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
+              <span className="hidden md:inline">Run Live Auction Test</span>
+              <span className="md:hidden">Test</span>
             </Button>
           )}
           {!isSupplier && (
