@@ -1049,10 +1049,23 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             {isLive && <Badge variant="outline" className="text-xs ml-auto animate-pulse border-emerald-300 text-emerald-700">Live</Badge>}
           </h3>
           <div className="space-y-2">
+            {/* Authoritative winner banner — when a DB winner exists but isn't in the visible bid set */}
+            {effectiveStatus === 'completed' && auction.winner_supplier_id &&
+              !rankedBids.some(b => b.supplier_id === auction.winner_supplier_id) && (
+                <div className="p-2.5 rounded-[0.625rem] bg-amber-50 ring-1 ring-amber-300 text-xs">
+                  <p className="font-semibold text-amber-800">🏆 Awarded to another supplier</p>
+                  <p className="text-amber-700 mt-0.5">
+                    Winning price {formatCurrency(auction.winning_price || currentLowest, auction.currency)} — your bid was not selected.
+                  </p>
+                </div>
+              )}
             {rankedBids.slice(0, 8).map((bid) => {
               const rankConfig = RANK_CONFIG[bid.rank];
               const isMine = user && bid.supplier_id === user.id;
-              const isWinner = bid.rank === 1;
+              // Authoritative winner = DB column for completed auctions. Live: use rank.
+              const isWinner = effectiveStatus === 'completed' && auction.winner_supplier_id
+                ? bid.supplier_id === auction.winner_supplier_id
+                : bid.rank === 1 && !auction.winner_supplier_id;
               return (
                 <div
                   key={bid.supplier_id}
