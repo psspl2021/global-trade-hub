@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS export_capability boolean DEFAULT false;
+COMMENT ON COLUMN public.profiles.export_capability IS 'Supplier capability to handle export documentation (HS codes, Incoterms, customs).';

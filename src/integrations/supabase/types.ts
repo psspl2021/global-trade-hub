@@ -6447,6 +6447,7 @@ export type Database = {
           created_at: string
           email: string
           email_notifications_enabled: boolean | null
+          export_capability: boolean | null
           finance_approved: boolean | null
           gstin: string | null
           house_address: string | null
@@ -6492,6 +6493,7 @@ export type Database = {
           created_at?: string
           email: string
           email_notifications_enabled?: boolean | null
+          export_capability?: boolean | null
           finance_approved?: boolean | null
           gstin?: string | null
           house_address?: string | null
@@ -6537,6 +6539,7 @@ export type Database = {
           created_at?: string
           email?: string
           email_notifications_enabled?: boolean | null
+          export_capability?: boolean | null
           finance_approved?: boolean | null
           gstin?: string | null
           house_address?: string | null
