@@ -41,12 +41,26 @@ export function MultiCurrencyBidInput({
 
   useEffect(() => {
     let cancelled = false;
+    // Hydrate from localStorage cache for instant render + offline resilience
+    try {
+      const cached = localStorage.getItem('ps_fx_rates_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.rates && typeof parsed.rates === 'object') {
+          setRates({ INR: 1, ...parsed.rates });
+        }
+      }
+    } catch { /* ignore */ }
+
     (async () => {
       const { data } = await supabase.from('fx_rates').select('currency_code, rate_to_inr');
       if (cancelled || !data) return;
       const map: Record<string, number> = { INR: 1 };
       (data as FxRow[]).forEach((r) => { map[r.currency_code] = Number(r.rate_to_inr) || 0; });
       setRates(map);
+      try {
+        localStorage.setItem('ps_fx_rates_v1', JSON.stringify({ rates: map, cachedAt: Date.now() }));
+      } catch { /* ignore quota */ }
     })();
     return () => { cancelled = true; };
   }, []);
