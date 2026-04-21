@@ -20,6 +20,7 @@ import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { getTaxIdLabel } from '@/components/global/TaxIdField';
 
 const TAX_OPTIONS = [
   { value: '0', label: '0% (Exempt)' },
@@ -40,6 +41,7 @@ interface BuyerInfo {
   gst: string;
   contact: string;
   email: string;
+  country?: string | null;
 }
 
 interface SupplierInfo {
@@ -48,6 +50,8 @@ interface SupplierInfo {
   gst: string;
   contact: string;
   email: string;
+  country?: string | null;
+}
 }
 
 interface AuctionPOGeneratorProps {
