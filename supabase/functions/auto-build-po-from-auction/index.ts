@@ -231,7 +231,7 @@ serve(async (req) => {
     // 9. Generate export documents (global only) — in parallel
     const docResults: Record<string, { ok: boolean; error?: string }> = {};
     if (isGlobal) {
-      const headersForwarded = isServiceCall
+      const headersForwarded = (isServiceCall || isSystemCall)
         ? { Authorization: `Bearer ${SERVICE_KEY}` }
         : { Authorization: authHeader };
 
