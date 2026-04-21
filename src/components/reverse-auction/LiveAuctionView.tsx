@@ -1287,7 +1287,14 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                     const isMine = user && bid.supplier_id === user.id;
                     const canEditBid = isMine && isLive && (bid.edit_count || 0) < 2;
                     const isEditingThis = editingBidId === bid.id;
-                    const bidRank = rankedBids.find(r => r.supplier_id === bid.supplier_id && r.bid_price === bid.bid_price)?.rank;
+                    const localRank = rankedBids.find(r => r.supplier_id === bid.supplier_id && r.bid_price === bid.bid_price)?.rank;
+                    // Authoritative rank for completed auctions: only the DB winner is L1.
+                    const isAuthoritativeWinner = effectiveStatus === 'completed' && auction.winner_supplier_id
+                      ? bid.supplier_id === auction.winner_supplier_id
+                      : null;
+                    const bidRank = isAuthoritativeWinner === true ? 1
+                      : isAuthoritativeWinner === false ? undefined
+                      : localRank;
                     return (
                       <div key={bid.id} className={`p-2 rounded-md text-sm ${
                         bidRank === 1
