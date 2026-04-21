@@ -450,7 +450,7 @@ const Dashboard = () => {
             {activeManagementView === 'hr' && (
               <CompanyIntelligenceRouter forcedView="HR" hideViewSelector />
             )}
-            {activeManagementView === 'manager' && (
+            {(activeManagementView === 'manager' || activeManagementView === 'vp' || activeManagementView === 'purchase_head') && (
               <CompanyIntelligenceRouter forcedView="MANAGER" hideViewSelector />
             )}
           </div>
