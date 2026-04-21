@@ -48,6 +48,8 @@ function formatAmount(amount: number, currency?: string) {
 export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: PurchaseOrderExecutionCardProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [supplierConfirmed, setSupplierConfirmed] = useState<boolean | null>(null);
+  const [globalPanelOpen, setGlobalPanelOpen] = useState(false);
+  const [globalData, setGlobalData] = useState<any | null>(null);
   const currentStatus = (po.status || 'draft') as POExecutionStatus;
   const colors = PO_STATUS_COLORS[currentStatus] || PO_STATUS_COLORS.draft;
 
