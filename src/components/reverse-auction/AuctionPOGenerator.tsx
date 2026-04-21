@@ -20,6 +20,7 @@ import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { getTaxIdLabel } from '@/components/global/TaxIdField';
 
 const TAX_OPTIONS = [
   { value: '0', label: '0% (Exempt)' },
@@ -40,6 +41,7 @@ interface BuyerInfo {
   gst: string;
   contact: string;
   email: string;
+  country?: string | null;
 }
 
 interface SupplierInfo {
@@ -48,7 +50,9 @@ interface SupplierInfo {
   gst: string;
   contact: string;
   email: string;
+  country?: string | null;
 }
+
 
 interface AuctionPOGeneratorProps {
   auction: ReverseAuction;
@@ -124,7 +128,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       if (user?.id) {
         const { data: buyerProfile } = await supabase
           .from('profiles')
-          .select('company_name, contact_person, phone, city, state, address, gstin')
+          .select('company_name, contact_person, phone, city, state, address, gstin, country')
           .eq('id', user.id)
           .single();
         if (buyerProfile) {
@@ -134,6 +138,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
             gst: buyerProfile.gstin || '',
             contact: buyerProfile.contact_person || '',
             email: user.email || '',
+            country: (buyerProfile as any).country || null,
           });
         }
       }
@@ -141,7 +146,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
       // Load supplier profile — try profiles first, fallback to auction suppliers table
       const { data: supplierProfile } = await supabase
         .from('profiles')
-        .select('company_name, contact_person, phone, city, state, email, address, gstin')
+        .select('company_name, contact_person, phone, city, state, email, address, gstin, country')
         .eq('id', winnerSupplierId)
         .single();
 
@@ -159,6 +164,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         gst: supplierProfile?.gstin || '',
         contact: supplierProfile?.contact_person || '',
         email: supplierProfile?.email || auctionSupplier?.supplier_email || '',
+        country: (supplierProfile as any)?.country || null,
       });
     }
     load();
@@ -441,7 +447,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
                 </div>
                 <p className="text-sm font-semibold">{buyer.company_name || 'Your Company'}</p>
                 {buyer.address && <p className="text-xs text-muted-foreground">{buyer.address}</p>}
-                {buyer.gst && <p className="text-xs text-muted-foreground">GST: {buyer.gst}</p>}
+                {buyer.gst && <p className="text-xs text-muted-foreground">{getTaxIdLabel(buyer.country)}: {buyer.gst}</p>}
                 {buyer.contact && <p className="text-xs text-muted-foreground">{buyer.contact}</p>}
               </div>
               <div className="bg-muted/30 rounded-lg p-3 space-y-1">
@@ -451,7 +457,7 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
                 </div>
                 <p className="text-sm font-semibold">{supplier.company_name || 'Supplier'}</p>
                 {supplier.address && <p className="text-xs text-muted-foreground">{supplier.address}</p>}
-                {supplier.gst && <p className="text-xs text-muted-foreground">GST: {supplier.gst}</p>}
+                {supplier.gst && <p className="text-xs text-muted-foreground">{getTaxIdLabel(supplier.country)}: {supplier.gst}</p>}
                 {supplier.contact && <p className="text-xs text-muted-foreground">{supplier.contact}</p>}
               </div>
             </div>
