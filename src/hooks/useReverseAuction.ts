@@ -293,11 +293,25 @@ export function useReverseAuction(supplierMode: boolean = false) {
     fetchAuctions();
   }, [fetchAuctions]);
 
-  // Realtime: refresh when supplier invitations change OR when auction status flips
-  // (live → completed, new bids/winner, etc.) — supplier dashboard updates without reload.
+  // Stable ref to fetchAuctions so realtime effect doesn't tear down/resubscribe on every render.
+  const fetchAuctionsRef = useRef(fetchAuctions);
+  fetchAuctionsRef.current = fetchAuctions;
+
+  // Realtime: refresh when supplier invitations change OR when auction status flips.
+  // Channel deps are ONLY user/supplierMode — keeps a single stable subscription.
   useEffect(() => {
     if (!user) return;
     const userEmail = (user.email || '').toLowerCase();
+    let scheduled = false;
+    const refresh = () => {
+      if (scheduled) return;
+      scheduled = true;
+      // Coalesce bursts of events into one fetch per 400ms.
+      setTimeout(() => {
+        scheduled = false;
+        fetchAuctionsRef.current();
+      }, 400);
+    };
     const channel = supabase
       .channel(`auction-list-${supplierMode ? 'sup' : 'buy'}-${user.id}`)
       .on(
@@ -307,20 +321,21 @@ export function useReverseAuction(supplierMode: boolean = false) {
           if (!supplierMode) return;
           const row = payload.new || payload.old || {};
           if (row.supplier_id === user.id || (row.supplier_email || '').toLowerCase() === userEmail) {
-            fetchAuctions();
+            refresh();
           }
         }
       )
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'reverse_auctions' },
-        () => fetchAuctions()
+        () => refresh()
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, supplierMode, fetchAuctions]);
+  }, [user, supplierMode]);
+
 
   const createAuction = async (input: CreateAuctionInput) => {
     if (!user) return null;
