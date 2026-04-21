@@ -98,7 +98,7 @@ const Dashboard = () => {
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   
   // Management view state — synced via custom event from BuyerDashboardHeader's ManagementViewSelector
-  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | null>(() => {
+  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | 'purchase_head' | 'vp' | null>(() => {
     return (localStorage.getItem('ps_management_view') as any) || null;
   });
   
@@ -381,6 +381,8 @@ const Dashboard = () => {
                 {activeManagementView === 'cfo' ? 'CFO View' :
                  activeManagementView === 'ceo' ? 'CEO View' :
                  activeManagementView === 'hr' ? 'HR View' :
+                 activeManagementView === 'vp' ? 'VP View' :
+                 activeManagementView === 'purchase_head' ? 'Head of Procurement View' :
                  'Manager View'}
               </span>
             </p>
@@ -388,12 +390,16 @@ const Dashboard = () => {
               {activeManagementView === 'cfo' ? 'Financial Overview' :
                activeManagementView === 'ceo' ? 'Executive Summary' :
                activeManagementView === 'hr' ? 'Team & HR Insights' :
+               activeManagementView === 'vp' ? 'Procurement Leadership Overview' :
+               activeManagementView === 'purchase_head' ? 'Procurement Governance & Approvals' :
                'Operations Overview'}
             </h1>
             <p className="text-sm text-muted-foreground">
               {activeManagementView === 'cfo' ? 'Payables, savings verification & financial analytics' :
                activeManagementView === 'ceo' ? 'Company KPIs, performance & strategic insights' :
                activeManagementView === 'hr' ? 'Team performance, incentive tracking & HR metrics' :
+               activeManagementView === 'vp' ? 'Cross-category strategy, supplier relationships & spend leadership' :
+               activeManagementView === 'purchase_head' ? 'Approval queues, category control & policy enforcement' :
                'Procurement execution, team activity & operational monitoring'}
             </p>
           </div>
@@ -444,7 +450,7 @@ const Dashboard = () => {
             {activeManagementView === 'hr' && (
               <CompanyIntelligenceRouter forcedView="HR" hideViewSelector />
             )}
-            {activeManagementView === 'manager' && (
+            {(activeManagementView === 'manager' || activeManagementView === 'vp' || activeManagementView === 'purchase_head') && (
               <CompanyIntelligenceRouter forcedView="MANAGER" hideViewSelector />
             )}
           </div>
