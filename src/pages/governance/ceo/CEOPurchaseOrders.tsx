@@ -39,6 +39,7 @@ function statusBadge(po: POItem) {
 }
 
 function CEOPurchaseOrdersInner() {
+  const { formatAmount } = useGlobalBuyerContext();
   const [items, setItems] = useState<POItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [overrideTarget, setOverrideTarget] = useState<POItem | null>(null);
@@ -97,7 +98,7 @@ function CEOPurchaseOrdersInner() {
                     )}
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <div className="text-lg font-semibold tabular-nums">₹{fmtINR(po.po_value)}</div>
+                    <div className="text-lg font-semibold tabular-nums">{formatAmount(po.po_value)}</div>
                     {canOverride && (
                       <Button size="sm" variant="default" onClick={() => setOverrideTarget(po)}>
                         Override & Approve
