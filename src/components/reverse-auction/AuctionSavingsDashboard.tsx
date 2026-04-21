@@ -239,10 +239,22 @@ export function AuctionSavingsDashboard({ auction, bids }: AuctionSavingsDashboa
           {/* Leaderboard */}
           <div className="lg:col-span-2 rounded-[0.625rem] border bg-card p-4">
             <h4 className="text-sm font-bold mb-3">Leaderboard</h4>
+            {/* Authoritative winner banner — never trust local rank when DB has a winner */}
+            {auction.winner_supplier_id && !ranked.some(b => b.supplier_id === auction.winner_supplier_id) && (
+              <div className="mb-3 p-2.5 rounded-[0.625rem] bg-amber-50 ring-1 ring-amber-300 text-xs">
+                <p className="font-semibold text-amber-800">🏆 Awarded to another supplier</p>
+                <p className="text-amber-700 mt-0.5">
+                  Winning price {formatINR(auction.winning_price, auction.currency)} — your bid was not selected.
+                </p>
+              </div>
+            )}
             <div className="space-y-2.5">
               {ranked.slice(0, 7).map((bid) => {
                 const config = RANK_CONFIG[bid.rank];
-                const isWinner = bid.rank === 1;
+                // Authoritative winner = DB column. Fall back to rank-1 only if no DB winner recorded.
+                const isWinner = auction.winner_supplier_id
+                  ? bid.supplier_id === auction.winner_supplier_id
+                  : bid.rank === 1;
                 return (
                   <div
                     key={bid.supplier_id}
