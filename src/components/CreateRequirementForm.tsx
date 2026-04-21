@@ -35,6 +35,8 @@ interface RequirementItem {
   category: string;
   quantity: number;
   unit: string;
+  hs_code?: string;
+  country_of_origin?: string;
 }
 
 const requirementSchema = z.object({
@@ -369,6 +371,8 @@ export function CreateRequirementForm({
         unit: item.unit,
         budget_min: null,
         budget_max: null,
+        hs_code: item.hs_code?.trim() || null,
+        country_of_origin: item.country_of_origin?.trim() || null,
       }));
 
       const { error: itemsError } = await supabase
@@ -564,6 +568,28 @@ export function CreateRequirementForm({
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                       />
                     </div>
+
+                    {rfqType !== 'domestic' && (
+                      <>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">HS Code (international)</Label>
+                          <Input
+                            placeholder="6, 8 or 10 digits"
+                            value={item.hs_code || ''}
+                            onChange={(e) => updateItem(index, 'hs_code', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                            inputMode="numeric"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Country of Origin</Label>
+                          <Input
+                            placeholder="e.g., IN, CN, DE"
+                            value={item.country_of_origin || ''}
+                            onChange={(e) => updateItem(index, 'country_of_origin', e.target.value.toUpperCase().slice(0, 3))}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>

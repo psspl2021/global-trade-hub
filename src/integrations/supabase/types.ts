@@ -1525,8 +1525,10 @@ export type Database = {
       bid_items: {
         Row: {
           bid_id: string
+          country_of_origin: string | null
           created_at: string | null
           dispatched_qty: number | null
+          hs_code: string | null
           id: string
           quantity: number
           requirement_item_id: string
@@ -1536,8 +1538,10 @@ export type Database = {
         }
         Insert: {
           bid_id: string
+          country_of_origin?: string | null
           created_at?: string | null
           dispatched_qty?: number | null
+          hs_code?: string | null
           id?: string
           quantity: number
           requirement_item_id: string
@@ -1547,8 +1551,10 @@ export type Database = {
         }
         Update: {
           bid_id?: string
+          country_of_origin?: string | null
           created_at?: string | null
           dispatched_qty?: number | null
+          hs_code?: string | null
           id?: string
           quantity?: number
           requirement_item_id?: string
@@ -1624,6 +1630,8 @@ export type Database = {
           expected_delivery_date: string | null
           freight_cost: number | null
           fx_rate_to_inr: number | null
+          fx_source: string | null
+          fx_timestamp: string | null
           gst_percent: number | null
           id: string
           is_paid_bid: boolean
@@ -1670,6 +1678,8 @@ export type Database = {
           expected_delivery_date?: string | null
           freight_cost?: number | null
           fx_rate_to_inr?: number | null
+          fx_source?: string | null
+          fx_timestamp?: string | null
           gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
@@ -1716,6 +1726,8 @@ export type Database = {
           expected_delivery_date?: string | null
           freight_cost?: number | null
           fx_rate_to_inr?: number | null
+          fx_source?: string | null
+          fx_timestamp?: string | null
           gst_percent?: number | null
           id?: string
           is_paid_bid?: boolean
@@ -2332,9 +2344,18 @@ export type Database = {
       buyer_suppliers: {
         Row: {
           address: string | null
+          aeo_cert_number: string | null
+          aeo_certified: boolean | null
+          bank_iban: string | null
+          bank_name: string | null
+          bank_swift: string | null
+          beneficial_owner_id: string | null
+          beneficial_owner_name: string | null
+          business_registration_number: string | null
           buyer_id: string
           category: string | null
           company_name: string | null
+          country_code: string | null
           created_at: string
           email: string | null
           export_capability: boolean | null
@@ -2342,17 +2363,36 @@ export type Database = {
           id: string
           is_global_supplier: boolean | null
           is_onboarded: boolean | null
+          kyc_status: string | null
+          kyc_verified_at: string | null
+          kyc_verified_by: string | null
           location: string | null
           notes: string | null
           phone: string | null
+          sanctions_screened_at: string | null
+          sanctions_screening_notes: string | null
+          sanctions_screening_status: string | null
           supplier_name: string
+          tax_id_type: string | null
+          tax_id_value: string | null
+          ubo_declared: boolean | null
           updated_at: string
+          w_form_type: string | null
         }
         Insert: {
           address?: string | null
+          aeo_cert_number?: string | null
+          aeo_certified?: boolean | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          bank_swift?: string | null
+          beneficial_owner_id?: string | null
+          beneficial_owner_name?: string | null
+          business_registration_number?: string | null
           buyer_id: string
           category?: string | null
           company_name?: string | null
+          country_code?: string | null
           created_at?: string
           email?: string | null
           export_capability?: boolean | null
@@ -2360,17 +2400,36 @@ export type Database = {
           id?: string
           is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
+          kyc_status?: string | null
+          kyc_verified_at?: string | null
+          kyc_verified_by?: string | null
           location?: string | null
           notes?: string | null
           phone?: string | null
+          sanctions_screened_at?: string | null
+          sanctions_screening_notes?: string | null
+          sanctions_screening_status?: string | null
           supplier_name: string
+          tax_id_type?: string | null
+          tax_id_value?: string | null
+          ubo_declared?: boolean | null
           updated_at?: string
+          w_form_type?: string | null
         }
         Update: {
           address?: string | null
+          aeo_cert_number?: string | null
+          aeo_certified?: boolean | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          bank_swift?: string | null
+          beneficial_owner_id?: string | null
+          beneficial_owner_name?: string | null
+          business_registration_number?: string | null
           buyer_id?: string
           category?: string | null
           company_name?: string | null
+          country_code?: string | null
           created_at?: string
           email?: string | null
           export_capability?: boolean | null
@@ -2378,11 +2437,21 @@ export type Database = {
           id?: string
           is_global_supplier?: boolean | null
           is_onboarded?: boolean | null
+          kyc_status?: string | null
+          kyc_verified_at?: string | null
+          kyc_verified_by?: string | null
           location?: string | null
           notes?: string | null
           phone?: string | null
+          sanctions_screened_at?: string | null
+          sanctions_screening_notes?: string | null
+          sanctions_screening_status?: string | null
           supplier_name?: string
+          tax_id_type?: string | null
+          tax_id_value?: string | null
+          ubo_declared?: boolean | null
           updated_at?: string
+          w_form_type?: string | null
         }
         Relationships: []
       }
@@ -4084,6 +4153,50 @@ export type Database = {
         }
         Relationships: []
       }
+      export_documents: {
+        Row: {
+          buyer_id: string
+          document_number: string | null
+          document_type: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          metadata: Json | null
+          purchase_order_id: string
+          storage_path: string
+        }
+        Insert: {
+          buyer_id: string
+          document_number?: string | null
+          document_type: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          metadata?: Json | null
+          purchase_order_id: string
+          storage_path: string
+        }
+        Update: {
+          buyer_id?: string
+          document_number?: string | null
+          document_type?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          metadata?: Json | null
+          purchase_order_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_documents_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funnel_sessions: {
         Row: {
           country_slug: string | null
@@ -4634,6 +4747,89 @@ export type Database = {
           utm_source?: string | null
         }
         Relationships: []
+      }
+      international_logistics_requests: {
+        Row: {
+          assigned_partner_id: string | null
+          buyer_id: string
+          buyer_notes: string | null
+          cargo_description: string | null
+          created_at: string
+          destination_address: string | null
+          destination_country: string
+          hs_codes: string[] | null
+          id: string
+          incoterms: string | null
+          origin_address: string | null
+          origin_country: string
+          partner_quote_amount: number | null
+          partner_quote_currency: string | null
+          preferred_mode: string | null
+          purchase_order_id: string
+          ready_date: string | null
+          required_by: string | null
+          status: string
+          total_volume_m3: number | null
+          total_weight_kg: number | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_partner_id?: string | null
+          buyer_id: string
+          buyer_notes?: string | null
+          cargo_description?: string | null
+          created_at?: string
+          destination_address?: string | null
+          destination_country: string
+          hs_codes?: string[] | null
+          id?: string
+          incoterms?: string | null
+          origin_address?: string | null
+          origin_country: string
+          partner_quote_amount?: number | null
+          partner_quote_currency?: string | null
+          preferred_mode?: string | null
+          purchase_order_id: string
+          ready_date?: string | null
+          required_by?: string | null
+          status?: string
+          total_volume_m3?: number | null
+          total_weight_kg?: number | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_partner_id?: string | null
+          buyer_id?: string
+          buyer_notes?: string | null
+          cargo_description?: string | null
+          created_at?: string
+          destination_address?: string | null
+          destination_country?: string
+          hs_codes?: string[] | null
+          id?: string
+          incoterms?: string | null
+          origin_address?: string | null
+          origin_country?: string
+          partner_quote_amount?: number | null
+          partner_quote_currency?: string | null
+          preferred_mode?: string | null
+          purchase_order_id?: string
+          ready_date?: string | null
+          required_by?: string | null
+          status?: string
+          total_volume_m3?: number | null
+          total_weight_kg?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "international_logistics_requests_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -7837,8 +8033,10 @@ export type Database = {
           budget_max: number | null
           budget_min: number | null
           category: string
+          country_of_origin: string | null
           created_at: string | null
           description: string | null
+          hs_code: string | null
           id: string
           item_name: string
           quantity: number
@@ -7850,8 +8048,10 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           category: string
+          country_of_origin?: string | null
           created_at?: string | null
           description?: string | null
+          hs_code?: string | null
           id?: string
           item_name: string
           quantity?: number
@@ -7863,8 +8063,10 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           category?: string
+          country_of_origin?: string | null
           created_at?: string | null
           description?: string | null
+          hs_code?: string | null
           id?: string
           item_name?: string
           quantity?: number
@@ -10282,6 +10484,56 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: []
+      }
+      supplier_kyc_documents: {
+        Row: {
+          buyer_id: string
+          document_name: string
+          document_type: string
+          id: string
+          notes: string | null
+          storage_path: string
+          supplier_id: string
+          uploaded_at: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          buyer_id: string
+          document_name: string
+          document_type: string
+          id?: string
+          notes?: string | null
+          storage_path: string
+          supplier_id: string
+          uploaded_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          document_name?: string
+          document_type?: string
+          id?: string
+          notes?: string | null
+          storage_path?: string
+          supplier_id?: string
+          uploaded_at?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_kyc_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_leads: {
         Row: {
