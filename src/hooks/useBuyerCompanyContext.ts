@@ -20,7 +20,7 @@ import { useUserRole, UserRole } from '@/hooks/useUserRole';
 import { useCapabilities } from '@/hooks/useCapabilities';
 import { useUserScope } from '@/hooks/useUserScope';
 
-export type ManagementViewType = 'cfo' | 'ceo' | 'hr' | 'manager' | null;
+export type ManagementViewType = 'cfo' | 'ceo' | 'hr' | 'manager' | 'purchase_head' | 'vp' | null;
 
 export interface CompanyPurchaser {
   member_id: string;

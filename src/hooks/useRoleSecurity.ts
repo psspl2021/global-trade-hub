@@ -63,7 +63,7 @@ export function useRoleSecurity(): RoleSecurityContext {
   // Check if role requires verification (all management roles do)
   const requiresVerification = useCallback((role: ManagementViewType): boolean => {
     if (!role) return false;
-    const managementRoles = ['cfo', 'ceo', 'hr', 'manager'];
+    const managementRoles = ['cfo', 'ceo', 'hr', 'manager', 'purchase_head', 'vp'];
     return managementRoles.includes(role);
   }, []);
 

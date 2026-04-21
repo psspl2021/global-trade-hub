@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings, ShieldAlert, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
@@ -32,6 +32,8 @@ interface ManagementViewSelectorProps {
 const MANAGEMENT_VIEWS = [
   { value: 'cfo' as ManagementViewType, label: 'CFO View', description: 'Financial analytics, ROI & savings', icon: TrendingUp, dbRole: 'buyer_cfo' },
   { value: 'ceo' as ManagementViewType, label: 'CEO View', description: 'Executive summary & KPIs', icon: Briefcase, dbRole: 'buyer_ceo' },
+  { value: 'vp' as ManagementViewType, label: 'VP View', description: 'Cross-category procurement oversight', icon: Crown, dbRole: 'vp' },
+  { value: 'purchase_head' as ManagementViewType, label: 'Head of Procurement View', description: 'Approvals, governance & category control', icon: ShieldAlert, dbRole: 'purchase_head' },
   { value: 'hr' as ManagementViewType, label: 'HR / Management View', description: 'Team performance & incentives', icon: Users, dbRole: 'buyer_hr' },
   { value: 'manager' as ManagementViewType, label: 'Manager View', description: 'Operational oversight', icon: BarChart3, dbRole: 'buyer_manager' },
 ];

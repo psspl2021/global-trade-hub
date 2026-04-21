@@ -39,6 +39,8 @@ const ROLE_LABELS: Record<string, string> = {
   ceo: 'CEO View',
   hr: 'HR / Management View',
   manager: 'Manager View',
+  purchase_head: 'Head of Procurement View',
+  vp: 'VP View',
 };
 
 export function RoleVerificationModal({
