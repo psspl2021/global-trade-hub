@@ -98,7 +98,7 @@ const Dashboard = () => {
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   
   // Management view state — synced via custom event from BuyerDashboardHeader's ManagementViewSelector
-  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | null>(() => {
+  const [activeManagementView, setActiveManagementView] = useState<'cfo' | 'ceo' | 'hr' | 'manager' | 'purchase_head' | 'vp' | null>(() => {
     return (localStorage.getItem('ps_management_view') as any) || null;
   });
   
