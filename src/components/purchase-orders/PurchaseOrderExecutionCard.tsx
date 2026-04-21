@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { PurchaseOrderTimeline } from './PurchaseOrderTimeline';
 import { PurchaseOrderActions } from './PurchaseOrderActions';
@@ -10,7 +11,10 @@ import {
   type POExecutionStatus,
 } from '@/lib/po-execution-engine';
 import { cn } from '@/lib/utils';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock, AlertTriangle, Globe2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ExportDocumentsPanel } from '@/components/global/ExportDocumentsPanel';
+import { MultiCurrencyInvoiceView } from '@/components/global/MultiCurrencyInvoiceView';
+import { InternationalLogisticsButton } from '@/components/global/InternationalLogisticsButton';
 
 interface PurchaseOrderExecutionCardProps {
   po: {
