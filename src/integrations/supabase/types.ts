@@ -4162,6 +4162,84 @@ export type Database = {
         }
         Relationships: []
       }
+      global_plan_subscriptions: {
+        Row: {
+          activated_at: string | null
+          amount_inr_equivalent: number | null
+          amount_paid: number
+          auto_renew: boolean
+          buyer_company_id: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          cashfree_order_id: string | null
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          metadata: Json | null
+          payment_provider: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+          wire_intent_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_inr_equivalent?: number | null
+          amount_paid: number
+          auto_renew?: boolean
+          buyer_company_id?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          cashfree_order_id?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          payment_provider: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+          wire_intent_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          amount_inr_equivalent?: number | null
+          amount_paid?: number
+          auto_renew?: boolean
+          buyer_company_id?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          cashfree_order_id?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          payment_provider?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+          wire_intent_id?: string | null
+        }
+        Relationships: []
+      }
       google_index_queue: {
         Row: {
           created_at: string | null
@@ -9402,6 +9480,60 @@ export type Database = {
           },
         ]
       }
+      subscription_admin_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_read: boolean
+          payload: Json | null
+          read_at: string | null
+          read_by: string | null
+          subscription_id: string | null
+          user_id: string | null
+          wire_intent_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+          wire_intent_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+          wire_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_admin_alerts_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "global_plan_subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_admin_alerts_wire_intent_id_fkey"
+            columns: ["wire_intent_id"]
+            isOneToOne: false
+            referencedRelation: "wire_payment_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_invoices: {
         Row: {
           cgst_amount: number | null
@@ -11135,6 +11267,63 @@ export type Database = {
           total_area_sqft?: number
           updated_at?: string | null
           warehouse_type?: Database["public"]["Enums"]["warehouse_type"] | null
+        }
+        Relationships: []
+      }
+      wire_payment_intents: {
+        Row: {
+          amount: number
+          amount_inr_equivalent: number | null
+          buyer_company: string | null
+          buyer_email: string | null
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          proof_url: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          reference_number: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          amount_inr_equivalent?: number | null
+          buyer_company?: string | null
+          buyer_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          proof_url?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          reference_number?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          amount_inr_equivalent?: number | null
+          buyer_company?: string | null
+          buyer_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          proof_url?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          reference_number?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -13692,6 +13881,7 @@ export type Database = {
           role: string
         }[]
       }
+      has_active_global_plan: { Args: { _user_id: string }; Returns: boolean }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
         Returns: boolean
