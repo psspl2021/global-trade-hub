@@ -208,43 +208,58 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
         .toISOString()
         .slice(0, 10);
 
-      // 1) Upsert the PO row (auction_id is unique per active auction PO)
-      const { data: insertedPO, error: poError } = await supabase
+      // 1) Check if a PO already exists for this auction (partial unique index
+      //    prevents ON CONFLICT, so we manually insert-or-update)
+      const { data: existingPO, error: existingErr } = await supabase
         .from('purchase_orders')
-        .upsert(
-          {
-            po_number: poNumber,
-            po_source: 'auction',
-            po_status: 'sent',
-            status: 'sent',
-            auction_id: auction.id,
-            supplier_id: winnerSupplierId,
-            purchaser_id: user.id,
-            created_by: user.id,
-            vendor_name: supplier.company_name || 'Awarded Supplier',
-            vendor_email: supplier.email || null,
-            vendor_address: supplier.address || null,
-            vendor_gstin: supplier.gst || null,
-            vendor_phone: supplier.contact || null,
-            currency: 'INR',
-            subtotal: totals.subtotal,
-            tax_amount: totals.taxTotal,
-            discount_amount: 0,
-            total_amount: totals.grandTotal,
-            po_value: totals.grandTotal,
-            order_date: orderDate,
-            expected_delivery_date: expectedDeliveryDate,
-            delivery_due_date: expectedDeliveryDate,
-            terms_and_conditions: paymentTerms,
-            notes: customNotes || autoNotes || null,
-          },
-          { onConflict: 'auction_id' }
-        )
         .select('id')
-        .single();
+        .eq('auction_id', auction.id)
+        .neq('po_status', 'cancelled')
+        .maybeSingle();
+      if (existingErr) throw existingErr;
 
-      if (poError) throw poError;
-      const poId = insertedPO?.id;
+      const poPayload = {
+        po_number: poNumber,
+        po_source: 'auction',
+        auction_id: auction.id,
+        supplier_id: winnerSupplierId,
+        purchaser_id: user.id,
+        created_by: user.id,
+        vendor_name: supplier.company_name || 'Awarded Supplier',
+        vendor_email: supplier.email || null,
+        vendor_address: supplier.address || null,
+        vendor_gstin: supplier.gst || null,
+        vendor_phone: supplier.contact || null,
+        currency: 'INR',
+        subtotal: totals.subtotal,
+        tax_amount: totals.taxTotal,
+        discount_amount: 0,
+        total_amount: totals.grandTotal,
+        po_value: totals.grandTotal,
+        order_date: orderDate,
+        expected_delivery_date: expectedDeliveryDate,
+        delivery_due_date: expectedDeliveryDate,
+        terms_and_conditions: paymentTerms,
+        notes: customNotes || autoNotes || null,
+      };
+
+      let poId: string | undefined;
+      if (existingPO?.id) {
+        const { error: updErr } = await supabase
+          .from('purchase_orders')
+          .update(poPayload)
+          .eq('id', existingPO.id);
+        if (updErr) throw updErr;
+        poId = existingPO.id;
+      } else {
+        const { data: insertedPO, error: poError } = await supabase
+          .from('purchase_orders')
+          .insert(poPayload)
+          .select('id')
+          .single();
+        if (poError) throw poError;
+        poId = insertedPO?.id;
+      }
       if (!poId) throw new Error('PO creation returned no id');
 
       // 2) Replace line items
