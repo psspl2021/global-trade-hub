@@ -119,3 +119,18 @@ verify_jwt = false
 
 [functions.boost-from-dashboard]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.get-stripe-price]
+verify_jwt = false
+
+[functions.payments-webhook]
+verify_jwt = false
+
+[functions.create-portal-session]
+verify_jwt = false
+
+[functions.wire-payment-submit]
+verify_jwt = false
