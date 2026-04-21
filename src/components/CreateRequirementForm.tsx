@@ -52,7 +52,19 @@ const requirementSchema = z.object({
   certifications_required: z.string().optional(),
   payment_terms: z.string().optional(),
   incoterms: z.string().optional(),
+  currency: z.string().min(3).max(3).optional(),
 });
+
+const RFQ_CURRENCIES: { code: string; label: string }[] = [
+  { code: 'USD', label: 'USD — US Dollar' },
+  { code: 'EUR', label: 'EUR — Euro' },
+  { code: 'GBP', label: 'GBP — British Pound' },
+  { code: 'AED', label: 'AED — UAE Dirham' },
+  { code: 'SGD', label: 'SGD — Singapore Dollar' },
+  { code: 'JPY', label: 'JPY — Japanese Yen' },
+  { code: 'CNY', label: 'CNY — Chinese Yuan' },
+  { code: 'INR', label: 'INR — Indian Rupee' },
+];
 
 type RequirementFormData = z.infer<typeof requirementSchema>;
 
@@ -211,7 +223,19 @@ export function CreateRequirementForm({
   });
   const watchedTradeType = watch('trade_type');
   const watchedIncoterms = watch('incoterms');
+  const watchedCurrency = watch('currency');
   const isInternational = watchedTradeType === 'import' || watchedTradeType === 'export';
+
+  // When trade_type flips, default the currency: international → USD, domestic → INR.
+  // Only auto-set if the user hasn't explicitly chosen one for the new mode.
+  useEffect(() => {
+    if (isInternational && (!watchedCurrency || watchedCurrency === 'INR')) {
+      setValue('currency', 'USD', { shouldDirty: false });
+    } else if (!isInternational && watchedCurrency !== 'INR') {
+      setValue('currency', 'INR', { shouldDirty: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInternational]);
 
   // Pre-fill form when AI data is provided
   useEffect(() => {
@@ -347,6 +371,8 @@ export function CreateRequirementForm({
         certifications_required: data.certifications_required || null,
         payment_terms: data.payment_terms || null,
         incoterms: data.incoterms || null,
+        currency: data.currency || (isInternational ? 'USD' : 'INR'),
+        base_currency: 'INR',
         customer_name: canAddCustomerName && customerName.trim() ? customerName.trim() : null,
         // Destination for AI matching - stored as comma-separated string
         destination_country: destinationCountryValue || null,
@@ -688,7 +714,27 @@ export function CreateRequirementForm({
           </div>
 
           {isInternational && (
-            <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="space-y-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <div className="space-y-2">
+                <Label htmlFor="rfq-currency">RFQ Currency *</Label>
+                <Select
+                  value={watchedCurrency || 'USD'}
+                  onValueChange={(v) => setValue('currency', v, { shouldDirty: true })}
+                >
+                  <SelectTrigger id="rfq-currency">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RFQ_CURRENCIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Suppliers will quote in this currency. Your home currency (INR) is used for FX-converted reporting.
+                </p>
+              </div>
+
               <IncotermsPicker
                 value={watchedIncoterms || ''}
                 onChange={(v) => setValue('incoterms', v, { shouldDirty: true })}
