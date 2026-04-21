@@ -592,6 +592,15 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {kycSupplierId && (
+        <GlobalSupplierKYCForm
+          open={!!kycSupplierId}
+          onOpenChange={(o) => !o && setKycSupplierId(null)}
+          supplierId={kycSupplierId}
+          onSuccess={loadSuppliers}
+        />
+      )}
     </div>
   );
 }
