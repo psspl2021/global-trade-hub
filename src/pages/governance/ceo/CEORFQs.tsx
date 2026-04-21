@@ -5,6 +5,7 @@ import { Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { RequireCapability } from '@/components/governance/RequireCapability';
 import { format } from 'date-fns';
+import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 
 interface RFQItem {
   id: string;
