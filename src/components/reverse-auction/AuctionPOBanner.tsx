@@ -4,7 +4,7 @@
  * PO creation runs async via edge function / DB trigger.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ interface POSummary {
 
 export function AuctionPOBanner({ auctionId, isGlobal = false }: Props) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [po, setPo] = useState<POSummary | null>(null);
   const [docCount, setDocCount] = useState(0);
   const [polling, setPolling] = useState(true);
@@ -133,7 +134,13 @@ export function AuctionPOBanner({ auctionId, isGlobal = false }: Props) {
           size="sm"
           variant="outline"
           className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5 shrink-0"
-          onClick={() => navigate(`/buyer/purchase-orders/${po.id}`)}
+          onClick={() => {
+            // Open the Purchase Orders module of the auction dashboard
+            const params = new URLSearchParams(searchParams);
+            params.set('auctionView', 'purchase-orders');
+            params.delete('auction');
+            navigate(`/buyer/reverse-auctions?${params.toString()}`);
+          }}
         >
           <FileText className="w-3.5 h-3.5" />
           View PO
