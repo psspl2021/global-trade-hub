@@ -308,13 +308,16 @@ export function useReverseAuction(supplierMode: boolean = false) {
     }
   }, [scopeKey, supplierMode]);
 
-  useEffect(() => {
-    fetchAuctions();
-  }, [fetchAuctions]);
-
   // Stable ref to fetchAuctions so realtime effect doesn't tear down/resubscribe on every render.
   const fetchAuctionsRef = useRef(fetchAuctions);
   fetchAuctionsRef.current = fetchAuctions;
+
+  // Initial fetch + re-fetch on scope change. fetchAuctions is now stable
+  // across buyer-context changes, so we drive refetches off scopeKey itself
+  // (which encodes user / purchaser / contextLoading for buyer mode).
+  useEffect(() => {
+    fetchAuctionsRef.current();
+  }, [scopeKey]);
 
   // Realtime: refresh when supplier invitations change OR when auction status flips.
   // Channel deps are ONLY user/supplierMode — keeps a single stable subscription.
