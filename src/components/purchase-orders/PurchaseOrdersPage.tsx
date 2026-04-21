@@ -7,6 +7,7 @@ import { BuyerPurchasesList } from '@/components/crm/BuyerPurchasesList';
 import { BuyerPurchaseForm } from '@/components/crm/BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from '@/components/crm/BuyerPurchaseViewer';
 import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
+import { POApprovalQueue } from './POApprovalQueue';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCanCreatePO } from '@/hooks/useCanCreatePO';
@@ -29,6 +30,24 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const { role } = useUserRole(userId);
   const { allowed: canCreatePO, blocking_po_id, blocking_po_title, message: blockMessage } = useCanCreatePO(userId);
   const { selectedPurchaserId } = useBuyerCompanyContext();
+  const [companyRoles, setCompanyRoles] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('buyer_company_members')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('is_active', true);
+      if (cancelled) return;
+      setCompanyRoles((data || []).map((r: any) => String(r.role || '').toLowerCase()));
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const isManager = companyRoles.some((r) => ['manager', 'buyer_manager', 'operations_manager'].includes(r));
+  const isPurchaseHead = companyRoles.includes('purchase_head');
 
   const loadData = useCallback(async () => {
     const requestId = ++requestIdRef.current;
@@ -152,6 +171,13 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
               onRefresh={handleRefresh}
             />
           ))}
+        </div>
+      )}
+
+      {(isManager || isPurchaseHead) && (
+        <div className="space-y-3">
+          {isManager && <POApprovalQueue stage="manager" />}
+          {isPurchaseHead && <POApprovalQueue stage="purchase_head" />}
         </div>
       )}
 

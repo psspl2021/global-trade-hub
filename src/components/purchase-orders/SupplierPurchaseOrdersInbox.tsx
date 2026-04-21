@@ -39,6 +39,8 @@ export function SupplierPurchaseOrdersInbox({ supplierId }: Props) {
       .from('purchase_orders')
       .select('id, po_number, vendor_name, total_amount, currency, order_date, status, po_status, expected_delivery_date, notes, auction_id, created_at')
       .eq('supplier_id', supplierId)
+      // Hide POs still in approval — supplier only sees POs that have been sent
+      .not('po_status', 'in', '(pending_approval,rejected)')
       .order('created_at', { ascending: false })
       .limit(50);
     setPOs((data as POItem[]) || []);

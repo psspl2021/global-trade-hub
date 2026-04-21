@@ -12660,6 +12660,14 @@ export type Database = {
           platform_profit: number
         }[]
       }
+      approve_po_as_manager: {
+        Args: { _notes?: string; _po_id: string }
+        Returns: Json
+      }
+      approve_po_as_purchase_head: {
+        Args: { _notes?: string; _po_id: string }
+        Returns: Json
+      }
       approve_po_step: {
         Args: {
           p_action?: string
@@ -13625,6 +13633,7 @@ export type Database = {
           source: string
         }[]
       }
+      get_po_buyer_company_id: { Args: { _po_id: string }; Returns: string }
       get_po_lifecycle_stage: {
         Args: {
           p_approval_status: string
@@ -14353,6 +14362,10 @@ export type Database = {
         Args: { p_device_info?: string; p_user_id: string }
         Returns: Json
       }
+      reject_po_approval: {
+        Args: { _po_id: string; _reason: string }
+        Returns: Json
+      }
       remove_po_purchaser: {
         Args: { p_po_id: string; p_user_id: string }
         Returns: boolean
@@ -14809,6 +14822,10 @@ export type Database = {
       }
       user_has_company_role: {
         Args: { _company_id: string; _roles: string[]; _user_id: string }
+        Returns: boolean
+      }
+      user_has_company_role_for_po: {
+        Args: { _po_id: string; _roles: string[] }
         Returns: boolean
       }
       user_shares_auction_company: {
