@@ -30,6 +30,7 @@ import { formatCompact as sharedFmtCompact, getCurrencySymbol, getCurrencyLocale
 import { SupplierMultiItemBid } from './SupplierMultiItemBid';
 import { LiveInviteSupplier } from './LiveInviteSupplier';
 import { MultiCurrencyBidInput } from '@/components/global/MultiCurrencyBidInput';
+import { GlobalTradePanel } from '@/components/global/GlobalTradePanel';
 import { formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { getPerUnitDisplay } from './utils/getPerUnitDisplay';
 
