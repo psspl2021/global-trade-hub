@@ -51,7 +51,14 @@ export default function FxRatesAdmin() {
     }
   };
 
-  const lastFetched = rows[0]?.fetched_at;
+  // Compute the freshest fetched_at across rows + staleness
+  const freshestMs = rows.reduce((max, r) => {
+    const t = new Date(r.fetched_at).getTime();
+    return Number.isFinite(t) && t > max ? t : max;
+  }, 0);
+  const lastFetched = freshestMs > 0 ? new Date(freshestMs).toISOString() : null;
+  const ageHours = freshestMs > 0 ? (Date.now() - freshestMs) / 3_600_000 : 0;
+  const isStale = freshestMs > 0 && ageHours > 48;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl space-y-6">
@@ -70,6 +77,20 @@ export default function FxRatesAdmin() {
           {refreshing ? 'Refreshing…' : 'Refresh now'}
         </Button>
       </header>
+
+      {isStale && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 flex items-start gap-3">
+          <Clock className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold text-destructive">Rates are stale ({ageHours.toFixed(0)}h old)</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Daily refresh appears to have failed. Click <strong>Refresh now</strong>, or check the
+              <code className="mx-1 px-1 py-0.5 rounded bg-muted text-[10px]">refresh-fx-rates</code>
+              edge function logs. Conversions are still served from cache.
+            </p>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

@@ -445,7 +445,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
     if (price >= currentLowest) { setBidError(`Must be less than ${formatCurrency(getWinningBid(currentLowest))} to become L1`); return; }
     setIsPlacing(true);
     try {
-      await placeBid(user.id, price, auction);
+      await placeBid(user.id, price, auction, { currency: bidCurrency, fxRate: bidFxRate });
       setBidPrice('');
       setBidDisplayValue('');
       toast({

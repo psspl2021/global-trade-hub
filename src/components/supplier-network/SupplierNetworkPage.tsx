@@ -27,6 +27,7 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [countryFilter, setCountryFilter] = useState<'all' | 'india' | 'global'>('all');
+  const [selectedCountries, setSelectedCountries] = useState<Set<string>>(new Set()); // ISO codes / labels
 
   // Add form
   const [showAdd, setShowAdd] = useState(false);
@@ -202,9 +203,14 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
     : null;
 
   const filtered = suppliers.filter(s => {
-    // Country filter
+    // Country filter (tri-state)
     if (countryFilter === 'india' && s.is_global_supplier) return false;
     if (countryFilter === 'global' && !s.is_global_supplier) return false;
+    // Per-country multi-select (only applies if any selected)
+    if (selectedCountries.size > 0) {
+      const c = (s.country || '').trim();
+      if (!c || !selectedCountries.has(c)) return false;
+    }
     // Search
     if (!search) return true;
     const q = search.toLowerCase();
@@ -217,7 +223,23 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
   const indiaCount = suppliers.filter(s => !s.is_global_supplier).length;
   const globalCount = suppliers.filter(s => s.is_global_supplier).length;
 
+  // Per-country distribution (excludes empty)
+  const countryCounts = suppliers.reduce<Record<string, number>>((acc, s) => {
+    const c = (s.country || '').trim();
+    if (c) acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
+  const distinctCountries = Object.keys(countryCounts).sort();
+
   const activeBidders = suppliers.filter(s => s.participationPct && s.participationPct > 50).length;
+
+  const toggleCountry = (c: string) => {
+    setSelectedCountries(prev => {
+      const next = new Set(prev);
+      next.has(c) ? next.delete(c) : next.add(c);
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -302,6 +324,37 @@ export function SupplierNetworkPage({ userId, onBack }: SupplierNetworkPageProps
               {opt.label}
             </Button>
           ))}
+        </div>
+      )}
+
+      {/* Per-country multi-select chips — appears when ≥2 distinct countries */}
+      {distinctCountries.length >= 2 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[11px] text-muted-foreground mr-1">Country:</span>
+          {distinctCountries.map(c => {
+            const active = selectedCountries.has(c);
+            return (
+              <Button
+                key={c}
+                size="sm"
+                variant={active ? 'default' : 'outline'}
+                className="h-7 px-2.5 text-[11px]"
+                onClick={() => toggleCountry(c)}
+              >
+                {c} ({countryCounts[c]})
+              </Button>
+            );
+          })}
+          {selectedCountries.size > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 text-[11px] text-muted-foreground"
+              onClick={() => setSelectedCountries(new Set())}
+            >
+              Clear
+            </Button>
+          )}
         </div>
       )}
 

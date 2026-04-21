@@ -119,6 +119,8 @@ const Signup = () => {
     yardLocation: '',
     buyerIndustry: '',
     companySize: '',
+    isGlobalSupplier: false,
+    exportCapability: false,
   });
 
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
@@ -291,6 +293,8 @@ const Signup = () => {
       buyer_type: formData.role === 'buyer' ? formData.buyerType : null,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
       yard_location: formData.role === 'supplier' ? formData.yardLocation : null,
+      is_global_supplier: formData.role === 'supplier' ? formData.isGlobalSupplier : null,
+      export_capability: formData.role === 'supplier' ? formData.exportCapability : null,
       buyer_industry: formData.role === 'buyer' ? formData.buyerIndustry : null,
       categories: formData.role === 'supplier' ? selectedCategories : null,
       subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
@@ -652,6 +656,39 @@ const Signup = () => {
                         className={`min-h-[44px] ${errors.yardLocation ? 'border-destructive' : ''}`}
                       />
                       {errors.yardLocation && <p className="text-sm text-destructive">{errors.yardLocation}</p>}
+                    </div>
+                  )}
+
+                  {formData.role === 'supplier' && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-primary" />
+                        Global Trade Capability
+                      </p>
+                      <label className="flex items-start gap-2.5 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.isGlobalSupplier}
+                          onChange={(e) => setFormData({ ...formData, isGlobalSupplier: e.target.checked })}
+                          className="mt-0.5 h-4 w-4 rounded border-input"
+                        />
+                        <span>
+                          <span className="font-medium">I serve international buyers</span>
+                          <span className="block text-xs text-muted-foreground">Show my profile in cross-border RFQs &amp; receive USD/EUR/etc. bid invitations.</span>
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2.5 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.exportCapability}
+                          onChange={(e) => setFormData({ ...formData, exportCapability: e.target.checked })}
+                          className="mt-0.5 h-4 w-4 rounded border-input"
+                        />
+                        <span>
+                          <span className="font-medium">I can handle export documentation</span>
+                          <span className="block text-xs text-muted-foreground">HS codes, Incoterms, customs paperwork, port handovers.</span>
+                        </span>
+                      </label>
                     </div>
                   )}
 
