@@ -131,11 +131,11 @@ export function POApprovalQueue({ stage }: Props) {
     }
   };
 
-  const title = stage === 'manager' ? 'Manager Approval Queue' : 'Head of Procurement Approval Queue';
+  const title = stage === 'manager' ? 'Manager Approval Queue' : 'Head / VP Approval Queue';
   const subtitle =
     stage === 'manager'
-      ? 'Auction POs awaiting your approval before forwarding to Head of Procurement'
-      : 'Auction POs cleared by Manager — your approval sends them to the supplier';
+      ? 'Auction POs awaiting your approval before forwarding to Head of Procurement / VP'
+      : 'Auction POs cleared by Manager — Head of Procurement or VP can send them to the supplier';
 
   return (
     <>

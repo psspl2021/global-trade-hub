@@ -47,7 +47,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   }, [userId]);
 
   const isManager = companyRoles.some((r) => ['manager', 'buyer_manager', 'operations_manager'].includes(r));
-  const isPurchaseHead = companyRoles.includes('purchase_head');
+  const isPurchaseHead = companyRoles.some((r) => ['purchase_head', 'vp'].includes(r));
 
   const loadData = useCallback(async () => {
     const requestId = ++requestIdRef.current;
