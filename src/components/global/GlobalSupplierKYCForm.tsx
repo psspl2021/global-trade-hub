@@ -314,8 +314,8 @@ export function GlobalSupplierKYCForm({ open, onOpenChange, supplierId, onSucces
                     </div>
                   )}
                 </div>
-                <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-900">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start gap-2 p-3 bg-muted/40 rounded-md border border-border">
+                  <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
                     <Checkbox checked={uboDeclared} onCheckedChange={(v) => setUboDeclared(!!v)} id="ubo" />
                     <Label htmlFor="ubo" className="cursor-pointer ml-2 text-sm">

@@ -81,3 +81,40 @@ export function formatAuctionEndTime(
 
   return { buyerTime, buyerTzAbbr };
 }
+
+/**
+ * Format a value in the given timezone with locale-friendly defaults.
+ * Use everywhere dashboards display dates/times so org_timezone propagates.
+ */
+export function formatInTz(
+  value: string | Date | null | undefined,
+  timezone: string = 'Asia/Kolkata',
+  opts: Intl.DateTimeFormatOptions = {}
+): string {
+  if (!value) return '—';
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (isNaN(date.getTime())) return '—';
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      ...opts,
+    }).format(date);
+  } catch {
+    return date.toLocaleDateString();
+  }
+}
+
+export function formatDateTimeInTz(
+  value: string | Date | null | undefined,
+  timezone: string = 'Asia/Kolkata'
+): string {
+  return formatInTz(value, timezone, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
