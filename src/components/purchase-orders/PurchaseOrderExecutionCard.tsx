@@ -83,9 +83,25 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
       setSupplierConfirmed((data as any[])?.length > 0);
     };
 
+    const loadGlobal = async () => {
+      const { data } = await supabase
+        .from('purchase_orders')
+        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type, supplier_country, destination_country')
+        .eq('id', po.id)
+        .maybeSingle();
+      if (data) setGlobalData(data);
+    };
+
     load();
     checkConfirmation();
+    loadGlobal();
   }, [po.id, currentStatus, isExternal, po.external_po_number]);
+
+  const isInternational =
+    !!globalData &&
+    ((globalData.currency && globalData.currency !== 'INR') ||
+      !!globalData.incoterms ||
+      globalData.region_type === 'global');
 
   const pendingConfirmation = isExternal && supplierConfirmed === false;
 
