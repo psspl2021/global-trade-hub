@@ -164,6 +164,59 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
           </div>
         )}
       </div>
+
+      {/* Global Trade Panel — only for international POs */}
+      {isInternational && (
+        <div className="border-t bg-muted/20">
+          <button
+            type="button"
+            onClick={() => setGlobalPanelOpen((o) => !o)}
+            className="w-full px-4 py-2 flex items-center justify-between text-xs font-medium hover:bg-muted/40 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <Globe2 className="w-3.5 h-3.5 text-primary" />
+              Global Trade
+              {globalData?.incoterms && (
+                <Badge variant="secondary" className="text-[10px] font-mono">{globalData.incoterms}</Badge>
+              )}
+              {globalData?.currency && globalData.currency !== 'INR' && (
+                <Badge variant="outline" className="text-[10px] font-mono">{globalData.currency}</Badge>
+              )}
+            </span>
+            {globalPanelOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {globalPanelOpen && globalData && (
+            <div className="p-4 space-y-4">
+              <MultiCurrencyInvoiceView
+                poNumber={globalData.po_number || po.po_number}
+                vendorName={globalData.vendor_name || displayName}
+                currency={globalData.currency || 'INR'}
+                totalAmount={globalData.total_amount || displayAmount}
+                baseCurrency={globalData.base_currency || 'INR'}
+                poValueBaseCurrency={globalData.po_value_base_currency}
+                exchangeRate={globalData.exchange_rate}
+                fxSource={globalData.fx_source}
+                fxTimestamp={globalData.fx_timestamp}
+                incoterms={globalData.incoterms}
+                orderDate={globalData.order_date}
+              />
+
+              <ExportDocumentsPanel purchaseOrderId={po.id} />
+
+              <div className="flex justify-end">
+                <InternationalLogisticsButton
+                  purchaseOrderId={po.id}
+                  defaultOriginCountry={globalData.supplier_country || ''}
+                  defaultDestinationCountry={globalData.destination_country || ''}
+                  defaultIncoterms={globalData.incoterms || ''}
+                  cargoDescription={po.title || globalData.po_number || ''}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
