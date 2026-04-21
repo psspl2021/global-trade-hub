@@ -659,6 +659,39 @@ const Signup = () => {
                     </div>
                   )}
 
+                  {formData.role === 'supplier' && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-primary" />
+                        Global Trade Capability
+                      </p>
+                      <label className="flex items-start gap-2.5 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.isGlobalSupplier}
+                          onChange={(e) => setFormData({ ...formData, isGlobalSupplier: e.target.checked })}
+                          className="mt-0.5 h-4 w-4 rounded border-input"
+                        />
+                        <span>
+                          <span className="font-medium">I serve international buyers</span>
+                          <span className="block text-xs text-muted-foreground">Show my profile in cross-border RFQs &amp; receive USD/EUR/etc. bid invitations.</span>
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2.5 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.exportCapability}
+                          onChange={(e) => setFormData({ ...formData, exportCapability: e.target.checked })}
+                          className="mt-0.5 h-4 w-4 rounded border-input"
+                        />
+                        <span>
+                          <span className="font-medium">I can handle export documentation</span>
+                          <span className="block text-xs text-muted-foreground">HS codes, Incoterms, customs paperwork, port handovers.</span>
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
                   {/* Password */}
                   <div className="space-y-2">
                     <Label htmlFor="password">Password *</Label>
