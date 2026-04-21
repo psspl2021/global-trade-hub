@@ -787,7 +787,12 @@ export function useReverseAuctionBids(auctionId: string | null) {
     return () => { supabase.removeChannel(channel); };
   }, [auctionId]);
 
-  const placeBid = async (supplierId: string, bidPrice: number, auctionData?: ReverseAuction) => {
+  const placeBid = async (
+    supplierId: string,
+    bidPrice: number,
+    auctionData?: ReverseAuction,
+    currencyMeta?: { currency: string; fxRate: number },
+  ) => {
     if (!auctionId) return false;
     try {
       // Stage 2: atomic bid + price update + anti-snipe via SECURITY DEFINER RPC.
@@ -808,6 +813,16 @@ export function useReverseAuctionBids(auctionId: string | null) {
       // current_price update + anti-snipe extension are handled atomically
       // server-side inside place_bid_atomic — no client follow-up needed.
 
+      // Persist supplier's original currency + FX snapshot for audit (best-effort).
+      if (newBid?.id && currencyMeta && currencyMeta.currency && currencyMeta.currency !== 'INR') {
+        await supabase
+          .from('reverse_auction_bids')
+          .update({
+            bid_currency: currencyMeta.currency,
+            fx_rate_to_inr: currencyMeta.fxRate,
+          } as any)
+          .eq('id', newBid.id);
+      }
 
       // Audit log
       logAuctionEvent({
@@ -817,6 +832,9 @@ export function useReverseAuctionBids(auctionId: string | null) {
         actor_role: 'supplier',
         bid_id: (newBid as any)?.id,
         bid_amount: bidPrice,
+        metadata: currencyMeta?.currency && currencyMeta.currency !== 'INR'
+          ? { bid_currency: currencyMeta.currency, fx_rate_to_inr: currencyMeta.fxRate }
+          : undefined,
       });
 
       toast.success('Bid placed successfully!');
