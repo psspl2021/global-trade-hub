@@ -86,10 +86,31 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
     const loadGlobal = async () => {
       const { data } = await supabase
         .from('purchase_orders')
-        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type')
+        .select('id, po_number, vendor_name, currency, base_currency, total_amount, po_value, po_value_base_currency, exchange_rate, fx_source, fx_timestamp, incoterms, order_date, region_type, requirement_id, supplier_id')
         .eq('id', po.id)
         .maybeSingle();
-      if (data) setGlobalData(data);
+      if (!data) return;
+
+      // Best-effort lookup of origin (supplier country) + destination (requirement country)
+      let destinationCountry = '';
+      let originCountry = '';
+      if ((data as any).requirement_id) {
+        const { data: req } = await supabase
+          .from('requirements')
+          .select('destination_country')
+          .eq('id', (data as any).requirement_id)
+          .maybeSingle();
+        destinationCountry = (req as any)?.destination_country?.split(',')[0]?.trim() || '';
+      }
+      if ((data as any).supplier_id) {
+        const { data: sup } = await (supabase as any)
+          .from('buyer_suppliers')
+          .select('country_code')
+          .eq('id', (data as any).supplier_id)
+          .maybeSingle();
+        originCountry = sup?.country_code || '';
+      }
+      setGlobalData({ ...data, _origin_country: originCountry, _destination_country: destinationCountry });
     };
 
     load();
@@ -207,8 +228,8 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
               <div className="flex justify-end">
                 <InternationalLogisticsButton
                   purchaseOrderId={po.id}
-                  defaultOriginCountry=""
-                  defaultDestinationCountry=""
+                  defaultOriginCountry={globalData._origin_country || ''}
+                  defaultDestinationCountry={globalData._destination_country || ''}
                   defaultIncoterms={globalData.incoterms || ''}
                   cargoDescription={po.title || globalData.po_number || ''}
                 />
