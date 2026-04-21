@@ -12595,6 +12595,10 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: string
       }
+      _trigger_auto_build_po: {
+        Args: { p_auction_id: string }
+        Returns: undefined
+      }
       activate_affiliate_fifo: {
         Args: { p_affiliate_id: string }
         Returns: string
