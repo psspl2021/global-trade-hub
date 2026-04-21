@@ -687,7 +687,20 @@ export function CreateRequirementForm({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          {isInternational && (
+            <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <IncotermsPicker
+                value={watchedIncoterms || ''}
+                onChange={(v) => setValue('incoterms', v, { shouldDirty: true })}
+                label="Incoterms (Delivery Terms) *"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for {watchedTradeType === 'import' ? 'imports' : 'exports'}. Defines who pays freight, insurance, and duties.
+              </p>
+            </div>
+          )}
+
             <Button type="button" variant="outline" onClick={() => handleClose(false)}>
               Cancel
             </Button>
