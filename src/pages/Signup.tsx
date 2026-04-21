@@ -119,6 +119,8 @@ const Signup = () => {
     yardLocation: '',
     buyerIndustry: '',
     companySize: '',
+    isGlobalSupplier: false,
+    exportCapability: false,
   });
 
   const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
@@ -291,6 +293,8 @@ const Signup = () => {
       buyer_type: formData.role === 'buyer' ? formData.buyerType : null,
       logistics_partner_type: formData.role === 'logistics_partner' ? formData.logisticsPartnerType : null,
       yard_location: formData.role === 'supplier' ? formData.yardLocation : null,
+      is_global_supplier: formData.role === 'supplier' ? formData.isGlobalSupplier : null,
+      export_capability: formData.role === 'supplier' ? formData.exportCapability : null,
       buyer_industry: formData.role === 'buyer' ? formData.buyerIndustry : null,
       categories: formData.role === 'supplier' ? selectedCategories : null,
       subcategories: formData.role === 'supplier' ? selectedSubcategories : null,
