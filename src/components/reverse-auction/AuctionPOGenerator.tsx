@@ -197,14 +197,79 @@ export function AuctionPOGenerator({ auction, winnerSupplierId, winningPrice, on
   const autoNotes = generatePONotes(items, auction.title);
 
   const handleConfirmAndSend = async () => {
+    if (!user?.id) {
+      toast.error('You must be signed in to send a Purchase Order');
+      return;
+    }
     setSending(true);
     try {
-      // For now, log the PO — email integration to be wired
-      toast.success('Purchase Order confirmed and ready to send');
+      const orderDate = new Date().toISOString().slice(0, 10);
+      const expectedDeliveryDate = new Date(Date.now() + deliveryDays * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+
+      // 1) Upsert the PO row (auction_id is unique per active auction PO)
+      const { data: insertedPO, error: poError } = await supabase
+        .from('purchase_orders')
+        .upsert(
+          {
+            po_number: poNumber,
+            po_source: 'auction',
+            po_status: 'sent',
+            status: 'sent',
+            auction_id: auction.id,
+            supplier_id: winnerSupplierId,
+            purchaser_id: user.id,
+            created_by: user.id,
+            vendor_name: supplier.company_name || 'Awarded Supplier',
+            vendor_email: supplier.email || null,
+            vendor_address: supplier.address || null,
+            vendor_gstin: supplier.gst || null,
+            vendor_phone: supplier.contact || null,
+            currency: 'INR',
+            subtotal: totals.subtotal,
+            tax_amount: totals.taxTotal,
+            discount_amount: 0,
+            total_amount: totals.grandTotal,
+            po_value: totals.grandTotal,
+            order_date: orderDate,
+            expected_delivery_date: expectedDeliveryDate,
+            delivery_due_date: expectedDeliveryDate,
+            terms_and_conditions: paymentTerms,
+            notes: customNotes || autoNotes || null,
+          },
+          { onConflict: 'auction_id' }
+        )
+        .select('id')
+        .single();
+
+      if (poError) throw poError;
+      const poId = insertedPO?.id;
+      if (!poId) throw new Error('PO creation returned no id');
+
+      // 2) Replace line items
+      await supabase.from('po_items').delete().eq('po_id', poId);
+      const itemsPayload = items.map((it) => ({
+        po_id: poId,
+        description: it.description,
+        quantity: it.quantity,
+        unit: it.unit,
+        unit_price: it.unit_price,
+        tax_rate: it.tax_rate,
+        tax_amount: (it.unit_price * it.quantity * it.tax_rate) / 100,
+        total: it.unit_price * it.quantity * (1 + it.tax_rate / 100),
+      }));
+      if (itemsPayload.length > 0) {
+        const { error: itemsError } = await supabase.from('po_items').insert(itemsPayload);
+        if (itemsError) throw itemsError;
+      }
+
+      toast.success(`Purchase Order ${poNumber} sent to ${supplier.company_name || 'supplier'}`);
       setSent(true);
       onPOCreated?.();
-    } catch {
-      toast.error('Failed to send Purchase Order');
+    } catch (err: any) {
+      console.error('PO send error:', err);
+      toast.error(err?.message || 'Failed to send Purchase Order');
     } finally {
       setSending(false);
     }

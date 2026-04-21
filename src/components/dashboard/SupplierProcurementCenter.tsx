@@ -10,6 +10,7 @@ import { FileText, Gavel, ShoppingCart, ArrowRight } from 'lucide-react';
 import { SupplierMyBids } from '@/components/SupplierMyBids';
 import { SupplierAcceptedBids } from '@/components/SupplierAcceptedBids';
 import { ReverseAuctionDashboard } from '@/components/reverse-auction/ReverseAuctionDashboard';
+import { SupplierPurchaseOrdersInbox } from '@/components/purchase-orders/SupplierPurchaseOrdersInbox';
 
 interface SupplierProcurementCenterProps {
   userId: string;
@@ -65,10 +66,12 @@ export function SupplierProcurementCenter({ userId }: SupplierProcurementCenterP
           <TabsContent value="forward" className="p-6 pt-4 mt-0 space-y-6 focus-visible:ring-0">
             <SupplierMyBids userId={userId} />
             <SupplierAcceptedBids userId={userId} />
+            <SupplierPurchaseOrdersInbox supplierId={userId} />
           </TabsContent>
 
-          <TabsContent value="reverse" className="p-6 pt-4 mt-0 focus-visible:ring-0">
+          <TabsContent value="reverse" className="p-6 pt-4 mt-0 mt-0 focus-visible:ring-0 space-y-6">
             <ReverseAuctionDashboard isSupplier={true} />
+            <SupplierPurchaseOrdersInbox supplierId={userId} />
           </TabsContent>
         </Tabs>
       </CardContent>
