@@ -120,6 +120,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
       po_number: p.po_number,
       vendor_name: p.vendor_name,
       status: p.status || 'draft',
+      po_status: p.po_status || null,
       total_amount: Number(p.total_amount),
       currency: p.currency || 'INR',
     })),
