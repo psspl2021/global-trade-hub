@@ -98,6 +98,8 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
   const [loading, setLoading] = useState(false);
   const [po, setPO] = useState<POData | null>(null);
   const [items, setItems] = useState<POItem[]>([]);
+  const [buyerParty, setBuyerParty] = useState<PartyInfo | null>(null);
+  const [supplierParty, setSupplierParty] = useState<PartyInfo | null>(null);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
@@ -105,11 +107,12 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+
       const [{ data: poRow }, { data: itemRows }] = await Promise.all([
         supabase
           .from('purchase_orders')
           .select(
-            'id, po_number, vendor_name, vendor_address, vendor_gstin, vendor_email, vendor_phone, total_amount, subtotal, tax_amount, currency, order_date, expected_delivery_date, status, po_status, notes, terms_and_conditions, delivery_address, region_type'
+            'id, po_number, vendor_name, vendor_address, vendor_gstin, vendor_email, vendor_phone, total_amount, subtotal, tax_amount, currency, order_date, expected_delivery_date, status, po_status, notes, terms_and_conditions, delivery_address, region_type, buyer_company_id, supplier_id, created_by'
           )
           .eq('id', poId)
           .maybeSingle(),
@@ -118,9 +121,64 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
           .select('id, description, hsn_code, quantity, unit, unit_price, tax_rate, tax_amount, total')
           .eq('po_id', poId),
       ]);
+
       if (cancelled) return;
-      setPO((poRow as POData) || null);
+
+      const typed = (poRow as POData) || null;
+      setPO(typed);
       setItems((itemRows as POItem[]) || []);
+
+      // Resolve real buyer + supplier identities so the PDF header reflects who
+      // is sending the PO and who is receiving it (the PO row's vendor_* fields
+      // historically capture the supplier, not the buyer).
+      if (typed) {
+        const [buyerCompanyRes, buyerProfileRes, supplierProfileRes] = await Promise.all([
+          typed.buyer_company_id
+            ? supabase
+                .from('buyer_companies')
+                .select('company_name, address, city, state, country, gstin')
+                .eq('id', typed.buyer_company_id)
+                .maybeSingle()
+            : Promise.resolve({ data: null } as any),
+          typed.created_by
+            ? supabase
+                .from('profiles')
+                .select('email, phone, company_name, address, city, state, country, gstin')
+                .eq('id', typed.created_by)
+                .maybeSingle()
+            : Promise.resolve({ data: null } as any),
+          supabase
+            .from('profiles')
+            .select('email, phone, company_name, address, city, state, country, gstin')
+            .eq('id', typed.supplier_id)
+            .maybeSingle(),
+        ]);
+
+        if (cancelled) return;
+
+        const bc: any = buyerCompanyRes?.data || {};
+        const bp: any = buyerProfileRes?.data || {};
+        setBuyerParty({
+          name: bc.company_name || bp.company_name || 'Buyer',
+          address: joinAddress([bc.address || bp.address, bc.city || bp.city, bc.state || bp.state, bc.country || bp.country]),
+          gstin: bc.gstin || bp.gstin || '',
+          email: bp.email || '',
+          phone: bp.phone || '',
+        });
+
+        const sp: any = supplierProfileRes?.data || {};
+        setSupplierParty({
+          name: sp.company_name || typed.vendor_name || 'Supplier',
+          address: joinAddress([sp.address || typed.vendor_address, sp.city, sp.state, sp.country]) || '',
+          gstin: sp.gstin || typed.vendor_gstin || '',
+          email: sp.email || typed.vendor_email || '',
+          phone: sp.phone || typed.vendor_phone || '',
+        });
+      } else {
+        setBuyerParty(null);
+        setSupplierParty(null);
+      }
+
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -139,27 +197,46 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
     }
   };
 
+  // Derived: human-friendly PO number "<seq>/FY" (e.g. "99EH10/2026-27")
+  const displayPoNumber = po
+    ? `${poSequenceFromNumber(po.po_number)}/${indianFiscalYear(po.order_date)}`
+    : '';
+
   const handleDownload = async () => {
-    if (!po) return;
+    if (!po || !buyerParty || !supplierParty) return;
     setDownloading(true);
     try {
+      const issueDate = po.order_date
+        ? format(new Date(po.order_date), 'dd MMM yyyy')
+        : format(new Date(), 'dd MMM yyyy');
+      const deliveryDate = po.expected_delivery_date
+        ? format(new Date(po.expected_delivery_date), 'dd MMM yyyy')
+        : undefined;
+
       await generateDocumentPDF({
         documentType: 'purchase_order',
-        documentNumber: po.po_number,
-        issueDate: po.order_date || new Date().toISOString(),
-        expectedDeliveryDate: po.expected_delivery_date || undefined,
+        documentNumber: displayPoNumber,
+        issueDate,
+        expectedDeliveryDate: deliveryDate,
 
-        // Buyer issuing the PO appears as "company" on the document
-        companyName: po.vendor_name || 'Buyer',
-        companyAddress: po.vendor_address || '',
-        companyGstin: po.vendor_gstin || '',
+        // Header (FROM): Buyer company — name, GSTIN, address. We pass `null`
+        // for companyLogo so the shared PDF generator skips the platform logo
+        // and the buyer's identity headlines the document instead.
+        companyLogo: null as any,
+        companyName: buyerParty.name,
+        companyAddress: joinAddress([
+          buyerParty.address,
+          buyerParty.email ? `Email: ${buyerParty.email}` : '',
+          buyerParty.phone ? `Phone: ${buyerParty.phone}` : '',
+        ]),
+        companyGstin: buyerParty.gstin,
 
-        // Supplier is the recipient on a PO
-        buyerName: 'Supplier (You)',
-        buyerAddress: po.delivery_address || '',
-        buyerGstin: '',
-        buyerEmail: po.vendor_email || undefined,
-        buyerPhone: po.vendor_phone || undefined,
+        // Vendor block (TO): Supplier
+        buyerName: supplierParty.name,
+        buyerAddress: supplierParty.address,
+        buyerGstin: supplierParty.gstin,
+        buyerEmail: supplierParty.email || undefined,
+        buyerPhone: supplierParty.phone || undefined,
 
         items: items.map((it) => ({
           description: it.description,
@@ -176,7 +253,9 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         taxAmount: po.tax_amount || 0,
         totalAmount: po.total_amount || 0,
 
-        notes: po.notes || undefined,
+        notes: po.notes
+          ? `${po.notes}\n\nInternal Ref: ${po.po_number}`
+          : `Internal Ref: ${po.po_number}`,
         terms: po.terms_and_conditions || undefined,
         deliveryAddress: po.delivery_address || undefined,
       });
