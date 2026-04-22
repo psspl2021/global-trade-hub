@@ -822,13 +822,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           </div>
         </div>
 
-        {/* Auto-built PO banner — appears once auction completes (buyer view) */}
-        {effectiveStatus === 'completed' && isBuyer && auction.winner_supplier_id && (
-          <AuctionPOBanner
-            auctionId={auction.id}
-            isGlobal={(auction.currency || 'INR') !== 'INR' || (auction.destination_country || '').toUpperCase() !== 'IN'}
-          />
-        )}
+        {/* Buyer-facing PO banner is rendered lower in the awarded section to avoid duplication */}
 
         {/* Supplier-facing PO indicator — appears for the winning supplier once buyer's PO lands */}
         {effectiveStatus === 'completed' && isSupplier && auction.winner_supplier_id === user?.id && (
