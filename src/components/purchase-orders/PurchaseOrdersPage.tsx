@@ -175,12 +175,8 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         </div>
       )}
 
-      {(isManager || isPurchaseHead) && (
-        <div className="space-y-3">
-          {isManager && <POApprovalQueue stage="manager" />}
-          {isPurchaseHead && <POApprovalQueue stage="purchase_head" />}
-        </div>
-      )}
+      {/* PO approval queues are surfaced inside the dedicated Management View
+          (Head of Procurement / VP) to avoid duplicating approval entry points. */}
 
       <BuyerPurchasesList
         key={refreshKey}
