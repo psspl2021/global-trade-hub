@@ -46,6 +46,18 @@ interface POData {
   terms_and_conditions: string | null;
   delivery_address: string | null;
   region_type: string | null;
+  // Identity joins for accurate FROM/TO blocks
+  buyer_company_id: string | null;
+  supplier_id: string;
+  created_by: string | null;
+}
+
+interface PartyInfo {
+  name: string;
+  address: string;
+  gstin: string;
+  email: string;
+  phone: string;
 }
 
 interface POItem {
@@ -58,6 +70,28 @@ interface POItem {
   tax_rate: number | null;
   tax_amount: number;
   total: number;
+}
+
+/** Indian fiscal year string for a given date: Apr 1 → Mar 31, formatted as "YYYY-YY". */
+function indianFiscalYear(input: string | Date | null | undefined): string {
+  const d = input ? new Date(input) : new Date();
+  if (isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = d.getMonth(); // 0 = Jan
+  const startYear = m >= 3 ? y : y - 1; // April (3) onwards
+  const endYY = String((startYear + 1) % 100).padStart(2, '0');
+  return `${startYear}-${endYY}`;
+}
+
+/** Strip non-alphanumerics and take the trailing numeric portion to use as the PO sequence. */
+function poSequenceFromNumber(poNumber: string): string {
+  const digits = (poNumber.match(/\d+/g) || []).join('');
+  const tail = digits.slice(-4) || (poNumber.replace(/[^A-Za-z0-9]/g, '').slice(-6).toUpperCase());
+  return tail || poNumber;
+}
+
+function joinAddress(parts: Array<string | null | undefined>): string {
+  return parts.filter((p) => !!(p && String(p).trim())).join(', ');
 }
 
 export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
