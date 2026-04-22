@@ -274,8 +274,8 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />
             Purchase Order
-            {po?.po_number && (
-              <Badge variant="outline" className="ml-1 text-xs">{po.po_number}</Badge>
+            {displayPoNumber && (
+              <Badge variant="outline" className="ml-1 text-xs font-mono">{displayPoNumber}</Badge>
             )}
             {po?.region_type === 'global' && (
               <Badge className="bg-blue-600 text-white text-[10px]">Global</Badge>
@@ -293,37 +293,62 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
           </div>
         ) : (
           <div className="space-y-5">
-            {/* Header summary */}
+            {/* Status & dates strip */}
+            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+              <Badge variant="outline" className="capitalize text-[10px]">
+                {po.po_status || po.status || 'draft'}
+              </Badge>
+              {po.order_date && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Issued: {format(new Date(po.order_date), 'dd MMM yyyy')}
+                </span>
+              )}
+              {po.expected_delivery_date && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Expected delivery: {format(new Date(po.expected_delivery_date), 'dd MMM yyyy')}
+                </span>
+              )}
+              <span className="ml-auto text-[10px] uppercase tracking-wide">Internal Ref: {po.po_number}</span>
+            </div>
+
+            {/* From / To parties */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="rounded-md border border-border/60 p-3 space-y-1.5">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Issued by</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">From (Buyer)</div>
                 <div className="flex items-center gap-2 font-semibold">
                   <Building2 className="w-4 h-4 text-muted-foreground" />
-                  {po.vendor_name || 'Buyer'}
+                  {buyerParty?.name || '—'}
                 </div>
-                {po.vendor_address && <p className="text-xs text-muted-foreground">{po.vendor_address}</p>}
-                {po.vendor_gstin && (
+                {buyerParty?.address && <p className="text-xs text-muted-foreground">{buyerParty.address}</p>}
+                {buyerParty?.gstin && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Hash className="w-3 h-3" /> GSTIN: {po.vendor_gstin}
+                    <Hash className="w-3 h-3" /> GSTIN: {buyerParty.gstin}
                   </p>
+                )}
+                {buyerParty?.email && (
+                  <p className="text-xs text-muted-foreground">Email: {buyerParty.email}</p>
+                )}
+                {buyerParty?.phone && (
+                  <p className="text-xs text-muted-foreground">Phone: {buyerParty.phone}</p>
                 )}
               </div>
               <div className="rounded-md border border-border/60 p-3 space-y-1.5">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Status & dates</div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="capitalize text-[10px]">
-                    {po.po_status || po.status || 'draft'}
-                  </Badge>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">To (Supplier — You)</div>
+                <div className="flex items-center gap-2 font-semibold">
+                  <Building2 className="w-4 h-4 text-muted-foreground" />
+                  {supplierParty?.name || '—'}
                 </div>
-                {po.order_date && (
+                {supplierParty?.address && <p className="text-xs text-muted-foreground">{supplierParty.address}</p>}
+                {supplierParty?.gstin && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> Issued: {format(new Date(po.order_date), 'dd MMM yyyy')}
+                    <Hash className="w-3 h-3" /> GSTIN: {supplierParty.gstin}
                   </p>
                 )}
-                {po.expected_delivery_date && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> Expected delivery: {format(new Date(po.expected_delivery_date), 'dd MMM yyyy')}
-                  </p>
+                {supplierParty?.email && (
+                  <p className="text-xs text-muted-foreground">Email: {supplierParty.email}</p>
+                )}
+                {supplierParty?.phone && (
+                  <p className="text-xs text-muted-foreground">Phone: {supplierParty.phone}</p>
                 )}
               </div>
             </div>
