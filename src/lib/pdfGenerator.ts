@@ -135,6 +135,17 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     logoData = await loadLogo();
   }
 
+  // Purchase Orders use a dedicated, classic procurement layout (TO / SHIP TO /
+  // P.O NUMBER strip → secondary metadata strip → items grid → totals box →
+  // footer notes & authorization line). Other document types continue to use
+  // the existing free-form header below.
+  if (data.documentType === 'purchase_order') {
+    await renderPurchaseOrder(doc, data, logoData);
+    const fileName = `${getDocumentTitle(data.documentType).replace(/\s+/g, '_')}_${data.documentNumber}.pdf`;
+    doc.save(fileName);
+    return;
+  }
+
   // === HEADER SECTION ===
   // Document title on the right
   doc.setFontSize(20);
