@@ -86,7 +86,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
     const effectivePurchaser = selectedPurchaserId || userId;
     const { data: poData } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, vendor_name, status, total_amount, currency, order_date')
+      .select('id, po_number, vendor_name, status, po_status, total_amount, currency, order_date')
       .eq('purchaser_id', effectivePurchaser)
       .order('created_at', { ascending: false });
     if (!shouldApply()) return;
