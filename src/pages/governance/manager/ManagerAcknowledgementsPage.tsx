@@ -108,6 +108,14 @@ export default function ManagerAcknowledgementsPage() {
 
   return (
     <div className="container mx-auto px-3 py-4 sm:p-6 max-w-5xl space-y-4">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="-ml-2 h-8 px-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4 mr-1" /> Back
+      </Button>
       <div>
         <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
           <ShieldAlert className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600 shrink-0" />
