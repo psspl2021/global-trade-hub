@@ -95,7 +95,11 @@ export function AuctionPOBanner({ auctionId, isGlobal = false, isSupplier = fals
     );
   }
 
-  const isGlobalPO = po.region_type === 'global' || isGlobal;
+  // Destination authority: when the parent explicitly tells us this auction is domestic
+  // (isGlobal=false based on currency + destination_country), trust it over the PO row's
+  // region_type. This prevents domestic India POs from being mislabeled as Global and
+  // showing irrelevant export docs (Commercial Invoice, Packing List, COO, BoL).
+  const isGlobalPO = isGlobal && po.region_type === 'global';
 
   return (
     <div className="rounded-md border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-900 p-3 mb-3">
@@ -139,8 +143,9 @@ export function AuctionPOBanner({ auctionId, isGlobal = false, isSupplier = fals
             className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5 shrink-0"
             onClick={() => {
               // Open the Purchase Orders module of the buyer dashboard.
-              // Dashboard reads ?view=reverse-auction and ?auctionView=purchase-orders.
-              navigate('/dashboard?view=reverse-auction&auctionView=purchase-orders');
+              // IMPORTANT: drop ?auction=... so the dashboard exits LiveAuctionView and
+              // mounts the PurchaseOrdersPage; otherwise the same auction screen re-renders.
+              navigate('/dashboard?view=reverse-auction&auctionView=purchase-orders', { replace: false });
             }}
           >
             <FileText className="w-3.5 h-3.5" />
