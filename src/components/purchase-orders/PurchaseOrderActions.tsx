@@ -46,6 +46,32 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
 
   if (actions.length === 0) return null;
 
+  const resetFormState = () => {
+    setNotes('');
+    setTransport({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
+    setPayment({ payment_mode: 'manual' });
+    setDelivery({});
+  };
+
+  const finishSuccess = (targetStatus: POExecutionStatus) => {
+    toast({
+      title: 'Status Updated',
+      description: `Order moved to "${PO_STATUS_LABELS[targetStatus]}"`,
+    });
+    resetFormState();
+    onStatusChange();
+  };
+
+  const fetchCurrentStatus = async () => {
+    const { data } = await supabase
+      .from('purchase_orders')
+      .select('status')
+      .eq('id', poId)
+      .maybeSingle();
+
+    return data?.status as POExecutionStatus | undefined;
+  };
+
   const handleTransition = async (targetStatus: POExecutionStatus, requiresTransport?: boolean, requiresPayment?: boolean) => {
     if (requiresTransport) {
       const err = validateTransportDetails(transport);
@@ -72,6 +98,14 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
         throw new Error(gate.reason || 'Validation failed');
       }
 
+      if (gate?.deduplicated) {
+        const latestStatus = await fetchCurrentStatus();
+        if (latestStatus === targetStatus) {
+          finishSuccess(targetStatus);
+          return;
+        }
+      }
+
       // proceed_po_step already updated status, now run transition for side-effects
       const { data, error } = await supabase.rpc('transition_po_status', {
         p_po_id: poId,
@@ -89,22 +123,26 @@ export function PurchaseOrderActions({ poId, currentStatus, userId, userRole, on
         p_delivery_delay_notes: delivery.delay_notes || null,
       });
 
-      if (error) throw error;
+      if (error) {
+        const latestStatus = await fetchCurrentStatus();
+        if (latestStatus === targetStatus) {
+          finishSuccess(targetStatus);
+          return;
+        }
+        throw error;
+      }
 
       const result = data as any;
       if (!result?.success) {
+        const latestStatus = await fetchCurrentStatus();
+        if (latestStatus === targetStatus) {
+          finishSuccess(targetStatus);
+          return;
+        }
         throw new Error(result?.error || 'Transition failed');
       }
 
-      toast({
-        title: 'Status Updated',
-        description: `Order moved to "${PO_STATUS_LABELS[targetStatus]}"`,
-      });
-      setNotes('');
-      setTransport({ vehicle_number: '', transporter_name: '', driver_contact: '', transport_source: 'supplier' });
-      setPayment({ payment_mode: 'manual' });
-      setDelivery({});
-      onStatusChange();
+      finishSuccess(targetStatus);
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
