@@ -153,6 +153,23 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         <p className="text-sm text-muted-foreground">Track execution lifecycle for all procurement orders</p>
       </div>
 
+      {/* Search + Add toolbar (mobile-friendly) */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="relative flex-1 sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search purchases..."
+            value={purchaseSearchTerm}
+            onChange={(e) => setPurchaseSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button onClick={handleCreatePurchase} className="w-full sm:w-auto">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Purchase
+        </Button>
+      </div>
+
       {/* PO Creation Block Warning */}
       {!canCreatePO && (
         <Card className="border-destructive/50 bg-destructive/5 p-4">
