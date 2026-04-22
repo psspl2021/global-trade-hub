@@ -67,6 +67,7 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
   const [loading, setLoading] = useState(true);
   const [showExpanded, setShowExpanded] = useState(defaultExpanded);
   const requestIdRef = useRef(0);
+  const lastScopeKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -76,22 +77,35 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
     // card to flash (skeleton → empty card → real card).
     if (isContextLoading) return;
 
+    const scopeKey = `${user.id}::${selectedPurchaserId ?? 'all'}`;
+    const isSameScope = lastScopeKeyRef.current === scopeKey;
+    lastScopeKeyRef.current = scopeKey;
+
     const fetchData = async () => {
       const requestId = ++requestIdRef.current;
       const shouldApply = () => requestIdRef.current === requestId;
 
-      setAuctions([]);
-      setAllAuctions([]);
-      setLoading(true);
+      // Only show skeleton on first load or when the scope (purchaser) actually
+      // changes. Avoids the "flash to blank" when the effect re-runs with cached
+      // scope (e.g. context re-hydration after navigation).
+      if (!isSameScope) {
+        setAuctions([]);
+        setAllAuctions([]);
+        setLoading(true);
+      }
 
       const sixMonthsAgoIso = subMonths(new Date(), 6).toISOString();
-      // Fetch full scoped set once via shared deduped fetcher; derive the
-      // 6-month window client-side instead of issuing a second RPC call.
       const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
-      const all = await fetchScopedAuctions({
-        p_user_id: user.id,
-        p_selected_purchaser: selectedPurchaserId,
-      });
+      const [all, supplierRes] = await Promise.all([
+        fetchScopedAuctions({
+          p_user_id: user.id,
+          p_selected_purchaser: selectedPurchaserId,
+        }),
+        supabase
+          .from('buyer_suppliers')
+          .select('id')
+          .eq('buyer_id', user.id),
+      ]);
       if (!shouldApply()) return;
 
       const cutoff = new Date(sixMonthsAgoIso).getTime();
@@ -100,17 +114,11 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
         .slice()
         .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
+      // Batch all updates together to avoid multiple re-renders / flashes.
       setAuctions(recent);
       setAllAuctions(all);
+      setSupplierCount((supplierRes.data || []).length);
       setLoading(false);
-
-      const { data: supplierData } = await supabase
-        .from('buyer_suppliers')
-        .select('id')
-        .eq('buyer_id', user.id);
-
-      if (!shouldApply()) return;
-      setSupplierCount((supplierData || []).length);
     };
 
     fetchData();
