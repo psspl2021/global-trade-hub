@@ -213,6 +213,31 @@ export function POCreationModal({
           </div>
         )}
 
+        {/*
+         * Terms & Conditions — captured from the buyer at PO creation time.
+         * Pre-filled with sensible defaults; the buyer can fully edit before
+         * saving. The text is persisted on the PO row and renders verbatim in
+         * the PO PDF footer that the supplier downloads.
+         */}
+        <div className="space-y-2 mt-2">
+          <div className="flex items-center gap-2">
+            <ScrollText className="w-4 h-4 text-muted-foreground" />
+            <Label htmlFor="po-terms" className="text-sm">Terms & Conditions</Label>
+            <Badge variant="outline" className="text-[10px]">Printed on PO</Badge>
+          </div>
+          <Textarea
+            id="po-terms"
+            value={terms}
+            onChange={(e) => setTerms(e.target.value)}
+            rows={6}
+            placeholder="Enter the terms and conditions to print on the PO PDF…"
+            className="font-mono text-xs leading-relaxed"
+          />
+          <p className="text-[10px] text-muted-foreground">
+            These terms appear on the PDF the supplier receives. You can edit, append, or replace before creating the PO.
+          </p>
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleCreate} disabled={saving}>
