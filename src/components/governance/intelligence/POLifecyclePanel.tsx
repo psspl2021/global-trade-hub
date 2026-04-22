@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Workflow, Users } from 'lucide-react';
 import { formatBaseAmount } from './IntelligenceMetricCard';
 import { Link } from 'react-router-dom';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 
 type Stage =
   | 'PO_CREATED'
