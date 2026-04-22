@@ -26,6 +26,7 @@ const fmtINR = (n: number) =>
   '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n || 0);
 
 export default function ManagerAcknowledgementsPage() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<PendingAck[]>([]);
   const [loading, setLoading] = useState(true);
   const [acking, setAcking] = useState<string | null>(null);
