@@ -24,6 +24,7 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const [editPurchaseId, setEditPurchaseId] = useState<string | null>(null);
   const [viewPurchaseId, setViewPurchaseId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [purchaseSearchTerm, setPurchaseSearchTerm] = useState('');
   const [auctionPOs, setAuctionPOs] = useState<any[]>([]);
   const [manualPOs, setManualPOs] = useState<any[]>([]);
   const requestIdRef = useRef(0);
