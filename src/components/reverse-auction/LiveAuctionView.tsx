@@ -240,6 +240,27 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
 
   const [isAwarding, setIsAwarding] = useState(false);
   const [showPOGenerator, setShowPOGenerator] = useState(false);
+  const [existingPoNumber, setExistingPoNumber] = useState<string | null>(null);
+
+  // Check if a PO already exists for this auction (auto-built or manual)
+  useEffect(() => {
+    if (!auction.winner_supplier_id) return;
+    let cancelled = false;
+    const checkPo = async () => {
+      const { data } = await supabase
+        .from('purchase_orders')
+        .select('po_number')
+        .eq('auction_id', auction.id)
+        .neq('po_status', 'cancelled')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled && data) setExistingPoNumber(data.po_number);
+    };
+    checkPo();
+    const interval = setInterval(checkPo, 5000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [auction.id, auction.winner_supplier_id]);
 
   const handleAwardBid = useCallback(async (supplierId: string) => {
     if (isAwarding) return;
@@ -1216,13 +1237,17 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
                 🏆 Auction Awarded — Winner: {formatCurrency(auction.winning_price || currentLowest)}
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                {showPOGenerator
-                  ? 'Generate the Purchase Order below'
-                  : 'Would you like to generate a Purchase Order for this award?'}
+                {existingPoNumber
+                  ? `Purchase Order ${existingPoNumber} has been generated for this award.`
+                  : showPOGenerator
+                    ? 'Generate the Purchase Order below'
+                    : 'Would you like to generate a Purchase Order for this award?'}
               </p>
             </div>
           </div>
-          {!showPOGenerator ? (
+          {existingPoNumber ? (
+            <AuctionPOBanner auctionId={auction.id} isGlobal={(auction as any).region_type === 'global'} />
+          ) : !showPOGenerator ? (
             <div className="rounded-[0.625rem] border border-border bg-card p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold">Do you want to generate a Purchase Order?</p>
