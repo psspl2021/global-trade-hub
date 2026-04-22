@@ -20,26 +20,44 @@ interface DocumentData {
   referenceInvoiceNumber?: string;
   referenceInvoiceDate?: string;
   expectedDeliveryDate?: string;
-  
+
   companyName: string;
   companyAddress: string;
   companyGstin: string;
   companyLogo?: string | null;
-  
+  companyPhone?: string;
+  companyEmail?: string;
+  companySlogan?: string;
+
   buyerName: string;
   buyerAddress: string;
   buyerGstin: string;
   buyerEmail?: string;
   buyerPhone?: string;
-  
+
+  // Purchase-order specific (rendered in the secondary header strip)
+  requisitioner?: string;
+  shippedVia?: string;
+  fobPoint?: string;
+  paymentTerms?: string;
+  // Optional separate ship-to (defaults to buyer address if absent)
+  shipToName?: string;
+  shipToAddress?: string;
+  shipToPhone?: string;
+  shipToEmail?: string;
+  // Footer authorization line on POs
+  authorizedByName?: string;
+
   items: DocumentItem[];
-  
+
   subtotal: number;
   discountPercent?: number;
   discountAmount?: number;
   taxAmount: number;
   totalAmount: number;
-  
+  shippingHandling?: number;
+  otherCharges?: number;
+
   notes?: string;
   terms?: string;
   bankDetails?: {
