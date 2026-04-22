@@ -54,6 +54,7 @@ interface POData {
 
 interface PartyInfo {
   name: string;
+  contactPerson?: string;
   address: string;
   gstin: string;
   email: string;
@@ -143,13 +144,13 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
           typed.created_by
             ? supabase
                 .from('profiles')
-                .select('email, phone, company_name, address, city, state, country, gstin')
+                .select('full_name, email, phone, company_name, address, city, state, country, gstin')
                 .eq('id', typed.created_by)
                 .maybeSingle()
             : Promise.resolve({ data: null } as any),
           supabase
             .from('profiles')
-            .select('email, phone, company_name, address, city, state, country, gstin')
+            .select('full_name, email, phone, company_name, address, city, state, country, gstin')
             .eq('id', typed.supplier_id)
             .maybeSingle(),
         ]);
@@ -160,6 +161,7 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         const bp: any = buyerProfileRes?.data || {};
         setBuyerParty({
           name: bc.company_name || bp.company_name || 'Buyer',
+          contactPerson: bp.full_name || '',
           address: joinAddress([bc.address || bp.address, bc.city || bp.city, bc.state || bp.state, bc.country || bp.country]),
           gstin: bc.gstin || bp.gstin || '',
           email: bp.email || '',
@@ -252,6 +254,11 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         subtotal: po.subtotal || 0,
         taxAmount: po.tax_amount || 0,
         totalAmount: po.total_amount || 0,
+
+        // Buyer contact (raised by) — surfaced in the PO header strip and the
+        // bottom authorization line so the supplier knows who issued/approved it.
+        requisitioner: buyerParty.contactPerson || undefined,
+        authorizedByName: buyerParty.contactPerson || undefined,
 
         notes: po.notes
           ? `${po.notes}\n\nInternal Ref: ${po.po_number}`
