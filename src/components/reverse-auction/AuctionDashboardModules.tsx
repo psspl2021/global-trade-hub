@@ -349,13 +349,51 @@ function SupplierOverview({ buyerId }: { buyerId: string }) {
    ═══════════════════════════════════════════════ */
 function POHistory({ auctions }: { auctions: any[] }) {
   const [expanded, setExpanded] = useState(false);
+  const [poRows, setPoRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const completedWithWinner = useMemo(
     () => auctions.filter((a) => a.status === 'completed' && a.winner_supplier_id),
     [auctions]
   );
 
-  if (completedWithWinner.length === 0) return null;
+  useEffect(() => {
+    const auctionIds = completedWithWinner.map((a) => a.id).filter(Boolean);
+    if (auctionIds.length === 0) {
+      setPoRows([]);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from('purchase_orders')
+        .select('id, po_number, auction_id, total_amount, currency, po_status, status, created_at')
+        .in('auction_id', auctionIds)
+        .neq('po_status', 'cancelled')
+        .order('created_at', { ascending: false });
+
+      if (cancelled) return;
+
+      const auctionMap = new Map(completedWithWinner.map((a) => [a.id, a]));
+      const rows = ((data as any[]) || [])
+        .map((po) => ({
+          ...po,
+          auction: auctionMap.get(po.auction_id),
+        }))
+        .filter((row) => row.auction);
+
+      setPoRows(rows);
+      setLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [completedWithWinner]);
+
+  if (!loading && poRows.length === 0) return null;
 
   return (
     <Card className="rounded-[0.625rem] overflow-hidden">
@@ -366,7 +404,7 @@ function POHistory({ auctions }: { auctions: any[] }) {
         <div className="flex items-center gap-2.5">
           <FileText className="w-4 h-4 text-primary" />
           <span className="font-semibold text-sm">Purchase Orders</span>
-          <Badge variant="secondary" className="text-xs">{completedWithWinner.length}</Badge>
+          <Badge variant="secondary" className="text-xs">{poRows.length}</Badge>
         </div>
         <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </div>
@@ -382,18 +420,24 @@ function POHistory({ auctions }: { auctions: any[] }) {
               </tr>
             </thead>
             <tbody>
-              {completedWithWinner.slice(0, 10).map((a) => (
-                <tr key={a.id} className="border-t hover:bg-muted/20">
-                  <td className="p-3 font-mono text-xs">PO-{a.id.slice(0, 8).toUpperCase()}</td>
-                  <td className="p-3 font-medium truncate max-w-[200px]">{a.title}</td>
-                  <td className="p-3 text-right font-semibold">{a.winning_bid ? formatINR(a.winning_bid * (a.quantity || 1)) : '—'}</td>
-                  <td className="p-3">
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
-                      Awarded
-                    </Badge>
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="p-4 text-center text-muted-foreground">Loading purchase orders…</td>
                 </tr>
-              ))}
+              ) : (
+                poRows.slice(0, 10).map((row) => (
+                  <tr key={row.id} className="border-t hover:bg-muted/20">
+                    <td className="p-3 font-mono text-xs">{row.po_number}</td>
+                    <td className="p-3 font-medium truncate max-w-[200px]">{row.auction.title}</td>
+                    <td className="p-3 text-right font-semibold">{row.total_amount ? formatINR(row.total_amount, row.currency || 'INR') : '—'}</td>
+                    <td className="p-3">
+                      <Badge variant="outline" className="text-xs capitalize">
+                        {(row.po_status || row.status || 'created').toString().replace(/_/g, ' ').toLowerCase()}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
