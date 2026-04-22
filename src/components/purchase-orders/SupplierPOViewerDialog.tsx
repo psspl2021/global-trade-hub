@@ -54,6 +54,7 @@ interface POData {
 
 interface PartyInfo {
   name: string;
+  contactPerson?: string;
   address: string;
   gstin: string;
   email: string;
