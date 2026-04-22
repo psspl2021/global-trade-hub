@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Check, Flag, Loader2, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check, Flag, Loader2, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format, formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface PendingAck {
   id: string;
