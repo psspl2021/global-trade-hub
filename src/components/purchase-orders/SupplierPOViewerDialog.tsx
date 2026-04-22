@@ -255,6 +255,11 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         taxAmount: po.tax_amount || 0,
         totalAmount: po.total_amount || 0,
 
+        // Buyer contact (raised by) — surfaced in the PO header strip and the
+        // bottom authorization line so the supplier knows who issued/approved it.
+        requisitioner: buyerParty.contactPerson || undefined,
+        authorizedByName: buyerParty.contactPerson || undefined,
+
         notes: po.notes
           ? `${po.notes}\n\nInternal Ref: ${po.po_number}`
           : `Internal Ref: ${po.po_number}`,
