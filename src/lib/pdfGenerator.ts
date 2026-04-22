@@ -103,9 +103,15 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   const margin = 14;
   let yPos = 12;
 
-  // Load company logo if provided, otherwise load default logo
+  // Load company logo:
+  //  - explicit `null` from caller → skip logo entirely (e.g. enterprise PO header
+  //    where the buyer's own company name/GSTIN block replaces the platform logo)
+  //  - provided string → use as-is
+  //  - undefined / not provided → fall back to platform default
   let logoData: string | null = null;
-  if (data.companyLogo) {
+  if (data.companyLogo === null) {
+    logoData = null;
+  } else if (data.companyLogo) {
     logoData = data.companyLogo;
   } else {
     logoData = await loadLogo();
