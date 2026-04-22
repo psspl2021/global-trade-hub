@@ -15,10 +15,13 @@ interface BuyerPurchasesListProps {
   onCreatePurchase: () => void;
   onEditPurchase: (id: string) => void;
   onViewPurchase: (id: string) => void;
+  hideToolbar?: boolean;
+  externalSearchTerm?: string;
 }
 
-export const BuyerPurchasesList = ({ userId, onCreatePurchase, onEditPurchase, onViewPurchase }: BuyerPurchasesListProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
+export const BuyerPurchasesList = ({ userId, onCreatePurchase, onEditPurchase, onViewPurchase, hideToolbar, externalSearchTerm }: BuyerPurchasesListProps) => {
+  const [internalSearchTerm, setSearchTerm] = useState('');
+  const searchTerm = externalSearchTerm !== undefined ? externalSearchTerm : internalSearchTerm;
   const queryClient = useQueryClient();
 
   const { data: purchases, isLoading } = useQuery({
