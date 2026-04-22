@@ -113,6 +113,15 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
     setShowAllAuctions(auctionView === 'all-auctions');
   }, [searchParams]);
 
+  // Keep selectedAuction in sync with the URL: if the ?auction param is removed
+  // externally (e.g. "View PO" jumps to ?auctionView=purchase-orders), drop the
+  // in-memory selection so LiveAuctionView unmounts and the chosen module renders.
+  useEffect(() => {
+    if (!searchParams.get('auction') && selectedAuction) {
+      setSelectedAuction(null);
+    }
+  }, [searchParams, selectedAuction]);
+
   const setAuctionView = (view: string | null) => {
     updateSearchParams((params) => {
       if (view) {
