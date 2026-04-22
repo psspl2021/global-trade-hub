@@ -429,10 +429,10 @@ function SupplierAuctionRow({
             >
               <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
                 <Trophy className="w-3.5 h-3.5" />
-                Won at {formatCurrency(auction.winning_price, auction.currency)}
+                Awarded at {formatCurrency(auction.winning_price, auction.currency)}
                 <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <p className="text-emerald-600 text-xs mt-1">Tap to view savings & generate PO</p>
+              <p className="text-emerald-600 text-xs mt-1">Tap to view auction result</p>
             </div>
           )}
 
