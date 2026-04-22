@@ -20,26 +20,44 @@ interface DocumentData {
   referenceInvoiceNumber?: string;
   referenceInvoiceDate?: string;
   expectedDeliveryDate?: string;
-  
+
   companyName: string;
   companyAddress: string;
   companyGstin: string;
   companyLogo?: string | null;
-  
+  companyPhone?: string;
+  companyEmail?: string;
+  companySlogan?: string;
+
   buyerName: string;
   buyerAddress: string;
   buyerGstin: string;
   buyerEmail?: string;
   buyerPhone?: string;
-  
+
+  // Purchase-order specific (rendered in the secondary header strip)
+  requisitioner?: string;
+  shippedVia?: string;
+  fobPoint?: string;
+  paymentTerms?: string;
+  // Optional separate ship-to (defaults to buyer address if absent)
+  shipToName?: string;
+  shipToAddress?: string;
+  shipToPhone?: string;
+  shipToEmail?: string;
+  // Footer authorization line on POs
+  authorizedByName?: string;
+
   items: DocumentItem[];
-  
+
   subtotal: number;
   discountPercent?: number;
   discountAmount?: number;
   taxAmount: number;
   totalAmount: number;
-  
+  shippingHandling?: number;
+  otherCharges?: number;
+
   notes?: string;
   terms?: string;
   bankDetails?: {
@@ -117,6 +135,17 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
     logoData = await loadLogo();
   }
 
+  // Purchase Orders use a dedicated, classic procurement layout (TO / SHIP TO /
+  // P.O NUMBER strip → secondary metadata strip → items grid → totals box →
+  // footer notes & authorization line). Other document types continue to use
+  // the existing free-form header below.
+  if (data.documentType === 'purchase_order') {
+    await renderPurchaseOrder(doc, data, logoData);
+    const fileName = `${getDocumentTitle(data.documentType).replace(/\s+/g, '_')}_${data.documentNumber}.pdf`;
+    doc.save(fileName);
+    return;
+  }
+
   // === HEADER SECTION ===
   // Document title on the right
   doc.setFontSize(20);
@@ -180,8 +209,12 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   let rightY = yPos - 22;
   doc.setFontSize(9);
   
-  const docLabel = data.documentType === 'purchase_order' ? 'PO No:' : 
-                   data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
+  // POs are handled by renderPurchaseOrder() above; this branch only runs for
+  // invoices and notes. Cast through string so TS doesn't flag the literal as
+  // unreachable now that 'purchase_order' has been narrowed away.
+  const docLabel = (data.documentType as string) === 'purchase_order' ? 'PO No:'
+                   : data.documentType.includes('invoice') ? 'Invoice No:'
+                   : 'Note No:';
   
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
@@ -242,7 +275,7 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
-  const toLabel = data.documentType === 'purchase_order' ? 'Vendor:' : 'Bill To:';
+  const toLabel = (data.documentType as string) === 'purchase_order' ? 'Vendor:' : 'Bill To:';
   doc.text(toLabel, margin, yPos);
   yPos += 5;
   
@@ -485,5 +518,395 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   const fileName = `${getDocumentTitle(data.documentType).replace(/\s+/g, '_')}_${data.documentNumber}.pdf`;
   doc.save(fileName);
 };
+
+/* ============================================================================
+ * Purchase Order renderer
+ * ----------------------------------------------------------------------------
+ * Classic 3-column header layout matching standard procurement templates:
+ *
+ *   ┌──────────────────┬──────────────────┬──────────────────┐
+ *   │ TO               │ SHIP TO          │ P.O NUMBER       │
+ *   ├──────────────────┴──────────────────┴──────────────────┤
+ *   │ P.O DATE │ REQUISITIONER │ SHIPPED VIA │ F.O.B │ TERMS │
+ *   ├────────────────────────────────────────────────────────┤
+ *   │ Qty │ Unit │ Description       │  Unit Price │  Total  │
+ *   └────────────────────────────────────────────────────────┘
+ *
+ * The buyer (FROM) appears in the top-right block above the strip;
+ * the supplier (TO) and ship-to occupy the first two cells of the strip.
+ * ========================================================================== */
+async function renderPurchaseOrder(
+  doc: jsPDF,
+  data: DocumentData,
+  logoData: string | null,
+): Promise<void> {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const contentWidth = pageWidth - margin * 2;
+  let yPos = 14;
+
+  // ---- Top band: title (left) + buyer/company identity (right) -------------
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(24);
+  doc.setTextColor(20, 20, 20);
+  doc.text('PURCHASE ORDER', margin, yPos + 8);
+
+  // Optional small logo immediately under the title
+  if (logoData) {
+    try {
+      doc.addImage(logoData, 'PNG', margin, yPos + 12, 28, 12);
+    } catch {
+      /* ignore logo failures */
+    }
+  }
+
+  // Buyer identity block (right-aligned)
+  const rightX = pageWidth - margin;
+  let topRightY = yPos + 4;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(20, 20, 20);
+  doc.text((data.companyName || 'COMPANY NAME').toUpperCase(), rightX, topRightY, { align: 'right' });
+  topRightY += 5;
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(110, 110, 110);
+  if (data.companySlogan) {
+    doc.text(data.companySlogan, rightX, topRightY, { align: 'right' });
+    topRightY += 4;
+  }
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(50, 50, 50);
+  if (data.companyAddress) {
+    const addrLines = doc.splitTextToSize(data.companyAddress, 80);
+    addrLines.forEach((line: string) => {
+      doc.text(line, rightX, topRightY, { align: 'right' });
+      topRightY += 4;
+    });
+  }
+  if (data.companyPhone) {
+    doc.text(`Phone: ${data.companyPhone}`, rightX, topRightY, { align: 'right' });
+    topRightY += 4;
+  }
+  if (data.companyEmail) {
+    doc.text(`Email: ${data.companyEmail}`, rightX, topRightY, { align: 'right' });
+    topRightY += 4;
+  }
+  if (data.companyGstin) {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`GSTIN: ${data.companyGstin}`, rightX, topRightY, { align: 'right' });
+    topRightY += 4;
+  }
+
+  yPos = Math.max(yPos + 30, topRightY + 4);
+
+  // ---- Strip 1: TO | SHIP TO | P.O NUMBER ----------------------------------
+  // Column proportions: 38% | 38% | 24%
+  const col1W = Math.round(contentWidth * 0.38);
+  const col2W = Math.round(contentWidth * 0.38);
+  const col3W = contentWidth - col1W - col2W;
+  const headerH = 6;
+
+  // Header bar (filled black, white text)
+  doc.setFillColor(20, 20, 20);
+  doc.rect(margin, yPos, contentWidth, headerH, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('TO', margin + 3, yPos + 4.2);
+  doc.text('SHIP TO', margin + col1W + 3, yPos + 4.2);
+  doc.text('P.O NUMBER', margin + col1W + col2W + 3, yPos + 4.2);
+  yPos += headerH;
+
+  // Body cells
+  const bodyHeight = 32;
+  doc.setDrawColor(20, 20, 20);
+  doc.setLineWidth(0.4);
+  doc.rect(margin, yPos, col1W, bodyHeight);
+  doc.rect(margin + col1W, yPos, col2W, bodyHeight);
+  doc.rect(margin + col1W + col2W, yPos, col3W, bodyHeight);
+
+  const drawParty = (
+    x: number,
+    y: number,
+    width: number,
+    name: string,
+    address?: string,
+    gstin?: string,
+    phone?: string,
+    email?: string,
+  ) => {
+    let cy = y + 5;
+    doc.setTextColor(20, 20, 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(`[${(name || '—').toUpperCase()}]`, x + 3, cy);
+    cy += 4.5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    if (address) {
+      const lines = doc.splitTextToSize(address, width - 6);
+      lines.slice(0, 3).forEach((l: string) => {
+        doc.text(l, x + 3, cy);
+        cy += 3.6;
+      });
+    }
+    if (gstin) {
+      doc.setFont('helvetica', 'bold');
+      doc.text(`GSTIN: `, x + 3, cy);
+      const w = doc.getTextWidth('GSTIN: ');
+      doc.setFont('helvetica', 'normal');
+      doc.text(gstin, x + 3 + w, cy);
+      cy += 3.6;
+    }
+    if (phone) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Phone: ', x + 3, cy);
+      const w = doc.getTextWidth('Phone: ');
+      doc.setFont('helvetica', 'normal');
+      doc.text(phone, x + 3 + w, cy);
+      cy += 3.6;
+    }
+    if (email) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Email: ', x + 3, cy);
+      const w = doc.getTextWidth('Email: ');
+      doc.setFont('helvetica', 'normal');
+      doc.text(email, x + 3 + w, cy);
+    }
+  };
+
+  // TO = supplier (vendor)
+  drawParty(margin, yPos, col1W, data.buyerName, data.buyerAddress, data.buyerGstin, data.buyerPhone, data.buyerEmail);
+
+  // SHIP TO = explicit ship-to or fall back to delivery / buyer address
+  const shipName = data.shipToName || data.companyName;
+  const shipAddr = data.shipToAddress || data.deliveryAddress || data.companyAddress;
+  drawParty(margin + col1W, yPos, col2W, shipName, shipAddr, undefined, data.shipToPhone, data.shipToEmail);
+
+  // P.O NUMBER cell
+  {
+    const x = margin + col1W + col2W;
+    doc.setTextColor(20, 20, 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(data.documentNumber, x + 3, yPos + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(80, 80, 80);
+    const help = doc.splitTextToSize(
+      'This P.O. number must appear on all related correspondence, shipping papers, and invoices.',
+      col3W - 6,
+    );
+    doc.text(help, x + 3, yPos + 13);
+  }
+
+  yPos += bodyHeight + 4;
+
+  // ---- Strip 2: P.O DATE | REQUISITIONER | SHIPPED VIA | F.O.B | TERMS ------
+  const stripCols = [
+    { label: 'P.O DATE', value: data.issueDate || '' },
+    { label: 'REQUISITIONER', value: data.requisitioner || '' },
+    { label: 'SHIPPED VIA', value: data.shippedVia || '' },
+    { label: 'F.O.B POINT', value: data.fobPoint || '' },
+    { label: 'TERMS', value: data.paymentTerms || '' },
+  ];
+  const stripColW = contentWidth / stripCols.length;
+
+  // Header (black bar)
+  doc.setFillColor(20, 20, 20);
+  doc.rect(margin, yPos, contentWidth, headerH, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  stripCols.forEach((c, i) => {
+    doc.text(c.label, margin + stripColW * i + stripColW / 2, yPos + 4.2, { align: 'center' });
+  });
+  yPos += headerH;
+
+  // Value row
+  const stripValueH = 9;
+  doc.setDrawColor(20, 20, 20);
+  doc.setLineWidth(0.4);
+  doc.setTextColor(20, 20, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  stripCols.forEach((c, i) => {
+    doc.rect(margin + stripColW * i, yPos, stripColW, stripValueH);
+    if (c.value) {
+      doc.text(c.value, margin + stripColW * i + stripColW / 2, yPos + 6, { align: 'center' });
+    }
+  });
+  yPos += stripValueH + 4;
+
+  // ---- Items table ---------------------------------------------------------
+  const tableHead = [['Qty', 'Unit', 'Description', 'Unit Price', 'Total']];
+  const tableBody = data.items.map((it) => [
+    formatNumber(it.quantity),
+    it.unit || '',
+    it.description,
+    formatNumber(it.unit_price),
+    formatNumber(it.total),
+  ]);
+
+  autoTable(doc, {
+    startY: yPos,
+    head: tableHead,
+    body: tableBody,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [20, 20, 20],
+      textColor: 255,
+      fontStyle: 'bold',
+      fontSize: 9,
+      halign: 'left',
+      cellPadding: 2.5,
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 2.5,
+      lineColor: [80, 80, 80],
+      lineWidth: 0.2,
+      textColor: [20, 20, 20],
+      overflow: 'linebreak',
+      minCellHeight: 7,
+    },
+    columnStyles: {
+      0: { cellWidth: 16, halign: 'right' },
+      1: { cellWidth: 18, halign: 'left' },
+      2: { cellWidth: 'auto' },
+      3: { cellWidth: 30, halign: 'right' },
+      4: { cellWidth: 30, halign: 'right' },
+    },
+    margin: { left: margin, right: margin },
+  });
+
+  yPos = (doc as any).lastAutoTable.finalY + 4;
+
+  // ---- Footer: notes (left) + totals box (right) ---------------------------
+  const totalsBoxW = 72;
+  const totalsX = pageWidth - margin - totalsBoxW;
+  const totalsLabelX = totalsX + 3;
+  const totalsValueX = pageWidth - margin - 3;
+
+  // Build totals rows
+  const totalsRows: Array<{ label: string; value: number; emphasize?: boolean }> = [
+    { label: 'Sub Total', value: data.subtotal || 0 },
+    { label: 'Sales Tax', value: data.taxAmount || 0 },
+  ];
+  if (data.shippingHandling != null) totalsRows.push({ label: 'Shipping & Handling', value: data.shippingHandling });
+  if (data.otherCharges != null) totalsRows.push({ label: 'Other', value: data.otherCharges });
+  totalsRows.push({ label: 'Total', value: data.totalAmount || 0, emphasize: true });
+
+  const rowH = 7;
+  const totalsHeight = rowH * totalsRows.length;
+  doc.setDrawColor(20, 20, 20);
+  doc.setLineWidth(0.4);
+  totalsRows.forEach((row, i) => {
+    const rY = yPos + rowH * i;
+    doc.rect(totalsX, rY, totalsBoxW * 0.55, rowH);
+    doc.rect(totalsX + totalsBoxW * 0.55, rY, totalsBoxW * 0.45, rowH);
+    doc.setFont('helvetica', row.emphasize ? 'bold' : 'normal');
+    doc.setFontSize(row.emphasize ? 10 : 9);
+    doc.setTextColor(20, 20, 20);
+    doc.text(row.label, totalsLabelX, rY + 5);
+    doc.text(formatCurrency(row.value), totalsValueX, rY + 5, { align: 'right' });
+  });
+
+  // Footer notes (left side, parallel to totals)
+  const noteX = margin;
+  const noteW = totalsX - margin - 6;
+  let noteY = yPos;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(20, 20, 20);
+  const defaultBullets = [
+    'Please send two copies of your invoice.',
+    'Enter this order in accordance with the prices, terms, delivery method, and specifications listed above.',
+    'Please notify us immediately if you are unable to ship as specified.',
+    'Send all correspondence to the buyer address printed in the header.',
+  ];
+  defaultBullets.forEach((b) => {
+    const lines = doc.splitTextToSize(`•  ${b}`, noteW);
+    doc.text(lines, noteX, noteY + 4);
+    noteY += lines.length * 4 + 1;
+  });
+
+  yPos = Math.max(yPos + totalsHeight, noteY) + 8;
+
+  // ---- Buyer-supplied Terms & Conditions (full width) ---------------------
+  if (data.terms) {
+    if (yPos > pageHeight - 50) {
+      doc.addPage();
+      yPos = margin;
+    }
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, yPos, contentWidth, 6, 'F');
+    doc.setTextColor(20, 20, 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('TERMS & CONDITIONS', margin + 3, yPos + 4.2);
+    yPos += 8;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    const termsLines = doc.splitTextToSize(data.terms, contentWidth - 4);
+    termsLines.forEach((l: string) => {
+      if (yPos > pageHeight - 25) {
+        doc.addPage();
+        yPos = margin;
+      }
+      doc.text(l, margin + 2, yPos);
+      yPos += 4;
+    });
+    yPos += 4;
+  }
+
+  // ---- Notes (operational, separate from T&C) -----------------------------
+  if (data.notes) {
+    if (yPos > pageHeight - 30) {
+      doc.addPage();
+      yPos = margin;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    doc.text('Notes:', margin, yPos);
+    yPos += 4;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(20, 20, 20);
+    const notesLines = doc.splitTextToSize(data.notes, contentWidth);
+    notesLines.forEach((l: string) => {
+      if (yPos > pageHeight - 25) {
+        doc.addPage();
+        yPos = margin;
+      }
+      doc.text(l, margin, yPos);
+      yPos += 4;
+    });
+  }
+
+  // ---- Authorization line (bottom) ----------------------------------------
+  const authY = pageHeight - 22;
+  doc.setDrawColor(20, 20, 20);
+  doc.setLineWidth(0.3);
+  doc.line(margin + 30, authY, margin + 110, authY);
+  doc.line(pageWidth - margin - 60, authY, pageWidth - margin - 10, authY);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(20, 20, 20);
+  doc.text(
+    `Authorized by ${data.authorizedByName || ''}`.trim(),
+    margin + 70,
+    authY + 5,
+    { align: 'center' },
+  );
+  doc.text('Date', pageWidth - margin - 35, authY + 5, { align: 'center' });
+}
 
 export type { DocumentData, DocumentItem };

@@ -6,11 +6,26 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { logProcurementEvent } from '@/utils/procurementAuditLogger';
 import { useERPPolicy } from '@/hooks/useERPPolicy';
 import { toast } from 'sonner';
-import { FileText, ExternalLink, Zap, ShieldAlert, Lock } from 'lucide-react';
+import { FileText, ExternalLink, Zap, ShieldAlert, Lock, ScrollText } from 'lucide-react';
+
+/**
+ * Default Terms & Conditions text — pre-fills the textarea so the buyer has a
+ * starting point for every PO. They can edit, append, or replace before saving.
+ * Kept generic and procurement-grade; specific commercial terms (payment days,
+ * inco-terms, penalties) are expected to be tailored per PO.
+ */
+const DEFAULT_PO_TERMS = `1. Goods must be supplied as per the agreed specifications, quantity and quality.
+2. All deliveries must be accompanied by a valid invoice and lorry receipt.
+3. Payment will be released as per agreed payment terms after material acceptance.
+4. Any short supply, damage or quality deviation must be intimated within 48 hours of delivery.
+5. Statutory taxes (GST/IGST) shall be charged extra as applicable and shown separately on the invoice.
+6. Vendor shall not subcontract or assign this order without prior written consent of the buyer.
+7. This Purchase Order is governed by Indian law and subject to the jurisdiction of the buyer's registered office.`;
 
 interface POCreationModalProps {
   open: boolean;
@@ -32,6 +47,7 @@ export function POCreationModal({
   const [mode, setMode] = useState<'platform' | 'external'>('platform');
   const [externalPoNumber, setExternalPoNumber] = useState('');
   const [erpSyncEnabled, setErpSyncEnabled] = useState(true);
+  const [terms, setTerms] = useState<string>(DEFAULT_PO_TERMS);
   const [saving, setSaving] = useState(false);
 
   const { policy, resolveErpSync } = useERPPolicy(companyId || null);
@@ -63,6 +79,10 @@ export function POCreationModal({
           external_po_number: mode === 'external' ? externalPoNumber.trim() : null,
           erp_sync_enabled: finalErpSync,
           created_by: userId,
+          // Buyer-supplied Terms & Conditions printed on the PO PDF and shown
+          // to the supplier in the PO viewer dialog. Stored on the PO row so
+          // they remain auditable independent of any external template.
+          terms_and_conditions: terms.trim() || null,
         })
         .select()
         .single();
@@ -123,7 +143,7 @@ export function POCreationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>How do you want to proceed?</DialogTitle>
           <DialogDescription>
@@ -192,6 +212,31 @@ export function POCreationModal({
             />
           </div>
         )}
+
+        {/*
+         * Terms & Conditions — captured from the buyer at PO creation time.
+         * Pre-filled with sensible defaults; the buyer can fully edit before
+         * saving. The text is persisted on the PO row and renders verbatim in
+         * the PO PDF footer that the supplier downloads.
+         */}
+        <div className="space-y-2 mt-2">
+          <div className="flex items-center gap-2">
+            <ScrollText className="w-4 h-4 text-muted-foreground" />
+            <Label htmlFor="po-terms" className="text-sm">Terms & Conditions</Label>
+            <Badge variant="outline" className="text-[10px]">Printed on PO</Badge>
+          </div>
+          <Textarea
+            id="po-terms"
+            value={terms}
+            onChange={(e) => setTerms(e.target.value)}
+            rows={6}
+            placeholder="Enter the terms and conditions to print on the PO PDF…"
+            className="font-mono text-xs leading-relaxed"
+          />
+          <p className="text-[10px] text-muted-foreground">
+            These terms appear on the PDF the supplier receives. You can edit, append, or replace before creating the PO.
+          </p>
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
