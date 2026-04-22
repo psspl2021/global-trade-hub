@@ -143,7 +143,7 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         totalAmount: po.total_amount || 0,
 
         notes: po.notes || undefined,
-        terms: po.terms || po.payment_terms || undefined,
+        terms: po.terms_and_conditions || undefined,
         deliveryAddress: po.delivery_address || undefined,
       });
       toast.success('Purchase Order downloaded');
@@ -277,11 +277,11 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
               </div>
             </div>
 
-            {(po.notes || po.terms || po.payment_terms) && (
+            {(po.notes || po.terms_and_conditions) && (
               <div className="text-xs text-muted-foreground space-y-1">
                 {po.notes && <p><span className="font-medium text-foreground">Notes: </span>{po.notes}</p>}
-                {(po.terms || po.payment_terms) && (
-                  <p><span className="font-medium text-foreground">Terms: </span>{po.terms || po.payment_terms}</p>
+                {po.terms_and_conditions && (
+                  <p><span className="font-medium text-foreground">Terms: </span>{po.terms_and_conditions}</p>
                 )}
               </div>
             )}
