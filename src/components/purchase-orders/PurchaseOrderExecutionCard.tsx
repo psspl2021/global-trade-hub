@@ -137,6 +137,16 @@ export function PurchaseOrderExecutionCard({ po, userId, userRole, onRefresh }: 
             <Badge variant="outline" className={cn('text-xs', colors.bg, colors.text, colors.border)}>
               {PO_STATUS_LABELS[currentStatus]}
             </Badge>
+            {po.po_status === 'pending_approval' && (
+              <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 bg-amber-50">
+                Awaiting Approval — Not yet visible to supplier
+              </Badge>
+            )}
+            {po.po_status === 'rejected' && (
+              <Badge variant="outline" className="text-[10px] border-destructive/50 text-destructive bg-destructive/5">
+                Approval Rejected
+              </Badge>
+            )}
             {isExternal ? (
               <Badge variant="secondary" className="text-[10px]">External PO</Badge>
             ) : (
