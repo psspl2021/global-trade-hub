@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Workflow, Users } from 'lucide-react';
 import { formatBaseAmount } from './IntelligenceMetricCard';
 import { Link } from 'react-router-dom';
+import { useGovernanceAccess } from '@/hooks/useGovernanceAccess';
 
 type Stage =
   | 'PO_CREATED'
@@ -101,6 +102,15 @@ export function POLifecyclePanel({
   const purchasers = Array.isArray(topPurchasers) ? topPurchasers : [];
   const counts = stageCounts && typeof stageCounts === 'object' ? stageCounts : {};
 
+  // Route the "Open Purchase Orders" CTA to the surface the *actual* user is allowed to see.
+  // CEO/CFO/admin → CEO Control Layer. Manager / HoP / VP / others → their acknowledgements queue.
+  // Falls back to whatever the parent passed if no role is resolved yet.
+  const { primaryRole } = useGovernanceAccess();
+  const ceoLikeRoles = new Set(['ceo', 'buyer_ceo', 'cfo', 'buyer_cfo', 'ps_admin', 'admin']);
+  const resolvedHref = ceoLikeRoles.has(primaryRole)
+    ? (detailHref ?? '/governance/ceo/purchase-orders')
+    : '/governance/manager/acknowledgements';
+
   if (rows.length === 0 && purchasers.length === 0) return null;
 
   const stuckRows = rows
@@ -123,11 +133,9 @@ export function POLifecyclePanel({
             <Workflow className="h-4 w-4 text-primary" />
             PO Lifecycle &amp; Purchaser Attribution
           </CardTitle>
-          {detailHref ? (
-            <Button asChild size="sm" variant="outline">
-              <Link to={detailHref}>Open Purchase Orders</Link>
-            </Button>
-          ) : null}
+          <Button asChild size="sm" variant="outline">
+            <Link to={resolvedHref}>Open Purchase Orders</Link>
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
