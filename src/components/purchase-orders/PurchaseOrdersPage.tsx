@@ -78,11 +78,11 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
     if (!shouldApply()) return;
     setAuctionPOs(enriched);
 
-    // Load manual POs scoped to the acting purchaser (falls back to caller).
+    // Load real PO records scoped to the acting purchaser (falls back to caller).
     const effectivePurchaser = selectedPurchaserId || userId;
     const { data: poData } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, vendor_name, status, po_status, total_amount, currency, order_date')
+      .select('id, auction_id, po_number, vendor_name, status, po_status, total_amount, currency, order_date')
       .eq('purchaser_id', effectivePurchaser)
       .order('created_at', { ascending: false });
     if (!shouldApply()) return;
@@ -100,18 +100,31 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
   const handleViewPurchase = (id: string) => { setViewPurchaseId(id); setPurchaseViewerOpen(true); };
   const handleRefresh = () => setRefreshKey((k) => k + 1);
 
-  const allPOs = [
-    ...auctionPOs.map((a) => ({
-      id: a.id,
-      po_number: a.po_number,
-      supplier_company_name: a.supplier_company_name,
-      title: a.title,
-      status: a.status || 'draft',
-      winning_bid: a.winning_bid,
-      quantity: a.quantity,
-      currency: a.currency || 'INR',
-    })),
-    ...manualPOs.map((p) => ({
+  // De-duplicate: hide the synthetic auction-derived PO ("PO-<auctionId>") when
+  // a real persisted PO already exists for that auction. Without this guard,
+  // every awarded auction would render twice in the Order Execution list — once
+  // as the placeholder and once as the actual purchase_orders row.
+  const allPOs = useMemo(() => {
+    const persistedAuctionIds = new Set(
+      manualPOs
+        .map((p: any) => p.auction_id)
+        .filter((id: string | null): id is string => Boolean(id))
+    );
+
+    const auctionDerived = auctionPOs
+      .filter((a) => !persistedAuctionIds.has(a.id))
+      .map((a) => ({
+        id: a.id,
+        po_number: a.po_number,
+        supplier_company_name: a.supplier_company_name,
+        title: a.title,
+        status: a.status || 'draft',
+        winning_bid: a.winning_bid,
+        quantity: a.quantity,
+        currency: a.currency || 'INR',
+      }));
+
+    const persisted = manualPOs.map((p) => ({
       id: p.id,
       po_number: p.po_number,
       vendor_name: p.vendor_name,
@@ -119,8 +132,10 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
       po_status: p.po_status || null,
       total_amount: Number(p.total_amount),
       currency: p.currency || 'INR',
-    })),
-  ];
+    }));
+
+    return [...auctionDerived, ...persisted];
+  }, [auctionPOs, manualPOs]);
 
   return (
     <div className="space-y-4">
