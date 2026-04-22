@@ -1246,7 +1246,7 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
             </div>
           </div>
           {existingPoNumber ? (
-            <AuctionPOBanner auctionId={auction.id} isGlobal={auction.region_type === 'global'} />
+            <AuctionPOBanner auctionId={auction.id} isGlobal={(auction as any).region_type === 'global'} />
           ) : !showPOGenerator ? (
             <div className="rounded-[0.625rem] border border-border bg-card p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
