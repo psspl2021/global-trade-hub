@@ -209,8 +209,12 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   let rightY = yPos - 22;
   doc.setFontSize(9);
   
-  const docLabel = data.documentType === 'purchase_order' ? 'PO No:' : 
-                   data.documentType.includes('invoice') ? 'Invoice No:' : 'Note No:';
+  // POs are handled by renderPurchaseOrder() above; this branch only runs for
+  // invoices and notes. Cast through string so TS doesn't flag the literal as
+  // unreachable now that 'purchase_order' has been narrowed away.
+  const docLabel = (data.documentType as string) === 'purchase_order' ? 'PO No:'
+                   : data.documentType.includes('invoice') ? 'Invoice No:'
+                   : 'Note No:';
   
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
@@ -271,7 +275,7 @@ export const generateDocumentPDF = async (data: DocumentData): Promise<void> => 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
-  const toLabel = data.documentType === 'purchase_order' ? 'Vendor:' : 'Bill To:';
+  const toLabel = (data.documentType as string) === 'purchase_order' ? 'Vendor:' : 'Bill To:';
   doc.text(toLabel, margin, yPos);
   yPos += 5;
   
