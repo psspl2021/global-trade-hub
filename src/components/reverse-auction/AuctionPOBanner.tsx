@@ -8,7 +8,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, ExternalLink, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { FileText, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Eye } from 'lucide-react';
+import { SupplierPOViewerDialog } from '@/components/purchase-orders/SupplierPOViewerDialog';
 
 interface Props {
   auctionId: string;
@@ -32,6 +33,7 @@ export function AuctionPOBanner({ auctionId, isGlobal = false, isSupplier = fals
   const [po, setPo] = useState<POSummary | null>(null);
   const [docCount, setDocCount] = useState(0);
   const [polling, setPolling] = useState(true);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,11 +156,26 @@ export function AuctionPOBanner({ auctionId, isGlobal = false, isSupplier = fals
           </Button>
         )}
         {isSupplier && (
-          <Badge variant="outline" className="text-[10px] border-emerald-300 dark:border-emerald-700 shrink-0">
-            Sent to you
-          </Badge>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5"
+              onClick={() => setViewerOpen(true)}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              View PO
+            </Button>
+          </div>
         )}
       </div>
+      {isSupplier && (
+        <SupplierPOViewerDialog
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          poId={po.id}
+        />
+      )}
     </div>
   );
 }
