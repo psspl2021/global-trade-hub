@@ -58,7 +58,7 @@ interface MonthlySavingsAnalyticsProps {
 export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = false }: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
-  const { selectedPurchaserId } = useBuyerCompanyContext();
+  const { selectedPurchaserId, isLoading: isContextLoading } = useBuyerCompanyContext();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [auctions, setAuctions] = useState<any[]>([]);
@@ -70,6 +70,11 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
 
   useEffect(() => {
     if (!user?.id) return;
+    // Wait for the buyer-company context to settle before fetching. Without
+    // this guard, selectedPurchaserId flips from null → real id once the
+    // context hydrates, which re-runs this effect and causes the Cost Savings
+    // card to flash (skeleton → empty card → real card).
+    if (isContextLoading) return;
 
     const fetchData = async () => {
       const requestId = ++requestIdRef.current;
@@ -109,7 +114,7 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
     };
 
     fetchData();
-  }, [user?.id, selectedPurchaserId]);
+  }, [user?.id, selectedPurchaserId, isContextLoading]);
 
   // All-time stats from allAuctions
   const { activeCount, allTimeSavings, allTimeSpend } = useMemo(() => {
