@@ -214,6 +214,8 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
         onCreatePurchase={handleCreatePurchase}
         onEditPurchase={handleEditPurchase}
         onViewPurchase={handleViewPurchase}
+        hideToolbar
+        externalSearchTerm={purchaseSearchTerm}
       />
 
       <BuyerPurchaseForm
