@@ -784,11 +784,11 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
       </div>
 
       {/* Title + Status Bar */}
-      <div className="bg-card rounded-[0.625rem] border shadow-md p-5 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{auction.title}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
+      <div className="bg-card rounded-[0.625rem] border shadow-md p-4 sm:p-5 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-foreground break-words">{auction.title}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 break-words">
               {auction.category} • {auction.quantity} {auction.unit} • {auction.product_slug}
             </p>
             <GlobalTradePanel
@@ -801,9 +801,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               shipment_mode={auction.shipment_mode}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 sm:ml-3">
             {isLive && (
-              <Badge className="bg-emerald-600 text-white animate-pulse text-sm px-3 py-1">
+              <Badge className="bg-emerald-600 text-white animate-pulse text-xs sm:text-sm px-2.5 sm:px-3 py-1">
                 🔴 LIVE
               </Badge>
             )}
@@ -814,9 +814,9 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
               <Badge variant="destructive" className="px-3 py-1">⊘ Cancelled</Badge>
             )}
             {isLive && (
-              <div className="text-right ml-3">
-                <p className="text-xs text-muted-foreground">Time Left</p>
-                <p className={`text-lg font-mono font-bold ${urgencyColor}`}>{timeLeft}</p>
+              <div className="text-right ml-1 sm:ml-3">
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Time Left</p>
+                <p className={`text-base sm:text-lg font-mono font-bold ${urgencyColor}`}>{timeLeft}</p>
               </div>
             )}
           </div>
