@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,6 @@ import { BuyerPurchasesList } from '@/components/crm/BuyerPurchasesList';
 import { BuyerPurchaseForm } from '@/components/crm/BuyerPurchaseForm';
 import { BuyerPurchaseViewer } from '@/components/crm/BuyerPurchaseViewer';
 import { PurchaseOrderExecutionCard } from './PurchaseOrderExecutionCard';
-import { POApprovalQueue } from './POApprovalQueue';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCanCreatePO } from '@/hooks/useCanCreatePO';
@@ -45,9 +44,6 @@ export function PurchaseOrdersPage({ userId, onBack }: PurchaseOrdersPageProps) 
     })();
     return () => { cancelled = true; };
   }, [userId]);
-
-  const isManager = companyRoles.some((r) => ['manager', 'buyer_manager', 'operations_manager'].includes(r));
-  const isPurchaseHead = companyRoles.some((r) => ['purchase_head', 'vp'].includes(r));
 
   const loadData = useCallback(async () => {
     const requestId = ++requestIdRef.current;
