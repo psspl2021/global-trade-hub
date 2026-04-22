@@ -43,8 +43,7 @@ interface POData {
   status: string;
   po_status: string | null;
   notes: string | null;
-  terms: string | null;
-  payment_terms: string | null;
+  terms_and_conditions: string | null;
   delivery_address: string | null;
   region_type: string | null;
 }
@@ -76,7 +75,7 @@ export function SupplierPOViewerDialog({ open, onOpenChange, poId }: Props) {
         supabase
           .from('purchase_orders')
           .select(
-            'id, po_number, vendor_name, vendor_address, vendor_gstin, vendor_email, vendor_phone, total_amount, subtotal, tax_amount, currency, order_date, expected_delivery_date, status, po_status, notes, terms, payment_terms, delivery_address, region_type'
+            'id, po_number, vendor_name, vendor_address, vendor_gstin, vendor_email, vendor_phone, total_amount, subtotal, tax_amount, currency, order_date, expected_delivery_date, status, po_status, notes, terms_and_conditions, delivery_address, region_type'
           )
           .eq('id', poId)
           .maybeSingle(),
