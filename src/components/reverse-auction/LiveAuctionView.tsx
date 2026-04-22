@@ -830,6 +830,15 @@ export function LiveAuctionView({ auction: initialAuction, onBack, isSupplier = 
           />
         )}
 
+        {/* Supplier-facing PO indicator — appears for the winning supplier once buyer's PO lands */}
+        {effectiveStatus === 'completed' && isSupplier && auction.winner_supplier_id === user?.id && (
+          <AuctionPOBanner
+            auctionId={auction.id}
+            isGlobal={(auction.currency || 'INR') !== 'INR' || (auction.destination_country || '').toUpperCase() !== 'IN'}
+            isSupplier
+          />
+        )}
+
 
         {isAntiSnipeZone && (
           <div className="rounded-md px-3 py-1.5 text-xs font-medium flex items-center gap-2 bg-amber-50 text-amber-800 border border-amber-200 animate-pulse mb-3">

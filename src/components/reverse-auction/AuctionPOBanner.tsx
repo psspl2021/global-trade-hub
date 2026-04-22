@@ -13,6 +13,8 @@ import { FileText, ExternalLink, Loader2, CheckCircle2, AlertTriangle } from 'lu
 interface Props {
   auctionId: string;
   isGlobal?: boolean;
+  /** When true, render supplier-facing copy (no "View PO" navigation to buyer dashboard). */
+  isSupplier?: boolean;
 }
 
 interface POSummary {
@@ -24,7 +26,7 @@ interface POSummary {
   erp_sync_status: string | null;
 }
 
-export function AuctionPOBanner({ auctionId, isGlobal = false }: Props) {
+export function AuctionPOBanner({ auctionId, isGlobal = false, isSupplier = false }: Props) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [po, setPo] = useState<POSummary | null>(null);
@@ -130,22 +132,27 @@ export function AuctionPOBanner({ auctionId, isGlobal = false }: Props) {
             )}
           </div>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5 shrink-0"
-          onClick={() => {
-            // Open the Purchase Orders module of the auction dashboard
-            const params = new URLSearchParams(searchParams);
-            params.set('auctionView', 'purchase-orders');
-            params.delete('auction');
-            navigate(`/buyer/reverse-auctions?${params.toString()}`);
-          }}
-        >
-          <FileText className="w-3.5 h-3.5" />
-          View PO
-          <ExternalLink className="w-3 h-3 opacity-60" />
-        </Button>
+        {!isSupplier && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5 shrink-0"
+            onClick={() => {
+              // Open the Purchase Orders module of the buyer dashboard.
+              // Dashboard reads ?view=reverse-auction and ?auctionView=purchase-orders.
+              navigate('/dashboard?view=reverse-auction&auctionView=purchase-orders');
+            }}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            View PO
+            <ExternalLink className="w-3 h-3 opacity-60" />
+          </Button>
+        )}
+        {isSupplier && (
+          <Badge variant="outline" className="text-[10px] border-emerald-300 dark:border-emerald-700 shrink-0">
+            Sent to you
+          </Badge>
+        )}
       </div>
     </div>
   );
