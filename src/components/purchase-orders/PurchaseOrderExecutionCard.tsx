@@ -25,6 +25,7 @@ interface PurchaseOrderExecutionCardProps {
     title?: string;
     total_amount?: number;
     status: string;
+    po_status?: string | null;
     winning_bid?: number;
     quantity?: number;
     currency?: string;
