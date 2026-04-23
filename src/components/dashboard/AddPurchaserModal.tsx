@@ -267,13 +267,25 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {BUYER_ROLES.map((r) => (
+                  <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Operational</div>
+                  {BUYER_ROLES.filter(r => r.group === 'Operational').map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                  <div className="px-2 pt-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground border-t mt-1">Executive (own dashboard view)</div>
+                  {BUYER_ROLES.filter(r => r.group === 'Executive').map((r) => (
                     <SelectItem key={r.value} value={r.value}>
                       {r.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {['buyer_cfo', 'buyer_ceo', 'buyer_vp', 'buyer_purchase_head'].includes(role) && (
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  ⓘ Executive accounts log in directly to their own view (CFO / CEO / VP / Head of Procurement dashboard) — no PIN needed for their native view.
+                </p>
+              )}
             </div>
 
             {/* Assigned Categories */}
