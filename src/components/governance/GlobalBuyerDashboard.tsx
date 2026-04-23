@@ -184,7 +184,7 @@ export function GlobalBuyerDashboard() {
           purchasers={companyCtx.purchasers}
           selectedPurchaserId={companyCtx.selectedPurchaserId}
           onSelect={companyCtx.setSelectedPurchaserId}
-          showAllOption={companyCtx.canViewManagement}
+          showAllOption={true}
         />
       )}
 
