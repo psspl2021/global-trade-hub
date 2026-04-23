@@ -94,7 +94,7 @@ const Login = () => {
 
       if (roleData && roleData.length > 0) {
         const roles = roleData.map(r => r.role as string);
-        const managementRoleToView: Record<string, 'ceo' | 'cfo' | 'manager' | 'hr'> = {
+        const managementRoleToView: Record<string, 'ceo' | 'cfo' | 'manager' | 'hr' | 'vp' | 'purchase_head'> = {
           ceo: 'ceo',
           buyer_ceo: 'ceo',
           cfo: 'cfo',
@@ -103,6 +103,8 @@ const Login = () => {
           buyer_manager: 'manager',
           hr: 'hr',
           buyer_hr: 'hr',
+          buyer_vp: 'vp',
+          buyer_purchase_head: 'purchase_head',
         };
         
         // Check for management roles (highest priority)
