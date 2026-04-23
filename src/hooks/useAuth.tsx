@@ -37,12 +37,31 @@ export const useAuth = () => {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check for existing session — and validate it against the server.
+    // If the underlying auth user was deleted (user_not_found), wipe the
+    // dead session locally so the app doesn't get stuck in a 403 loop and
+    // the user can re-enter via the invite/login flow cleanly.
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { error: userErr } = await supabase.auth.getUser();
+        if (userErr && (
+          (userErr as any).code === 'user_not_found' ||
+          /user.*not.*found/i.test(userErr.message || '')
+        )) {
+          if (import.meta.env.DEV) console.warn('[auth] Stale session detected — clearing.');
+          try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+          clearUserScopeCache();
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);
