@@ -94,6 +94,25 @@ const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const { selectedPurchaser } = useBuyerCompanyContext();
+
+  // Live profile (company_name / contact_person) from `profiles` table.
+  // We deliberately do NOT trust user.user_metadata for these fields — that
+  // value is baked into the JWT at signup and goes stale after a rename
+  // (e.g. company renamed in DB but JWT still shows old company).
+  const [liveProfile, setLiveProfile] = useState<{ company_name: string | null; contact_person: string | null } | null>(null);
+  useEffect(() => {
+    if (!user?.id) { setLiveProfile(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('company_name, contact_person')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!cancelled) setLiveProfile(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   
@@ -406,19 +425,19 @@ const Dashboard = () => {
         ) : isBuyerRole ? (
           <div className="mb-3 sm:mb-8">
             <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
-              Welcome back, {selectedPurchaser?.display_name || user?.user_metadata?.contact_person || 'User'}!
+              Welcome back, {selectedPurchaser?.display_name || liveProfile?.contact_person || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
-              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+              {liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
         ) : (
           <div className="mb-3 sm:mb-8">
             <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
-              Welcome back, {user?.user_metadata?.contact_person || 'User'}!
+              Welcome back, {liveProfile?.contact_person || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
-              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+              {liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
         )}
