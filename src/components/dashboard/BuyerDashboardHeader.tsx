@@ -244,7 +244,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               selectedPurchaserId={selectedPurchaserId}
               onSelect={setSelectedPurchaserId}
               disabled={false}
-              showAllOption={canViewManagement}
+              showAllOption={true}
             />
           )}
 
