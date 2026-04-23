@@ -14912,6 +14912,8 @@ export type Database = {
         | "transporter"
         | "ops_manager"
         | "sales_manager"
+        | "buyer_vp"
+        | "buyer_purchase_head"
       bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
       document_status:
         | "draft"
@@ -15116,6 +15118,8 @@ export const Constants = {
         "transporter",
         "ops_manager",
         "sales_manager",
+        "buyer_vp",
+        "buyer_purchase_head",
       ],
       bid_status: ["pending", "accepted", "rejected", "withdrawn"],
       document_status: [
