@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,14 @@ import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteId = searchParams.get('invite_id');
+  const inviteEmail = searchParams.get('email');
   const { user, signIn, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(inviteEmail || '');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -72,6 +75,13 @@ const Login = () => {
   const redirectBasedOnRole = async () => {
     if (!user) {
       navigate('/dashboard');
+      return;
+    }
+
+    // If arriving from an invitation link, send the user back to the
+    // invite acceptance page so the membership join can complete.
+    if (inviteId) {
+      navigate(`/invite/${inviteId}`);
       return;
     }
 
