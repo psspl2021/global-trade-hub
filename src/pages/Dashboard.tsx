@@ -94,6 +94,25 @@ const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const { role, loading: roleLoading } = useUserRole(user?.id);
   const { selectedPurchaser } = useBuyerCompanyContext();
+
+  // Live profile (company_name / contact_person) from `profiles` table.
+  // We deliberately do NOT trust user.user_metadata for these fields — that
+  // value is baked into the JWT at signup and goes stale after a rename
+  // (e.g. company renamed in DB but JWT still shows old company).
+  const [liveProfile, setLiveProfile] = useState<{ company_name: string | null; contact_person: string | null } | null>(null);
+  useEffect(() => {
+    if (!user?.id) { setLiveProfile(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('company_name, contact_person')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!cancelled) setLiveProfile(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
   const partnerVerification = usePartnerVerification(role === 'logistics_partner' ? user?.id : undefined);
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   
