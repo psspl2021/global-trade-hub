@@ -14,7 +14,19 @@ const ALLOWED_ROLES = [
   "buyer_hr",
   "buyer_cfo",
   "buyer_ceo",
+  "buyer_vp",
+  "buyer_purchase_head",
 ];
+
+// Roles that require user_roles entry (executive/management roles for login redirect)
+const EXECUTIVE_ROLES = new Set([
+  "buyer_cfo",
+  "buyer_ceo",
+  "buyer_vp",
+  "buyer_purchase_head",
+  "buyer_manager",
+  "buyer_hr",
+]);
 
 // Roles allowed to create team members (matches UI canAddPurchasers)
 const ADMIN_ROLES = [
@@ -240,6 +252,14 @@ Deno.serve(async (req) => {
       await admin.from("profiles").upsert(
         { id: userId!, contact_person: fullName },
         { onConflict: "id" },
+      );
+    }
+
+    // Assign executive role into user_roles so login auto-redirects to their dashboard view
+    if (EXECUTIVE_ROLES.has(role)) {
+      await admin.from("user_roles").upsert(
+        { user_id: userId!, role: role as any },
+        { onConflict: "user_id,role" },
       );
     }
 
