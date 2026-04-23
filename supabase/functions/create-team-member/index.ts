@@ -255,6 +255,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Assign executive role into user_roles so login auto-redirects to their dashboard view
+    if (EXECUTIVE_ROLES.has(role)) {
+      await admin.from("user_roles").upsert(
+        { user_id: userId!, role: role as any },
+        { onConflict: "user_id,role" },
+      );
+    }
+
     // SECURITY: temp passwords are returned to the creator ONCE in this response
     // and never persisted server-side. There is no retrieval API.
 
