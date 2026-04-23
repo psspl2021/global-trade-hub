@@ -39,13 +39,13 @@ interface AddPurchaserModalProps {
 }
 
 const BUYER_ROLES = [
-  { value: 'buyer_purchaser', label: 'Purchaser' },
-  { value: 'buyer_manager', label: 'Manager' },
-  { value: 'purchase_head', label: 'Head of Procurement' },
-  { value: 'vp', label: 'VP' },
-  { value: 'buyer_hr', label: 'HR' },
-  { value: 'buyer_cfo', label: 'CFO' },
-  { value: 'buyer_ceo', label: 'CEO' },
+  { value: 'buyer_purchaser', label: 'Purchaser', group: 'Operational' },
+  { value: 'buyer_manager', label: 'Manager', group: 'Operational' },
+  { value: 'buyer_hr', label: 'HR / Management', group: 'Operational' },
+  { value: 'buyer_purchase_head', label: 'Head of Procurement', group: 'Executive' },
+  { value: 'buyer_vp', label: 'VP', group: 'Executive' },
+  { value: 'buyer_cfo', label: 'CFO', group: 'Executive' },
+  { value: 'buyer_ceo', label: 'CEO', group: 'Executive' },
 ];
 
 export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchaserModalProps) {
