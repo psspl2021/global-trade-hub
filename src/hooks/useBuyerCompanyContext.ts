@@ -248,16 +248,12 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      let purchaserList = (data || []) as CompanyPurchaser[];
+      const purchaserList = (data || []) as CompanyPurchaser[];
 
-      // SECURITY/UX: self-only users (e.g. purchasers) are hard-scoped to self
-      // by the DB (RPC ignores p_selected_purchaser). The is_self_only flag
-      // from get_user_scope() is the authoritative signal — no role-string
-      // matching here.
-      const isSelfOnlyRole = isSelfOnly;
-      if (isSelfOnlyRole) {
-        purchaserList = purchaserList.filter(p => p.is_current_user || p.user_id === user.id);
-      }
+      // Co-owner read model: every active company member sees the full
+      // teammate list and can default to the company-wide view. The DB
+      // still stamps purchaser_id on writes, so accountability is preserved.
+      const isSelfOnlyRole = false;
 
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
@@ -269,11 +265,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
           'get_company_purchasers' as any,
           { _user_id: user.id }
         );
-        
-        let retryList = (retryData || []) as CompanyPurchaser[];
-        if (isSelfOnlyRole) {
-          retryList = retryList.filter(p => p.is_current_user || p.user_id === user.id);
-        }
+
+        const retryList = (retryData || []) as CompanyPurchaser[];
         if (retryList.length > 0) {
           setPurchasers(retryList);
           const currentUser = retryList.find(p => p.is_current_user);
