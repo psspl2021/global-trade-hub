@@ -306,19 +306,26 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         setSelectedPurchaserIdState(user.id);
         localStorage.setItem(purchaserStorageKey(user.id), user.id);
       } else {
-        // Restore saved selection (per-user) or default to current user
+        // Restore saved selection (per-user). For management:
+        //   - saved 'ALL' (or empty) → company-wide (null)
+        //   - saved valid user id → view-as that purchaser
+        //   - no saved value → DEFAULT to company-wide (null) so co-owners
+        //     immediately see all team data, not just their own.
         const savedPurchaserId = localStorage.getItem(purchaserStorageKey(user.id));
-        const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
 
-        if (validSavedSelection) {
-          setSelectedPurchaserIdState(savedPurchaserId);
-        } else {
-          // Default to current user if they're a purchaser, otherwise first purchaser
-          const currentUser = purchaserList.find(p => p.is_current_user);
-          const defaultPurchaser = currentUser || purchaserList[0];
-          if (defaultPurchaser) {
-            setSelectedPurchaserIdState(defaultPurchaser.user_id);
+        if (savedPurchaserId === 'ALL') {
+          setSelectedPurchaserIdState(null);
+        } else if (savedPurchaserId) {
+          const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
+          if (validSavedSelection) {
+            setSelectedPurchaserIdState(savedPurchaserId);
+          } else {
+            // Stale id (e.g. removed teammate) → fall back to company-wide
+            setSelectedPurchaserIdState(null);
           }
+        } else {
+          // First load for a management user → company-wide view
+          setSelectedPurchaserIdState(null);
         }
       }
 
