@@ -160,9 +160,13 @@ const Signup = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      if (inviteId) {
+        navigate(`/invite/${inviteId}`);
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, inviteId]);
 
   // Handle tab change to update role
   const handleTabChange = (value: string) => {
