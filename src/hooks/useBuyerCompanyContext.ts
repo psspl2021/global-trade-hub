@@ -102,7 +102,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       return;
     }
     const saved = localStorage.getItem(purchaserStorageKey(user.id));
-    if (saved) {
+    if (saved === 'ALL') {
+      setSelectedPurchaserIdState(null);
+    } else if (saved) {
       setSelectedPurchaserIdState(saved);
     }
   }, [user?.id]);
