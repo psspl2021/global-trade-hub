@@ -74,6 +74,8 @@ const Signup = () => {
   const initialRole = getInitialRole();
   const initialTab = getInitialTab();
   const referralCodeFromUrl = searchParams.get('ref') || '';
+  const inviteId = searchParams.get('invite_id');
+  const inviteEmailFromUrl = searchParams.get('email') || '';
   const [referralCode, setReferralCode] = useState(referralCodeFromUrl);
   const [loading, setLoading] = useState(false);
   const [checkingPassword, setCheckingPassword] = useState(false);
@@ -104,7 +106,7 @@ const Signup = () => {
   }, [detectedCountry]);
 
   const [formData, setFormData] = useState({
-    email: '',
+    email: inviteEmailFromUrl,
     password: '',
     companyName: '',
     contactPerson: '',
@@ -158,9 +160,13 @@ const Signup = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      if (inviteId) {
+        navigate(`/invite/${inviteId}`);
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, inviteId]);
 
   // Handle tab change to update role
   const handleTabChange = (value: string) => {
@@ -311,7 +317,14 @@ const Signup = () => {
     
     if (!error) {
       clearCountryContext();
-      navigate('/login');
+      // If this signup came from an invitation, route the user back to the
+      // invite acceptance flow so the membership join completes (instead of
+      // leaving them attached to a freshly-provisioned "My Company").
+      if (inviteId) {
+        navigate(`/invite/${inviteId}`);
+      } else {
+        navigate('/login');
+      }
     }
   };
 

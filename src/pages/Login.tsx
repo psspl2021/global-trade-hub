@@ -359,7 +359,10 @@ const Login = () => {
               </div>
 
               <div className="text-center">
-                <Link to="/signup" className="text-primary hover:underline font-medium">
+                <Link
+                  to={inviteId ? `/signup?invite_id=${inviteId}${inviteEmail ? `&email=${encodeURIComponent(inviteEmail)}` : ''}` : '/signup'}
+                  className="text-primary hover:underline font-medium"
+                >
                   Create an account
                 </Link>
               </div>
