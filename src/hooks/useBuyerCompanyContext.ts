@@ -265,11 +265,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
           'get_company_purchasers' as any,
           { _user_id: user.id }
         );
-        
-        let retryList = (retryData || []) as CompanyPurchaser[];
-        if (isSelfOnlyRole) {
-          retryList = retryList.filter(p => p.is_current_user || p.user_id === user.id);
-        }
+
+        const retryList = (retryData || []) as CompanyPurchaser[];
         if (retryList.length > 0) {
           setPurchasers(retryList);
           const currentUser = retryList.find(p => p.is_current_user);
