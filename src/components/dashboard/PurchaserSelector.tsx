@@ -26,12 +26,20 @@ import { CompanyPurchaser } from '@/hooks/useBuyerCompanyContext';
 import { AddPurchaserModal } from './AddPurchaserModal';
 import { EditPurchaserModal } from './EditPurchaserModal';
 
+// Sentinel value used by the Select component to represent
+// "no specific purchaser selected" (i.e. company-wide view).
+// shadcn's Select can't accept "" as a value, so we use a marker.
+const ALL_PURCHASERS_VALUE = '__ALL_PURCHASERS__';
+
 interface PurchaserSelectorProps {
   purchasers: CompanyPurchaser[];
   selectedPurchaserId: string | null;
-  onSelect: (purchaserId: string) => void;
+  /** Receives a real user_id, or `null` when "All Purchasers" is chosen. */
+  onSelect: (purchaserId: string | null) => void;
   disabled?: boolean;
   className?: string;
+  /** Show the "All Purchasers (Company-wide)" option. Only true for management users. */
+  showAllOption?: boolean;
   canAddPurchasers?: boolean;
 }
 
