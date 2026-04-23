@@ -143,7 +143,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     if (id) {
       localStorage.setItem(key, id);
     } else {
-      localStorage.removeItem(key);
+      // Persist explicit "All Purchasers" choice so refresh doesn't snap back
+      // to a default. Reading code treats 'ALL' as null (company-wide).
+      localStorage.setItem(key, 'ALL');
     }
     window.dispatchEvent(new CustomEvent(PURCHASER_CHANGE_EVENT, {
       detail: { userId: user.id, purchaserId: id ?? null },
