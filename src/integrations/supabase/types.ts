@@ -2272,6 +2272,7 @@ export type Database = {
       }
       buyer_role_security: {
         Row: {
+          company_id: string
           created_at: string | null
           id: string
           last_verified_at: string | null
@@ -2281,6 +2282,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id: string
           created_at?: string | null
           id?: string
           last_verified_at?: string | null
@@ -2290,6 +2292,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string
           created_at?: string | null
           id?: string
           last_verified_at?: string | null
@@ -2298,7 +2301,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "buyer_role_security_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       buyer_stock_movements: {
         Row: {
