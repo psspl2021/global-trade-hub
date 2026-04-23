@@ -169,114 +169,168 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            Add Company User
+            {tempPassword ? 'User Created — Share Credentials' : 'Add Company User'}
           </DialogTitle>
           <DialogDescription>
-            Add a user to your company workspace — purchaser, category head, manager, CFO or CEO. They will join through a company invite so their account stays linked to this workspace.
+            {tempPassword
+              ? 'Account created successfully. Copy the temporary password below — it will NOT be shown again.'
+              : 'Add a user to your company workspace. An account will be created instantly with a temporary password.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="purchaser@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+        {tempPassword ? (
+          <div className="space-y-4 py-4">
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Email</Label>
+                <p className="font-mono text-sm break-all">{createdEmail}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <KeyRound className="h-3 w-3" />
+                  Temporary Password
+                </Label>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 px-3 py-2 rounded-md bg-background border font-mono text-sm break-all select-all">
+                    {tempPassword}
+                  </code>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={copied ? 'secondary' : 'default'}
+                    onClick={handleCopyPassword}
+                  >
+                    {copied ? (
+                      <><CheckCircle2 className="h-4 w-4 mr-1" /> Copied</>
+                    ) : (
+                      <><Copy className="h-4 w-4 mr-1" /> Copy</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-          {/* Full Name */}
-          <div className="space-y-2">
-            <Label htmlFor="fullName" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Full Name (Optional)
-            </Label>
-            <Input
-              id="fullName"
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-medium">One-time reveal</p>
+                <p className="text-muted-foreground text-xs">
+                  This password is shown only once and is not stored. Share it securely (e.g. via your team's password manager or a private channel). The user can change it after first login.
+                </p>
+              </div>
+            </div>
           </div>
+        ) : (
+          <div className="space-y-4 py-4">
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Email Address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="purchaser@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-          {/* Role */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              Role
-            </Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select role" />
-              </SelectTrigger>
-              <SelectContent>
-                {BUYER_ROLES.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Full Name */}
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Full Name (Optional)
+              </Label>
+              <Input
+                id="fullName"
+                placeholder="John Doe"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
 
-          {/* Assigned Categories */}
-          <div className="space-y-2">
-            <Label>Assigned Categories (Optional)</Label>
-            <Select onValueChange={handleAddCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Add category..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px]">
-                {categoriesData
-                  .filter(c => !selectedCategories.includes(c.name))
-                  .map((category) => (
-                    <SelectItem key={category.name} value={category.name}>
-                      {category.name}
+            {/* Role */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                Role
+              </Label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BUYER_ROLES.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-            
-            {selectedCategories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {selectedCategories.map((category) => (
-                  <Badge
-                    key={category}
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    {category}
-                    <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
-                      onClick={() => handleRemoveCategory(category)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Assigned Categories */}
+            <div className="space-y-2">
+              <Label>Assigned Categories (Optional)</Label>
+              <Select onValueChange={handleAddCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Add category..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px]">
+                  {categoriesData
+                    .filter(c => !selectedCategories.includes(c.name))
+                    .map((category) => (
+                      <SelectItem key={category.name} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+
+              {selectedCategories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedCategories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {category}
+                      <X
+                        className="h-3 w-3 cursor-pointer hover:text-destructive"
+                        onClick={() => handleRemoveCategory(category)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="sm:mr-auto">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            <Mail className="h-4 w-4 mr-1" />
-            {isSubmitting ? 'Sending...' : 'Send Invitation'}
-          </Button>
+          {tempPassword ? (
+            <Button onClick={() => handleClose(false)} className="w-full sm:w-auto sm:ml-auto">
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => handleClose(false)} className="sm:mr-auto">
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
+                <UserPlus className="h-4 w-4 mr-1" />
+                {isSubmitting ? 'Creating...' : 'Create User'}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
