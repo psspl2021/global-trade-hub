@@ -78,6 +78,13 @@ const Login = () => {
       return;
     }
 
+    // If arriving from an invitation link, send the user back to the
+    // invite acceptance page so the membership join can complete.
+    if (inviteId) {
+      navigate(`/invite/${inviteId}`);
+      return;
+    }
+
     try {
       // Get user's primary role
       const { data: roleData } = await supabase
