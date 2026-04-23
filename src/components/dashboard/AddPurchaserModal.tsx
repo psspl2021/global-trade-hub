@@ -215,8 +215,8 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
               </div>
             </div>
 
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex gap-2 text-sm">
-              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 flex gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p className="font-medium">One-time reveal</p>
                 <p className="text-muted-foreground text-xs">
