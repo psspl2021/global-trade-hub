@@ -50,9 +50,18 @@ export function PurchaserSelector({
   disabled = false,
   className = '',
   canAddPurchasers = true,
+  showAllOption = false,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPurchaser, setEditingPurchaser] = useState<CompanyPurchaser | null>(null);
+
+  const handleValueChange = (value: string) => {
+    if (value === ALL_PURCHASERS_VALUE) {
+      onSelect(null);
+    } else {
+      onSelect(value);
+    }
+  };
 
   const formatNameWithCategories = (p: CompanyPurchaser) => {
     const cats = p.assigned_categories || [];
