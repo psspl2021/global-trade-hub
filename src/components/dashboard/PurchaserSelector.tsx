@@ -78,9 +78,16 @@ export function PurchaserSelector({
                 <Eye className="h-4 w-4 text-primary" />
                 <SelectValue placeholder="Select Acting Purchaser">
                   {selectedPurchaser && (
-                    <span className="truncate">
-                      {formatNameWithCategories(selectedPurchaser)}
-                      {selectedPurchaser.is_current_user && ' (You)'}
+                    <span className="truncate flex items-center gap-1">
+                      <span className="truncate">
+                        {formatNameWithCategories(selectedPurchaser)}
+                        {selectedPurchaser.is_current_user && ' (You)'}
+                      </span>
+                      {selectedPurchaser.email && (
+                        <span className="text-xs text-muted-foreground truncate">
+                          · {selectedPurchaser.email}
+                        </span>
+                      )}
                     </span>
                   )}
                 </SelectValue>
@@ -95,12 +102,19 @@ export function PurchaserSelector({
                 >
                   <div className="flex items-center gap-2 py-1 w-full">
                     <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="font-medium truncate">
-                      {formatNameWithCategories(purchaser)}
-                      {purchaser.is_current_user && (
-                        <span className="text-primary ml-1">(You)</span>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="font-medium truncate leading-tight">
+                        {formatNameWithCategories(purchaser)}
+                        {purchaser.is_current_user && (
+                          <span className="text-primary ml-1">(You)</span>
+                        )}
+                      </span>
+                      {purchaser.email && (
+                        <span className="text-[11px] text-muted-foreground truncate leading-tight">
+                          {purchaser.email}
+                        </span>
                       )}
-                    </span>
+                    </div>
                     <button
                       type="button"
                       onPointerDown={(e) => {
