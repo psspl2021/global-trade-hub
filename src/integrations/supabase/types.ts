@@ -13426,6 +13426,7 @@ export type Database = {
         Returns: {
           assigned_categories: string[]
           display_name: string
+          email: string
           is_current_user: boolean
           member_id: string
           role: string

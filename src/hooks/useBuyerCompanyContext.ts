@@ -26,6 +26,7 @@ export interface CompanyPurchaser {
   member_id: string;
   user_id: string;
   display_name: string;
+  email?: string | null;
   role: string;
   assigned_categories: string[];
   is_current_user: boolean;
@@ -224,14 +225,15 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         // Fetch current user's profile as fallback
         const { data: profile } = await supabase
           .from('profiles')
-          .select('contact_person, company_name')
+          .select('contact_person, company_name, email')
           .eq('id', user.id)
           .single();
         
         const fallbackPurchaser: CompanyPurchaser = {
           member_id: user.id,
           user_id: user.id,
-          display_name: profile?.contact_person || profile?.company_name || 'You',
+          display_name: profile?.contact_person || profile?.company_name || (profile?.email ? profile.email.split('@')[0] : 'You'),
+          email: profile?.email ?? user.email ?? null,
           role: role || 'buyer',
           assigned_categories: [],
           is_current_user: true
@@ -278,14 +280,15 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         // Still nothing — fallback to profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('contact_person, company_name')
+          .select('contact_person, company_name, email')
           .eq('id', user.id)
           .single();
         
         const fallbackPurchaser: CompanyPurchaser = {
           member_id: user.id,
           user_id: user.id,
-          display_name: profile?.contact_person || profile?.company_name || 'You',
+          display_name: profile?.contact_person || profile?.company_name || (profile?.email ? profile.email.split('@')[0] : 'You'),
+          email: profile?.email ?? user.email ?? null,
           role: role || 'buyer',
           assigned_categories: [],
           is_current_user: true
