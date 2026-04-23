@@ -86,15 +86,15 @@ export function PurchaserSelector({
         </label>
         <div className="flex items-center gap-2 min-w-0">
           <Select
-            value={selectedPurchaserId || undefined}
-            onValueChange={onSelect}
+            value={selectedPurchaserId || (showAllOption ? ALL_PURCHASERS_VALUE : undefined)}
+            onValueChange={handleValueChange}
             disabled={disabled}
           >
             <SelectTrigger className="w-[280px] bg-background border-border">
               <div className="flex items-center gap-2 min-w-0">
                 <Eye className="h-4 w-4 text-primary" />
                 <SelectValue placeholder="Select Acting Purchaser">
-                  {selectedPurchaser && (
+                  {selectedPurchaser ? (
                     <span className="truncate flex items-center gap-1">
                       <span className="truncate">
                         {formatNameWithCategories(selectedPurchaser)}
@@ -106,11 +106,27 @@ export function PurchaserSelector({
                         </span>
                       )}
                     </span>
-                  )}
+                  ) : showAllOption && selectedPurchaserId === null ? (
+                    <span className="truncate font-medium">All Purchasers (Company-wide)</span>
+                  ) : null}
                 </SelectValue>
               </div>
             </SelectTrigger>
             <SelectContent className="bg-background border-border z-50">
+              {showAllOption && (
+                <SelectItem
+                  value={ALL_PURCHASERS_VALUE}
+                  className="cursor-pointer pr-10 border-b border-border/50 mb-1"
+                >
+                  <div className="flex items-center gap-2 py-1">
+                    <Eye className="h-4 w-4 text-primary flex-shrink-0" />
+                    <div className="flex flex-col">
+                      <span className="font-semibold">All Purchasers</span>
+                      <span className="text-[11px] text-muted-foreground">Company-wide view</span>
+                    </div>
+                  </div>
+                </SelectItem>
+              )}
               {purchasers.map((purchaser) => (
                 <SelectItem
                   key={purchaser.user_id}
