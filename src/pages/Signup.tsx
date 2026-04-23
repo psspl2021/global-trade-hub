@@ -317,7 +317,14 @@ const Signup = () => {
     
     if (!error) {
       clearCountryContext();
-      navigate('/login');
+      // If this signup came from an invitation, route the user back to the
+      // invite acceptance flow so the membership join completes (instead of
+      // leaving them attached to a freshly-provisioned "My Company").
+      if (inviteId) {
+        navigate(`/invite/${inviteId}`);
+      } else {
+        navigate('/login');
+      }
     }
   };
 
