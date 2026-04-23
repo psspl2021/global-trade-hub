@@ -74,6 +74,8 @@ const Signup = () => {
   const initialRole = getInitialRole();
   const initialTab = getInitialTab();
   const referralCodeFromUrl = searchParams.get('ref') || '';
+  const inviteId = searchParams.get('invite_id');
+  const inviteEmailFromUrl = searchParams.get('email') || '';
   const [referralCode, setReferralCode] = useState(referralCodeFromUrl);
   const [loading, setLoading] = useState(false);
   const [checkingPassword, setCheckingPassword] = useState(false);
