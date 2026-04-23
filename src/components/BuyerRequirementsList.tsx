@@ -175,16 +175,11 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
 
   useEffect(() => {
     // Wait for purchaser context to resolve before fetching.
-    // Without this gate, the first render fires with selectedPurchaserId=null,
-    // which makes the RPC return all company RFQs (a visibility leak that
-    // briefly flashes other purchasers' data before the impersonation scope
-    // takes effect).
+    // Note: selectedPurchaserId === null is now a VALID state for management
+    // users — it means "company-wide / All Purchasers". Don't early-return on
+    // null; the RPC handles it (returns full company data for management,
+    // self-only for purchasers).
     if (contextLoading) return;
-    if (!selectedPurchaserId) {
-      setRequirements([]);
-      setLoading(false);
-      return;
-    }
     fetchRequirements();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedPurchaserId, contextLoading]);
