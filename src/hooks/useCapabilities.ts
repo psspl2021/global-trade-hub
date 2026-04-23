@@ -11,14 +11,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export type Capability =
+  // ── Visibility (read) ──────────────────────────────────────
   | 'can_view_all_auctions'
   | 'can_view_all_quotes'
-  | 'can_override_po_approval'
-  | 'can_view_full_supplier_identity'
   | 'can_view_all_pos'
+  | 'can_view_full_supplier_identity'
   | 'can_view_purchaser_leaderboard'
-  | 'can_switch_purchaser'
   | 'can_view_management_dashboard'
+  | 'can_view_company_rfqs'      // purchaser+ : company-wide RFQ read
+  | 'can_view_company_auctions'  // purchaser+ : company-wide auction read
+  | 'can_view_company_pos'       // purchaser+ : company-wide PO read
+  // ── Control (write / approve) ──────────────────────────────
+  | 'can_edit_any_rfq'           // manager+   : edit RFQs not authored by self
+  | 'can_close_auction'          // manager+   : force-close live auction
+  | 'can_award_auction'          // manager+   : award reverse auction
+  | 'can_override_pricing'       // exec       : override negotiated/locked price
+  | 'can_override_po_approval'   // CEO        : bypass approval chain
+  | 'can_switch_purchaser'       // manager+   : peek other purchaser's view
   | string;
 
 let _cache: { userId: string; caps: Set<string>; at: number } | null = null;
