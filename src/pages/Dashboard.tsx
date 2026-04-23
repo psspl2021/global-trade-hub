@@ -425,19 +425,19 @@ const Dashboard = () => {
         ) : isBuyerRole ? (
           <div className="mb-3 sm:mb-8">
             <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
-              Welcome back, {selectedPurchaser?.display_name || user?.user_metadata?.contact_person || 'User'}!
+              Welcome back, {selectedPurchaser?.display_name || liveProfile?.contact_person || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
-              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+              {liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
         ) : (
           <div className="mb-3 sm:mb-8">
             <h1 className="text-base sm:text-3xl font-bold mb-0.5 sm:mb-2 leading-tight">
-              Welcome back, {user?.user_metadata?.contact_person || 'User'}!
+              Welcome back, {liveProfile?.contact_person || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
-              {user?.user_metadata?.company_name} • {role?.toUpperCase()}
+              {liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}
             </p>
           </div>
         )}
