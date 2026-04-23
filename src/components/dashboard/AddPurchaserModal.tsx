@@ -56,6 +56,9 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
   const [role, setRole] = useState('buyer_purchaser');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdEmail, setCreatedEmail] = useState<string | null>(null);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleAddCategory = (category: string) => {
     if (!selectedCategories.includes(category)) {
@@ -67,11 +70,41 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     setSelectedCategories(selectedCategories.filter(c => c !== category));
   };
 
+  const resetForm = () => {
+    setEmail('');
+    setFullName('');
+    setRole('buyer_purchaser');
+    setSelectedCategories([]);
+  };
+
+  const handleClose = (next: boolean) => {
+    if (!next) {
+      // Closing modal — clear sensitive temp password from memory
+      setCreatedEmail(null);
+      setTempPassword(null);
+      setCopied(false);
+      resetForm();
+    }
+    onOpenChange(next);
+  };
+
+  const handleCopyPassword = async () => {
+    if (!tempPassword) return;
+    try {
+      await navigator.clipboard.writeText(tempPassword);
+      setCopied(true);
+      toast({ title: 'Password copied', description: 'Share it securely with the user.' });
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast({ title: 'Copy failed', description: 'Please copy manually.', variant: 'destructive' });
+    }
+  };
+
   const handleSubmit = async () => {
     if (!email.trim()) {
       toast({
         title: 'Email Required',
-        description: 'Please enter the purchaser\'s email address.',
+        description: 'Please enter the user\'s email address.',
         variant: 'destructive',
       });
       return;
@@ -80,85 +113,59 @@ export function AddPurchaserModal({ open, onOpenChange, onSuccess }: AddPurchase
     setIsSubmitting(true);
     
     try {
-      // Fetch inviter context + company ID
-      const { data: { user } } = await supabase.auth.getUser();
-      let inviterName = '';
-      let companyName = '';
-      let companyId = '';
-
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('contact_person, company_name')
-          .eq('id', user.id)
-          .single();
-        inviterName = profile?.contact_person || user.email || '';
-        companyName = profile?.company_name || '';
-
-        const { data: membership } = await supabase
-          .from('buyer_company_members')
-          .select('company_id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        companyId = membership?.company_id || '';
-      }
-
-      const { data, error } = await supabase.functions.invoke('send-team-invite', {
+      const { data, error } = await supabase.functions.invoke('create-team-member', {
         body: {
-          email: email.trim(),
+          email: email.trim().toLowerCase(),
           fullName: fullName.trim() || undefined,
           role,
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
-          inviterName,
-          companyName,
-          companyId,
         },
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      // Smart toast based on response
-      if (data?.alreadyMember) {
+      if (data?.alreadyMember && !data?.tempPassword) {
         toast({
           title: 'Already a Member',
           description: `${email} is already part of your team.`,
         });
-      } else if (data?.autoAdded) {
-        toast({
-          title: 'Member Added',
-          description: `${email} has been added to your team and notified. No signup needed.`,
-        });
-      } else {
-        toast({
-          title: 'Invitation Sent',
-          description: `A signup invitation has been sent to ${email}.`,
-        });
+        resetForm();
+        onOpenChange(false);
+        onSuccess?.();
+        return;
       }
-      
-      // Reset form
-      setEmail('');
-      setFullName('');
-      setRole('buyer_purchaser');
-      setSelectedCategories([]);
+
+      if (data?.tempPassword) {
+        // Show in-modal credentials card (one-time reveal)
+        setCreatedEmail(email.trim().toLowerCase());
+        setTempPassword(data.tempPassword);
+        toast({
+          title: 'User Created',
+          description: 'Copy the temporary password — it will not be shown again.',
+        });
+        onSuccess?.();
+        return;
+      }
+
+      // Existing user added without new password
+      toast({
+        title: 'Member Added',
+        description: `${email} has been added to your team.`,
+      });
+      resetForm();
       onOpenChange(false);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Invitation error:', error);
+      console.error('Add team member error:', error);
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to send invitation. Please try again.',
+        description: error?.message || 'Failed to add team member. Please try again.',
         variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const resetForm = () => {
-    setEmail('');
-    setFullName('');
-    setRole('buyer_purchaser');
-    setSelectedCategories([]);
   };
 
   return (
