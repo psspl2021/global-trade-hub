@@ -106,7 +106,7 @@ const Signup = () => {
   }, [detectedCountry]);
 
   const [formData, setFormData] = useState({
-    email: '',
+    email: inviteEmailFromUrl,
     password: '',
     companyName: '',
     contactPerson: '',
