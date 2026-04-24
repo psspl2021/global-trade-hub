@@ -106,13 +106,7 @@ type AdminView =
   | 'enterprise'
   | 'credit-leads'
   | 'nudge-impact'
-  | 'seo-revenue'
-  | 'seo-monitor'
-  | 'seo-rev-dashboard'
-  | 'seo-intelligence'
-  | 'seo-dashboard'
-  | 'demand-gaps'
-  | 'seo-pipeline'
+  | 'seo-command'
   | 'blog-pipeline'
   | 'demo';
 
