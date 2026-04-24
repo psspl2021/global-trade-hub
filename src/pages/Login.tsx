@@ -107,10 +107,14 @@ const Login = () => {
           buyer_purchase_head: 'purchase_head',
         };
         
-        // Check for management roles (highest priority)
+        // Management roles land on the standard Execution dashboard by default.
+        // They can switch to their analytics view (CFO/CEO/Manager/etc.) via the
+        // Management View selector — we no longer auto-open it on login because
+        // buyers expect the normal dashboard (Welcome back…) right after sign-in.
         const matchedManagementRole = roles.find(r => managementRoleToView[r]);
         if (matchedManagementRole) {
-          localStorage.setItem('ps_management_view', managementRoleToView[matchedManagementRole]);
+          // Clear any stale management view from a previous session on this browser
+          localStorage.removeItem('ps_management_view');
           navigate('/dashboard');
           return;
         }
