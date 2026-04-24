@@ -622,9 +622,26 @@ interface UserTableProps {
   onDelete: (user: UserWithProfile) => void;
   onTransfer: (user: UserWithProfile) => void;
   onEditReferral: (user: UserWithProfile) => void;
+  showRole?: boolean;
 }
 
-function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTableProps) {
+function formatRelativeTime(date: string | null): string {
+  if (!date) return '-';
+  const diff = Date.now() - new Date(date).getTime();
+  if (diff < 0) return '-';
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
+
+function UserTable({ users, onDelete, onTransfer, onEditReferral, showRole }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -638,11 +655,15 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
       <TableHeader>
         <TableRow>
           <TableHead>Company Name</TableHead>
+          {showRole && <TableHead>Role</TableHead>}
           <TableHead>Contact Person</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Referred By</TableHead>
           <TableHead>Location</TableHead>
+          <TableHead><Globe className="inline h-3 w-3 mr-1" />Country</TableHead>
+          <TableHead><CreditCard className="inline h-3 w-3 mr-1" />Plan / Credits</TableHead>
+          <TableHead><Activity className="inline h-3 w-3 mr-1" />Last Active</TableHead>
           <TableHead>GSTIN</TableHead>
           <TableHead>Registered</TableHead>
           <TableHead className="w-[100px]">Actions</TableHead>
@@ -652,6 +673,13 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
         {users.map((user) => (
           <TableRow key={user.user_id}>
             <TableCell className="font-medium">{user.company_name}</TableCell>
+            {showRole && (
+              <TableCell>
+                <Badge variant="outline" className="text-xs capitalize">
+                  {user.role.replace(/_/g, ' ')}
+                </Badge>
+              </TableCell>
+            )}
             <TableCell>{user.contact_person}</TableCell>
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.phone}</TableCell>
@@ -678,6 +706,27 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
             </TableCell>
             <TableCell>
               {user.city && user.state ? `${user.city}, ${user.state}` : user.city || user.state || '-'}
+            </TableCell>
+            <TableCell>
+              {user.country ? (
+                <Badge variant="secondary" className="text-xs">{user.country}</Badge>
+              ) : <span className="text-muted-foreground">-</span>}
+            </TableCell>
+            <TableCell>
+              {user.tier ? (
+                <div className="flex flex-col gap-0.5">
+                  <Badge variant="outline" className="text-xs capitalize w-fit">{user.tier}</Badge>
+                  <span className="text-[10px] text-muted-foreground">
+                    {user.bids_used_this_month ?? 0}/{user.bids_limit ?? 0} bids
+                    {user.premium_bids_balance ? ` · +${user.premium_bids_balance} premium` : ''}
+                  </span>
+                </div>
+              ) : <span className="text-muted-foreground text-xs">No plan</span>}
+            </TableCell>
+            <TableCell>
+              <span className="text-xs text-muted-foreground" title={user.updated_at ? format(new Date(user.updated_at), 'dd MMM yyyy HH:mm') : ''}>
+                {formatRelativeTime(user.updated_at)}
+              </span>
             </TableCell>
             <TableCell>
               {user.gstin ? (() => {
