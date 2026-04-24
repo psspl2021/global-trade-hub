@@ -3,7 +3,7 @@
  * Summary cards, live auction strip, supplier overview, PO history, execution tracking
  * Sits ABOVE the existing auction list on the reverse auction dashboard
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -466,7 +466,7 @@ export function AuctionDashboardModules({
   const contextLoading = contextLoadingProp ?? buyerCompanyContext?.isLoading ?? false;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const requestIdRef = useState(0)[0];
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!user?.id || contextLoading) return;
