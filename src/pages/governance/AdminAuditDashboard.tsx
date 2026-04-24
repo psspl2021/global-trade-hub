@@ -61,6 +61,7 @@ import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { AdminDataExport } from '@/components/admin/AdminDataExport';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
 import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
+import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
