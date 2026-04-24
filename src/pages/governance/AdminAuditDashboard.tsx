@@ -89,25 +89,24 @@ import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
 const SEOCommandCenter = lazy(() => import('@/components/admin/SEOCommandCenter'));
-const BlogPipelinePanel = lazy(() => import('@/components/admin/BlogPipelinePanel'));
 const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
+const PlatformControlHub = lazy(() => import('@/components/admin/PlatformControlHub'));
+const RevenueGrowthHub = lazy(() => import('@/components/admin/RevenueGrowthHub'));
+const BidIntelligenceHub = lazy(() => import('@/components/admin/BidIntelligenceHub'));
+const ContentStudioHub = lazy(() => import('@/components/admin/ContentStudioHub'));
 
 type AdminView = 
   | 'dashboard' 
-  | 'control-tower' 
-  | 'ai-sales' 
+  | 'platform-control'
+  | 'revenue-growth'
+  | 'bid-intelligence'
+  | 'content-studio'
   | 'demand-heatmap'
-  | 'leads'
-  | 'blogs'
   | 'email-tracking'
-  | 'sales-board'
   | 'benchmarks'
-  | 'ai-blog-gen'
-  | 'enterprise'
   | 'credit-leads'
   | 'nudge-impact'
   | 'seo-command'
-  | 'blog-pipeline'
   | 'demo';
 
 export default function AdminAuditDashboard() {
