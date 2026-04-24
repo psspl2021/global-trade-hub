@@ -633,67 +633,38 @@ export default function AdminAuditDashboard() {
             <Button variant="outline" className="w-full" onClick={() => setCurrentView('nudge-impact')}><Zap className="h-4 w-4 mr-2" />Open Nudge Impact Panel</Button>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="h-4 w-4" />Revenue Dashboard<Badge className="bg-white/20 text-white text-xs">LIVE</Badge></CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-emerald-200">Top revenue pages, conversion rates & autonomous boost engine status</p>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-revenue')}><TrendingUp className="h-4 w-4 mr-2" />Open Revenue Dashboard</Button>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Row SEO — SEO Intelligence & Monitoring */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-blue-950 to-blue-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Monitor className="h-4 w-4" />SEO Monitor<Badge className="bg-white/20 text-white text-xs">CTR</Badge></CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-blue-200">CTR tracking, corridor performance & search position monitoring</p>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCurrentView('seo-monitor')}><Monitor className="h-4 w-4 mr-2" />Open SEO Monitor</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-violet-950 to-violet-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><BarChart3 className="h-4 w-4" />SEO Revenue<Badge className="bg-white/20 text-white text-xs">₹</Badge></CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-violet-200">SKU-level revenue attribution, page-type ROI & country corridors</p>
-            <Button className="w-full bg-violet-600 hover:bg-violet-700 text-white" onClick={() => setCurrentView('seo-rev-dashboard')}><BarChart3 className="h-4 w-4 mr-2" />Open SEO Revenue</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-cyan-950 to-cyan-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Sparkles className="h-4 w-4" />SEO Intelligence</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-cyan-200">Keyword intent analysis, striking-distance pages & content gaps</p>
-            <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setCurrentView('seo-intelligence')}><Sparkles className="h-4 w-4 mr-2" />Open SEO Intelligence</Button>
-          </CardContent>
-        </Card>
+      {/* SEO Command Center — consolidates 7 prior SEO cards */}
+      <Card className="bg-gradient-to-br from-indigo-950 to-violet-900 text-white border-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="h-4 w-4" />
+            SEO Command Center
+            <Badge className="bg-white/20 text-white text-xs">UNIFIED</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-indigo-200">
+            One hub for SEO Overview, Performance (CTR & positions), Revenue (live + attribution), Intelligence (keywords + demand gaps) and Pipeline.
+          </p>
+          <Button
+            className="w-full bg-white text-indigo-900 hover:bg-indigo-50"
+            onClick={() => setCurrentView('seo-command')}
+          >
+            <Globe className="h-4 w-4 mr-2" />
+            Open SEO Command Center
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Row — FX, Blog Pipeline */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Globe className="h-4 w-4" />FX Rates Console<Badge className="bg-white/20 text-white text-xs">Live</Badge></CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-emerald-200">View &amp; refresh INR-anchored conversion rates · auto-updated daily 02:30 IST</p>
             <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => navigate('/admin/fx-rates')}><Globe className="h-4 w-4 mr-2" />Open FX Console</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-gradient-to-br from-teal-950 to-teal-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Globe className="h-4 w-4" />SEO Dashboard</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-teal-200">Query history, internal link graph, indexation health & authority flow</p>
-            <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={() => setCurrentView('seo-dashboard')}><Globe className="h-4 w-4 mr-2" />Open SEO Dashboard</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-orange-950 to-orange-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Zap className="h-4 w-4" />Demand Gaps<Badge className="bg-white/20 text-white text-xs">GROWTH</Badge></CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-orange-200">Missing slug detection, priority scoring & AI generation queue</p>
-            <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white" onClick={() => setCurrentView('demand-gaps')}><Zap className="h-4 w-4 mr-2" />Open Demand Gaps</Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-emerald-950 to-emerald-900 text-white border-0">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Rocket className="h-4 w-4" />SEO Pipeline<Badge className="bg-white/20 text-white text-xs">AUTO</Badge></CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-emerald-200">Auto-publish 100 high-intent pages with AI content & internal linking</p>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setCurrentView('seo-pipeline')}><Rocket className="h-4 w-4 mr-2" />Open Pipeline</Button>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-blue-950 to-blue-900 text-white border-0">
