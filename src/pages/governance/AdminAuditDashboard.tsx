@@ -753,6 +753,7 @@ export default function AdminAuditDashboard() {
       <AdminBidsList open={showBids} onOpenChange={setShowBids} />
       <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
       <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
+      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
       <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
       <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
       <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
