@@ -4687,6 +4687,21 @@ export type Database = {
         }
         Relationships: []
       }
+      integrity_alert_state: {
+        Row: {
+          last_alerted_at: string
+          signal_key: string
+        }
+        Insert: {
+          last_alerted_at?: string
+          signal_key: string
+        }
+        Update: {
+          last_alerted_at?: string
+          signal_key?: string
+        }
+        Relationships: []
+      }
       internal_links: {
         Row: {
           id: string
