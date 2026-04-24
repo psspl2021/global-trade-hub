@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft, Pencil } from 'lucide-react';
+import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft, Pencil, Shield, Globe, Activity, CreditCard } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
