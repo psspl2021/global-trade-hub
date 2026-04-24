@@ -604,7 +604,7 @@ export default function AdminAuditDashboard() {
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Settings className="h-4 w-4 text-slate-600" />AI Selection Engine</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">AI-powered supplier selection with anonymity</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowL1Analysis(true)}><Settings className="h-4 w-4 mr-2" />Open AI Engine</Button>
+            <Button variant="outline" className="w-full" onClick={() => setShowSupplierSelection(true)}><Settings className="h-4 w-4 mr-2" />Open AI Engine</Button>
           </CardContent>
         </Card>
         <Card className="bg-card border">
