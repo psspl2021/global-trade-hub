@@ -394,6 +394,11 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, [fetchPurchasers, canViewManagement]);
 
+  const resolvedLoading =
+    isLoading ||
+    scopeLoading ||
+    (!!user?.id && isSelfOnly && selectedPurchaserId !== user.id);
+
   return {
     purchasers,
     selectedPurchaserId,
@@ -405,7 +410,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     canSelectPurchaser,
     canViewManagement,
     isReadOnly,
-    isLoading,
+    isLoading: resolvedLoading,
     error,
     refetch: fetchPurchasers
   };
