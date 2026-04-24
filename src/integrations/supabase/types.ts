@@ -14158,16 +14158,25 @@ export type Database = {
             }[]
           }
       get_user_company_ids: { Args: { p_user_id: string }; Returns: string[] }
-      get_user_scope: {
-        Args: { p_user_id: string }
-        Returns: {
-          company_id: string
-          is_executive: boolean
-          is_management: boolean
-          is_self_only: boolean
-          role: string
-        }[]
-      }
+      get_user_scope:
+        | {
+            Args: never
+            Returns: {
+              assigned_categories: string[]
+              company_id: string
+              role: string
+            }[]
+          }
+        | {
+            Args: { p_user_id: string }
+            Returns: {
+              company_id: string
+              is_executive: boolean
+              is_management: boolean
+              is_self_only: boolean
+              role: string
+            }[]
+          }
       has_active_global_plan: { Args: { _user_id: string }; Returns: boolean }
       has_business_relationship: {
         Args: { _profile_id: string; _viewer_id: string }
