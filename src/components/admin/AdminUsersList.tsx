@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft, Pencil } from 'lucide-react';
+import { Loader2, Search, Users, Package, Truck, Trash2, ArrowRightLeft, Pencil, Shield, Globe, Activity, CreditCard } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -47,10 +47,16 @@ interface UserWithProfile {
   phone: string;
   city: string | null;
   state: string | null;
+  country: string | null;
   gstin: string | null;
   created_at: string;
+  updated_at: string | null;
   referred_by_name: string | null;
   referred_by_phone: string | null;
+  tier: string | null;
+  bids_used_this_month: number | null;
+  bids_limit: number | null;
+  premium_bids_balance: number | null;
 }
 
 interface AdminUsersListProps {
@@ -69,7 +75,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [activeTab, setActiveTab] = useState('buyer');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0 });
+  const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0, other: 0 });
   const [pageSize, setPageSize] = useState(15);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserWithProfile | null>(null);
@@ -92,13 +98,15 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
 
   useEffect(() => {
     if (open) {
-      fetchUsers(activeTab as 'buyer' | 'supplier' | 'logistics_partner');
+      fetchUsers(activeTab);
     }
   }, [open, activeTab, currentPage, pageSize]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, search, pageSize]);
+
+  const MAIN_ROLES = ['buyer', 'supplier', 'logistics_partner'];
 
   const fetchTabCounts = async () => {
     try {
@@ -108,6 +116,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           buyer: roles.filter(r => r.role === 'buyer').length,
           supplier: roles.filter(r => r.role === 'supplier').length,
           logistics_partner: roles.filter(r => r.role === 'logistics_partner').length,
+          other: roles.filter(r => !MAIN_ROLES.includes(r.role)).length,
         });
       }
     } catch (error) {
@@ -115,17 +124,23 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
     }
   };
 
-  const fetchUsers = async (role: 'buyer' | 'supplier' | 'logistics_partner') => {
+  const fetchUsers = async (tab: string) => {
     setLoading(true);
     try {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      const { data: roles, count } = await supabase
+      let rolesQuery = supabase
         .from('user_roles')
-        .select('user_id, role', { count: 'exact' })
-        .eq('role', role)
-        .range(from, to);
+        .select('user_id, role', { count: 'exact' });
+
+      if (tab === 'other') {
+        rolesQuery = rolesQuery.not('role', 'in', `(${MAIN_ROLES.join(',')})`);
+      } else {
+        rolesQuery = rolesQuery.eq('role', tab as AppRole);
+      }
+
+      const { data: roles, count } = await rolesQuery.range(from, to);
 
       if (!roles) {
         setUsers([]);
@@ -136,27 +151,40 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
       setTotalCount(count || 0);
 
       const userIds = roles.map(r => r.user_id);
-      
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, company_name, contact_person, email, phone, city, state, gstin, created_at, referred_by_name, referred_by_phone')
-        .in('id', userIds);
 
-      const combined: UserWithProfile[] = roles.map(role => {
-        const profile = profiles?.find(p => p.id === role.user_id);
+      const [{ data: profiles }, { data: subs }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, company_name, contact_person, email, phone, city, state, country, gstin, created_at, updated_at, referred_by_name, referred_by_phone')
+          .in('id', userIds),
+        supabase
+          .from('subscriptions')
+          .select('user_id, tier, bids_used_this_month, bids_limit, premium_bids_balance')
+          .in('user_id', userIds),
+      ]);
+
+      const combined: UserWithProfile[] = roles.map(r => {
+        const profile = profiles?.find(p => p.id === r.user_id);
+        const sub = subs?.find(s => s.user_id === r.user_id);
         return {
-          user_id: role.user_id,
-          role: role.role,
+          user_id: r.user_id,
+          role: r.role,
           company_name: profile?.company_name || '',
           contact_person: profile?.contact_person || '',
           email: profile?.email || '',
           phone: profile?.phone || '',
           city: profile?.city || null,
           state: profile?.state || null,
+          country: (profile as any)?.country || null,
           gstin: profile?.gstin || null,
           created_at: profile?.created_at || '',
+          updated_at: (profile as any)?.updated_at || null,
           referred_by_name: profile?.referred_by_name || null,
           referred_by_phone: profile?.referred_by_phone || null,
+          tier: sub?.tier || null,
+          bids_used_this_month: sub?.bids_used_this_month ?? null,
+          bids_limit: sub?.bids_limit ?? null,
+          premium_bids_balance: sub?.premium_bids_balance ?? null,
         };
       });
 
@@ -354,7 +382,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="buyer" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Buyers ({tabCounts.buyer})
@@ -366,6 +394,10 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
               <TabsTrigger value="logistics_partner" className="flex items-center gap-2">
                 <Truck className="h-4 w-4" />
                 Logistics ({tabCounts.logistics_partner})
+              </TabsTrigger>
+              <TabsTrigger value="other" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Other ({tabCounts.other})
               </TabsTrigger>
             </TabsList>
 
@@ -383,6 +415,9 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
                 </TabsContent>
                 <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
                   <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} />
+                </TabsContent>
+                <TabsContent value="other" className="flex-1 overflow-auto mt-4">
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} showRole />
                 </TabsContent>
 
                 {totalPages > 1 && (
@@ -587,9 +622,26 @@ interface UserTableProps {
   onDelete: (user: UserWithProfile) => void;
   onTransfer: (user: UserWithProfile) => void;
   onEditReferral: (user: UserWithProfile) => void;
+  showRole?: boolean;
 }
 
-function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTableProps) {
+function formatRelativeTime(date: string | null): string {
+  if (!date) return '-';
+  const diff = Date.now() - new Date(date).getTime();
+  if (diff < 0) return '-';
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
+
+function UserTable({ users, onDelete, onTransfer, onEditReferral, showRole }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -603,11 +655,15 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
       <TableHeader>
         <TableRow>
           <TableHead>Company Name</TableHead>
+          {showRole && <TableHead>Role</TableHead>}
           <TableHead>Contact Person</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Referred By</TableHead>
           <TableHead>Location</TableHead>
+          <TableHead><Globe className="inline h-3 w-3 mr-1" />Country</TableHead>
+          <TableHead><CreditCard className="inline h-3 w-3 mr-1" />Plan / Credits</TableHead>
+          <TableHead><Activity className="inline h-3 w-3 mr-1" />Last Active</TableHead>
           <TableHead>GSTIN</TableHead>
           <TableHead>Registered</TableHead>
           <TableHead className="w-[100px]">Actions</TableHead>
@@ -617,6 +673,13 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
         {users.map((user) => (
           <TableRow key={user.user_id}>
             <TableCell className="font-medium">{user.company_name}</TableCell>
+            {showRole && (
+              <TableCell>
+                <Badge variant="outline" className="text-xs capitalize">
+                  {user.role.replace(/_/g, ' ')}
+                </Badge>
+              </TableCell>
+            )}
             <TableCell>{user.contact_person}</TableCell>
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.phone}</TableCell>
@@ -643,6 +706,27 @@ function UserTable({ users, onDelete, onTransfer, onEditReferral }: UserTablePro
             </TableCell>
             <TableCell>
               {user.city && user.state ? `${user.city}, ${user.state}` : user.city || user.state || '-'}
+            </TableCell>
+            <TableCell>
+              {user.country ? (
+                <Badge variant="secondary" className="text-xs">{user.country}</Badge>
+              ) : <span className="text-muted-foreground">-</span>}
+            </TableCell>
+            <TableCell>
+              {user.tier ? (
+                <div className="flex flex-col gap-0.5">
+                  <Badge variant="outline" className="text-xs capitalize w-fit">{user.tier}</Badge>
+                  <span className="text-[10px] text-muted-foreground">
+                    {user.bids_used_this_month ?? 0}/{user.bids_limit ?? 0} bids
+                    {user.premium_bids_balance ? ` · +${user.premium_bids_balance} premium` : ''}
+                  </span>
+                </div>
+              ) : <span className="text-muted-foreground text-xs">No plan</span>}
+            </TableCell>
+            <TableCell>
+              <span className="text-xs text-muted-foreground" title={user.updated_at ? format(new Date(user.updated_at), 'dd MMM yyyy HH:mm') : ''}>
+                {formatRelativeTime(user.updated_at)}
+              </span>
             </TableCell>
             <TableCell>
               {user.gstin ? (() => {
