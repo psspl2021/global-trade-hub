@@ -382,7 +382,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="buyer" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Buyers ({tabCounts.buyer})
@@ -394,6 +394,10 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
               <TabsTrigger value="logistics_partner" className="flex items-center gap-2">
                 <Truck className="h-4 w-4" />
                 Logistics ({tabCounts.logistics_partner})
+              </TabsTrigger>
+              <TabsTrigger value="other" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Other ({tabCounts.other})
               </TabsTrigger>
             </TabsList>
 
@@ -411,6 +415,9 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
                 </TabsContent>
                 <TabsContent value="logistics_partner" className="flex-1 overflow-auto mt-4">
                   <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} />
+                </TabsContent>
+                <TabsContent value="other" className="flex-1 overflow-auto mt-4">
+                  <UserTable users={filteredUsers} onDelete={handleDeleteClick} onTransfer={handleTransferClick} onEditReferral={handleEditReferralClick} showRole />
                 </TabsContent>
 
                 {totalPages > 1 && (
