@@ -3,7 +3,7 @@
  * Summary cards, live auction strip, supplier overview, PO history, execution tracking
  * Sits ABOVE the existing auction list on the reverse auction dashboard
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
 import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
@@ -457,26 +456,24 @@ export function AuctionDashboardModules({
   contextLoading: contextLoadingProp,
 }: Props) {
   const { user } = useAuth();
-  const buyerCompanyContext = useBuyerCompanyContext();
-  const selectedPurchaserId = selectedPurchaserIdProp !== undefined
-    ? selectedPurchaserIdProp
-    : buyerCompanyContext.selectedPurchaserId;
-  const contextLoading = contextLoadingProp ?? buyerCompanyContext.isLoading;
+  const selectedPurchaserId = selectedPurchaserIdProp ?? null;
+  const contextLoading = contextLoadingProp ?? false;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!user?.id || contextLoading) return;
 
-    setAuctions([]);
-    setLoading(true);
-
     const load = async () => {
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
       const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
       const data = await fetchScopedAuctions({
         p_user_id: user.id,
         p_selected_purchaser: selectedPurchaserId,
       });
+      if (requestIdRef.current !== requestId) return;
       setAuctions(data || []);
       setLoading(false);
     };

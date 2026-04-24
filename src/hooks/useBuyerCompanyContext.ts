@@ -231,13 +231,13 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       return;
     }
 
-    // If role hasn't resolved yet, stay in loading state instead of bailing
-    // out with purchasers=[]. Otherwise the header's `!isLoading && length>0`
-    // gate fires once with empty data, hiding the Acting Purchaser selector
-    // until the user manually reloads.
+    // If role hasn't resolved yet, don't flip back to the loading skeleton.
+    // The optimistic seed above already gives the header a safe immediate
+    // self-entry, so keeping `isLoading=true` here causes the long blank/skeleton
+    // state in the Acting Purchaser row even though we already have enough
+    // information to render the selector shell.
     const roleStr = role?.toString() || '';
     if (!roleStr) {
-      setIsLoading(true);
       return;
     }
 

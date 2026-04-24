@@ -43,7 +43,11 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
+  const {
+    selectedPurchaserId,
+    selectedPurchaser,
+    isLoading: contextLoading,
+  } = useBuyerCompanyContext();
   // Scope-keyed count avoids flash-of-stale-count when switching purchasers:
   // the value is read by current scope key, so a switch instantly shows 0
   // (or the cached count for that scope) even before the fetch resolves.
@@ -425,6 +429,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
         <MonthlySavingsAnalytics
           selectedPurchaserId={selectedPurchaserId}
           isContextLoading={contextLoading}
+          selectedPurchaserName={selectedPurchaser?.display_name ?? null}
         />
       )}
 

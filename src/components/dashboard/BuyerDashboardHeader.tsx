@@ -240,7 +240,15 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
           {/* Purchaser Selector — render the label + a sized skeleton while loading
               so the row never appears as an unlabeled gray bar. The skeleton
               matches the real selector's footprint, eliminating layout shift. */}
-          {isLoading ? (
+          {purchasers.length > 0 ? (
+            <PurchaserSelector
+              purchasers={purchasers}
+              selectedPurchaserId={selectedPurchaserId}
+              onSelect={setSelectedPurchaserId}
+              disabled={false}
+              showAllOption={true}
+            />
+          ) : isLoading ? (
             <div className="flex flex-wrap items-center gap-2 sm:gap-3" aria-busy="true">
               <label className="shrink-0 whitespace-nowrap text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Acting Purchaser (View as)
