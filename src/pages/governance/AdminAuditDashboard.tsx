@@ -654,6 +654,9 @@ export default function AdminAuditDashboard() {
       {/* Dialog-based admin modals */}
       <AdminUsersList open={showUsers} onOpenChange={setShowUsers} />
       <AdminRequirementsList open={showRequirements} onOpenChange={setShowRequirements} />
+      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
+      <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
+      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
       <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
       <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
       <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
