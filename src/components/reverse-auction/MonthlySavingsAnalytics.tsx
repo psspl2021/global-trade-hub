@@ -55,6 +55,7 @@ interface MonthlySavingsAnalyticsProps {
   hideToggle?: boolean;
   selectedPurchaserId?: string | null;
   isContextLoading?: boolean;
+  selectedPurchaserName?: string | null;
 }
 
 export function MonthlySavingsAnalytics({
@@ -62,6 +63,7 @@ export function MonthlySavingsAnalytics({
   hideToggle = false,
   selectedPurchaserId: selectedPurchaserIdProp,
   isContextLoading: isContextLoadingProp,
+  selectedPurchaserName,
 }: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
@@ -257,7 +259,7 @@ export function MonthlySavingsAnalytics({
             <p className="text-sm font-semibold text-foreground">Cost Savings</p>
             <p className="text-[11px] text-muted-foreground">
               {selectedPurchaserId
-                ? 'No reverse auction savings recorded for this purchaser in the last 6 months.'
+                ? `No reverse auction savings recorded for ${selectedPurchaserName || 'this purchaser'} in the last 6 months.`
                 : 'Procurement savings from Reverse Auctions — last 6 months'}
             </p>
           </div>
@@ -295,7 +297,11 @@ export function MonthlySavingsAnalytics({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">Cost Savings</p>
-              <p className="text-[11px] text-muted-foreground">Procurement savings from Reverse Auctions — last 6 months</p>
+              <p className="text-[11px] text-muted-foreground">
+                {selectedPurchaserId
+                  ? `Procurement savings for ${selectedPurchaserName || 'selected purchaser'} — last 6 months`
+                  : 'Procurement savings from Reverse Auctions — last 6 months'}
+              </p>
             </div>
             {totalSavings > 0 && (
               <Badge variant="outline" className="text-xs font-bold text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400 mr-2">
