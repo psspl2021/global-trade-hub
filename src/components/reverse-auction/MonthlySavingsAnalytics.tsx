@@ -206,6 +206,24 @@ export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = 
   }, [auctions]);
 
   if (loading) {
+    // Match the compact collapsed-card height when the analytics are not
+    // expanded — otherwise we reserve a giant 256px block above the fold
+    // for what is meant to be a single-line summary card. When the parent
+    // forces the expanded view (hideToggle), keep the larger skeleton.
+    if (!hideToggle) {
+      return (
+        <Card className="p-4 border-l-4 border-l-emerald-500/40">
+          <div className="flex items-center gap-3 animate-pulse">
+            <div className="h-9 w-9 rounded-xl bg-muted" />
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="h-3.5 w-28 rounded bg-muted" />
+              <div className="h-2.5 w-56 max-w-full rounded bg-muted/70" />
+            </div>
+            <div className="h-5 w-16 rounded bg-muted" />
+          </div>
+        </Card>
+      );
+    }
     return (
       <Card className="p-6">
         <div className="h-64 flex items-center justify-center text-muted-foreground text-sm animate-pulse">
