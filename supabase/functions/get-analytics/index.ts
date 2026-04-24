@@ -205,8 +205,7 @@ serve(async (req) => {
         visitors: data.count,
         percentage: Math.round((data.count / totalPageviews) * 100),
       }))
-      .sort((a, b) => b.visitors - a.visitors)
-      .slice(0, 10);
+      .sort((a, b) => b.visitors - a.visitors);
 
     const analytics: any = {
       totalVisitors: uniqueVisitors,
