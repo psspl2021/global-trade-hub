@@ -347,7 +347,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
 
       {/* Quick Access Cards (buyer only) */}
       {!isSupplier && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <Card
             variant="interactive"
             className="p-4 group hover:shadow-md transition-all border-l-4 border-l-violet-500 cursor-pointer"
