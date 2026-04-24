@@ -109,6 +109,34 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, [user?.id]);
 
+  // Optimistic seed: as soon as we know who the user is, render a single-self
+  // purchaser entry and stop the loading skeleton. The real fetchPurchasers
+  // call below will replace this with the full company roster when the RPC
+  // returns. This eliminates the 10–30s window where the "Acting Purchaser"
+  // selector is just an unlabeled gray skeleton waiting on a slow RPC chain
+  // (get_company_purchasers → ensure_buyer_company → retry → profile fallback).
+  useEffect(() => {
+    if (!user?.id) return;
+    setPurchasers((current) => {
+      if (current.length > 0) return current; // already populated by fetch
+      const fallbackName =
+        user.user_metadata?.contact_person ||
+        user.user_metadata?.company_name ||
+        (user.email ? user.email.split('@')[0] : 'You');
+      const seed: CompanyPurchaser = {
+        member_id: user.id,
+        user_id: user.id,
+        display_name: fallbackName,
+        email: user.email ?? null,
+        role: 'buyer',
+        assigned_categories: [],
+        is_current_user: true,
+      };
+      return [seed];
+    });
+    setIsLoading(false);
+  }, [user?.id]);
+
   // Keep all hook instances on the page in sync. This hook is used directly
   // from multiple components, so local state must broadcast purchaser changes
   // immediately instead of waiting for an async refetch/localStorage restore.
