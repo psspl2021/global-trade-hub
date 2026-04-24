@@ -61,6 +61,7 @@ import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { AdminDataExport } from '@/components/admin/AdminDataExport';
 import AdminBlogManager from '@/components/admin/AdminBlogManager';
 import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
+import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
 import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagement';
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
@@ -144,6 +145,7 @@ export default function AdminAuditDashboard() {
   const [showPartnerDocs, setShowPartnerDocs] = useState(false);
   const [showPremiumBids, setShowPremiumBids] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [showSupplierSelection, setShowSupplierSelection] = useState(false);
   const [selectedDays, setSelectedDays] = useState(7);
   const [fullAnalytics, setFullAnalytics] = useState<any>(null);
   
@@ -568,7 +570,7 @@ export default function AdminAuditDashboard() {
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4 text-primary" />All Users</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-3xl font-bold text-primary">{stats.totalUsers}</p>
-            <p className="text-sm text-muted-foreground">Suppliers & Logistics Partners</p>
+            <p className="text-sm text-muted-foreground">Buyers, Suppliers & Logistics Partners</p>
             <Button variant="outline" className="w-full" onClick={() => setShowUsers(true)}><Eye className="h-4 w-4 mr-2" />View All Users</Button>
           </CardContent>
         </Card>
@@ -602,7 +604,7 @@ export default function AdminAuditDashboard() {
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Settings className="h-4 w-4 text-slate-600" />AI Selection Engine</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">AI-powered supplier selection with anonymity</p>
-            <Button variant="outline" className="w-full" onClick={() => setShowL1Analysis(true)}><Settings className="h-4 w-4 mr-2" />Open AI Engine</Button>
+            <Button variant="outline" className="w-full" onClick={() => setShowSupplierSelection(true)}><Settings className="h-4 w-4 mr-2" />Open AI Engine</Button>
           </CardContent>
         </Card>
         <Card className="bg-card border">
@@ -751,6 +753,7 @@ export default function AdminAuditDashboard() {
       <AdminBidsList open={showBids} onOpenChange={setShowBids} />
       <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
       <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
+      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
       <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
       <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
       <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
