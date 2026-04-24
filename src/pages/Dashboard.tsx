@@ -298,18 +298,19 @@ const Dashboard = () => {
     }
   }, [user, authLoading, roleLoading, role, navigate]);
 
+  // NOTE: We intentionally do NOT auto-open a Management View on dashboard load
+  // even for executive roles (CFO/CEO/Manager/etc.). Buyers expect the standard
+  // Execution dashboard ("Welcome back…") right after login. Switching to an
+  // analytics view (Operations Overview, CFO View, etc.) is an explicit action
+  // via the Management View selector in the header.
   useEffect(() => {
     if (authLoading || roleLoading) return;
-
-    const defaultManagementView = role ? ROLE_DEFAULT_MANAGEMENT_VIEW[role] : null;
-    if (!defaultManagementView) return;
-
-    setActiveManagementView((current) => current ?? defaultManagementView);
-
-    if (typeof window !== 'undefined' && !localStorage.getItem('ps_management_view')) {
-      localStorage.setItem('ps_management_view', defaultManagementView);
-      window.dispatchEvent(new CustomEvent('ps-management-view-change', { detail: { view: defaultManagementView } }));
-    }
+    // Sync state with whatever is in localStorage (set by the selector itself).
+    // If nothing is stored, stay in Execution Mode (activeManagementView = null).
+    const stored = typeof window !== 'undefined'
+      ? (localStorage.getItem('ps_management_view') as typeof activeManagementView)
+      : null;
+    setActiveManagementView(stored);
   }, [authLoading, roleLoading, role]);
 
   if (authLoading || roleLoading) {
