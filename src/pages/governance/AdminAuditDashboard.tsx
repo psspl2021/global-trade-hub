@@ -51,7 +51,7 @@ import {
 } from 'lucide-react';
 import { VisitorAnalyticsModal } from '@/components/admin/VisitorAnalyticsModal';
 import { AccessDenied } from '@/components/purchaser';
-import { ControlTowerExecutive } from '@/components/ai-enforcement/ControlTowerExecutive';
+
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminUsersList } from '@/components/admin/AdminUsersList';
 import { AdminRequirementsList } from '@/components/admin/AdminRequirementsList';
@@ -59,7 +59,7 @@ import { AdminBidsList } from '@/components/admin/AdminBidsList';
 import { AdminLogisticsList } from '@/components/admin/AdminLogisticsList';
 import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
 import { AdminDataExport } from '@/components/admin/AdminDataExport';
-import AdminBlogManager from '@/components/admin/AdminBlogManager';
+
 import AdminEmailTracking from '@/components/admin/AdminEmailTracking';
 import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 import { AdminReferralStats } from '@/components/admin/AdminReferralStats';
@@ -67,12 +67,8 @@ import { AdminInvoiceManagement } from '@/components/admin/AdminInvoiceManagemen
 import { VehicleVerification } from '@/components/admin/VehicleVerification';
 import { PartnerDocumentVerification } from '@/components/admin/PartnerDocumentVerification';
 import { PremiumBidsManager } from '@/components/admin/PremiumBidsManager';
-import { LeadsDashboard } from '@/components/admin/LeadsDashboard';
-import { AISalesDashboard } from '@/components/admin/AISalesDashboard';
 import { AdminDemandHeatmap } from '@/components/admin/AdminDemandHeatmap';
-import { SalesControlBoard } from '@/components/admin/SalesControlBoard';
 import { BenchmarkManager } from '@/components/admin/BenchmarkManager';
-import { AIBlogGenerator } from '@/components/admin/AIBlogGenerator';
 import AuctionTrackerCard from '@/components/admin/AuctionTrackerCard';
 import { CreditLeadsSummaryCard } from '@/components/admin/CreditLeadsSummaryCard';
 import { CreditLeadsCard } from '@/components/admin/CreditLeadsCard';
@@ -80,7 +76,7 @@ import { NudgeImpactPanel } from '@/components/admin/NudgeImpactPanel';
 import RevenueDashboardView from '@/components/admin/RevenueDashboardView';
 import { supabase } from '@/integrations/supabase/client';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
-import { EnterpriseControlCenter } from '@/components/enterprise/EnterpriseControlCenter';
+
 import { CEODashboard } from '@/components/admin/dashboards/CEODashboard';
 import { OpsDashboard } from '@/components/admin/dashboards/OpsDashboard';
 import { SalesDashboard } from '@/components/admin/dashboards/SalesDashboard';
