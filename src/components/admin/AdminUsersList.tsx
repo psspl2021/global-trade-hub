@@ -75,7 +75,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const [activeTab, setActiveTab] = useState('buyer');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0 });
+  const [tabCounts, setTabCounts] = useState({ buyer: 0, supplier: 0, logistics_partner: 0, other: 0 });
   const [pageSize, setPageSize] = useState(15);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserWithProfile | null>(null);
