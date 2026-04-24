@@ -122,7 +122,7 @@ export interface AuctionFilters {
 const auctionCache = new Map<string, { ts: number; rows: ReverseAuction[] }>();
 const AUCTION_CACHE_TTL_MS = 60_000;
 const auctionCacheKey = (userId: string, purchaserId: string | null, filters?: AuctionFilters) =>
-  `${userId}|${purchaserId ?? 'self'}|${JSON.stringify(filters ?? {})}`;
+  `${userId}|${purchaserId ?? 'all'}|${JSON.stringify(filters ?? {})}`;
 
 export function useReverseAuction(supplierMode: boolean = false) {
   const { user } = useAuth();
@@ -298,7 +298,7 @@ export function useReverseAuction(supplierMode: boolean = false) {
   // in-flight supplier fetch and leave the list permanently empty.
   const scopeKey = supplierMode
     ? `sup|${user?.id ?? ''}`
-    : `buy|${user?.id ?? ''}|${selectedPurchaserId ?? 'self'}|${contextLoading ? 'loading' : 'ready'}`;
+    : `buy|${user?.id ?? ''}|${selectedPurchaserId ?? 'all'}|${contextLoading ? 'loading' : 'ready'}`;
   useEffect(() => {
     scopeVersionRef.current += 1;
     requestIdRef.current += 1;

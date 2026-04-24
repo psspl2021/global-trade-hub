@@ -74,7 +74,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { role } = useUserRole(user?.id);
   const { has: hasCapability } = useCapabilities();
   // get_user_scope() is the single source of truth for self-only identity.
-  const { isSelfOnly } = useUserScope();
+  const { isSelfOnly, loading: scopeLoading } = useUserScope();
 
   const [purchasers, setPurchasers] = useState<CompanyPurchaser[]>([]);
   const [selectedPurchaserId, setSelectedPurchaserIdState] = useState<string | null>(null);
@@ -101,13 +101,18 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       setSelectedPurchaserIdState(null);
       return;
     }
+    if (isSelfOnly) {
+      setSelectedPurchaserIdState(user.id);
+      return;
+    }
+    if (scopeLoading) return;
     const saved = localStorage.getItem(purchaserStorageKey(user.id));
     if (saved === 'ALL') {
       setSelectedPurchaserIdState(null);
     } else if (saved) {
       setSelectedPurchaserIdState(saved);
     }
-  }, [user?.id]);
+  }, [user?.id, isSelfOnly, scopeLoading]);
 
   // Optimistic seed: as soon as we know who the user is, render a single-self
   // purchaser entry and stop the loading skeleton. The real fetchPurchasers
@@ -151,7 +156,8 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
 
     const handleStorage = (event: StorageEvent) => {
       if (event.key !== purchaserStorageKey(user.id)) return;
-      setSelectedPurchaserIdState(event.newValue ?? null);
+      const nextValue = event.newValue;
+      setSelectedPurchaserIdState(!nextValue || nextValue === 'ALL' ? null : nextValue);
     };
 
     window.addEventListener(PURCHASER_CHANGE_EVENT, handlePurchaserChange as EventListener);
@@ -286,10 +292,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
 
       const purchaserList = (data || []) as CompanyPurchaser[];
 
+      // Scope can resolve slightly after the purchaser roster. Until then,
+      // keep the optimistic self-safe selection instead of defaulting to a
+      // company-wide null scope that can briefly paint another purchaser's data.
+      if (scopeLoading) {
+        return;
+      }
+
       // Co-owner read model: every active company member sees the full
       // teammate list and can default to the company-wide view. The DB
       // still stamps purchaser_id on writes, so accountability is preserved.
-      const isSelfOnlyRole = false;
+      const isSelfOnlyRole = isSelfOnly;
 
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
@@ -368,7 +381,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, role, ensureBuyerCompany, isSelfOnly]);
+  }, [user?.id, role, ensureBuyerCompany, isSelfOnly, scopeLoading]);
 
   // Initial fetch
   useEffect(() => {
@@ -381,6 +394,11 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, [fetchPurchasers, canViewManagement]);
 
+  const resolvedLoading =
+    isLoading ||
+    scopeLoading ||
+    (!!user?.id && isSelfOnly && selectedPurchaserId !== user.id);
+
   return {
     purchasers,
     selectedPurchaserId,
@@ -392,7 +410,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     canSelectPurchaser,
     canViewManagement,
     isReadOnly,
-    isLoading,
+    isLoading: resolvedLoading,
     error,
     refetch: fetchPurchasers
   };
