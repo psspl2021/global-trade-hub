@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { ReverseAuction } from '@/hooks/useReverseAuction';
 import { format } from 'date-fns';
 import { formatCompact as sharedFormatCompact, formatCurrency as sharedFormatCurrency, useCurrencyFormatter } from '@/lib/currency';
@@ -457,13 +456,8 @@ export function AuctionDashboardModules({
   contextLoading: contextLoadingProp,
 }: Props) {
   const { user } = useAuth();
-  const buyerCompanyContext = selectedPurchaserIdProp === undefined || contextLoadingProp === undefined
-    ? useBuyerCompanyContext()
-    : null;
-  const selectedPurchaserId = selectedPurchaserIdProp !== undefined
-    ? selectedPurchaserIdProp
-    : buyerCompanyContext?.selectedPurchaserId ?? null;
-  const contextLoading = contextLoadingProp ?? buyerCompanyContext?.isLoading ?? false;
+  const selectedPurchaserId = selectedPurchaserIdProp ?? null;
+  const contextLoading = contextLoadingProp ?? false;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const requestIdRef = useRef(0);
