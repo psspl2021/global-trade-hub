@@ -98,13 +98,15 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
 
   useEffect(() => {
     if (open) {
-      fetchUsers(activeTab as 'buyer' | 'supplier' | 'logistics_partner');
+      fetchUsers(activeTab);
     }
   }, [open, activeTab, currentPage, pageSize]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, search, pageSize]);
+
+  const MAIN_ROLES = ['buyer', 'supplier', 'logistics_partner'];
 
   const fetchTabCounts = async () => {
     try {
@@ -114,6 +116,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
           buyer: roles.filter(r => r.role === 'buyer').length,
           supplier: roles.filter(r => r.role === 'supplier').length,
           logistics_partner: roles.filter(r => r.role === 'logistics_partner').length,
+          other: roles.filter(r => !MAIN_ROLES.includes(r.role)).length,
         });
       }
     } catch (error) {
@@ -121,17 +124,23 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
     }
   };
 
-  const fetchUsers = async (role: 'buyer' | 'supplier' | 'logistics_partner') => {
+  const fetchUsers = async (tab: string) => {
     setLoading(true);
     try {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      const { data: roles, count } = await supabase
+      let rolesQuery = supabase
         .from('user_roles')
-        .select('user_id, role', { count: 'exact' })
-        .eq('role', role)
-        .range(from, to);
+        .select('user_id, role', { count: 'exact' });
+
+      if (tab === 'other') {
+        rolesQuery = rolesQuery.not('role', 'in', `(${MAIN_ROLES.join(',')})`);
+      } else {
+        rolesQuery = rolesQuery.eq('role', tab as AppRole);
+      }
+
+      const { data: roles, count } = await rolesQuery.range(from, to);
 
       if (!roles) {
         setUsers([]);
@@ -142,27 +151,40 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
       setTotalCount(count || 0);
 
       const userIds = roles.map(r => r.user_id);
-      
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, company_name, contact_person, email, phone, city, state, gstin, created_at, referred_by_name, referred_by_phone')
-        .in('id', userIds);
 
-      const combined: UserWithProfile[] = roles.map(role => {
-        const profile = profiles?.find(p => p.id === role.user_id);
+      const [{ data: profiles }, { data: subs }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, company_name, contact_person, email, phone, city, state, country, gstin, created_at, updated_at, referred_by_name, referred_by_phone')
+          .in('id', userIds),
+        supabase
+          .from('subscriptions')
+          .select('user_id, tier, bids_used_this_month, bids_limit, premium_bids_balance')
+          .in('user_id', userIds),
+      ]);
+
+      const combined: UserWithProfile[] = roles.map(r => {
+        const profile = profiles?.find(p => p.id === r.user_id);
+        const sub = subs?.find(s => s.user_id === r.user_id);
         return {
-          user_id: role.user_id,
-          role: role.role,
+          user_id: r.user_id,
+          role: r.role,
           company_name: profile?.company_name || '',
           contact_person: profile?.contact_person || '',
           email: profile?.email || '',
           phone: profile?.phone || '',
           city: profile?.city || null,
           state: profile?.state || null,
+          country: (profile as any)?.country || null,
           gstin: profile?.gstin || null,
           created_at: profile?.created_at || '',
+          updated_at: (profile as any)?.updated_at || null,
           referred_by_name: profile?.referred_by_name || null,
           referred_by_phone: profile?.referred_by_phone || null,
+          tier: sub?.tier || null,
+          bids_used_this_month: sub?.bids_used_this_month ?? null,
+          bids_limit: sub?.bids_limit ?? null,
+          premium_bids_balance: sub?.premium_bids_balance ?? null,
         };
       });
 
