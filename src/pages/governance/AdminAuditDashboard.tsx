@@ -199,21 +199,21 @@ export default function AdminAuditDashboard() {
       const invoicesResult = await (supabase
         .from('platform_invoices') as any)
         .select('total_amount')
-        .eq('payment_status', 'pending');
+        .eq('status', 'pending');
       const invoicesData = invoicesResult.data || [];
       const pendingAmount = invoicesData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
 
       const collectedResult = await (supabase
         .from('platform_invoices') as any)
         .select('total_amount')
-        .eq('payment_status', 'paid');
+        .eq('status', 'paid');
       const collectedData = collectedResult.data || [];
       const totalCollected = collectedData.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
 
       const vehiclesResult = await (supabase
         .from('vehicles') as any)
         .select('id', { count: 'exact', head: true })
-        .eq('is_verified', false);
+        .eq('verification_status', 'pending');
       const vehiclesCount = vehiclesResult.count || 0;
 
       const docsResult = await (supabase
