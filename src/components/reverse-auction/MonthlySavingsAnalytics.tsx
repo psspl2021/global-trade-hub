@@ -13,7 +13,6 @@ import {
 import { TrendingUp, TrendingDown, IndianRupee, BarChart3, Calendar, Target, Trophy, Gauge, Zap, ChevronDown, Flame, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useBuyerCompanyContext } from '@/hooks/useBuyerCompanyContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, startOfMonth, subMonths } from 'date-fns';
@@ -67,11 +66,8 @@ export function MonthlySavingsAnalytics({
 }: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
-  const buyerCompanyContext = useBuyerCompanyContext();
-  const selectedPurchaserId = selectedPurchaserIdProp !== undefined
-    ? selectedPurchaserIdProp
-    : buyerCompanyContext.selectedPurchaserId;
-  const isContextLoading = isContextLoadingProp ?? buyerCompanyContext.isLoading;
+  const selectedPurchaserId = selectedPurchaserIdProp ?? null;
+  const isContextLoading = isContextLoadingProp ?? false;
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [auctions, setAuctions] = useState<any[]>([]);
