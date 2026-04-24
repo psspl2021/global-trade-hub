@@ -53,12 +53,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 interface MonthlySavingsAnalyticsProps {
   defaultExpanded?: boolean;
   hideToggle?: boolean;
+  selectedPurchaserId?: string | null;
+  isContextLoading?: boolean;
 }
 
-export function MonthlySavingsAnalytics({ defaultExpanded = false, hideToggle = false }: MonthlySavingsAnalyticsProps = {}) {
+export function MonthlySavingsAnalytics({
+  defaultExpanded = false,
+  hideToggle = false,
+  selectedPurchaserId: selectedPurchaserIdProp,
+  isContextLoading: isContextLoadingProp,
+}: MonthlySavingsAnalyticsProps = {}) {
   const { currency: orgCurrency, symbol: orgSymbol } = useCurrencyFormatter();
   const { user } = useAuth();
-  const { selectedPurchaserId, isLoading: isContextLoading } = useBuyerCompanyContext();
+  const buyerCompanyContext = useBuyerCompanyContext();
+  const selectedPurchaserId = selectedPurchaserIdProp !== undefined
+    ? selectedPurchaserIdProp
+    : buyerCompanyContext.selectedPurchaserId;
+  const isContextLoading = isContextLoadingProp ?? buyerCompanyContext.isLoading;
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [auctions, setAuctions] = useState<any[]>([]);

@@ -32,6 +32,8 @@ function formatINR(v: number, currency: string = 'INR') {
 
 interface Props {
   onSelectAuction: (a: ReverseAuction) => void;
+  selectedPurchaserId?: string | null;
+  contextLoading?: boolean;
 }
 
 /* ═══════════════════════════════════════════════
@@ -449,9 +451,17 @@ function POHistory({ auctions }: { auctions: any[] }) {
 /* ═══════════════════════════════════════════════
    ✦ MAIN EXPORT
    ═══════════════════════════════════════════════ */
-export function AuctionDashboardModules({ onSelectAuction }: Props) {
+export function AuctionDashboardModules({
+  onSelectAuction,
+  selectedPurchaserId: selectedPurchaserIdProp,
+  contextLoading: contextLoadingProp,
+}: Props) {
   const { user } = useAuth();
-  const { selectedPurchaserId, isLoading: contextLoading } = useBuyerCompanyContext();
+  const buyerCompanyContext = useBuyerCompanyContext();
+  const selectedPurchaserId = selectedPurchaserIdProp !== undefined
+    ? selectedPurchaserIdProp
+    : buyerCompanyContext.selectedPurchaserId;
+  const contextLoading = contextLoadingProp ?? buyerCompanyContext.isLoading;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

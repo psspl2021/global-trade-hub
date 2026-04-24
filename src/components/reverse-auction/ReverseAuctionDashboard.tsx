@@ -412,10 +412,21 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
       )}
 
       {/* Procol-style Dashboard Modules (buyer only) */}
-      {!isSupplier && <AuctionDashboardModules onSelectAuction={selectAuction} />}
+      {!isSupplier && (
+        <AuctionDashboardModules
+          onSelectAuction={selectAuction}
+          selectedPurchaserId={selectedPurchaserId}
+          contextLoading={contextLoading}
+        />
+      )}
 
       {/* Monthly Savings Analytics (buyer only) */}
-      {!isSupplier && <MonthlySavingsAnalytics />}
+      {!isSupplier && (
+        <MonthlySavingsAnalytics
+          selectedPurchaserId={selectedPurchaserId}
+          isContextLoading={contextLoading}
+        />
+      )}
 
       {/* All Auctions — collapsed module card (buyer only). Click opens full page. */}
       {!isSupplier ? (
