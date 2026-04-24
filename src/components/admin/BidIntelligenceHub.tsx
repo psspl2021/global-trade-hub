@@ -1,28 +1,20 @@
 /**
- * Bid Intelligence Hub
- * Consolidates: All Bids + L1 Analysis + AI Selection Engine
+ * Bid Intelligence Hub — launcher card
+ * Groups three modal-based bid surfaces under one entry point.
  */
-import { lazy, Suspense } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
-
-const AdminBidsList = lazy(() =>
-  import('@/components/admin/AdminBidsList').then(m => ({ default: m.AdminBidsList }))
-);
-const AdminL1AnalysisView = lazy(() =>
-  import('@/components/admin/AdminL1AnalysisView').then(m => ({ default: m.AdminL1AnalysisView }))
-);
-const SupplierSelectionEngine = lazy(() =>
-  import('@/components/admin/SupplierSelectionEngine').then(m => ({ default: m.SupplierSelectionEngine }))
-);
-
-const Fallback = () => (
-  <div className="flex items-center justify-center py-12">
-    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-  </div>
-);
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Gavel, Settings, Sparkles } from 'lucide-react';
+import { AdminBidsList } from '@/components/admin/AdminBidsList';
+import { AdminL1AnalysisView } from '@/components/admin/AdminL1AnalysisView';
+import { SupplierSelectionEngine } from '@/components/admin/SupplierSelectionEngine';
 
 export default function BidIntelligenceHub() {
+  const [showBids, setShowBids] = useState(false);
+  const [showL1, setShowL1] = useState(false);
+  const [showAi, setShowAi] = useState(false);
+
   return (
     <div className="space-y-4">
       <div>
@@ -31,22 +23,39 @@ export default function BidIntelligenceHub() {
           All bids, L1 analysis and AI-powered supplier selection.
         </p>
       </div>
-      <Tabs defaultValue="bids" className="w-full">
-        <TabsList>
-          <TabsTrigger value="bids">All Bids</TabsTrigger>
-          <TabsTrigger value="l1">L1 Analysis</TabsTrigger>
-          <TabsTrigger value="ai-select">AI Selection</TabsTrigger>
-        </TabsList>
-        <TabsContent value="bids" className="mt-4">
-          <Suspense fallback={<Fallback />}><AdminBidsList /></Suspense>
-        </TabsContent>
-        <TabsContent value="l1" className="mt-4">
-          <Suspense fallback={<Fallback />}><AdminL1AnalysisView /></Suspense>
-        </TabsContent>
-        <TabsContent value="ai-select" className="mt-4">
-          <Suspense fallback={<Fallback />}><SupplierSelectionEngine /></Suspense>
-        </TabsContent>
-      </Tabs>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-card border">
+          <CardContent className="p-5 space-y-3">
+            <div className="flex items-center gap-2 text-base font-semibold">
+              <Gavel className="h-4 w-4 text-amber-500" /> All Bids
+            </div>
+            <p className="text-sm text-muted-foreground">View supplier &amp; logistics bids across the platform.</p>
+            <Button variant="outline" className="w-full" onClick={() => setShowBids(true)}>Open</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-card border">
+          <CardContent className="p-5 space-y-3">
+            <div className="flex items-center gap-2 text-base font-semibold">
+              <Settings className="h-4 w-4 text-violet-500" /> L1 Analysis
+            </div>
+            <p className="text-sm text-muted-foreground">Line-item level L1 supplier analysis.</p>
+            <Button variant="outline" className="w-full" onClick={() => setShowL1(true)}>Open</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-card border">
+          <CardContent className="p-5 space-y-3">
+            <div className="flex items-center gap-2 text-base font-semibold">
+              <Sparkles className="h-4 w-4 text-slate-600" /> AI Selection Engine
+            </div>
+            <p className="text-sm text-muted-foreground">AI-powered supplier selection with anonymity.</p>
+            <Button variant="outline" className="w-full" onClick={() => setShowAi(true)}>Open</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
+      <AdminL1AnalysisView open={showL1} onOpenChange={setShowL1} />
+      <SupplierSelectionEngine open={showAi} onOpenChange={setShowAi} />
     </div>
   );
 }
