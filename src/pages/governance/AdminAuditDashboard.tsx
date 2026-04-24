@@ -145,6 +145,7 @@ export default function AdminAuditDashboard() {
   const [showPartnerDocs, setShowPartnerDocs] = useState(false);
   const [showPremiumBids, setShowPremiumBids] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [showSupplierSelection, setShowSupplierSelection] = useState(false);
   const [selectedDays, setSelectedDays] = useState(7);
   const [fullAnalytics, setFullAnalytics] = useState<any>(null);
   
