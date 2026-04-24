@@ -412,6 +412,22 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
               <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-blue-500 transition-colors" />
             </div>
           </Card>
+          <Card
+            variant="interactive"
+            className="p-4 group hover:shadow-md transition-all border-l-4 border-l-emerald-500 cursor-pointer"
+            onClick={() => navigate('/dashboard/cost-savings')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+                <BarChart3 className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Cost Savings</p>
+                <p className="text-[11px] text-muted-foreground">Savings — last 6 months</p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground/50 rotate-180 group-hover:text-emerald-500 transition-colors" />
+            </div>
+          </Card>
         </div>
       )}
 
