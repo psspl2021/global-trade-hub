@@ -13343,6 +13343,15 @@ export type Database = {
       generate_global_demand_pages: { Args: never; Returns: number }
       generate_ps_partner_id: { Args: { supplier_id: string }; Returns: string }
       generate_referral_code: { Args: { user_id: string }; Returns: string }
+      get_admin_auction_stats: {
+        Args: never
+        Returns: {
+          completed: number
+          live: number
+          revenue: number
+          total: number
+        }[]
+      }
       get_admin_platform_metrics:
         | { Args: never; Returns: Json }
         | { Args: { p_days?: number }; Returns: Json }

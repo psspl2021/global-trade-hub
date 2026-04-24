@@ -18,18 +18,14 @@ export default function AuctionTrackerCard() {
 
   async function load() {
     try {
-      const [total, live, completed, revenue] = await Promise.all([
-        supabase.from("reverse_auctions").select("*", { count: "exact", head: true }),
-        supabase.from("reverse_auctions").select("*", { count: "exact", head: true }).eq("status", "live"),
-        supabase.from("reverse_auctions").select("*", { count: "exact", head: true }).eq("status", "completed"),
-        supabase.rpc("auction_total_revenue" as any),
-      ]);
-
+      const { data, error } = await (supabase as any).rpc("get_admin_auction_stats");
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
       setStats({
-        total: total.count || 0,
-        live: live.count || 0,
-        completed: completed.count || 0,
-        revenue: typeof revenue.data === "number" ? revenue.data : 0,
+        total: Number(row?.total) || 0,
+        live: Number(row?.live) || 0,
+        completed: Number(row?.completed) || 0,
+        revenue: Number(row?.revenue) || 0,
       });
     } catch (err) {
       console.error("AuctionTrackerCard error:", err);
