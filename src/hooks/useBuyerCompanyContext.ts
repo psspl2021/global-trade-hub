@@ -197,11 +197,19 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       return;
     }
 
-    // Check if user is a buyer role (includes 'buyer' base role)
+    // If role hasn't resolved yet, stay in loading state instead of bailing
+    // out with purchasers=[]. Otherwise the header's `!isLoading && length>0`
+    // gate fires once with empty data, hiding the Acting Purchaser selector
+    // until the user manually reloads.
     const roleStr = role?.toString() || '';
-    const isBuyerRole = roleStr && (
+    if (!roleStr) {
+      setIsLoading(true);
+      return;
+    }
+
+    const isBuyerRole = (
       roleStr === 'buyer' ||
-      roleStr.startsWith('buyer') || 
+      roleStr.startsWith('buyer') ||
       ['purchaser', 'cfo', 'ceo', 'manager', 'hr'].includes(roleStr)
     );
 
