@@ -12602,6 +12602,10 @@ export type Database = {
         Args: { p_auction_id: string; p_user_id: string }
         Returns: undefined
       }
+      _is_trusted_state_mutation: {
+        Args: { _required_cap: string }
+        Returns: boolean
+      }
       _resolve_supplier_name: {
         Args: { p_supplier_id: string }
         Returns: string
