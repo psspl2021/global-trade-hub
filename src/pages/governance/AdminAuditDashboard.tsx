@@ -570,7 +570,7 @@ export default function AdminAuditDashboard() {
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4 text-primary" />All Users</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-3xl font-bold text-primary">{stats.totalUsers}</p>
-            <p className="text-sm text-muted-foreground">Suppliers & Logistics Partners</p>
+            <p className="text-sm text-muted-foreground">Buyers, Suppliers & Logistics Partners</p>
             <Button variant="outline" className="w-full" onClick={() => setShowUsers(true)}><Eye className="h-4 w-4 mr-2" />View All Users</Button>
           </CardContent>
         </Card>
