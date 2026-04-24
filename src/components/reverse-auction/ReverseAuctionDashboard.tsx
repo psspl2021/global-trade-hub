@@ -47,7 +47,7 @@ export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDa
   // Scope-keyed count avoids flash-of-stale-count when switching purchasers:
   // the value is read by current scope key, so a switch instantly shows 0
   // (or the cached count for that scope) even before the fetch resolves.
-  const scopeKey = `${user?.id ?? 'anon'}:${selectedPurchaserId ?? 'self'}`;
+  const scopeKey = `${user?.id ?? 'anon'}:${selectedPurchaserId ?? 'all'}`;
   const auctionCount = contextLoading ? 0 : (auctionCountByScope[scopeKey] ?? 0);
 
   const updateSearchParams = (updater: (params: URLSearchParams) => void) => {
