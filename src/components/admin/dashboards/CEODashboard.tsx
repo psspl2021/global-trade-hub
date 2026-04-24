@@ -57,7 +57,7 @@ export function CEODashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-slate-300">Platform analytics, financial metrics & KPIs</p>
-            <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => onOpenView('control-tower')}>
+            <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => onOpenView('platform-control')}>
               <Shield className="h-4 w-4 mr-2" />Open Control Tower
             </Button>
           </CardContent>
@@ -86,7 +86,7 @@ export function CEODashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Conversion analytics & pipeline overview</p>
-            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => onOpenView('ai-sales')}>
+            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => onOpenView('revenue-growth')}>
               <Sparkles className="h-4 w-4 mr-2" />View Analytics
             </Button>
           </CardContent>

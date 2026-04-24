@@ -56,7 +56,7 @@ export function SalesDashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">AI-powered buyer discovery, outreach & conversion</p>
-            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => onOpenView('ai-sales')}>
+            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => onOpenView('revenue-growth')}>
               <Sparkles className="h-4 w-4 mr-2" />Open AI Sales
             </Button>
           </CardContent>
@@ -70,7 +70,7 @@ export function SalesDashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Newsletter subscribers & demo requests</p>
-            <Button variant="outline" className="w-full" onClick={() => onOpenView('leads')}>
+            <Button variant="outline" className="w-full" onClick={() => onOpenView('revenue-growth')}>
               <Eye className="h-4 w-4 mr-2" />View Leads
             </Button>
           </CardContent>
@@ -130,7 +130,7 @@ export function SalesDashboard({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Create and manage SEO blog posts</p>
-            <Button variant="outline" className="w-full" onClick={() => onOpenView('blogs')}>
+            <Button variant="outline" className="w-full" onClick={() => onOpenView('content-studio')}>
               <PenTool className="h-4 w-4 mr-2" />Manage Blogs
             </Button>
           </CardContent>
