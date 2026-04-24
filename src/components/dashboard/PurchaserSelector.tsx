@@ -95,16 +95,9 @@ export function PurchaserSelector({
                 <Eye className="h-4 w-4 text-primary" />
                 <SelectValue placeholder="Select Acting Purchaser">
                   {selectedPurchaser ? (
-                    <span className="truncate flex items-center gap-1">
-                      <span className="truncate">
-                        {formatNameWithCategories(selectedPurchaser)}
-                        {selectedPurchaser.is_current_user && ' (You)'}
-                      </span>
-                      {selectedPurchaser.email && (
-                        <span className="text-xs text-muted-foreground truncate">
-                          · {selectedPurchaser.email}
-                        </span>
-                      )}
+                    <span className="truncate">
+                      {formatNameWithCategories(selectedPurchaser)}
+                      {selectedPurchaser.is_current_user && ' (You)'}
                     </span>
                   ) : showAllOption && selectedPurchaserId === null ? (
                     <span className="truncate font-medium">All Purchasers (Company-wide)</span>
