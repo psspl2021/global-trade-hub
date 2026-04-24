@@ -301,22 +301,23 @@ export default function AdminAuditDashboard() {
   }
 
   const renderView = () => {
+    const lazyView = (node: React.ReactNode) => (
+      <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}>
+        {node}
+      </Suspense>
+    );
     switch (currentView) {
-      case 'control-tower': return <ControlTowerExecutive />;
-      case 'ai-sales': return <AISalesDashboard />;
+      case 'platform-control': return lazyView(<PlatformControlHub />);
+      case 'revenue-growth': return lazyView(<RevenueGrowthHub />);
+      case 'bid-intelligence': return lazyView(<BidIntelligenceHub />);
+      case 'content-studio': return lazyView(<ContentStudioHub />);
       case 'demand-heatmap': return <AdminDemandHeatmap />;
-      case 'leads': return <LeadsDashboard />;
-      case 'blogs': return <AdminBlogManager />;
       case 'email-tracking': return <AdminEmailTracking />;
-      case 'sales-board': return <SalesControlBoard />;
       case 'benchmarks': return <BenchmarkManager />;
-      case 'ai-blog-gen': return <AIBlogGenerator />;
-      case 'enterprise': return <EnterpriseControlCenter />;
       case 'credit-leads': return <CreditLeadsCard />;
       case 'nudge-impact': return <NudgeImpactPanel />;
-      case 'seo-command': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOCommandCenter /></Suspense>;
-      case 'blog-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><BlogPipelinePanel /></Suspense>;
-      case 'demo': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemoGuidedFlow onReset={() => {}} onExit={() => setCurrentView('dashboard')} /></Suspense>;
+      case 'seo-command': return lazyView(<SEOCommandCenter />);
+      case 'demo': return lazyView(<DemoGuidedFlow onReset={() => {}} onExit={() => setCurrentView('dashboard')} />);
       case 'dashboard':
       default:
         return renderDashboard();
