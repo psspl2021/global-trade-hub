@@ -315,13 +315,7 @@ export default function AdminAuditDashboard() {
       case 'enterprise': return <EnterpriseControlCenter />;
       case 'credit-leads': return <CreditLeadsCard />;
       case 'nudge-impact': return <NudgeImpactPanel />;
-      case 'seo-revenue': return <RevenueDashboardView />;
-      case 'seo-monitor': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><AdminSEOMonitor /></Suspense>;
-      case 'seo-rev-dashboard': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SeoRevenueDashboard /></Suspense>;
-      case 'seo-intelligence': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><AdminIntelligenceDashboard /></Suspense>;
-      case 'seo-dashboard': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEODashboard /></Suspense>;
-      case 'demand-gaps': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemandGapsPanel /></Suspense>;
-      case 'seo-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOPipelinePanel /></Suspense>;
+      case 'seo-command': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><SEOCommandCenter /></Suspense>;
       case 'blog-pipeline': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><BlogPipelinePanel /></Suspense>;
       case 'demo': return <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin mx-auto mt-12 text-muted-foreground" />}><DemoGuidedFlow onReset={() => {}} onExit={() => setCurrentView('dashboard')} /></Suspense>;
       case 'dashboard':
