@@ -47,10 +47,16 @@ interface UserWithProfile {
   phone: string;
   city: string | null;
   state: string | null;
+  country: string | null;
   gstin: string | null;
   created_at: string;
+  updated_at: string | null;
   referred_by_name: string | null;
   referred_by_phone: string | null;
+  tier: string | null;
+  bids_used_this_month: number | null;
+  bids_limit: number | null;
+  premium_bids_balance: number | null;
 }
 
 interface AdminUsersListProps {
