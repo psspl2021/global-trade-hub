@@ -457,26 +457,29 @@ export function AuctionDashboardModules({
   contextLoading: contextLoadingProp,
 }: Props) {
   const { user } = useAuth();
-  const buyerCompanyContext = useBuyerCompanyContext();
+  const buyerCompanyContext = selectedPurchaserIdProp === undefined || contextLoadingProp === undefined
+    ? useBuyerCompanyContext()
+    : null;
   const selectedPurchaserId = selectedPurchaserIdProp !== undefined
     ? selectedPurchaserIdProp
-    : buyerCompanyContext.selectedPurchaserId;
-  const contextLoading = contextLoadingProp ?? buyerCompanyContext.isLoading;
+    : buyerCompanyContext?.selectedPurchaserId ?? null;
+  const contextLoading = contextLoadingProp ?? buyerCompanyContext?.isLoading ?? false;
   const [auctions, setAuctions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useState(0)[0];
 
   useEffect(() => {
     if (!user?.id || contextLoading) return;
 
-    setAuctions([]);
-    setLoading(true);
-
     const load = async () => {
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
       const { fetchScopedAuctions } = await import('@/hooks/useScopedAuctions');
       const data = await fetchScopedAuctions({
         p_user_id: user.id,
         p_selected_purchaser: selectedPurchaserId,
       });
+      if (requestIdRef.current !== requestId) return;
       setAuctions(data || []);
       setLoading(false);
     };
