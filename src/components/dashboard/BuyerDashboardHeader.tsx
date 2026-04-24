@@ -237,23 +237,27 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
 
         {/* Context Selectors Row */}
         <div className="flex flex-row flex-wrap items-center gap-3 sm:gap-6 pt-2 border-t border-border/50">
-          {/* Purchaser Selector - Always visible for buyer roles when there are purchasers */}
-          {!isLoading && purchasers.length > 0 && (
-            <PurchaserSelector
-              purchasers={purchasers}
-              selectedPurchaserId={selectedPurchaserId}
-              onSelect={setSelectedPurchaserId}
-              disabled={false}
-              showAllOption={true}
-            />
-          )}
-
-          {/* Loading state for purchasers */}
-          {isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg animate-pulse">
-              <div className="h-4 w-4 rounded-full bg-muted-foreground/20" />
-              <div className="h-4 w-24 rounded bg-muted-foreground/20" />
+          {/* Purchaser Selector — render the label + a sized skeleton while loading
+              so the row never appears as an unlabeled gray bar. The skeleton
+              matches the real selector's footprint, eliminating layout shift. */}
+          {isLoading ? (
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3" aria-busy="true">
+              <label className="shrink-0 whitespace-nowrap text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Acting Purchaser (View as)
+              </label>
+              <div className="h-9 w-[260px] sm:w-[300px] rounded-md bg-muted/60 animate-pulse" />
+              <div className="h-9 w-9 rounded-md bg-muted/60 animate-pulse" />
             </div>
+          ) : (
+            purchasers.length > 0 && (
+              <PurchaserSelector
+                purchasers={purchasers}
+                selectedPurchaserId={selectedPurchaserId}
+                onSelect={setSelectedPurchaserId}
+                disabled={false}
+                showAllOption={true}
+              />
+            )
           )}
 
           {/* Management View Selector - Visible to ALL buyer roles, but LOCKED for non-management */}
