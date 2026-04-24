@@ -8,7 +8,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReverseAuctionList } from './ReverseAuctionList';
 import { AuctionDashboardModules } from './AuctionDashboardModules';
 import { LiveAuctionView } from './LiveAuctionView';
-import { MonthlySavingsAnalytics } from './MonthlySavingsAnalytics';
+
 import { AuctionCreditsPage } from '@/components/auction-credits/AuctionCreditsPage';
 import { AuctionWarRoom } from './AuctionWarRoom';
 import { SupplierNetworkPage } from '@/components/supplier-network/SupplierNetworkPage';
