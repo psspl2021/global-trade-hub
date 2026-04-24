@@ -88,12 +88,7 @@ import { RoleBadge } from '@/components/admin/dashboards/RoleBadge';
 import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
-const AdminSEOMonitor = lazy(() => import('@/pages/AdminSEOMonitor'));
-const SeoRevenueDashboard = lazy(() => import('@/pages/admin/SeoRevenueDashboard'));
-const AdminIntelligenceDashboard = lazy(() => import('@/pages/admin/AdminIntelligenceDashboard'));
-const SEODashboard = lazy(() => import('@/pages/admin/SEODashboard'));
-const DemandGapsPanel = lazy(() => import('@/pages/admin/DemandGapsPanel'));
-const SEOPipelinePanel = lazy(() => import('@/components/admin/SEOPipelinePanel'));
+const SEOCommandCenter = lazy(() => import('@/components/admin/SEOCommandCenter'));
 const BlogPipelinePanel = lazy(() => import('@/components/admin/BlogPipelinePanel'));
 const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
 
