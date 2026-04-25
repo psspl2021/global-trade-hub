@@ -8,7 +8,7 @@ fi
 
 echo "Running role drift audit..."
 
-RESULT=$(psql "$DATABASE_URL" -A -t -f sql/audits/role_drift.sql)
+RESULT=$(psql "$DATABASE_URL" -t -A -f sql/audits/role_drift.sql)
 
 if [ -n "$RESULT" ]; then
   echo "❌ Drift detected:"

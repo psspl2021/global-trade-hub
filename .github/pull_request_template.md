@@ -16,4 +16,8 @@ The CI `Role Write Guard` will fail without a reason.
 ## Checklist
 
 - [ ] Tested locally
-- [ ] No direct writes to `user_roles` (or bypass flag included with reason)
+- [ ] No direct writes to `user_roles`
+
+      OR explicitly justified with:
+
+      [allow-user_roles-write: <reason>]
