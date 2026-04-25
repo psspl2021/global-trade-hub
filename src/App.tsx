@@ -31,6 +31,7 @@ const CostSavingsPage = lazy(() => import("./pages/CostSavingsPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const Categories = lazy(() => import("./pages/Categories"));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
@@ -247,6 +248,7 @@ const BotAwareRouter = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/invite/:id" element={<InviteAccept />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/category/:categorySlug" element={<CategoryLanding />} />
