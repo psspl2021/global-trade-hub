@@ -647,19 +647,8 @@ export default function AdminAuditDashboard() {
         </Card>
       </div>
 
-      {/* Dialog-based admin modals */}
-      <AdminUsersList open={showUsers} onOpenChange={setShowUsers} />
-      <AdminRequirementsList open={showRequirements} onOpenChange={setShowRequirements} />
-      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
-      <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
-      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
-      <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
-      <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
-      <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
-      <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
-      <VehicleVerification open={showVehicles} onOpenChange={setShowVehicles} adminId={user?.id || ''} />
-      <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
-      <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
+      {/* Admin dialogs are mounted globally below renderView() so all
+          role-specific dashboards (Ops/Sales/CEO) can open them. */}
     </div>
     );
   };
