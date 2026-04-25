@@ -9,8 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { RefreshCw, Globe2, Clock } from 'lucide-react';
+import { RefreshCw, Globe2, Clock, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface FxRow {
   currency_code: string;
@@ -20,6 +21,7 @@ interface FxRow {
 }
 
 export default function FxRatesAdmin() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<FxRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -62,6 +64,10 @@ export default function FxRatesAdmin() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl space-y-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2 -ml-2">
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
