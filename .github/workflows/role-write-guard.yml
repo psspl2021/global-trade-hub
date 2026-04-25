@@ -21,15 +21,31 @@ jobs:
 
       - name: Check for forbidden user_roles writes
         run: |
-          if grep -E -i -q "insert[[:space:]]+into[[:space:]]+user_roles|update[[:space:]]+user_roles|delete[[:space:]]+from[[:space:]]+user_roles" diff.txt; then
+          # Normalize newlines so SQL split across diff lines is still detected
+          DIFF=$(cat diff.txt | tr '\n' ' ')
+
+          if echo "$DIFF" | grep -E -i -q "insert[[:space:]]+into[[:space:]]+user_roles|update[[:space:]]+user_roles|delete[[:space:]]+from[[:space:]]+user_roles"; then
             echo "⚠️ Detected direct write to user_roles"
 
-            if echo "${{ github.event.pull_request.body }}" | grep -q "\[allow-user_roles-write\]"; then
-              echo "✅ Bypass flag present — allowed"
+            BODY="${{ github.event.pull_request.body }}"
+
+            if echo "$BODY" | grep -q "\[allow-user_roles-write"; then
+              echo "✅ Bypass flag present"
+
+              # Require justified bypass: [allow-user_roles-write: <reason>]
+              REASON=$(echo "$BODY" | grep -o "\[allow-user_roles-write:[^]]*\]" || true)
+
+              if [ -z "$REASON" ]; then
+                echo "❌ Bypass requires a reason."
+                echo "Use format: [allow-user_roles-write: <why>]"
+                exit 1
+              fi
+
+              echo "📝 Bypass reason: $REASON"
               exit 0
             else
               echo "❌ Direct writes to user_roles are not allowed."
-              echo "Add [allow-user_roles-write] in PR description if intentional."
+              echo "Add [allow-user_roles-write: <reason>] in PR description if intentional."
               exit 1
             fi
           else
