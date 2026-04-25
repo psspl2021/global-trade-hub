@@ -85,7 +85,7 @@ const InviteTeamCTA = () => {
           </p>
         </div>
         <Button asChild size="sm" className="gap-1 shrink-0">
-          <Link to="/onboarding">
+          <Link to="/onboarding?force=1">
             Invite team
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
