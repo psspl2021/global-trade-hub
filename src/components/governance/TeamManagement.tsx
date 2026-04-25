@@ -56,6 +56,56 @@ export function TeamManagement() {
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState('buyer_manager');
 
+  // Password reset state
+  const [resetTarget, setResetTarget] = useState<TeamMember | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetResult, setResetResult] = useState<{ tempPassword: string; email: string } | null>(null);
+  const [resetCopied, setResetCopied] = useState(false);
+  const [callerRole, setCallerRole] = useState<string | null>(null);
+
+  // Authority: who is allowed to reset whom
+  const EXEC_RESETTERS = new Set(['buyer_ceo', 'buyer_cfo', 'buyer_vp', 'buyer_purchase_head']);
+  const MANAGER_CAN_RESET = new Set(['buyer_purchaser']);
+  const canResetMember = (memberRole: string): boolean => {
+    if (!callerRole) return false;
+    if (EXEC_RESETTERS.has(callerRole)) return true;
+    if (callerRole === 'buyer_manager' && MANAGER_CAN_RESET.has(memberRole)) return true;
+    return false;
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetTarget) return;
+    setResetting(true);
+    setResetResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('reset-team-member-password', {
+        body: { targetUserId: resetTarget.user_id },
+      });
+      if (error) throw error;
+      if (!data?.tempPassword) throw new Error(data?.error || 'No password returned');
+      setResetResult({ tempPassword: data.tempPassword, email: resetTarget.email || '' });
+      toast({
+        title: 'Password reset',
+        description: 'Share the temp password with the user. They must change it on next login.',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Reset failed',
+        description: err.message || 'Could not reset password.',
+        variant: 'destructive',
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const closeResetDialog = () => {
+    setResetTarget(null);
+    setResetResult(null);
+    setResetCopied(false);
+  };
+
+
   useEffect(() => {
     if (user?.id) fetchMembers();
   }, [user?.id]);
