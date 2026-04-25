@@ -120,25 +120,43 @@ serve(async (req) => {
 
     console.log('Tracking visit from IP:', anonymizeIP(clientIP));
 
-    // Get country from IP using free geolocation API
+    // Get country from IP using free geolocation APIs (HTTPS + fallback)
     let country = null;
     let countryCode = null;
 
     if (clientIP && clientIP !== 'unknown' && clientIP !== '127.0.0.1' && clientIP !== '::1') {
+      // Primary: ip-api.com (HTTPS)
       try {
-        // Using ip-api.com (free, no API key needed, 45 requests/minute limit)
-        const geoResponse = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,country,countryCode`);
+        const geoResponse = await fetch(
+          `https://ip-api.com/json/${clientIP}?fields=status,country,countryCode`,
+          { signal: AbortSignal.timeout(3000) }
+        );
         const geoData = await geoResponse.json();
-        
-        console.log('Geo lookup result:', geoData);
-
+        console.log('Geo lookup (ip-api):', geoData);
         if (geoData.status === 'success') {
           country = geoData.country;
           countryCode = geoData.countryCode;
         }
       } catch (geoError) {
-        console.error('Geolocation lookup failed:', geoError);
-        // Continue without country data
+        console.error('Primary geo lookup failed:', geoError);
+      }
+
+      // Fallback: ipapi.co
+      if (!country) {
+        try {
+          const fbResp = await fetch(
+            `https://ipapi.co/${clientIP}/json/`,
+            { signal: AbortSignal.timeout(3000) }
+          );
+          const fbData = await fbResp.json();
+          console.log('Geo lookup (ipapi.co fallback):', fbData);
+          if (fbData && fbData.country_name) {
+            country = fbData.country_name;
+            countryCode = fbData.country_code;
+          }
+        } catch (fbError) {
+          console.error('Fallback geo lookup failed:', fbError);
+        }
       }
     }
 
