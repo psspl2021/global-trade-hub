@@ -647,19 +647,8 @@ export default function AdminAuditDashboard() {
         </Card>
       </div>
 
-      {/* Dialog-based admin modals */}
-      <AdminUsersList open={showUsers} onOpenChange={setShowUsers} />
-      <AdminRequirementsList open={showRequirements} onOpenChange={setShowRequirements} />
-      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
-      <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
-      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
-      <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
-      <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
-      <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
-      <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
-      <VehicleVerification open={showVehicles} onOpenChange={setShowVehicles} adminId={user?.id || ''} />
-      <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
-      <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
+      {/* Admin dialogs are mounted globally below renderView() so all
+          role-specific dashboards (Ops/Sales/CEO) can open them. */}
     </div>
     );
   };
@@ -689,6 +678,21 @@ export default function AdminAuditDashboard() {
       </header>
       <main className="container mx-auto px-4 py-6">{renderView()}</main>
       <VisitorAnalyticsModal open={showAnalyticsModal} onOpenChange={setShowAnalyticsModal} analytics={fullAnalytics} selectedDays={selectedDays} />
+
+      {/* Global admin dialogs — must mount regardless of active role dashboard,
+          so Ops/Sales/CEO sub-dashboards can trigger them via setShow*. */}
+      <AdminUsersList open={showUsers} onOpenChange={setShowUsers} />
+      <AdminRequirementsList open={showRequirements} onOpenChange={setShowRequirements} />
+      <AdminBidsList open={showBids} onOpenChange={setShowBids} />
+      <AdminL1AnalysisView open={showL1Analysis} onOpenChange={setShowL1Analysis} />
+      <SupplierSelectionEngine open={showSupplierSelection} onOpenChange={setShowSupplierSelection} />
+      <AdminLogisticsList open={showLogistics} onOpenChange={setShowLogistics} />
+      <AdminDataExport open={showDataExport} onOpenChange={setShowDataExport} />
+      <AdminReferralStats open={showReferrals} onOpenChange={setShowReferrals} />
+      <AdminInvoiceManagement open={showInvoices} onOpenChange={setShowInvoices} />
+      <VehicleVerification open={showVehicles} onOpenChange={setShowVehicles} adminId={user?.id || ''} />
+      <PartnerDocumentVerification open={showPartnerDocs} onOpenChange={setShowPartnerDocs} adminId={user?.id || ''} />
+      <PremiumBidsManager open={showPremiumBids} onOpenChange={setShowPremiumBids} adminId={user?.id || ''} />
     </div>
   );
 }
