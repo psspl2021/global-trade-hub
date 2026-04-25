@@ -11147,10 +11147,12 @@ export type Database = {
           company_id: string | null
           created_at: string | null
           email: string
+          expires_at: string
           id: string
           invited_by: string | null
           role: string | null
           status: string | null
+          token: string
           updated_at: string | null
         }
         Insert: {
@@ -11158,10 +11160,12 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           email: string
+          expires_at?: string
           id?: string
           invited_by?: string | null
           role?: string | null
           status?: string | null
+          token?: string
           updated_at?: string | null
         }
         Update: {
@@ -11169,10 +11173,12 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           email?: string
+          expires_at?: string
           id?: string
           invited_by?: string | null
           role?: string | null
           status?: string | null
+          token?: string
           updated_at?: string | null
         }
         Relationships: [
