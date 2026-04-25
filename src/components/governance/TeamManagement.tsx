@@ -472,6 +472,84 @@ export function TeamManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Password Reset Dialog */}
+      <Dialog open={!!resetTarget} onOpenChange={(open) => !open && closeResetDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-amber-600" />
+              Reset team member password
+            </DialogTitle>
+            <DialogDescription>
+              {resetTarget && (
+                <>
+                  This will issue a new temporary password for{' '}
+                  <strong>{resetTarget.contact_person || resetTarget.email}</strong>.
+                  They will be required to change it on next login.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {!resetResult ? (
+            <>
+              <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                <div>
+                  This action is logged. The user's current password will stop working
+                  immediately. Share the new temp password with them through a secure channel.
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeResetDialog} disabled={resetting}>
+                  Cancel
+                </Button>
+                <Button onClick={handleResetPassword} disabled={resetting}>
+                  {resetting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Reset password
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <div className="rounded-md border bg-muted/30 p-3 text-sm">
+                  <div className="text-xs text-muted-foreground mb-1">Email</div>
+                  <div className="font-mono">{resetResult.email}</div>
+                </div>
+                <div className="rounded-md border bg-muted/30 p-3">
+                  <div className="text-xs text-muted-foreground mb-1">Temporary password (shown once)</div>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 font-mono text-sm bg-background px-3 py-2 rounded border break-all">
+                      {resetResult.tempPassword}
+                    </code>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(resetResult.tempPassword);
+                        setResetCopied(true);
+                        setTimeout(() => setResetCopied(false), 2000);
+                      }}
+                    >
+                      {resetCopied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Share this password securely. It won't be shown again. The user will be
+                  forced to change it the moment they log in.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button onClick={closeResetDialog}>Done</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
