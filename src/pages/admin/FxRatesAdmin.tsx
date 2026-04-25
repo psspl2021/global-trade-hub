@@ -21,6 +21,7 @@ interface FxRow {
 }
 
 export default function FxRatesAdmin() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<FxRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
