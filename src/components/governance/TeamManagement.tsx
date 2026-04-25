@@ -421,16 +421,29 @@ export function TeamManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {!isCurrentUser && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => handleRemoveMember(member.id, member.user_id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-end gap-1">
+                        {!isCurrentUser && canResetMember(member.role) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-amber-600 hover:text-amber-700"
+                            title="Reset password (issues a new temp password)"
+                            onClick={() => setResetTarget(member)}
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {!isCurrentUser && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleRemoveMember(member.id, member.user_id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
