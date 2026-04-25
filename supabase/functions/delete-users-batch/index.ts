@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    const results = [];
+    const results: Array<{ userId: string; success: boolean; error?: string }> = [];
     for (const userId of userIds) {
       console.log(`Admin ${currentUser.id} deleting user: ${userId}`);
       const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
