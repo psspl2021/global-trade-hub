@@ -174,22 +174,28 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
             {/* Geographic Breakdown */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  Geographic Breakdown
+                <CardTitle className="text-base flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Geographic Breakdown
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {analytics.countryBreakdown?.length || 0} countries
+                  </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
               {analytics.countryBreakdown && analytics.countryBreakdown.length > 0 ? (
-                  <div className="space-y-3 max-h-[250px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                     {analytics.countryBreakdown.map((country, index) => (
                       <div key={index} className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-2">
+                        <div className="flex items-center justify-between text-sm gap-2">
+                          <span className="flex items-center gap-2 min-w-0">
+                            <span className="text-xs text-muted-foreground w-6 shrink-0">#{index + 1}</span>
                             <span>{getCountryFlag(country.countryCode)}</span>
-                            <span>{country.country}</span>
+                            <span className="truncate">{country.country}</span>
                           </span>
-                          <span className="text-muted-foreground">
+                          <span className="text-muted-foreground shrink-0 text-xs">
                             {country.visitors.toLocaleString()} ({country.percentage}%)
                           </span>
                         </div>
