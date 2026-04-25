@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
       throw leadsError;
     }
 
-    const notifications = [];
+    const notifications: any[] = [];
     
     for (const lead of leads || []) {
       const isOverdue = lead.next_follow_up < today;
