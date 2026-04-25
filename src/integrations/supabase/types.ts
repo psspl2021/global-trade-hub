@@ -14251,6 +14251,13 @@ export type Database = {
         }
         Returns: string
       }
+      integrity_signals: {
+        Args: never
+        Returns: {
+          members_without_roles: number
+          orphan_buyers: number
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_auction_buyer: {
         Args: { _auction_id: string; _user_id: string }
