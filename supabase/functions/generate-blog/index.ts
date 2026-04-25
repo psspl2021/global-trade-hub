@@ -534,7 +534,7 @@ function extractBlogFromResponse(aiData: any): any {
 }
 
 // === POST-GENERATION VALIDATOR ===
-function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean; issues: string[] } {
+function validateBlog(content: string, strategy: TopicStrategy): { pass: boolean; issues: string[]; confidenceScore: number } {
   const issues: string[] = [];
 
   // Check for tables
