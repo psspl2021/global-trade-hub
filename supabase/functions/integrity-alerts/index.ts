@@ -1,6 +1,13 @@
-// Integrity alerts: scans recent logs + runs orphan/duplicate probes.
+// Integrity alerts: DB-driven only.
 // Posts a single consolidated Slack message when any signal > 0.
 // 5-minute cooldown via integrity_alert_state table.
+//
+// NOTE: Analytics-based log scanning was removed — the Supabase analytics REST
+// endpoint requires a Management API personal access token (not the service
+// role key), so all calls returned 401 and silently produced 0 — making the
+// monitor a false-positive generator. We now rely exclusively on direct DB
+// probes (orphan buyers, duplicate memberships) which are authoritative,
+// deterministic, and have zero external dependencies.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -9,59 +16,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const WINDOW_MINUTES = 2;
 const COOLDOWN_MINUTES = 5;
 const COOLDOWN_KEY = "integrity_alerts:any";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SLACK_WEBHOOK = Deno.env.get("SLACK_INTEGRITY_WEBHOOK_URL");
-const SUPABASE_PROJECT_REF = "hsybhjjtxdwtpfvcmoqk";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
-// Query Supabase Analytics (logflare) for log occurrences in the last N minutes.
-// Uses the management API with the service role; falls back to 0 on error.
-async function countLogMatches(needle: string, sinceMs: number): Promise<number> {
-  // We use postgres_logs (DB) since handle_new_user / role_known_values_check
-  // surface as Postgres errors. Logflare via PG endpoint isn't directly callable
-  // from edge fn; instead use the analytics REST endpoint.
-  const url = `https://api.supabase.com/platform/projects/${SUPABASE_PROJECT_REF}/analytics/endpoints/logs.all`;
-  const sinceIso = new Date(sinceMs).toISOString();
-  const sql = `
-    select count(*) as c
-    from postgres_logs
-    cross join unnest(metadata) as m
-    cross join unnest(m.parsed) as parsed
-    where event_message ilike '%${needle.replace(/'/g, "''")}%'
-      and timestamp >= '${sinceIso}'
-  `;
-  try {
-    const res = await fetch(`${url}?sql=${encodeURIComponent(sql)}`, {
-      headers: { Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
-    });
-    if (!res.ok) {
-      console.warn(`[log-count] ${needle}: HTTP ${res.status}`);
-      return 0;
-    }
-    const json = await res.json();
-    return Number(json?.result?.[0]?.c ?? 0);
-  } catch (e) {
-    console.warn(`[log-count] ${needle} failed:`, e);
-    return 0;
-  }
-}
-
 async function countOrphanBuyers(): Promise<number> {
-  const { data, error } = await supabase.rpc("exec_count_orphan_buyers").maybeSingle?.() ??
-    { data: null, error: null };
-  // RPC may not exist — use raw query via PostgREST is not possible for joins to auth.
-  // Instead embed the logic directly using two queries we can issue.
-  if (data && !error) return Number((data as any).count ?? 0);
-
-  // Fallback: do it in two steps.
   const { data: roles } = await supabase
     .from("user_roles")
     .select("user_id, role")
@@ -125,9 +91,6 @@ async function postToSlack(signals: Record<string, number>) {
       {
         type: "section",
         fields: [
-          { type: "mrkdwn", text: `*handle_new_user failures:*\n${signals.handle_new_user_failed}` },
-          { type: "mrkdwn", text: `*user_not_in_company:*\n${signals.user_not_in_company}` },
-          { type: "mrkdwn", text: `*role constraint violations:*\n${signals.role_check_violation}` },
           { type: "mrkdwn", text: `*orphan buyers:*\n${signals.orphan_buyers}` },
           { type: "mrkdwn", text: `*duplicate memberships:*\n${signals.duplicate_memberships}` },
         ],
@@ -137,7 +100,7 @@ async function postToSlack(signals: Record<string, number>) {
         elements: [
           {
             type: "mrkdwn",
-            text: `Window: last ${WINDOW_MINUTES} min · ${new Date().toISOString()}`,
+            text: `DB-driven probes · ${new Date().toISOString()}`,
           },
         ],
       },
@@ -159,26 +122,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const sinceMs = Date.now() - WINDOW_MINUTES * 60_000;
-
-    const [
-      handleNewUserFailed,
-      userNotInCompany,
-      roleCheckViolation,
-      orphanBuyers,
-      duplicateMemberships,
-    ] = await Promise.all([
-      countLogMatches("handle_new_user failed", sinceMs),
-      countLogMatches("user_not_in_company", sinceMs),
-      countLogMatches("role_known_values_check", sinceMs),
+    const [orphanBuyers, duplicateMemberships] = await Promise.all([
       countOrphanBuyers(),
       countDuplicateMemberships(),
     ]);
 
     const signals = {
-      handle_new_user_failed: handleNewUserFailed,
-      user_not_in_company: userNotInCompany,
-      role_check_violation: roleCheckViolation,
       orphan_buyers: orphanBuyers,
       duplicate_memberships: duplicateMemberships,
     };
