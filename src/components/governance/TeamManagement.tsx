@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, UserPlus, Shield, Trash2, Loader2 } from 'lucide-react';
+import { Users, UserPlus, Shield, Trash2, Loader2, KeyRound, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -56,6 +56,56 @@ export function TeamManagement() {
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState('buyer_manager');
 
+  // Password reset state
+  const [resetTarget, setResetTarget] = useState<TeamMember | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetResult, setResetResult] = useState<{ tempPassword: string; email: string } | null>(null);
+  const [resetCopied, setResetCopied] = useState(false);
+  const [callerRole, setCallerRole] = useState<string | null>(null);
+
+  // Authority: who is allowed to reset whom
+  const EXEC_RESETTERS = new Set(['buyer_ceo', 'buyer_cfo', 'buyer_vp', 'buyer_purchase_head']);
+  const MANAGER_CAN_RESET = new Set(['buyer_purchaser']);
+  const canResetMember = (memberRole: string): boolean => {
+    if (!callerRole) return false;
+    if (EXEC_RESETTERS.has(callerRole)) return true;
+    if (callerRole === 'buyer_manager' && MANAGER_CAN_RESET.has(memberRole)) return true;
+    return false;
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetTarget) return;
+    setResetting(true);
+    setResetResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('reset-team-member-password', {
+        body: { targetUserId: resetTarget.user_id },
+      });
+      if (error) throw error;
+      if (!data?.tempPassword) throw new Error(data?.error || 'No password returned');
+      setResetResult({ tempPassword: data.tempPassword, email: resetTarget.email || '' });
+      toast({
+        title: 'Password reset',
+        description: 'Share the temp password with the user. They must change it on next login.',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Reset failed',
+        description: err.message || 'Could not reset password.',
+        variant: 'destructive',
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const closeResetDialog = () => {
+    setResetTarget(null);
+    setResetResult(null);
+    setResetCopied(false);
+  };
+
+
   useEffect(() => {
     if (user?.id) fetchMembers();
   }, [user?.id]);
@@ -64,10 +114,10 @@ export function TeamManagement() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      // Get company ID
+      // Get caller's company + role (role drives who can reset whom)
       const { data: membership } = await supabase
         .from('buyer_company_members')
-        .select('company_id')
+        .select('company_id, role')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -76,6 +126,7 @@ export function TeamManagement() {
         return;
       }
       setCompanyId(membership.company_id);
+      setCallerRole(membership.role);
 
       // Get all members with profile info
       const { data: companyMembers, error } = await supabase
@@ -370,16 +421,29 @@ export function TeamManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {!isCurrentUser && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => handleRemoveMember(member.id, member.user_id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-end gap-1">
+                        {!isCurrentUser && canResetMember(member.role) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-amber-600 hover:text-amber-700"
+                            title="Reset password (issues a new temp password)"
+                            onClick={() => setResetTarget(member)}
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {!isCurrentUser && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleRemoveMember(member.id, member.user_id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -408,6 +472,84 @@ export function TeamManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Password Reset Dialog */}
+      <Dialog open={!!resetTarget} onOpenChange={(open) => !open && closeResetDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-amber-600" />
+              Reset team member password
+            </DialogTitle>
+            <DialogDescription>
+              {resetTarget && (
+                <>
+                  This will issue a new temporary password for{' '}
+                  <strong>{resetTarget.contact_person || resetTarget.email}</strong>.
+                  They will be required to change it on next login.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {!resetResult ? (
+            <>
+              <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                <div>
+                  This action is logged. The user's current password will stop working
+                  immediately. Share the new temp password with them through a secure channel.
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeResetDialog} disabled={resetting}>
+                  Cancel
+                </Button>
+                <Button onClick={handleResetPassword} disabled={resetting}>
+                  {resetting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Reset password
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <div className="rounded-md border bg-muted/30 p-3 text-sm">
+                  <div className="text-xs text-muted-foreground mb-1">Email</div>
+                  <div className="font-mono">{resetResult.email}</div>
+                </div>
+                <div className="rounded-md border bg-muted/30 p-3">
+                  <div className="text-xs text-muted-foreground mb-1">Temporary password (shown once)</div>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 font-mono text-sm bg-background px-3 py-2 rounded border break-all">
+                      {resetResult.tempPassword}
+                    </code>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(resetResult.tempPassword);
+                        setResetCopied(true);
+                        setTimeout(() => setResetCopied(false), 2000);
+                      }}
+                    >
+                      {resetCopied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Share this password securely. It won't be shown again. The user will be
+                  forced to change it the moment they log in.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button onClick={closeResetDialog}>Done</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
