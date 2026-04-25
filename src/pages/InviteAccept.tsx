@@ -17,15 +17,27 @@ const InviteAccept = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Fetch invite details
+  // Fetch invite details. The URL param `id` may be either the new
+  // unguessable `token` (uuid) or, for legacy links, the raw row id.
+  // We try token first, then fall back to id so old emails keep working.
   useEffect(() => {
     if (!id) return;
     const fetchInvite = async () => {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('team_invites')
         .select('*')
-        .eq('id', id)
-        .single();
+        .eq('token', id)
+        .maybeSingle();
+
+      if (!data) {
+        const fallback = await supabase
+          .from('team_invites')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       if (error || !data) {
         setError('This invite link is invalid or has expired.');
@@ -35,6 +47,13 @@ const InviteAccept = () => {
 
       if (data.status === 'accepted') {
         setError('This invitation has already been accepted.');
+        setLoading(false);
+        return;
+      }
+
+      // Expiry guard
+      if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
+        setError('This invitation has expired. Please ask your admin to send a new one.');
         setLoading(false);
         return;
       }
