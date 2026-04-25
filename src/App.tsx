@@ -248,6 +248,7 @@ const BotAwareRouter = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/invite/:id" element={<InviteAccept />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/category/:categorySlug" element={<CategoryLanding />} />
