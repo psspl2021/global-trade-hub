@@ -31,6 +31,7 @@ const CostSavingsPage = lazy(() => import("./pages/CostSavingsPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const Categories = lazy(() => import("./pages/Categories"));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const Browse = lazy(() => import("./pages/Browse"));
