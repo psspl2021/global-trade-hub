@@ -328,7 +328,8 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {analytics.avgTimePerPage.slice(0, 8).map((page, index) => {
+                <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3">
+                  {analytics.avgTimePerPage.map((page, index) => {
                     const maxTime = analytics.avgTimePerPage?.[0]?.avgSeconds || 1;
                     const percentage = (page.avgSeconds / maxTime) * 100;
                     return (
