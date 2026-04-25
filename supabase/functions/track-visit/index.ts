@@ -120,6 +120,25 @@ serve(async (req) => {
 
     console.log('Tracking visit from IP:', anonymizeIP(clientIP));
 
+    // Server-side dedupe: skip if same visitor + session + page tracked within last 3 seconds
+    if (visitor_id && session_id && page_path) {
+      const { data: recent } = await supabase
+        .from('page_visits')
+        .select('id')
+        .eq('visitor_id', visitor_id)
+        .eq('session_id', session_id)
+        .eq('page_path', page_path)
+        .gte('created_at', new Date(Date.now() - 3000).toISOString())
+        .limit(1);
+
+      if (recent && recent.length > 0) {
+        console.log('Duplicate visit skipped (within 3s window):', page_path);
+        return new Response(JSON.stringify({ success: true, deduped: true, visit_id: recent[0].id }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     // Get country from IP — multi-provider fallback chain so it almost never fails.
     // Order: Cloudflare header (instant, free) → ip-api → ipapi.co → ipwho.is → geojs.io → country.is
     let country: string | null = null;
