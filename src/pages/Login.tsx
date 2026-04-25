@@ -85,6 +85,14 @@ const Login = () => {
       return;
     }
 
+    // Force users created via admin (with a temporary password) to set
+    // a new password before reaching their dashboard.
+    const meta = (user.user_metadata || {}) as Record<string, any>;
+    if (meta.created_by_admin && !meta.password_changed_at) {
+      navigate('/change-password');
+      return;
+    }
+
     try {
       // Get user's primary role
       const { data: roleData } = await supabase
