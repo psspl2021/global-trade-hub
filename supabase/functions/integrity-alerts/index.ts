@@ -2,12 +2,18 @@
 // Posts a single consolidated Slack message when any signal > 0.
 // 5-minute cooldown via integrity_alert_state table.
 //
-// NOTE: Analytics-based log scanning was removed — the Supabase analytics REST
-// endpoint requires a Management API personal access token (not the service
-// role key), so all calls returned 401 and silently produced 0 — making the
-// monitor a false-positive generator. We now rely exclusively on direct DB
-// probes (orphan buyers, duplicate memberships) which are authoritative,
-// deterministic, and have zero external dependencies.
+// Signals (computed atomically by public.integrity_signals() RPC):
+//   - orphan_buyers: users with a buyer_* role but no active company membership
+//   - members_without_roles: active company members with no row in user_roles
+//
+// History:
+//   - The previous duplicate_memberships probe was removed: a UNIQUE
+//     (company_id, user_id) constraint makes that state physically
+//     impossible, so the probe was dead code.
+//   - The previous PostgREST query used `.like("role", "buyer_%")` against
+//     the app_role enum, which silently returned a 42883 error and made the
+//     probe permanently report 0. Replaced with a SECURITY DEFINER SQL
+//     function so signal logic lives next to the data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -27,36 +33,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
-async function countOrphanBuyers(): Promise<number> {
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("user_id, role")
-    .like("role", "buyer_%");
-  if (!roles || roles.length === 0) return 0;
-
-  const userIds = [...new Set(roles.map((r: any) => r.user_id))];
-  const { data: members } = await supabase
-    .from("buyer_company_members")
-    .select("user_id")
-    .in("user_id", userIds)
-    .eq("is_active", true);
-  const memberSet = new Set((members ?? []).map((m: any) => m.user_id));
-  return userIds.filter((id) => !memberSet.has(id)).length;
-}
-
-async function countDuplicateMemberships(): Promise<number> {
-  const { data, error } = await supabase
-    .from("buyer_company_members")
-    .select("user_id, company_id");
-  if (error || !data) return 0;
-  const seen = new Map<string, number>();
-  for (const row of data as any[]) {
-    const k = `${row.user_id}::${row.company_id}`;
-    seen.set(k, (seen.get(k) ?? 0) + 1);
+async function fetchSignals(): Promise<{ orphan_buyers: number; members_without_roles: number }> {
+  const { data, error } = await supabase.rpc("integrity_signals");
+  if (error) {
+    console.error("[integrity-alerts] integrity_signals RPC failed:", error);
+    throw new Error(`integrity_signals RPC failed: ${error.message}`);
   }
-  let dup = 0;
-  for (const [, c] of seen) if (c > 1) dup++;
-  return dup;
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    orphan_buyers: Number(row?.orphan_buyers ?? 0),
+    members_without_roles: Number(row?.members_without_roles ?? 0),
+  };
 }
 
 async function checkCooldown(): Promise<boolean> {
@@ -92,7 +79,7 @@ async function postToSlack(signals: Record<string, number>) {
         type: "section",
         fields: [
           { type: "mrkdwn", text: `*orphan buyers:*\n${signals.orphan_buyers}` },
-          { type: "mrkdwn", text: `*duplicate memberships:*\n${signals.duplicate_memberships}` },
+          { type: "mrkdwn", text: `*members without roles:*\n${signals.members_without_roles}` },
         ],
       },
       {
@@ -122,16 +109,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const [orphanBuyers, duplicateMemberships] = await Promise.all([
-      countOrphanBuyers(),
-      countDuplicateMemberships(),
-    ]);
-
-    const signals = {
-      orphan_buyers: orphanBuyers,
-      duplicate_memberships: duplicateMemberships,
-    };
-
+    const signals = await fetchSignals();
     const total = Object.values(signals).reduce((a, b) => a + b, 0);
     console.log("[integrity-alerts] signals:", JSON.stringify(signals));
 
