@@ -128,18 +128,16 @@ serve(async (req) => {
         avgSeconds: Math.round(data.totalTime / data.count),
         visits: data.count,
       }))
-      .sort((a, b) => b.avgSeconds - a.avgSeconds)
-      .slice(0, 10);
+      .sort((a, b) => b.avgSeconds - a.avgSeconds);
 
-    // Top pages
+    // Top pages (return all)
     const pageCounts: Record<string, number> = {};
     visits.forEach(v => {
       pageCounts[v.page_path] = (pageCounts[v.page_path] || 0) + 1;
     });
     const topPages = Object.entries(pageCounts)
       .map(([page, views]) => ({ page, views }))
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 10);
+      .sort((a, b) => b.views - a.views);
 
     // Traffic sources
     const sourceCounts: Record<string, number> = {};
