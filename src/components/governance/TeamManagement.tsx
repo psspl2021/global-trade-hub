@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, UserPlus, Shield, Trash2, Loader2 } from 'lucide-react';
+import { Users, UserPlus, Shield, Trash2, Loader2, KeyRound, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
