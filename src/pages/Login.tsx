@@ -93,6 +93,37 @@ const Login = () => {
       return;
     }
 
+    // First-run buyer-admin onboarding: if this user is the sole member of
+    // their buyer company AND has an admin-tier role AND hasn't completed
+    // the welcome wizard yet, route them through /onboarding once. The page
+    // itself enforces all the gates again, so this is a soft hint.
+    try {
+      const completedKey = `ps_onboarding_completed:${user.id}`;
+      if (!localStorage.getItem(completedKey)) {
+        const { data: membership } = await supabase
+          .from('buyer_company_members')
+          .select('company_id, role')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        const adminRoles = ['buyer_manager', 'buyer_ceo', 'buyer_purchase_head', 'buyer_cfo', 'buyer_vp'];
+        if (membership && adminRoles.includes(membership.role)) {
+          const { count } = await supabase
+            .from('buyer_company_members')
+            .select('id', { count: 'exact', head: true })
+            .eq('company_id', membership.company_id)
+            .eq('is_active', true);
+          if ((count ?? 0) <= 1) {
+            navigate('/onboarding');
+            return;
+          }
+        }
+      }
+    } catch {
+      // Non-fatal: fall through to normal role-based redirect
+    }
+
     try {
       // Get user's primary role
       const { data: roleData } = await supabase

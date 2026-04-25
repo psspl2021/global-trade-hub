@@ -54,6 +54,7 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const EarnWithProcureSaathi = lazy(() => import("./pages/EarnWithProcureSaathi"));
 const Contact = lazy(() => import("./pages/Contact"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 const IntelligenceActionPage = lazy(() => import("./pages/governance/IntelligenceActionPage"));
 const GlobalPlanCheckoutPage = lazy(() => import("./pages/checkout/GlobalPlanCheckoutPage"));
@@ -247,6 +248,7 @@ const BotAwareRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/invite/:id" element={<InviteAccept />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/contact" element={<Contact />} />
