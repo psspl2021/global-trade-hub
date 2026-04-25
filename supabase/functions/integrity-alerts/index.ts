@@ -36,7 +36,14 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 async function fetchSignals(): Promise<{ orphan_buyers: number; members_without_roles: number }> {
   const { data, error } = await supabase.rpc("integrity_signals");
   if (error) {
-    console.error("[integrity-alerts] integrity_signals RPC failed:", error);
+    console.error("[integrity-alerts] RPC failure", {
+      rpc: "integrity_signals",
+      message: error.message,
+      code: (error as { code?: string }).code ?? null,
+      details: (error as { details?: string }).details ?? null,
+      hint: (error as { hint?: string }).hint ?? null,
+      timestamp: new Date().toISOString(),
+    });
     throw new Error(`integrity_signals RPC failed: ${error.message}`);
   }
   const row = Array.isArray(data) ? data[0] : data;
