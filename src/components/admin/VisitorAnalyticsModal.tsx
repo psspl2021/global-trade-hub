@@ -246,22 +246,43 @@ export function VisitorAnalyticsModal({ open, onOpenChange, analytics, selectedD
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Top Pages */}
+            {/* Top Pages - Full detailed view */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Top Pages</CardTitle>
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span>Top Pages</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {analytics.topPages.length} pages
+                  </span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
               {analytics.topPages.length > 0 ? (
-                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                    {analytics.topPages.map((page, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <span className="truncate max-w-[200px]" title={page.page}>
-                          {page.page || '/'}
-                        </span>
-                        <span className="text-muted-foreground">{page.views.toLocaleString()} views</span>
-                      </div>
-                    ))}
+                  <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                    {(() => {
+                      const maxViews = analytics.topPages[0]?.views || 1;
+                      const totalViews = analytics.topPages.reduce((s, p) => s + p.views, 0) || 1;
+                      return analytics.topPages.map((page, index) => {
+                        const pct = (page.views / maxViews) * 100;
+                        const sharePct = ((page.views / totalViews) * 100).toFixed(1);
+                        return (
+                          <div key={index} className="space-y-1 pb-2 border-b border-border/40 last:border-0">
+                            <div className="flex items-center justify-between text-sm gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-xs text-muted-foreground w-6 shrink-0">#{index + 1}</span>
+                                <span className="truncate font-mono text-xs" title={page.page}>
+                                  {page.page || '/'}
+                                </span>
+                              </div>
+                              <span className="text-muted-foreground shrink-0 text-xs">
+                                {page.views.toLocaleString()} ({sharePct}%)
+                              </span>
+                            </div>
+                            <Progress value={pct} className="h-1.5" />
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">No page data available</p>
