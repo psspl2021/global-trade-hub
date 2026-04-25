@@ -114,10 +114,10 @@ export function TeamManagement() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      // Get company ID
+      // Get caller's company + role (role drives who can reset whom)
       const { data: membership } = await supabase
         .from('buyer_company_members')
-        .select('company_id')
+        .select('company_id, role')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -126,6 +126,7 @@ export function TeamManagement() {
         return;
       }
       setCompanyId(membership.company_id);
+      setCallerRole(membership.role);
 
       // Get all members with profile info
       const { data: companyMembers, error } = await supabase
