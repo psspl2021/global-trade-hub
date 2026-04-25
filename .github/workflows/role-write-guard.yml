@@ -1,0 +1,37 @@
+name: Role Write Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        run: |
+          git fetch origin main
+          git diff origin/main...HEAD > diff.txt
+
+      - name: Check for forbidden user_roles writes
+        run: |
+          if grep -E -i -q "insert[[:space:]]+into[[:space:]]+user_roles|update[[:space:]]+user_roles|delete[[:space:]]+from[[:space:]]+user_roles" diff.txt; then
+            echo "⚠️ Detected direct write to user_roles"
+
+            if echo "${{ github.event.pull_request.body }}" | grep -q "\[allow-user_roles-write\]"; then
+              echo "✅ Bypass flag present — allowed"
+              exit 0
+            else
+              echo "❌ Direct writes to user_roles are not allowed."
+              echo "Add [allow-user_roles-write] in PR description if intentional."
+              exit 1
+            fi
+          else
+            echo "✅ No forbidden writes detected"
+          fi
