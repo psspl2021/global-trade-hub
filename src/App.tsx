@@ -54,6 +54,7 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const EarnWithProcureSaathi = lazy(() => import("./pages/EarnWithProcureSaathi"));
 const Contact = lazy(() => import("./pages/Contact"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 const ProcurementSignalPage = lazy(() => import("./pages/procurement/ProcurementSignalPage"));
 const IntelligenceActionPage = lazy(() => import("./pages/governance/IntelligenceActionPage"));
 const GlobalPlanCheckoutPage = lazy(() => import("./pages/checkout/GlobalPlanCheckoutPage"));
