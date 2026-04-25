@@ -21,6 +21,8 @@ const STORAGE_KEY = 'ps_onboarding_completed';
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const force = searchParams.get('force') === '1';
   const { user, loading: authLoading } = useAuth();
   const [companyName, setCompanyName] = useState<string>('');
   const [companyId, setCompanyId] = useState<string | null>(null);
