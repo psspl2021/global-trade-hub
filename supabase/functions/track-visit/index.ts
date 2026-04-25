@@ -120,42 +120,73 @@ serve(async (req) => {
 
     console.log('Tracking visit from IP:', anonymizeIP(clientIP));
 
-    // Get country from IP using free geolocation APIs (HTTPS + fallback)
-    let country = null;
-    let countryCode = null;
+    // Get country from IP — multi-provider fallback chain so it almost never fails.
+    // Order: Cloudflare header (instant, free) → ip-api → ipapi.co → ipwho.is → geojs.io → country.is
+    let country: string | null = null;
+    let countryCode: string | null = null;
 
-    if (clientIP && clientIP !== 'unknown' && clientIP !== '127.0.0.1' && clientIP !== '::1') {
-      // Primary: ip-api.com (HTTPS)
-      try {
-        const geoResponse = await fetch(
-          `https://ip-api.com/json/${clientIP}?fields=status,country,countryCode`,
-          { signal: AbortSignal.timeout(3000) }
-        );
-        const geoData = await geoResponse.json();
-        console.log('Geo lookup (ip-api):', geoData);
-        if (geoData.status === 'success') {
-          country = geoData.country;
-          countryCode = geoData.countryCode;
-        }
-      } catch (geoError) {
-        console.error('Primary geo lookup failed:', geoError);
-      }
+    // 0) Cloudflare edge header (zero network call, when proxied via CF)
+    const cfCountry = req.headers.get('cf-ipcountry');
+    if (cfCountry && cfCountry !== 'XX' && cfCountry !== 'T1') {
+      countryCode = cfCountry.toUpperCase();
+      // We'll still try to enrich the country name below if missing
+    }
 
-      // Fallback: ipapi.co
-      if (!country) {
+    const isPublicIP =
+      clientIP &&
+      clientIP !== 'unknown' &&
+      clientIP !== '127.0.0.1' &&
+      clientIP !== '::1' &&
+      !clientIP.startsWith('10.') &&
+      !clientIP.startsWith('192.168.') &&
+      !clientIP.startsWith('172.');
+
+    if (isPublicIP && !country) {
+      const providers: Array<{ name: string; url: string; parse: (d: any) => { country?: string; code?: string } }> = [
+        {
+          name: 'ip-api',
+          url: `https://ip-api.com/json/${clientIP}?fields=status,country,countryCode`,
+          parse: (d) => d?.status === 'success' ? { country: d.country, code: d.countryCode } : {},
+        },
+        {
+          name: 'ipapi.co',
+          url: `https://ipapi.co/${clientIP}/json/`,
+          parse: (d) => d?.country_name ? { country: d.country_name, code: d.country_code } : {},
+        },
+        {
+          name: 'ipwho.is',
+          url: `https://ipwho.is/${clientIP}`,
+          parse: (d) => d?.success ? { country: d.country, code: d.country_code } : {},
+        },
+        {
+          name: 'geojs.io',
+          url: `https://get.geojs.io/v1/ip/country/${clientIP}.json`,
+          parse: (d) => d?.country ? { country: d.name || d.country, code: d.country } : {},
+        },
+        {
+          name: 'country.is',
+          url: `https://api.country.is/${clientIP}`,
+          parse: (d) => d?.country ? { country: d.country, code: d.country } : {},
+        },
+      ];
+
+      for (const provider of providers) {
         try {
-          const fbResp = await fetch(
-            `https://ipapi.co/${clientIP}/json/`,
-            { signal: AbortSignal.timeout(3000) }
-          );
-          const fbData = await fbResp.json();
-          console.log('Geo lookup (ipapi.co fallback):', fbData);
-          if (fbData && fbData.country_name) {
-            country = fbData.country_name;
-            countryCode = fbData.country_code;
+          const resp = await fetch(provider.url, { signal: AbortSignal.timeout(2500) });
+          if (!resp.ok) {
+            console.warn(`Geo provider ${provider.name} returned ${resp.status}`);
+            continue;
           }
-        } catch (fbError) {
-          console.error('Fallback geo lookup failed:', fbError);
+          const data = await resp.json();
+          const parsed = provider.parse(data);
+          if (parsed.country || parsed.code) {
+            country = parsed.country ?? country;
+            countryCode = parsed.code ?? countryCode;
+            console.log(`Geo lookup success via ${provider.name}:`, country, countryCode);
+            break;
+          }
+        } catch (err) {
+          console.warn(`Geo provider ${provider.name} failed:`, err instanceof Error ? err.message : err);
         }
       }
     }
