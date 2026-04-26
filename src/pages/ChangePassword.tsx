@@ -140,6 +140,12 @@ const ChangePassword = () => {
       console.error('Failed to clear temp password flag', err);
     }
 
+    try {
+      (window as any).analytics?.track?.('password_change_success', { user_id: user?.id });
+      // Clear loop-protection marker once the change has succeeded.
+      if (user?.id) sessionStorage.removeItem(`ps_pwd_change_attempted:${user.id}`);
+    } catch {}
+
     toast({
       title: 'Password changed',
       description: 'Your new password is active. Redirecting to your dashboard…',
