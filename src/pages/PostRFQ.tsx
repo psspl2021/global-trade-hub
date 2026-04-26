@@ -14,6 +14,11 @@ import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSE
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { useRFQDraftTracking } from '@/hooks/useRFQDraftTracking';
+import { useRfqTemplates, type RfqTemplate } from '@/hooks/useRfqTemplates';
+import { useRfqPrefill, getSourceLabel } from '@/hooks/useRfqPrefill';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MapPin, CreditCard, Building2 as Building2Icon, Phone } from 'lucide-react';
 
 interface RFQItem {
   item_name: string;
