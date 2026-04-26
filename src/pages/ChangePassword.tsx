@@ -62,6 +62,28 @@ const ChangePassword = () => {
     const { error } = await updatePassword(result.data.password);
     if (error) {
       setSubmitting(false);
+      // Supabase blocks password changes when the session is older than the
+      // configured reauthentication window. Force a fresh login so the user
+      // can complete the change with a recent session.
+      const msg = (error as any)?.message?.toLowerCase?.() || '';
+      const code = (error as any)?.code || '';
+      if (
+        code === 'reauthentication_needed' ||
+        msg.includes('reauthentication') ||
+        msg.includes('reauthenticate')
+      ) {
+        toast({
+          title: 'Please log in again',
+          description:
+            'For security, log in once more with your current password, then set your new password.',
+        });
+        try {
+          await supabase.auth.signOut({ scope: 'local' });
+        } catch {
+          // ignore
+        }
+        navigate('/login');
+      }
       return;
     }
 
@@ -158,6 +180,16 @@ const ChangePassword = () => {
               <Button type="submit" className="w-full h-12 font-semibold text-base" disabled={submitting}>
                 {submitting ? 'Updating…' : 'Update Password & Continue'}
               </Button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+                  navigate('/login');
+                }}
+                className="w-full text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+              >
+                Sign out and log in again
+              </button>
             </form>
           </CardContent>
         </Card>
