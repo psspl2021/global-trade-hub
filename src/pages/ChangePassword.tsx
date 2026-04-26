@@ -59,19 +59,54 @@ const ChangePassword = () => {
     }
 
     setSubmitting(true);
-    const { error } = await updatePassword(result.data.password);
+
+    // Strategy: refresh the session FIRST so Supabase sees a "fresh" auth
+    // context. This avoids the reauthentication_needed error on most
+    // first-login temp-password flows without forcing a logout/login loop.
+    try {
+      await supabase.auth.refreshSession();
+    } catch (err) {
+      // Non-fatal — continue and let updateUser surface the real error.
+      console.warn('refreshSession before password update failed', err);
+    }
+
+    let { error } = await updatePassword(result.data.password);
+
+    // If still blocked by reauth window, try one more refresh + retry before
+    // falling back to a forced re-login. This covers the edge case where the
+    // first refresh races with token expiry.
     if (error) {
-      setSubmitting(false);
-      // Supabase blocks password changes when the session is older than the
-      // configured reauthentication window. Force a fresh login so the user
-      // can complete the change with a recent session.
       const msg = (error as any)?.message?.toLowerCase?.() || '';
       const code = (error as any)?.code || '';
-      if (
+      const isReauth =
         code === 'reauthentication_needed' ||
         msg.includes('reauthentication') ||
-        msg.includes('reauthenticate')
-      ) {
+        msg.includes('reauthenticate');
+
+      if (isReauth) {
+        try {
+          await supabase.auth.refreshSession();
+          const retry = await updatePassword(result.data.password);
+          error = retry.error;
+        } catch (err) {
+          console.warn('Retry refreshSession failed', err);
+        }
+      }
+    }
+
+    if (error) {
+      setSubmitting(false);
+      const msg = (error as any)?.message?.toLowerCase?.() || '';
+      const code = (error as any)?.code || '';
+      const isReauth =
+        code === 'reauthentication_needed' ||
+        msg.includes('reauthentication') ||
+        msg.includes('reauthenticate');
+
+      if (isReauth) {
+        // Last resort — session truly stale (e.g. project has secure password
+        // change ON). Send the user back through login so they get a brand
+        // new session, then return here.
         toast({
           title: 'Please log in again',
           description:
@@ -83,6 +118,12 @@ const ChangePassword = () => {
           // ignore
         }
         navigate('/login');
+      } else {
+        toast({
+          title: 'Could not update password',
+          description: (error as any)?.message || 'Please try again.',
+          variant: 'destructive',
+        });
       }
       return;
     }
