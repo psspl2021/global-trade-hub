@@ -284,6 +284,28 @@ const PostRFQ = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Quick-start templates — 1-click prefill */}
+            {topTemplates.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Zap className="h-4 w-4 text-primary" />
+                  Start with a template
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {topTemplates.map(tpl => (
+                    <button
+                      key={tpl.id}
+                      type="button"
+                      onClick={() => { applyTemplate(tpl); handleFormInteraction(); }}
+                      className="text-xs px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors text-foreground"
+                    >
+                      {tpl.template_name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <Textarea
               placeholder="Describe your sourcing requirement in detail. Include product name, quantity, specifications, and delivery requirements for best results.
 
@@ -298,7 +320,73 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
               className="resize-none text-base"
             />
 
-            <div className="flex justify-end">
+            {/* Visible + editable prefill row (only shown when logged in) */}
+            {user && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-muted/40 border border-border/60">
+                <div className="space-y-1">
+                  <Label htmlFor="rfq-location" className="text-xs flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-primary" />
+                    Shipping location
+                    {prefill.location.source !== 'none' && location === prefill.location.value && (
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        · {getSourceLabel(prefill.location.source)}
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="rfq-location"
+                    value={location}
+                    onChange={(e) => { setLocation(e.target.value); handleFormInteraction(); }}
+                    placeholder="e.g. Pune, Maharashtra"
+                    className="h-9 text-sm bg-background"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="rfq-payment" className="text-xs flex items-center gap-1.5">
+                    <CreditCard className="h-3.5 w-3.5 text-primary" />
+                    Payment terms
+                    {prefill.paymentTerms.source !== 'none' && paymentTerms === prefill.paymentTerms.value && (
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        · {getSourceLabel(prefill.paymentTerms.source)}
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="rfq-payment"
+                    value={paymentTerms}
+                    onChange={(e) => { setPaymentTerms(e.target.value); handleFormInteraction(); }}
+                    placeholder="e.g. Net 30 days"
+                    className="h-9 text-sm bg-background"
+                  />
+                </div>
+                {(prefill.companyName.value || prefill.phone.value) && (
+                  <div className="sm:col-span-2 flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
+                    {prefill.companyName.value && (
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="h-3 w-3" /> {prefill.companyName.value}
+                      </span>
+                    )}
+                    {prefill.phone.value && (
+                      <span className="inline-flex items-center gap-1">
+                        <Phone className="h-3 w-3" /> {prefill.phone.value}
+                      </span>
+                    )}
+                    <span className="text-[10px] opacity-70">· auto-filled from your profile, editable in Settings</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <a
+                href="https://wa.me/918368127357?text=Hi%2C%20I%20need%20help%20posting%20an%20RFQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Need help? WhatsApp us
+              </a>
               <Button 
                 onClick={handleGenerate} 
                 disabled={isGenerating || description.trim().length < 10}
@@ -321,7 +409,7 @@ Example: I need 5000 kg of food-grade stainless steel containers for a dairy pla
             </div>
 
             <p className="text-sm text-muted-foreground text-center">
-              Include details like product name, quantity, specifications, and delivery requirements for best results.
+              Quotes from verified suppliers in 2–24 hours · Free · Sealed bidding
             </p>
           </CardContent>
         </Card>
