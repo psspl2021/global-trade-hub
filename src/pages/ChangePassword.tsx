@@ -113,8 +113,14 @@ const ChangePassword = () => {
             'For security, log in once more with your current password, then set your new password.',
         });
         try {
+          (window as any).analytics?.track?.('password_change_reauth_fallback', { user_id: user?.id });
+        } catch {}
+        try {
           await supabase.auth.signOut({ scope: 'local' });
         } catch {
+          // ignore
+        }
+        navigate('/login');
           // ignore
         }
         navigate('/login');
