@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,6 +21,8 @@ const STORAGE_KEY = 'ps_onboarding_completed';
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const force = searchParams.get('force') === '1';
   const { user, loading: authLoading } = useAuth();
   const [companyName, setCompanyName] = useState<string>('');
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -44,7 +46,10 @@ const Onboarding = () => {
     }
 
     const completedKey = `${STORAGE_KEY}:${user.id}`;
-    if (localStorage.getItem(completedKey)) {
+    // `?force=1` (e.g. from the dashboard "Invite team" CTA) bypasses the
+    // first-run completion short-circuit so admins can re-enter the wizard
+    // any time to send more invites.
+    if (!force && localStorage.getItem(completedKey)) {
       navigate('/dashboard', { replace: true });
       return;
     }
@@ -71,17 +76,20 @@ const Onboarding = () => {
         return;
       }
 
-      // If team already has more than just this user, skip wizard.
-      const { count } = await supabase
-        .from('buyer_company_members')
-        .select('id', { count: 'exact', head: true })
-        .eq('company_id', membership.company_id)
-        .eq('is_active', true);
+      // If team already has more than just this user, skip the first-run
+      // wizard — but allow re-entry via ?force=1 (dashboard CTA, "invite more").
+      if (!force) {
+        const { count } = await supabase
+          .from('buyer_company_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', membership.company_id)
+          .eq('is_active', true);
 
-      if ((count ?? 0) > 1) {
-        localStorage.setItem(completedKey, '1');
-        navigate('/dashboard', { replace: true });
-        return;
+        if ((count ?? 0) > 1) {
+          localStorage.setItem(completedKey, '1');
+          navigate('/dashboard', { replace: true });
+          return;
+        }
       }
 
       setCompanyId(membership.company_id);
@@ -90,7 +98,7 @@ const Onboarding = () => {
     };
 
     loadCompany();
-  }, [authLoading, user, navigate]);
+  }, [authLoading, user, navigate, force]);
 
   const updateInvite = (idx: number, patch: Partial<InviteRow>) => {
     setInvites((prev) => prev.map((row, i) => (i === idx ? { ...row, ...patch } : row)));

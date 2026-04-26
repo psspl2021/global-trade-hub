@@ -28,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import InviteTeamCTA from '@/components/dashboard/InviteTeamCTA';
 import { LogOut, Loader2, Package, Receipt, Truck, Warehouse, FileText, MapPin, Star, Check, MessageCircle, Mail, AlertTriangle, ShieldCheck, Clock, XCircle, Settings, Home, Gavel, ArrowLeft, ShoppingCart, BarChart3, Users, Wallet } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -442,6 +443,9 @@ const Dashboard = () => {
             </p>
           </div>
         )}
+
+        {/* Solo buyer-admin nudge: dismissible, self-gates on team size + role */}
+        {isBuyerRole && !activeManagementView && <InviteTeamCTA />}
 
         {/* Admin section removed - admin roles redirect to /admin route */}
 
