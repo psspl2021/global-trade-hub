@@ -46,7 +46,10 @@ const Onboarding = () => {
     }
 
     const completedKey = `${STORAGE_KEY}:${user.id}`;
-    if (localStorage.getItem(completedKey)) {
+    // `?force=1` (e.g. from the dashboard "Invite team" CTA) bypasses the
+    // first-run completion short-circuit so admins can re-enter the wizard
+    // any time to send more invites.
+    if (!force && localStorage.getItem(completedKey)) {
       navigate('/dashboard', { replace: true });
       return;
     }
