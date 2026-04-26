@@ -180,6 +180,16 @@ const ChangePassword = () => {
               <Button type="submit" className="w-full h-12 font-semibold text-base" disabled={submitting}>
                 {submitting ? 'Updating…' : 'Update Password & Continue'}
               </Button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+                  navigate('/login');
+                }}
+                className="w-full text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+              >
+                Sign out and log in again
+              </button>
             </form>
           </CardContent>
         </Card>
