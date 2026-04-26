@@ -121,9 +121,6 @@ const ChangePassword = () => {
           // ignore
         }
         navigate('/login');
-          // ignore
-        }
-        navigate('/login');
       } else {
         toast({
           title: 'Could not update password',
