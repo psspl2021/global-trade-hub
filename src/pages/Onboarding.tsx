@@ -98,7 +98,7 @@ const Onboarding = () => {
     };
 
     loadCompany();
-  }, [authLoading, user, navigate]);
+  }, [authLoading, user, navigate, force]);
 
   const updateInvite = (idx: number, patch: Partial<InviteRow>) => {
     setInvites((prev) => prev.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
