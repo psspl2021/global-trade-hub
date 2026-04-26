@@ -44,6 +44,29 @@ const PostRFQ = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedRFQ, setGeneratedRFQ] = useState<GeneratedRFQ | null>(null);
 
+  // Prefill (location, payment, company, phone) — visible + editable
+  const prefill = useRfqPrefill(user?.id);
+  const [location, setLocation] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState('');
+  useEffect(() => {
+    if (!prefill.loading) {
+      setLocation(prev => prev || prefill.location.value);
+      setPaymentTerms(prev => prev || prefill.paymentTerms.value);
+    }
+  }, [prefill.loading, prefill.location.value, prefill.paymentTerms.value]);
+
+  // Templates — 1-click prefill of textarea + items
+  const { templates } = useRfqTemplates();
+  const topTemplates = templates.slice(0, 5);
+  const applyTemplate = useCallback((tpl: RfqTemplate) => {
+    const itemsText = tpl.default_items
+      .map(i => `${i.product_name} — ${i.quantity} ${i.unit}${i.description ? ` (${i.description})` : ''}`)
+      .join('\n');
+    const text = `${tpl.template_name}\n\n${itemsText}${tpl.quality_standards ? `\n\nQuality: ${tpl.quality_standards}` : ''}${location ? `\n\nDelivery: ${location}` : ''}`;
+    setDescription(text);
+    if (tpl.payment_terms && !paymentTerms) setPaymentTerms(tpl.payment_terms);
+  }, [location, paymentTerms]);
+
   // RFQ Draft tracking - save draft when user abandons form
   const { markInteraction, markSubmitted } = useRFQDraftTracking({
     userId: user?.id || null,
