@@ -120,7 +120,7 @@ const Onboarding = () => {
     navigate(goToRfq ? '/post-rfq?from=onboarding' : '/dashboard', { replace: true });
   };
 
-  const handleSkip = () => markDoneAndGo();
+  const handleSkip = () => markDoneAndGo(true);
 
   const handleSendInvites = async () => {
     if (!user || !companyId) return;
