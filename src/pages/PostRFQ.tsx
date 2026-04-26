@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { 
   Sparkles, Loader2, ArrowRight, CheckCircle2, Users, Shield, Zap,
-  ArrowLeft, FileText, Clock, Building2
+  ArrowLeft, FileText, Clock, Building2, MapPin, CreditCard, Phone, MessageCircle
 } from 'lucide-react';
 import { useSEO, injectStructuredData, getBreadcrumbSchema } from '@/hooks/useSEO';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
@@ -18,7 +18,6 @@ import { useRfqTemplates, type RfqTemplate } from '@/hooks/useRfqTemplates';
 import { useRfqPrefill, getSourceLabel } from '@/hooks/useRfqPrefill';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MapPin, CreditCard, Building2 as Building2Icon, Phone } from 'lucide-react';
 
 interface RFQItem {
   item_name: string;
