@@ -87,10 +87,24 @@ const Login = () => {
 
     // Force users created via admin (with a temporary password) to set
     // a new password before reaching their dashboard.
+    // STRICT gate: BOTH conditions must hold. Never derive from a single flag.
     const meta = (user.user_metadata || {}) as Record<string, any>;
-    if (meta.created_by_admin && !meta.password_changed_at) {
-      navigate('/change-password');
-      return;
+    const mustChangePassword =
+      meta.created_by_admin === true && !meta.password_changed_at;
+    if (mustChangePassword) {
+      // Loop protection: if we've already routed this session to the change
+      // page once, do not force again — let the user proceed to dashboard.
+      // The ChangePassword page itself remains reachable manually.
+      const loopKey = `ps_pwd_change_attempted:${user.id}`;
+      const attempted = sessionStorage.getItem(loopKey);
+      if (!attempted) {
+        sessionStorage.setItem(loopKey, '1');
+        try {
+          (window as any).analytics?.track?.('password_change_forced', { user_id: user.id });
+        } catch {}
+        navigate('/change-password');
+        return;
+      }
     }
 
     // First-run buyer-admin onboarding: if this user is the sole member of
