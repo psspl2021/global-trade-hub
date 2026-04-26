@@ -151,7 +151,7 @@ const Onboarding = () => {
     }
 
     toast.success(`${valid.length} invite${valid.length > 1 ? 's' : ''} sent.`);
-    markDoneAndGo();
+    markDoneAndGo(true);
   };
 
   if (authLoading || checking) {
