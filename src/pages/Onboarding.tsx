@@ -113,9 +113,11 @@ const Onboarding = () => {
     setInvites((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const markDoneAndGo = () => {
+  const markDoneAndGo = (goToRfq = false) => {
     if (user) localStorage.setItem(`${STORAGE_KEY}:${user.id}`, '1');
-    navigate('/dashboard', { replace: true });
+    // Soft activation gate: send buyers straight into the AI RFQ form
+    // after onboarding. Skip is allowed (top-right Back / nav).
+    navigate(goToRfq ? '/post-rfq?from=onboarding' : '/dashboard', { replace: true });
   };
 
   const handleSkip = () => markDoneAndGo();
