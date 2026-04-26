@@ -199,15 +199,21 @@ const PostRFQ = () => {
   const handleProceed = () => {
     // Mark as submitted since user is proceeding to complete the RFQ
     markSubmitted();
-    
+
+    // Merge prefill (location + payment) into the RFQ payload so the
+    // downstream submit step doesn't ask the buyer again.
+    const payload = generatedRFQ ? {
+      ...generatedRFQ,
+      delivery_location: location || undefined,
+      payment_terms: paymentTerms || generatedRFQ.payment_terms,
+    } : generatedRFQ;
+
     if (!user) {
-      // Store RFQ in sessionStorage and redirect to signup
-      sessionStorage.setItem('pendingRFQ', JSON.stringify(generatedRFQ));
+      sessionStorage.setItem('pendingRFQ', JSON.stringify(payload));
       toast.info('Please sign up or login to post your RFQ');
       navigate('/signup?role=buyer&redirect=dashboard');
     } else {
-      // Store RFQ and redirect to dashboard
-      sessionStorage.setItem('pendingRFQ', JSON.stringify(generatedRFQ));
+      sessionStorage.setItem('pendingRFQ', JSON.stringify(payload));
       navigate('/dashboard');
     }
   };
