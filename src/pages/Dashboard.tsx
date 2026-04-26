@@ -444,6 +444,9 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Solo buyer-admin nudge: dismissible, self-gates on team size + role */}
+        {isBuyerRole && !activeManagementView && <InviteTeamCTA />}
+
         {/* Admin section removed - admin roles redirect to /admin route */}
 
         {/* Management View content — backend-scoped, no duplicate access gates */}
