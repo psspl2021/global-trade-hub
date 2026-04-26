@@ -113,6 +113,9 @@ const ChangePassword = () => {
             'For security, log in once more with your current password, then set your new password.',
         });
         try {
+          (window as any).analytics?.track?.('password_change_reauth_fallback', { user_id: user?.id });
+        } catch {}
+        try {
           await supabase.auth.signOut({ scope: 'local' });
         } catch {
           // ignore
@@ -136,6 +139,12 @@ const ChangePassword = () => {
     } catch (err) {
       console.error('Failed to clear temp password flag', err);
     }
+
+    try {
+      (window as any).analytics?.track?.('password_change_success', { user_id: user?.id });
+      // Clear loop-protection marker once the change has succeeded.
+      if (user?.id) sessionStorage.removeItem(`ps_pwd_change_attempted:${user.id}`);
+    } catch {}
 
     toast({
       title: 'Password changed',
