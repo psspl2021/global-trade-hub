@@ -76,17 +76,20 @@ const Onboarding = () => {
         return;
       }
 
-      // If team already has more than just this user, skip wizard.
-      const { count } = await supabase
-        .from('buyer_company_members')
-        .select('id', { count: 'exact', head: true })
-        .eq('company_id', membership.company_id)
-        .eq('is_active', true);
+      // If team already has more than just this user, skip the first-run
+      // wizard — but allow re-entry via ?force=1 (dashboard CTA, "invite more").
+      if (!force) {
+        const { count } = await supabase
+          .from('buyer_company_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', membership.company_id)
+          .eq('is_active', true);
 
-      if ((count ?? 0) > 1) {
-        localStorage.setItem(completedKey, '1');
-        navigate('/dashboard', { replace: true });
-        return;
+        if ((count ?? 0) > 1) {
+          localStorage.setItem(completedKey, '1');
+          navigate('/dashboard', { replace: true });
+          return;
+        }
       }
 
       setCompanyId(membership.company_id);
