@@ -217,6 +217,8 @@ export default function GeneratedDemandPage() {
     ...content.extraFaqs,
   ];
 
+  const hasSidebar = demandProducts.some(p => p.categorySlug === product.categorySlug && p.slug !== product.slug);
+
   // Strip HTML from answers for schema (plain text only)
   const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '');
 
@@ -291,7 +293,7 @@ export default function GeneratedDemandPage() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-5xl">
+              <div className="max-w-none">
                 <div className="flex flex-wrap gap-2 mb-4">
                   <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
                     <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
@@ -323,39 +325,39 @@ export default function GeneratedDemandPage() {
         </section>
 
         {/* ─── MAIN CONTENT + SIDEBAR ─────────────────────────── */}
-        <div className="container mx-auto px-4 max-w-6xl py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 max-w-7xl py-6">
+          <div className={hasSidebar ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "grid grid-cols-1"}>
             {/* Main content */}
-            <div className="lg:col-span-3 space-y-10">
+            <div className={hasSidebar ? "lg:col-span-3 space-y-6" : "space-y-6"}>
 
               {/* ─── AI DEMAND WIDGET ──────────────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Activity className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">ProcureSaathi Demand Intelligence</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">ProcureSaathi Demand Intelligence</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.recentRfqs}+</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.recentRfqs}+</p>
                       <p className="text-xs text-muted-foreground mt-1">Recent RFQs</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.avgOrderSize}</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.avgOrderSize}</p>
                       <p className="text-xs text-muted-foreground mt-1">Avg. Order Size</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
+                    <CardContent className="p-3 text-center">
                       <p className="text-sm font-bold text-primary">{content.demandSignals.topBuyingIndustries.join(', ')}</p>
                       <p className="text-xs text-muted-foreground mt-1">Top Buying Industries</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.priceTrend}</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.priceTrend}</p>
                       <p className="text-xs text-muted-foreground mt-1">Price Trend</p>
                     </CardContent>
                   </Card>
