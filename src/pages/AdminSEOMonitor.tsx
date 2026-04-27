@@ -161,9 +161,17 @@ export default function AdminSEOMonitor() {
     );
   }
 
+  // A corridor is "awaiting index" when sync ran (last_checked set) but GSC has no impressions yet.
+  // Only truly "pending" corridors are those that have never been synced.
+  const isAwaitingIndex = (c: MergedCorridor) =>
+    c.gsc_status === 'pending' && !!c.last_checked && c.impressions === 0;
+  const isTrulyPending = (c: MergedCorridor) =>
+    c.gsc_status === 'pending' && !c.last_checked;
+
   const indexedCount = corridors.filter(c => c.gsc_status === 'indexed').length;
   const warningCount = corridors.filter(c => c.gsc_status === 'warning').length;
-  const pendingCount = corridors.filter(c => c.gsc_status === 'pending').length;
+  const awaitingCount = corridors.filter(isAwaitingIndex).length;
+  const pendingCount = corridors.filter(isTrulyPending).length;
   const criticalCount = corridors.filter(c => c.ctr_status === 'critical').length;
   const phase2Ready = canExpandToPhase2(indexedCount, warningCount, criticalCount);
 
@@ -272,8 +280,10 @@ export default function AdminSEOMonitor() {
           <Card>
             <CardContent className="pt-6 text-center">
               <Clock className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
-              <p className="text-2xl font-bold">{pendingCount}</p>
-              <p className="text-xs text-muted-foreground">Pending</p>
+              <p className="text-2xl font-bold">{awaitingCount + pendingCount}</p>
+              <p className="text-xs text-muted-foreground">
+                {awaitingCount > 0 ? 'Awaiting Index' : 'Pending'}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -300,7 +310,12 @@ export default function AdminSEOMonitor() {
                       <CheckCircle className="h-3 w-3" /> Indexed
                     </Badge>
                   )}
-                  {corridor.gsc_status === 'pending' && (
+                  {corridor.gsc_status === 'pending' && isAwaitingIndex(corridor) && (
+                    <Badge variant="outline" className="gap-1 border-amber-500 text-amber-700">
+                      <Clock className="h-3 w-3" /> Awaiting Index
+                    </Badge>
+                  )}
+                  {corridor.gsc_status === 'pending' && !isAwaitingIndex(corridor) && (
                     <Badge variant="secondary" className="gap-1">
                       <Clock className="h-3 w-3" /> Pending
                     </Badge>
