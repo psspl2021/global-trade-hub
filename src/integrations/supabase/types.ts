@@ -14419,6 +14419,7 @@ export type Database = {
           }
       refresh_cfo_cashflow: { Args: never; Returns: undefined }
       refresh_cfo_with_monitoring: { Args: never; Returns: undefined }
+      refresh_gsc_striking_distance: { Args: never; Returns: number }
       register_affiliate: { Args: { p_user_id: string }; Returns: string }
       register_session: {
         Args: { p_device_info?: string; p_user_id: string }
