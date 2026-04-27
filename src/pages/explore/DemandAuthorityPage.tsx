@@ -232,17 +232,17 @@ function WhyProcureSaathiSection() {
   ];
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Why Source via ProcureSaathi?</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-3">Why Source via ProcureSaathi?</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {features.map(f => (
-              <div key={f.title} className="flex gap-4 p-4 rounded-lg border border-border bg-card">
-                <f.icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+              <div key={f.title} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
+                <f.icon className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground">{f.desc}</p>
+                  <p className="text-sm text-muted-foreground leading-snug">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -265,21 +265,21 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
   };
 
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-6 bg-muted/30">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-8 flex items-center gap-2">
-            <HelpCircle className="h-6 w-6 text-primary" /> Frequently Asked Questions — {product.name}
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-xl font-bold text-foreground mb-3 flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-primary" /> Frequently Asked Questions — {product.name}
           </h2>
-          <div className="space-y-4">
+          <div className="grid gap-2 md:grid-cols-2">
             {product.faqs.map((faq, i) => (
               <details key={i} className="group border border-border rounded-lg bg-card">
-                <summary className="cursor-pointer p-4 font-medium text-foreground flex items-center justify-between">
+                <summary className="cursor-pointer p-3 text-sm font-medium text-foreground flex items-center justify-between">
                   {faq.question}
                   <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
                 </summary>
-                <div className="px-4 pb-4 text-muted-foreground text-sm leading-relaxed">
+                <div className="px-3 pb-3 text-muted-foreground text-sm leading-snug">
                   {faq.answer}{' '}
                   <Link to={`/demand/${product.slug}`} className="text-primary hover:underline">
                     Learn more about {product.name} procurement →
