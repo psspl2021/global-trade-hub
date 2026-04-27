@@ -19,25 +19,28 @@ serve(async (req) => {
 
     // Verify the user is authenticated and is an admin
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create client with user's auth to verify their identity
+    // Validate JWT via getClaims (compatible with Supabase signing-keys system)
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const { data: { user }, error: authError } = await userClient.auth.getUser();
-    if (authError || !user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: authError } = await userClient.auth.getClaims(token);
+    if (authError || !claimsData?.claims?.sub) {
+      console.error("admin-analytics auth error:", authError);
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const user = { id: claimsData.claims.sub as string };
 
     // Check if user is admin using service role
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
