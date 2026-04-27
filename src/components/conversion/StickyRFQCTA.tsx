@@ -6,12 +6,13 @@
  * - Re-appears after 60% scroll with urgency copy
  * - Opens AI RFQ Modal on click
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sparkles, X } from 'lucide-react';
-import { AIRFQModal } from './AIRFQModal';
 import { trackConversionEvent } from '@/lib/conversionTracker';
+
+const AIRFQModal = lazy(() => import('./AIRFQModal').then(m => ({ default: m.AIRFQModal })));
 
 const EXCLUDED_ROUTES = [
   '/admin', '/dashboard', '/management', '/control-tower',
@@ -55,7 +56,7 @@ export function StickyRFQCTA() {
     setInitialShow(false);
   }, []);
 
-  if (isExcluded) return <AIRFQModal open={modalOpen} onOpenChange={setModalOpen} />;
+  if (isExcluded) return null;
 
   const isVisible = !dismissed && !modalOpen && (initialShow || showScrollCTA);
   const isScrollTriggered = showScrollCTA && !initialShow;
@@ -111,7 +112,11 @@ export function StickyRFQCTA() {
         </div>
       )}
 
-      <AIRFQModal open={modalOpen} onOpenChange={setModalOpen} />
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <AIRFQModal open={modalOpen} onOpenChange={setModalOpen} />
+        </Suspense>
+      )}
     </>
   );
 }
