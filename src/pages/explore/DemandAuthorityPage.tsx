@@ -60,13 +60,46 @@ function BreadcrumbNav({ product }: { product: IndustrialProduct }) {
 }
 
 function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpenRFQ: () => void }) {
+  const hasImage = !!product.heroImage;
   return (
-    <section className="relative py-16 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-background">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
+    <section className="relative py-8 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {hasImage ? (
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <BreadcrumbNav product={product} />
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
+                  <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
+                </Badge>
+                <Badge className="bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 gap-1">
+                  <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
+                </Badge>
+              </div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground mb-3">{product.h1}</h1>
+              <p className="text-base text-muted-foreground mb-5 leading-relaxed">{product.introText}</p>
+              <div className="flex flex-wrap gap-3">
+                <Button size="default" onClick={onOpenRFQ} className="gap-2">
+                  Submit RFQ <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button size="default" variant="outline" asChild>
+                  <Link to="/seller">List as Supplier</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-xl overflow-hidden border border-border bg-card">
+              <img
+                src={product.heroImage}
+                alt={product.heroImageAlt}
+                className="w-full h-auto object-cover"
+                loading="eager"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-5xl">
             <BreadcrumbNav product={product} />
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-4">
               <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
                 <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
               </Badge>
@@ -74,26 +107,18 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
                 <Brain className="h-3.5 w-3.5" /> Live Demand Intelligence
               </Badge>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4">{product.h1}</h1>
-            <p className="text-lg text-muted-foreground mb-6">{product.introText}</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground mb-3">{product.h1}</h1>
+            <p className="text-base md:text-[17px] text-muted-foreground mb-5 leading-relaxed">{product.introText}</p>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
-                Submit RFQ <ArrowRight className="h-5 w-5" />
+              <Button size="default" onClick={onOpenRFQ} className="gap-2">
+                Submit RFQ <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
+              <Button size="default" variant="outline" asChild>
                 <Link to="/seller">List as Supplier</Link>
               </Button>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden border border-border bg-card">
-            <img
-              src={product.heroImage}
-              alt={product.heroImageAlt}
-              className="w-full h-auto object-cover"
-              loading="eager"
-            />
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );
@@ -102,8 +127,8 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
 function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-8 bg-background">
+      <div className="container mx-auto px-4 max-w-6xl">
         <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
           <h2 className="text-2xl font-bold text-foreground mb-4">What are {product.name}?</h2>
           {sections.whatIs.split('\n\n').map((p, i) => <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>)}
