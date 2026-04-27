@@ -20,6 +20,24 @@ export interface PipelineResult {
   slug: string;
   success: boolean;
   message: string;
+  skipped?: boolean;
+}
+
+/**
+ * Fetch the set of slugs already published (status = active) in demand_generated.
+ */
+export async function fetchPublishedSlugs(): Promise<Set<string>> {
+  try {
+    const { data, error } = await supabase
+      .from('demand_generated')
+      .select('slug')
+      .eq('status', 'active');
+    if (error) throw error;
+    return new Set((data || []).map((r: any) => r.slug));
+  } catch (err) {
+    console.error('Failed to fetch published slugs:', err);
+    return new Set();
+  }
 }
 
 /**
