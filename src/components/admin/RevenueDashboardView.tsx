@@ -51,6 +51,50 @@ export default function RevenueDashboardView() {
     ? (data.reduce((s, d) => s + (d.conversion_rate || 0), 0) / data.length).toFixed(2)
     : "0";
 
+  const filteredSorted = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = q ? data.filter((d) => d.slug?.toLowerCase().includes(q)) : data;
+    const sorted = [...filtered].sort((a, b) => {
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (sortKey === "slug") {
+        return sortDir === "asc"
+          ? String(av).localeCompare(String(bv))
+          : String(bv).localeCompare(String(av));
+      }
+      if (sortKey === "last_activity_at") {
+        const at = av ? new Date(av as string).getTime() : 0;
+        const bt = bv ? new Date(bv as string).getTime() : 0;
+        return sortDir === "asc" ? at - bt : bt - at;
+      }
+      const an = Number(av) || 0;
+      const bn = Number(bv) || 0;
+      return sortDir === "asc" ? an - bn : bn - an;
+    });
+    return sorted;
+  }, [data, search, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else {
+      setSortKey(key);
+      setSortDir(key === "slug" ? "asc" : "desc");
+    }
+  };
+
+  const SortHeader = ({ k, label, align = "left" }: { k: SortKey; label: string; align?: "left" | "right" }) => (
+    <th className={`py-3 px-2 text-muted-foreground font-medium ${align === "right" ? "text-right" : "text-left"}`}>
+      <button
+        type="button"
+        onClick={() => toggleSort(k)}
+        className={`inline-flex items-center gap-1 hover:text-foreground transition-colors ${align === "right" ? "justify-end w-full" : ""}`}
+      >
+        {label}
+        {sortKey === k && (sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+      </button>
+    </th>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
