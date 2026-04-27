@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PHASE_1_CORRIDORS, PHASE_1_SLUGS } from '@/data/seoPhaseConfig';
 import { canExpandToPhase2 } from '@/utils/seoPhaseGate';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, AlertTriangle, Clock, Shield, Rocket, Loader2, ShieldAlert, RefreshCw } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Clock, Shield, Rocket, Loader2, ShieldAlert, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+
+const SYNC_STEPS = [
+  'Authenticating with Google Search Console',
+  'Fetching demand URL performance',
+  'Updating seo_demand_pages',
+  'Refreshing striking-distance keywords',
+] as const;
 
 interface CorridorRow {
   slug: string;
