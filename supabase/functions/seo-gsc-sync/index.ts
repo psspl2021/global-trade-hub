@@ -49,16 +49,33 @@ serve(async (req) => {
     );
   }
 
-  // Check GSC secrets
-  const clientEmail = Deno.env.get("GSC_CLIENT_EMAIL");
-  const privateKey = Deno.env.get("GSC_PRIVATE_KEY");
+  // Check GSC secrets — prefer GSC_SERVICE_ACCOUNT_JSON (full JSON paste, recommended)
+  // Fallback to legacy GSC_CLIENT_EMAIL + GSC_PRIVATE_KEY pair.
+  const serviceAccountJson = Deno.env.get("GSC_SERVICE_ACCOUNT_JSON");
   const propertyUrl = Deno.env.get("GSC_PROPERTY_URL");
+  let clientEmail = Deno.env.get("GSC_CLIENT_EMAIL") || "";
+  let privateKey = Deno.env.get("GSC_PRIVATE_KEY") || "";
+
+  if (serviceAccountJson) {
+    try {
+      const parsed = JSON.parse(serviceAccountJson);
+      if (parsed.client_email && parsed.private_key) {
+        clientEmail = parsed.client_email;
+        privateKey = parsed.private_key;
+      }
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ success: false, error: "GSC_SERVICE_ACCOUNT_JSON is not valid JSON. Paste the entire .json file content from Google Cloud." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+  }
 
   if (!clientEmail || !privateKey || !propertyUrl) {
     return new Response(
       JSON.stringify({
         success: false,
-        message: "GSC secrets not configured (need GSC_CLIENT_EMAIL, GSC_PRIVATE_KEY, GSC_PROPERTY_URL).",
+        message: "GSC secrets not configured. Set GSC_SERVICE_ACCOUNT_JSON (full JSON file) + GSC_PROPERTY_URL.",
       }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
