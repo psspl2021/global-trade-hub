@@ -189,44 +189,7 @@ serve(async (req) => {
   );
 
   try {
-    // Normalize private key — handle accidental paste of JSON line fragment, full JSON object,
-    // or PEM with missing newlines around BEGIN/END markers.
-    let normalizedKey = privateKey.trim();
-
-    // If user pasted the whole service-account JSON object, extract private_key
-    if (normalizedKey.startsWith("{")) {
-      try {
-        const parsed = JSON.parse(normalizedKey);
-        if (parsed.private_key) normalizedKey = parsed.private_key;
-      } catch (_) { /* fall through */ }
-    }
-
-    // Convert literal \n to real newlines first
-    normalizedKey = normalizedKey.replace(/\\n/g, "\n");
-
-    // Extract just the PEM portion (strip any "private_key": "..." wrapper)
-    const beginMarker = "-----BEGIN PRIVATE KEY-----";
-    const endMarker = "-----END PRIVATE KEY-----";
-    const beginIdx = normalizedKey.indexOf(beginMarker);
-    const endIdx = normalizedKey.indexOf(endMarker);
-    if (beginIdx >= 0 && endIdx > beginIdx) {
-      // Pull out the base64 body between markers, strip ALL whitespace, then re-wrap to 64-char lines
-      let body = normalizedKey.slice(beginIdx + beginMarker.length, endIdx);
-      body = body.replace(/[\s\\]/g, ""); // remove whitespace + stray backslashes
-      const wrapped = body.match(/.{1,64}/g)?.join("\n") || "";
-      normalizedKey = `${beginMarker}\n${wrapped}\n${endMarker}\n`;
-    }
-
-    // Authenticate with Google
-    const jwtClient = new google.auth.JWT(
-      clientEmail,
-      undefined,
-      normalizedKey,
-      ["https://www.googleapis.com/auth/webmasters.readonly"]
-    );
-    await jwtClient.authorize();
-
-    const searchconsole = google.searchconsole({ version: "v1", auth: jwtClient });
+    const accessToken = await getGoogleAccessToken(clientEmail, privateKey);
 
     // Date range: last 28 days (covers both 7d sync needs + striking distance)
     const today = new Date();
@@ -234,17 +197,29 @@ serve(async (req) => {
     const startDate = new Date(today.setDate(today.getDate() - 28))
       .toISOString().split("T")[0];
 
-    const response = await searchconsole.searchanalytics.query({
-      siteUrl: propertyUrl,
-      requestBody: {
+    const gscResponse = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(propertyUrl)}/searchAnalytics/query`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
         startDate,
         endDate,
         dimensions: ["page", "query"],
         rowLimit: 5000,
-      },
-    });
+        }),
+      }
+    );
 
-    const rows = response.data.rows || [];
+    const response = await gscResponse.json();
+    if (!gscResponse.ok) {
+      throw new Error(response.error?.message || response.error_description || "Google Search Console query failed");
+    }
+
+    const rows = response.rows || [];
 
     // ============ Aggregations ============
     // Per-page totals (for seo_demand_pages)
