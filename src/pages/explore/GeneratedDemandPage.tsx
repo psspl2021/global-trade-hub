@@ -49,31 +49,31 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
 
   return (
     <section aria-label="Frequently Asked Questions">
-      <div className="flex items-center gap-3 mb-6">
-        <HelpCircle className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+      <div className="flex items-center gap-2 mb-3">
+        <HelpCircle className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions</h2>
       </div>
       <div className="divide-y divide-border">
         {faqs.map((faq, i) => (
-          <div id={`faq-${i}`} key={i} className="py-4">
+          <div id={`faq-${i}`} key={i} className="py-3">
             <button
               onClick={() => toggle(i)}
               aria-expanded={openIndexes.includes(i)}
               aria-controls={`faq-content-${i}`}
               className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
             >
-              <h3 className="text-left">{faq.question}</h3>
+              <h3 className="text-left text-sm md:text-base">{faq.question}</h3>
               <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${openIndexes.includes(i) ? 'rotate-90' : ''}`} />
             </button>
             {openIndexes.includes(i) && (
-              <div id={`faq-content-${i}`} role="region" className="text-muted-foreground mt-3 leading-relaxed">
+              <div id={`faq-content-${i}`} role="region" className="text-sm text-muted-foreground mt-2 leading-snug">
                 {renderSafeAnswer(faq.answer)}
               </div>
             )}
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground/70 mt-6">
+      <p className="text-xs text-muted-foreground/70 mt-4">
         Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
         {productName} manufacturers India, {productName} wholesale rate,{' '}
         best {productName} dealer in India
@@ -117,9 +117,9 @@ function DemandClusterSidebar({ currentSlug, category }: { currentSlug: string; 
 
   return (
     <aside className="lg:col-span-1">
-      <div className="sticky top-24 space-y-6">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+      <div className="sticky top-24 space-y-4">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Layers className="h-4 w-4 text-primary" /> Popular Procurement Pages
           </h3>
           <ul className="space-y-2 list-none p-0 m-0">
@@ -138,7 +138,7 @@ function DemandClusterSidebar({ currentSlug, category }: { currentSlug: string; 
         </div>
 
         {/* Quick RFQ sidebar CTA */}
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 text-center">
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center">
           <p className="text-sm font-medium text-foreground mb-3">Need a quick quote?</p>
           <Link to="/post-rfq">
             <Button size="sm" className="w-full gap-1">
@@ -247,7 +247,7 @@ export default function GeneratedDemandPage() {
       <main className="min-h-screen bg-background">
         {/* ─── HERO ──────────────────────────────────────────── */}
         <section className="relative py-8 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
-          <div className="container mx-auto px-4 max-w-6xl">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BreadcrumbNav product={product} />
 
             {product.heroImage ? (
@@ -291,7 +291,7 @@ export default function GeneratedDemandPage() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-5xl">
+              <div className="max-w-none">
                 <div className="flex flex-wrap gap-2 mb-4">
                   <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
                     <Shield className="h-3.5 w-3.5" /> AI Verified Suppliers
@@ -323,39 +323,39 @@ export default function GeneratedDemandPage() {
         </section>
 
         {/* ─── MAIN CONTENT + SIDEBAR ─────────────────────────── */}
-        <div className="container mx-auto px-4 max-w-6xl py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 max-w-[1680px] py-6">
+          <div className="grid grid-cols-1">
             {/* Main content */}
-            <div className="lg:col-span-3 space-y-10">
+            <div className="space-y-6">
 
               {/* ─── AI DEMAND WIDGET ──────────────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Activity className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">ProcureSaathi Demand Intelligence</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">ProcureSaathi Demand Intelligence</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.recentRfqs}+</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.recentRfqs}+</p>
                       <p className="text-xs text-muted-foreground mt-1">Recent RFQs</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.avgOrderSize}</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.avgOrderSize}</p>
                       <p className="text-xs text-muted-foreground mt-1">Avg. Order Size</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
+                    <CardContent className="p-3 text-center">
                       <p className="text-sm font-bold text-primary">{content.demandSignals.topBuyingIndustries.join(', ')}</p>
                       <p className="text-xs text-muted-foreground mt-1">Top Buying Industries</p>
                     </CardContent>
                   </Card>
                   <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">{content.demandSignals.priceTrend}</p>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xl font-bold text-primary">{content.demandSignals.priceTrend}</p>
                       <p className="text-xs text-muted-foreground mt-1">Price Trend</p>
                     </CardContent>
                   </Card>
@@ -365,18 +365,18 @@ export default function GeneratedDemandPage() {
               {/* ─── INDUSTRY CLUSTERS ─────────────────────────── */}
               {content.industryClusters.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <Building className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Industries That Procure {product.name}</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Building className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Industries That Procure {product.name}</h2>
                   </div>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {content.industryClusters.map(cluster => (
                       <li key={cluster.slug}>
                         <Link
                           to={`/industries/${cluster.slug}`}
-                          className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                          className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
                         >
-                          <Factory className="h-5 w-5 text-primary shrink-0" />
+                          <Factory className="h-4 w-4 text-primary shrink-0" />
                           <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{cluster.name}</span>
                         </Link>
                       </li>
@@ -387,41 +387,40 @@ export default function GeneratedDemandPage() {
 
               {/* ─── INDUSTRY DEMAND INTELLIGENCE ─────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Factory className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Industry Demand Intelligence</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Factory className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Industry Demand Intelligence</h2>
                 </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground dark:prose-invert">
-                  {content.industryDemand.split('\n').map((line, i) => {
+                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                  {content.industryDemand.split('\n').filter(line => line.trim()).map((line, i) => {
                     if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                      return <h3 key={i} className="md:col-span-2 text-base font-semibold text-foreground mt-2">{line.replace(/\*\*/g, '')}</h3>;
                     }
                     if (line.startsWith('•')) {
                       const parts = line.replace('• ', '').split(':**');
                       if (parts.length === 2) {
-                        return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
+                        return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
                       }
-                      return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                      return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug">{line.replace('• ', '')}</p>;
                     }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line}</p>;
+                    return <p key={i} className="md:col-span-2 leading-snug">{line}</p>;
                   })}
                 </div>
               </section>
 
               {/* ─── PROCUREMENT SPECIFICATIONS ───────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Wrench className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Procurement Specifications</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Wrench className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Procurement Specifications</h2>
                 </div>
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="grid md:grid-cols-2 gap-4">
                   <Card className="border-border">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-primary" /> Available Grades
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" /> Available Grades
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
                         {product.grades.map((g, i) => (
                           <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-1">•</span> {g}
@@ -431,46 +430,37 @@ export default function GeneratedDemandPage() {
                     </CardContent>
                   </Card>
                   <Card className="border-border">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <Package className="h-5 w-5 text-primary" /> Key Specifications
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" /> Key Specifications
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-2">
                         {product.specifications.map((s, i) => (
                           <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-1">•</span> {s}
                           </li>
                         ))}
                       </ul>
-                      <div className="mt-4 pt-4 border-t border-border">
+                      <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-sm"><strong className="text-foreground">Standards:</strong> <span className="text-muted-foreground">{product.standards.join(', ')}</span></p>
                         <p className="text-sm mt-2"><strong className="text-foreground">HSN Codes:</strong> <span className="text-muted-foreground">{product.hsnCodes.join(', ')}</span></p>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                  {content.procurementSpecs.split('\n').filter(l => !l.startsWith('**Available') && !l.startsWith('**Key Spec') && !l.startsWith('**Applicable') && !l.startsWith('**Typical Price') && !l.startsWith('•')).map((line, i) => {
-                    if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
-                    }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line.replace(/\*\*/g, '')}</p>;
-                  })}
-                </div>
               </section>
 
               {/* ─── IMPORT CORRIDOR LINKS ────────────────────────── */}
               {product.importCountries.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <Ship className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Global Sourcing Options for {product.name}</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Ship className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Global Sourcing Options for {product.name}</h2>
                   </div>
-                  <p className="text-muted-foreground mb-6">
+                  <p className="text-sm text-muted-foreground mb-3">
                     India imports {product.name} from multiple international sources. Explore country-specific import corridors for pricing, duty structures, and supplier intelligence.
                   </p>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {product.importCountries.slice(0, 8).map(country => {
                       const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
                       const productBase = product.slug.replace('-india', '');
@@ -479,9 +469,9 @@ export default function GeneratedDemandPage() {
                           <Link
                             to={`/import/${productBase}-from-${countrySlug}`}
                             title={`Import ${product.name} from ${country} – pricing, suppliers & duty`}
-                            className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                            className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors"
                           >
-                            <Globe className="h-5 w-5 text-primary shrink-0" />
+                            <Globe className="h-4 w-4 text-primary shrink-0" />
                             <span className="text-sm font-medium text-foreground">Import {product.name} from {country}</span>
                           </Link>
                         </li>
@@ -494,21 +484,21 @@ export default function GeneratedDemandPage() {
               {/* ─── COMPARISON LINKS ─────────────────────────────── */}
               {content.comparisonLinks.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <GitCompare className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Compare Materials</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <GitCompare className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Compare Materials</h2>
                   </div>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-sm text-muted-foreground mb-3">
                     Not sure which material to choose? Compare {product.name} with alternatives to find the right fit for your application.
                   </p>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {content.comparisonLinks.map(comp => (
                       <li key={comp.slug}>
                         <Link
                           to={`/compare/${comp.slug}`}
-                          className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                          className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
                         >
-                          <BarChart3 className="h-5 w-5 text-primary shrink-0" />
+                          <BarChart3 className="h-4 w-4 text-primary shrink-0" />
                           <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{comp.label}</span>
                         </Link>
                       </li>
@@ -519,39 +509,38 @@ export default function GeneratedDemandPage() {
 
               {/* ─── RFQ DEMAND SIGNALS ──────────────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">RFQ Demand Signals</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">RFQ Demand Signals</h2>
                 </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                  {content.rfqSignals.split('\n').map((line, i) => {
+                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                  {content.rfqSignals.split('\n').filter(line => line.trim()).map((line, i) => {
                     if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                      return <h3 key={i} className="md:col-span-2 text-base font-semibold text-foreground mt-2">{line.replace(/\*\*/g, '')}</h3>;
                     }
                     if (line.startsWith('•')) {
                       const parts = line.replace('• ', '').split(':');
                       if (parts.length >= 2) {
-                        return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0]}:</strong> {parts.slice(1).join(':')}</p>;
+                        return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug"><strong className="text-foreground">{parts[0]}:</strong> {parts.slice(1).join(':')}</p>;
                       }
-                      return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                      return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug">{line.replace('• ', '')}</p>;
                     }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line}</p>;
+                    return <p key={i} className="md:col-span-2 leading-snug">{line}</p>;
                   })}
                 </div>
               </section>
 
               {/* ─── APPLICATIONS / USE CASES ────────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Key Applications & Use Cases</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Key Applications & Use Cases</h2>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {product.applications.map((app, i) => (
                     <Card key={i} className="border-border">
-                      <CardContent className="p-4 flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <CardContent className="p-3 flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                         <span className="text-sm text-muted-foreground">{app}</span>
                       </CardContent>
                     </Card>
@@ -569,30 +558,29 @@ export default function GeneratedDemandPage() {
               <RevenueWeightedLinksLive currentSlug={product.slug} />
 
               {/* ─── WHY PROCURESAATHI ────────────────────────────── */}
-              <section className="bg-primary/5 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold text-foreground mb-6">Why Source {product.name} Through ProcureSaathi?</h2>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                  {content.whyProcureSaathi.split('\n').map((line, i) => {
+              <section className="bg-primary/5 rounded-lg p-5">
+                <h2 className="text-xl font-bold text-foreground mb-3">Why Source {product.name} Through ProcureSaathi?</h2>
+                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                  {content.whyProcureSaathi.split('\n').filter(line => line.trim()).map((line, i) => {
                     if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-4 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                      return <h3 key={i} className="md:col-span-2 text-base font-semibold text-foreground mt-2">{line.replace(/\*\*/g, '')}</h3>;
                     }
                     if (line.startsWith('•')) {
                       const parts = line.replace('• ', '').split(':**');
                       if (parts.length === 2) {
-                        return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
+                        return <p key={i} className="rounded-lg border border-primary/10 bg-background/70 p-3 leading-snug"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
                       }
-                      return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                      return <p key={i} className="rounded-lg border border-primary/10 bg-background/70 p-3 leading-snug">{line.replace('• ', '')}</p>;
                     }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line}</p>;
+                    return <p key={i} className="md:col-span-2 leading-snug">{line}</p>;
                   })}
                 </div>
               </section>
 
               {/* ─── RELATED PRODUCTS ─────────────────────────────── */}
               <section>
-                <h2 className="text-2xl font-bold text-foreground mb-6">Related Products</h2>
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <h2 className="text-xl font-bold text-foreground mb-3">Related Products</h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                   {product.relatedSlugs.slice(0, 6).map(relSlug => {
                     const relName = relSlug
                       .replace('-india', '')
@@ -603,7 +591,7 @@ export default function GeneratedDemandPage() {
                       <Link
                         key={relSlug}
                         to={`/demand/${relSlug}`}
-                        className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                        className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
                       >
                         <ArrowRight className="h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
                         <span className="text-sm font-medium text-foreground">{relName}</span>
@@ -614,9 +602,9 @@ export default function GeneratedDemandPage() {
               </section>
 
               {/* ─── INTERNAL LINKS ──────────────────────────────── */}
-              <section className="border-t border-border pt-8">
-                <h2 className="text-xl font-bold text-foreground mb-4">Explore More</h2>
-                <div className="flex flex-wrap gap-3">
+              <section className="border-t border-border pt-5">
+                <h2 className="text-lg font-bold text-foreground mb-3">Explore More</h2>
+                <div className="flex flex-wrap gap-2">
                   {content.industryClusters.slice(0, 3).map(c => (
                     <Link key={c.slug} to={`/industries/${c.slug}`}>
                       <Button variant="outline" size="sm">{c.name}</Button>
@@ -689,16 +677,16 @@ export default function GeneratedDemandPage() {
                 );
                 if (!mergedRelated.length && !unmappedDbSlugs.length) return null;
                 return (
-                  <section className="mt-10">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">
+                  <section className="mt-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-3">
                       Related {product.category} Products
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
                       {mergedRelated.map(item => (
                         <a
                           key={item.slug}
                           href={`/demand/${item.slug}`}
-                          className="p-4 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
+                          className="p-3 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
                         >
                           <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{item.name}</p>
                           <p className="text-xs text-muted-foreground mt-1">{item.priceRange}</p>
@@ -708,7 +696,7 @@ export default function GeneratedDemandPage() {
                         <a
                           key={s}
                           href={`/demand/${s}`}
-                          className="p-4 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
+                          className="p-3 border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all group"
                         >
                           <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
                             {s.replace(/-suppliers-india$/, '').replace(/-suppliers$/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
@@ -734,7 +722,7 @@ export default function GeneratedDemandPage() {
                   .slice(0, 6);
                 if (!crossCategory.length) return null;
                 return (
-                  <section className="mt-10">
+                  <section className="mt-6">
                     <h2 className="text-lg font-semibold text-foreground mb-3">
                       Related Procurement Categories
                     </h2>
@@ -754,8 +742,6 @@ export default function GeneratedDemandPage() {
               })()}
             </div>
 
-            {/* Sidebar */}
-            <DemandClusterSidebar currentSlug={product.slug} category={product.categorySlug} />
           </div>
         </div>
       </main>

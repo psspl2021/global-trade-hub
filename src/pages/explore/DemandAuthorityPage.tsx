@@ -63,7 +63,7 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
   const hasImage = !!product.heroImage;
   return (
     <section className="relative py-8 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         {hasImage ? (
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
@@ -97,7 +97,7 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
             </div>
           </div>
         ) : (
-          <div className="max-w-5xl">
+          <div className="max-w-none">
             <BreadcrumbNav product={product} />
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
@@ -127,43 +127,43 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
 function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
   return (
-    <section className="py-8 bg-background">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
-          <h2 className="text-2xl font-bold text-foreground mb-4">What are {product.name}?</h2>
-          {sections.whatIs.split('\n\n').map((p, i) => <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>)}
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div className="grid gap-4 md:grid-cols-2 text-sm text-muted-foreground">
+          <div className="md:col-span-2">
+            <h2 className="text-xl font-bold text-foreground mb-3">What are {product.name}?</h2>
+            {sections.whatIs.split('\n\n').slice(0, 2).map((p, i) => <p key={i} className="leading-snug">{p}</p>)}
+          </div>
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Grades & Standards</h2>
-          {sections.grades.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-lg font-bold text-foreground mb-3">Grades & Standards</h2>
+            {sections.grades.split('\n\n').slice(0, 2).map((p, i) => (
+              <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+            ))}
+          </div>
+
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-lg font-bold text-foreground mb-3">Specifications & Dimensions</h2>
+            {sections.specifications.split('\n\n').slice(0, 2).map((p, i) => (
+              <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+            ))}
+          </div>
+
+          {[
+            ['Applications', sections.applications],
+            [`Market Trends in ${product.country}`, sections.marketTrends],
+            ['Procurement Challenges', sections.procurementChallenges],
+            ['Pricing Factors', sections.pricingFactors],
+          ].map(([title, body]) => (
+            <div key={title} className="rounded-lg border border-border bg-card p-4">
+              <h2 className="text-lg font-bold text-foreground mb-3">{title}</h2>
+              {body.split('\n\n').slice(0, 2).map((p, i) => (
+                <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+              ))}
+            </div>
           ))}
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Specifications & Dimensions</h2>
-          {sections.specifications.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Applications</h2>
-          {sections.applications.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Market Trends in {product.country}</h2>
-          {sections.marketTrends.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Procurement Challenges</h2>
-          {sections.procurementChallenges.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Pricing Factors</h2>
-          {sections.pricingFactors.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="md:col-span-2 flex flex-wrap gap-2">
             <span className="text-sm font-medium text-foreground">HSN Codes:</span>
             {product.hsnCodes.map(code => <Badge key={code} variant="outline">{code}</Badge>)}
             <span className="text-sm font-medium text-foreground ml-4">Standards:</span>
@@ -178,32 +178,32 @@ function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
 function DemandIntelligenceSection({ product }: { product: IndustrialProduct }) {
   const { demandIntelligence: di } = product;
   return (
-    <section className="py-12 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-primary" /> AI Demand Intelligence — {product.name}
+    <section className="py-6 bg-muted/30">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" /> AI Demand Intelligence — {product.name}
           </h2>
-          <p className="text-muted-foreground mb-6">Live procurement signals detected by ProcureSaathi's AI engine.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Card><CardContent className="pt-6 text-center">
+          <p className="text-sm text-muted-foreground mb-3">Live procurement signals detected by ProcureSaathi's AI engine.</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <Card><CardContent className="p-3 text-center">
               <BarChart3 className="h-5 w-5 mx-auto mb-2 text-primary" />
-              <p className="text-3xl font-bold text-foreground">{di.intentScore}</p>
+              <p className="text-xl font-bold text-foreground">{di.intentScore}</p>
               <p className="text-xs text-muted-foreground">Intent Score</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <Shield className="h-5 w-5 mx-auto mb-2 text-green-600" />
-              <p className="text-3xl font-bold text-foreground">{di.confidencePercent}%</p>
+              <p className="text-xl font-bold text-foreground">{di.confidencePercent}%</p>
               <p className="text-xs text-muted-foreground">Confidence</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <FileCheck className="h-5 w-5 mx-auto mb-2 text-orange-500" />
-              <p className="text-3xl font-bold text-foreground">{di.recentRFQs}</p>
+              <p className="text-xl font-bold text-foreground">{di.recentRFQs}</p>
               <p className="text-xs text-muted-foreground">Recent RFQs</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <Factory className="h-5 w-5 mx-auto mb-2 text-purple-600" />
-              <p className="text-3xl font-bold text-foreground">{di.avgDealSize}</p>
+              <p className="text-xl font-bold text-foreground">{di.avgDealSize}</p>
               <p className="text-xs text-muted-foreground">Avg Deal Size</p>
             </CardContent></Card>
           </div>
@@ -232,17 +232,17 @@ function WhyProcureSaathiSection() {
   ];
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Why Source via ProcureSaathi?</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-3">Why Source via ProcureSaathi?</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {features.map(f => (
-              <div key={f.title} className="flex gap-4 p-4 rounded-lg border border-border bg-card">
-                <f.icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+              <div key={f.title} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
+                <f.icon className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground">{f.desc}</p>
+                  <p className="text-sm text-muted-foreground leading-snug">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -265,21 +265,21 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
   };
 
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-6 bg-muted/30">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-8 flex items-center gap-2">
-            <HelpCircle className="h-6 w-6 text-primary" /> Frequently Asked Questions — {product.name}
+        <div className="max-w-[1680px] mx-auto">
+          <h2 className="text-xl font-bold text-foreground mb-3 flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-primary" /> Frequently Asked Questions — {product.name}
           </h2>
-          <div className="space-y-4">
+          <div className="grid gap-2 md:grid-cols-2">
             {product.faqs.map((faq, i) => (
               <details key={i} className="group border border-border rounded-lg bg-card">
-                <summary className="cursor-pointer p-4 font-medium text-foreground flex items-center justify-between">
+                <summary className="cursor-pointer p-3 text-sm font-medium text-foreground flex items-center justify-between">
                   {faq.question}
                   <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
                 </summary>
-                <div className="px-4 pb-4 text-muted-foreground text-sm leading-relaxed">
+                <div className="px-3 pb-3 text-muted-foreground text-sm leading-snug">
                   {faq.answer}{' '}
                   <Link to={`/demand/${product.slug}`} className="text-primary hover:underline">
                     Learn more about {product.name} procurement →
@@ -300,9 +300,9 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
   if (!hasDeep) return null;
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto space-y-12">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div className="space-y-6">
           {/* Grade Table — supports tensileStrength and elongation columns dynamically */}
           {sections.gradeTable && (
             <div>
@@ -569,16 +569,16 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
     .slice(0, 6);
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Related Products</h2>
-          <div className="grid md:grid-cols-3 gap-4">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-3">Related Products</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {product.relatedProducts.map(slug => {
               const related = getProductBySlug(slug);
               if (!related) return null;
               return (
-                <Link key={slug} to={`/demand/${slug}`} className="border border-border rounded-lg p-4 bg-card hover:border-primary/50 transition group">
+                <Link key={slug} to={`/demand/${slug}`} className="border border-border rounded-lg p-3 bg-card hover:border-primary/50 transition group">
                   <h3 className="font-semibold text-foreground group-hover:text-primary transition">{related.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{related.country} • Intent: {related.demandIntelligence.intentScore}</p>
                 </Link>
@@ -588,9 +588,9 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
 
           {/* Cross-category internal links for authority flow */}
           {crossCategoryLinks.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-xl font-bold text-foreground mb-4">Explore Other Procurement Categories</h2>
-              <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+            <div className="mt-6">
+              <h2 className="text-lg font-bold text-foreground mb-3">Explore Other Procurement Categories</h2>
+              <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 list-none p-0 m-0">
                 {crossCategoryLinks.map(p => (
                   <li key={p.slug}>
                     <Link
@@ -616,18 +616,18 @@ function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
   if (countryLinks.length === 0) return null;
   
   return (
-    <section className="py-12 bg-muted/20 border-b">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className="flex items-center gap-2 mb-6">
+    <section className="py-6 bg-muted/20 border-b">
+      <div className="container mx-auto px-4 max-w-[1680px]">
+        <div className="flex items-center gap-2 mb-3">
           <Globe className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-bold">Global Sourcing Corridors</h2>
+          <h2 className="text-xl font-bold">Global Sourcing Corridors</h2>
         </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
           {countryLinks.map((c) => (
             <Link
               key={c.slug}
               to={`/source/${c.slug}`}
-              className="flex items-center gap-3 p-4 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
             >
               <ArrowRight className="h-4 w-4 text-primary shrink-0" />
               <span className="text-sm font-medium">Import {product.name} from {c.name}</span>
@@ -641,12 +641,12 @@ function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
 
 function CTASection({ onOpenRFQ }: { onOpenRFQ: () => void }) {
   return (
-    <section className="py-16 bg-primary/5">
+    <section className="py-8 bg-primary/5">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-2xl font-bold text-foreground mb-3">Ready to Source?</h2>
-        <p className="text-muted-foreground mb-6 max-w-xl mx-auto">Submit your procurement requirement and receive AI-matched competitive quotes from verified suppliers within 24 hours.</p>
-        <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
-          Submit RFQ Now <ArrowRight className="h-5 w-5" />
+        <p className="text-sm text-muted-foreground mb-4 max-w-xl mx-auto">Submit your requirement and receive AI-matched competitive quotes from verified suppliers.</p>
+        <Button size="default" onClick={onOpenRFQ} className="gap-2">
+          Submit RFQ Now <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </section>
@@ -864,8 +864,8 @@ export default function DemandAuthorityPage() {
         <ProductOverviewSection product={product} />
 
         {/* Intent Keyword Layer — long-tail ranking signals */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <IntentKeywordSection
               productName={product.name}
               slug={product.slug}
@@ -879,8 +879,8 @@ export default function DemandAuthorityPage() {
         <DemandIntelligenceSection product={product} />
 
         {/* Commercial CTA + Freshness Signal */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <CommercialCTA
               productName={product.name}
               recentRFQs={product.demandIntelligence.recentRFQs}
@@ -890,8 +890,8 @@ export default function DemandAuthorityPage() {
         </section>
 
         {/* Breadcrumb Hierarchy for crawl depth */}
-        <section className="py-6 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-4 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BreadcrumbHierarchy
               industrySlug={product.industrySlug}
               industryName={product.industry}
@@ -901,8 +901,8 @@ export default function DemandAuthorityPage() {
         </section>
 
         {/* Buyer Trust (E-E-A-T signal) */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BuyerTrustSection />
           </div>
         </section>

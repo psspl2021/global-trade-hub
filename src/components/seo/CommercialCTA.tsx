@@ -22,9 +22,9 @@ export default function CommercialCTA({ productName, recentRFQs, onOpenRFQ }: Co
   });
 
   return (
-    <section className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 via-primary/4 to-background p-8 md:p-10 space-y-6">
+    <section className="rounded-lg border border-primary/30 bg-primary/5 p-5 md:p-6 space-y-4">
       {/* Freshness signal */}
-      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <time dateTime={today.toISOString().split('T')[0]} className="flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           Last updated: {formattedDate}
@@ -39,27 +39,26 @@ export default function CommercialCTA({ productName, recentRFQs, onOpenRFQ }: Co
 
       {/* Commercial CTA */}
       <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
           Get Best Price for {productBase}
         </h2>
-        <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
-          Start a reverse auction and receive competitive quotes from verified {productBase} suppliers.
-          Compare pricing, delivery timelines, and certifications — all managed by ProcureSaathi.
+        <p className="text-sm text-muted-foreground leading-snug max-w-3xl">
+          Start a reverse auction and compare verified {productBase} quotes by price, delivery timeline, and certifications.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-3">
         {onOpenRFQ ? (
-          <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
-            Start Reverse Auction <ArrowRight className="h-5 w-5" />
+          <Button size="default" onClick={onOpenRFQ} className="gap-2">
+            Start Reverse Auction <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
-          <Button size="lg" asChild className="gap-2 text-lg px-8 py-6">
-            <a href="/buyer">Start Reverse Auction <ArrowRight className="h-5 w-5" /></a>
+          <Button size="default" asChild className="gap-2">
+            <a href="/buyer">Start Reverse Auction <ArrowRight className="h-4 w-4" /></a>
           </Button>
         )}
-        <Button size="lg" variant="outline" asChild className="gap-2 text-lg px-8 py-6">
-          <a href="/post-rfq">Submit RFQ Directly <ArrowRight className="h-5 w-5" /></a>
+        <Button size="default" variant="outline" asChild className="gap-2">
+          <a href="/post-rfq">Submit RFQ Directly <ArrowRight className="h-4 w-4" /></a>
         </Button>
       </div>
     </section>
