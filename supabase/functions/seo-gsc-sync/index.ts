@@ -403,7 +403,7 @@ serve(async (req) => {
           ? "Paste a fresh, unedited Google service-account JSON key file into GSC_SERVICE_ACCOUNT_JSON and confirm the service account has access to the Search Console property."
           : "If this persists, check the backend function logs for the failed sync request.",
       }),
-      { status: isCredentialError ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: isCredentialError ? 200 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
