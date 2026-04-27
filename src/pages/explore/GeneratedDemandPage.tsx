@@ -367,18 +367,18 @@ export default function GeneratedDemandPage() {
               {/* ─── INDUSTRY CLUSTERS ─────────────────────────── */}
               {content.industryClusters.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <Building className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Industries That Procure {product.name}</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Building className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Industries That Procure {product.name}</h2>
                   </div>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {content.industryClusters.map(cluster => (
                       <li key={cluster.slug}>
                         <Link
                           to={`/industries/${cluster.slug}`}
-                          className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                          className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
                         >
-                          <Factory className="h-5 w-5 text-primary shrink-0" />
+                          <Factory className="h-4 w-4 text-primary shrink-0" />
                           <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{cluster.name}</span>
                         </Link>
                       </li>
@@ -389,41 +389,40 @@ export default function GeneratedDemandPage() {
 
               {/* ─── INDUSTRY DEMAND INTELLIGENCE ─────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Factory className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Industry Demand Intelligence</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Factory className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Industry Demand Intelligence</h2>
                 </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground dark:prose-invert">
-                  {content.industryDemand.split('\n').map((line, i) => {
+                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                  {content.industryDemand.split('\n').filter(line => line.trim()).map((line, i) => {
                     if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                      return <h3 key={i} className="md:col-span-2 text-base font-semibold text-foreground mt-2">{line.replace(/\*\*/g, '')}</h3>;
                     }
                     if (line.startsWith('•')) {
                       const parts = line.replace('• ', '').split(':**');
                       if (parts.length === 2) {
-                        return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
+                        return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug"><strong className="text-foreground">{parts[0].replace('**', '')}:</strong> {parts[1]}</p>;
                       }
-                      return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                      return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug">{line.replace('• ', '')}</p>;
                     }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line}</p>;
+                    return <p key={i} className="md:col-span-2 leading-snug">{line}</p>;
                   })}
                 </div>
               </section>
 
               {/* ─── PROCUREMENT SPECIFICATIONS ───────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <Wrench className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">Procurement Specifications</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Wrench className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Procurement Specifications</h2>
                 </div>
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="grid md:grid-cols-2 gap-4">
                   <Card className="border-border">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-primary" /> Available Grades
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" /> Available Grades
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
                         {product.grades.map((g, i) => (
                           <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-1">•</span> {g}
@@ -433,32 +432,23 @@ export default function GeneratedDemandPage() {
                     </CardContent>
                   </Card>
                   <Card className="border-border">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <Package className="h-5 w-5 text-primary" /> Key Specifications
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" /> Key Specifications
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-2">
                         {product.specifications.map((s, i) => (
                           <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-1">•</span> {s}
                           </li>
                         ))}
                       </ul>
-                      <div className="mt-4 pt-4 border-t border-border">
+                      <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-sm"><strong className="text-foreground">Standards:</strong> <span className="text-muted-foreground">{product.standards.join(', ')}</span></p>
                         <p className="text-sm mt-2"><strong className="text-foreground">HSN Codes:</strong> <span className="text-muted-foreground">{product.hsnCodes.join(', ')}</span></p>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                  {content.procurementSpecs.split('\n').filter(l => !l.startsWith('**Available') && !l.startsWith('**Key Spec') && !l.startsWith('**Applicable') && !l.startsWith('**Typical Price') && !l.startsWith('•')).map((line, i) => {
-                    if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
-                    }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line.replace(/\*\*/g, '')}</p>;
-                  })}
                 </div>
               </section>
 
