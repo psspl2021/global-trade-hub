@@ -1,5 +1,7 @@
-// Temporary debug function to inspect GSC_PRIVATE_KEY format (no secret leaks)
-import { corsHeaders } from "@supabase/supabase-js/cors";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 Deno.serve((req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -15,7 +17,7 @@ Deno.serve((req) => {
     starts_with_quote: key.startsWith('"'),
     contains_literal_backslash_n: key.includes("\\n"),
     contains_real_newlines: key.includes("\n"),
-    ends_with_end_marker: key.trimEnd().endsWith("-----END PRIVATE KEY-----"),
+    ends_with_end_marker: key.trimEnd().endsWith("-----END PRIVATE KEY-----") || key.trimEnd().endsWith('-----END PRIVATE KEY-----"'),
     line_count_real: key.split("\n").length,
     line_count_literal: key.split("\\n").length,
     client_email: email,
