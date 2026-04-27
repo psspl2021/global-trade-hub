@@ -41,23 +41,59 @@ export async function fetchPublishedSlugs(): Promise<Set<string>> {
 }
 
 /**
- * Generate and publish a single page via the edge function.
+ * Detect rate-limit / transient errors that warrant a retry.
  */
-export async function generateAndPublishPage(keyword: string): Promise<PipelineResult> {
+function isRetryableError(err: any): boolean {
+  const msg = String(err?.message || err || '').toLowerCase();
+  const status = err?.status || err?.context?.status;
+  return (
+    status === 429 ||
+    status === 503 ||
+    status === 502 ||
+    msg.includes('rate limit') ||
+    msg.includes('rate-limit') ||
+    msg.includes('non-2xx') ||
+    msg.includes('try again') ||
+    msg.includes('timeout')
+  );
+}
+
+/**
+ * Generate and publish a single page via the edge function.
+ * Retries automatically on rate-limit / transient errors with exponential backoff.
+ */
+export async function generateAndPublishPage(
+  keyword: string,
+  maxRetries = 4
+): Promise<PipelineResult> {
   const slug = keywordToSlug(keyword);
-  try {
-    const { data, error } = await supabase.functions.invoke('generate-demand-page', {
-      body: { slug },
-    });
+  let lastErr: any;
 
-    if (error) throw error;
-    if (data?.error) throw new Error(data.error);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-demand-page', {
+        body: { slug },
+      });
 
-    return { keyword, slug, success: true, message: data?.message || 'Published' };
-  } catch (err: any) {
-    console.error(`❌ Failed: ${keyword}`, err);
-    return { keyword, slug, success: false, message: err?.message || 'Unknown error' };
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      return { keyword, slug, success: true, message: data?.message || 'Published' };
+    } catch (err: any) {
+      lastErr = err;
+      if (attempt < maxRetries && isRetryableError(err)) {
+        // Exponential backoff: 4s, 8s, 16s, 32s (+ jitter)
+        const backoff = Math.min(4000 * Math.pow(2, attempt), 32000) + Math.random() * 1000;
+        console.warn(`⏳ Rate-limited on ${keyword}, retry ${attempt + 1}/${maxRetries} in ${Math.round(backoff)}ms`);
+        await new Promise(r => setTimeout(r, backoff));
+        continue;
+      }
+      break;
+    }
   }
+
+  console.error(`❌ Failed: ${keyword}`, lastErr);
+  return { keyword, slug, success: false, message: lastErr?.message || 'Unknown error' };
 }
 
 /**
