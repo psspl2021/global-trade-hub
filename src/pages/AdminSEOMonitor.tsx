@@ -187,17 +187,41 @@ export default function AdminSEOMonitor() {
 
         {/* GSC Last Sync + Manual Trigger */}
         <Card>
-          <CardContent className="pt-6 flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <p className="text-sm font-medium">GSC Last Sync</p>
-              <p className="text-xs text-muted-foreground">
-                {lastSync ? new Date(lastSync).toLocaleString() : "Not synced yet"}
-              </p>
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-sm font-medium">GSC Last Sync</p>
+                <p className="text-xs text-muted-foreground">
+                  {lastSync ? new Date(lastSync).toLocaleString() : "Not synced yet"}
+                </p>
+              </div>
+              <Button onClick={triggerGscSync} disabled={syncing} size="sm" className="gap-2">
+                {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                {syncing ? 'Syncing GSC…' : 'Run GSC Sync Now'}
+              </Button>
             </div>
-            <Button onClick={triggerGscSync} disabled={syncing} size="sm" className="gap-2">
-              {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              {syncing ? 'Syncing GSC…' : 'Run GSC Sync Now'}
-            </Button>
+
+            {(syncing || progress > 0) && (
+              <div className="space-y-2">
+                <Progress value={progress} className="h-2" />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {syncing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : lastResult && (lastResult as { success?: boolean }).success ? (
+                    <CheckCircle2 className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <AlertTriangle className="h-3 w-3 text-amber-600" />
+                  )}
+                  <span>
+                    {syncing
+                      ? `Step ${stepIdx + 1} of ${SYNC_STEPS.length}: ${SYNC_STEPS[stepIdx]}`
+                      : lastResult && (lastResult as { success?: boolean }).success
+                      ? 'Sync complete — refreshing data…'
+                      : 'Idle'}
+                  </span>
+                </div>
+              </div>
+            )}
           </CardContent>
           {lastResult && (
             <CardContent className="pt-0">
