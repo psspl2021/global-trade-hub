@@ -280,8 +280,10 @@ export default function AdminSEOMonitor() {
           <Card>
             <CardContent className="pt-6 text-center">
               <Clock className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
-              <p className="text-2xl font-bold">{pendingCount}</p>
-              <p className="text-xs text-muted-foreground">Pending</p>
+              <p className="text-2xl font-bold">{awaitingCount + pendingCount}</p>
+              <p className="text-xs text-muted-foreground">
+                {awaitingCount > 0 ? 'Awaiting Index' : 'Pending'}
+              </p>
             </CardContent>
           </Card>
         </div>
