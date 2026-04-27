@@ -90,8 +90,9 @@ export default function AdminSEOMonitor() {
         toast.success(
           `✅ Sync done: ${result.gsc_rows_fetched} rows • ${result.seo_demand_pages_updated} pages • ${result.gsc_queries_inserted} queries • ${result.gsc_striking_distance_upserted} striking`
         );
-        // Refresh the table after a short delay so user sees the completed progress
-        setTimeout(() => window.location.reload(), 800);
+        // Refresh corridor data in-place (no full page reload — that would
+        // navigate away from the Performance tab back to the admin Overview).
+        setTimeout(() => { void refetchCorridors(); }, 600);
       } else {
         toast.error(`❌ ${result.error || result.message || 'Sync failed'}`);
       }
