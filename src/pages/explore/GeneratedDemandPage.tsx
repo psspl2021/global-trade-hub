@@ -455,14 +455,14 @@ export default function GeneratedDemandPage() {
               {/* ─── IMPORT CORRIDOR LINKS ────────────────────────── */}
               {product.importCountries.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <Ship className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Global Sourcing Options for {product.name}</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Ship className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Global Sourcing Options for {product.name}</h2>
                   </div>
-                  <p className="text-muted-foreground mb-6">
+                  <p className="text-sm text-muted-foreground mb-3">
                     India imports {product.name} from multiple international sources. Explore country-specific import corridors for pricing, duty structures, and supplier intelligence.
                   </p>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {product.importCountries.slice(0, 8).map(country => {
                       const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
                       const productBase = product.slug.replace('-india', '');
@@ -471,9 +471,9 @@ export default function GeneratedDemandPage() {
                           <Link
                             to={`/import/${productBase}-from-${countrySlug}`}
                             title={`Import ${product.name} from ${country} – pricing, suppliers & duty`}
-                            className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                            className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors"
                           >
-                            <Globe className="h-5 w-5 text-primary shrink-0" />
+                            <Globe className="h-4 w-4 text-primary shrink-0" />
                             <span className="text-sm font-medium text-foreground">Import {product.name} from {country}</span>
                           </Link>
                         </li>
@@ -486,21 +486,21 @@ export default function GeneratedDemandPage() {
               {/* ─── COMPARISON LINKS ─────────────────────────────── */}
               {content.comparisonLinks.length > 0 && (
                 <section>
-                  <div className="flex items-center gap-3 mb-6">
-                    <GitCompare className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Compare Materials</h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <GitCompare className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Compare Materials</h2>
                   </div>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-sm text-muted-foreground mb-3">
                     Not sure which material to choose? Compare {product.name} with alternatives to find the right fit for your application.
                   </p>
-                  <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0 m-0">
+                  <ul className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 list-none p-0 m-0">
                     {content.comparisonLinks.map(comp => (
                       <li key={comp.slug}>
                         <Link
                           to={`/compare/${comp.slug}`}
-                          className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                          className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
                         >
-                          <BarChart3 className="h-5 w-5 text-primary shrink-0" />
+                          <BarChart3 className="h-4 w-4 text-primary shrink-0" />
                           <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{comp.label}</span>
                         </Link>
                       </li>
@@ -511,24 +511,23 @@ export default function GeneratedDemandPage() {
 
               {/* ─── RFQ DEMAND SIGNALS ──────────────────────────── */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-foreground">RFQ Demand Signals</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">RFQ Demand Signals</h2>
                 </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                  {content.rfqSignals.split('\n').map((line, i) => {
+                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                  {content.rfqSignals.split('\n').filter(line => line.trim()).map((line, i) => {
                     if (line.startsWith('**') && line.endsWith('**')) {
-                      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">{line.replace(/\*\*/g, '')}</h3>;
+                      return <h3 key={i} className="md:col-span-2 text-base font-semibold text-foreground mt-2">{line.replace(/\*\*/g, '')}</h3>;
                     }
                     if (line.startsWith('•')) {
                       const parts = line.replace('• ', '').split(':');
                       if (parts.length >= 2) {
-                        return <p key={i} className="ml-4 mb-2"><strong className="text-foreground">{parts[0]}:</strong> {parts.slice(1).join(':')}</p>;
+                        return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug"><strong className="text-foreground">{parts[0]}:</strong> {parts.slice(1).join(':')}</p>;
                       }
-                      return <p key={i} className="ml-4 mb-2">{line.replace('• ', '')}</p>;
+                      return <p key={i} className="rounded-lg border border-border bg-card p-3 leading-snug">{line.replace('• ', '')}</p>;
                     }
-                    if (line.trim() === '') return null;
-                    return <p key={i} className="mb-3">{line}</p>;
+                    return <p key={i} className="md:col-span-2 leading-snug">{line}</p>;
                   })}
                 </div>
               </section>
