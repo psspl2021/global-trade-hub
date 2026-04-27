@@ -1,11 +1,113 @@
 import { serve } from "https://deno.land/std/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { google } from "https://esm.sh/googleapis@126";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type, x-admin-trigger",
 };
+
+const GSC_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+
+function base64Url(bytes: Uint8Array | string) {
+  const binary = typeof bytes === "string"
+    ? bytes
+    : Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64ToBytes(base64: string) {
+  const binary = atob(base64);
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+}
+
+function privateKeyCandidates(rawPrivateKey: string) {
+  const beginMarker = "-----BEGIN PRIVATE KEY-----";
+  const endMarker = "-----END PRIVATE KEY-----";
+  const normalized = rawPrivateKey.trim().replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\r/g, "\n");
+  const bodies: string[] = [];
+  const pemMatches = normalized.matchAll(/-----BEGIN PRIVATE KEY-----([\s\S]*?)-----END PRIVATE KEY-----/g);
+
+  for (const match of pemMatches) {
+    bodies.push(match[1]);
+  }
+
+  if (bodies.length === 0) {
+    bodies.push(normalized.replace(beginMarker, "").replace(endMarker, ""));
+  }
+
+  const candidates = new Set<string>();
+  for (const body of bodies) {
+    const compact = body.replace(/[^A-Za-z0-9+/=]/g, "");
+    if (compact.length > 0) candidates.add(compact);
+
+    // Service-account PKCS#8 keys normally start with MII. This also recovers
+    // the common broken paste where junk is accidentally prepended before MII.
+    const starts = [...compact.matchAll(/MII/g)].map((match) => match.index ?? -1).filter((index) => index >= 0);
+    for (const start of starts) {
+      candidates.add(compact.slice(start));
+    }
+  }
+
+  return [...candidates].filter((candidate) => candidate.length > 256);
+}
+
+async function importServiceAccountKey(rawPrivateKey: string) {
+  const attempts = privateKeyCandidates(rawPrivateKey);
+
+  for (const candidate of attempts) {
+    try {
+      return await crypto.subtle.importKey(
+        "pkcs8",
+        base64ToBytes(candidate),
+        { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+    } catch (_) {
+      // Try the next candidate.
+    }
+  }
+
+  throw new Error("invalid PEM private key. Use a fresh, unedited Google service-account JSON key file.");
+}
+
+async function getGoogleAccessToken(clientEmail: string, rawPrivateKey: string) {
+  const key = await importServiceAccountKey(rawPrivateKey);
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64Url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const payload = base64Url(JSON.stringify({
+    iss: clientEmail,
+    scope: GSC_SCOPE,
+    aud: GOOGLE_TOKEN_URL,
+    iat: now,
+    exp: now + 3600,
+  }));
+  const unsignedJwt = `${header}.${payload}`;
+  const signature = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    new TextEncoder().encode(unsignedJwt)
+  );
+  const assertion = `${unsignedJwt}.${base64Url(new Uint8Array(signature))}`;
+
+  const tokenResponse = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    }),
+  });
+  const tokenJson = await tokenResponse.json();
+
+  if (!tokenResponse.ok || !tokenJson.access_token) {
+    const message = tokenJson.error_description || tokenJson.error || "Google token exchange failed";
+    throw new Error(message);
+  }
+
+  return tokenJson.access_token as string;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -87,44 +189,7 @@ serve(async (req) => {
   );
 
   try {
-    // Normalize private key — handle accidental paste of JSON line fragment, full JSON object,
-    // or PEM with missing newlines around BEGIN/END markers.
-    let normalizedKey = privateKey.trim();
-
-    // If user pasted the whole service-account JSON object, extract private_key
-    if (normalizedKey.startsWith("{")) {
-      try {
-        const parsed = JSON.parse(normalizedKey);
-        if (parsed.private_key) normalizedKey = parsed.private_key;
-      } catch (_) { /* fall through */ }
-    }
-
-    // Convert literal \n to real newlines first
-    normalizedKey = normalizedKey.replace(/\\n/g, "\n");
-
-    // Extract just the PEM portion (strip any "private_key": "..." wrapper)
-    const beginMarker = "-----BEGIN PRIVATE KEY-----";
-    const endMarker = "-----END PRIVATE KEY-----";
-    const beginIdx = normalizedKey.indexOf(beginMarker);
-    const endIdx = normalizedKey.indexOf(endMarker);
-    if (beginIdx >= 0 && endIdx > beginIdx) {
-      // Pull out the base64 body between markers, strip ALL whitespace, then re-wrap to 64-char lines
-      let body = normalizedKey.slice(beginIdx + beginMarker.length, endIdx);
-      body = body.replace(/[\s\\]/g, ""); // remove whitespace + stray backslashes
-      const wrapped = body.match(/.{1,64}/g)?.join("\n") || "";
-      normalizedKey = `${beginMarker}\n${wrapped}\n${endMarker}\n`;
-    }
-
-    // Authenticate with Google
-    const jwtClient = new google.auth.JWT(
-      clientEmail,
-      undefined,
-      normalizedKey,
-      ["https://www.googleapis.com/auth/webmasters.readonly"]
-    );
-    await jwtClient.authorize();
-
-    const searchconsole = google.searchconsole({ version: "v1", auth: jwtClient });
+    const accessToken = await getGoogleAccessToken(clientEmail, privateKey);
 
     // Date range: last 28 days (covers both 7d sync needs + striking distance)
     const today = new Date();
@@ -132,17 +197,29 @@ serve(async (req) => {
     const startDate = new Date(today.setDate(today.getDate() - 28))
       .toISOString().split("T")[0];
 
-    const response = await searchconsole.searchanalytics.query({
-      siteUrl: propertyUrl,
-      requestBody: {
+    const gscResponse = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(propertyUrl)}/searchAnalytics/query`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
         startDate,
         endDate,
         dimensions: ["page", "query"],
         rowLimit: 5000,
-      },
-    });
+        }),
+      }
+    );
 
-    const rows = response.data.rows || [];
+    const response = await gscResponse.json();
+    if (!gscResponse.ok) {
+      throw new Error(response.error?.message || response.error_description || "Google Search Console query failed");
+    }
+
+    const rows = response.rows || [];
 
     // ============ Aggregations ============
     // Per-page totals (for seo_demand_pages)
@@ -311,14 +388,22 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("[seo-gsc-sync] error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isCredentialError = /invalid PEM private key|invalid_grant|invalid_client|JWT|token exchange/i.test(errorMessage);
+    if (isCredentialError) {
+      console.warn("[seo-gsc-sync] credential error:", errorMessage);
+    } else {
+      console.error("[seo-gsc-sync] error:", error);
+    }
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : String(error),
-        hint: "If you see 'invalid_grant' or 'invalid_client', the GSC service-account key is rejected — likely needs OAuth refresh-token method instead.",
+        error: errorMessage,
+        hint: isCredentialError
+          ? "Paste a fresh, unedited Google service-account JSON key file into GSC_SERVICE_ACCOUNT_JSON and confirm the service account has access to the Search Console property."
+          : "If this persists, check the backend function logs for the failed sync request.",
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: isCredentialError ? 200 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
