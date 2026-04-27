@@ -161,9 +161,17 @@ export default function AdminSEOMonitor() {
     );
   }
 
+  // A corridor is "awaiting index" when sync ran (last_checked set) but GSC has no impressions yet.
+  // Only truly "pending" corridors are those that have never been synced.
+  const isAwaitingIndex = (c: MergedCorridor) =>
+    c.gsc_status === 'pending' && !!c.last_checked && c.impressions === 0;
+  const isTrulyPending = (c: MergedCorridor) =>
+    c.gsc_status === 'pending' && !c.last_checked;
+
   const indexedCount = corridors.filter(c => c.gsc_status === 'indexed').length;
   const warningCount = corridors.filter(c => c.gsc_status === 'warning').length;
-  const pendingCount = corridors.filter(c => c.gsc_status === 'pending').length;
+  const awaitingCount = corridors.filter(isAwaitingIndex).length;
+  const pendingCount = corridors.filter(isTrulyPending).length;
   const criticalCount = corridors.filter(c => c.ctr_status === 'critical').length;
   const phase2Ready = canExpandToPhase2(indexedCount, warningCount, criticalCount);
 
