@@ -226,7 +226,14 @@ export default function AdminSEOMonitor() {
             )}
           </CardContent>
           {lastResult && (
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 space-y-2">
+              {(lastResult as { success?: boolean; note?: string }).success &&
+                (lastResult as { note?: string }).note && (
+                  <div className="flex items-start gap-2 p-3 rounded-md bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                    <p>{(lastResult as { note?: string }).note}</p>
+                  </div>
+                )}
               <pre className="text-[10px] bg-muted p-2 rounded overflow-auto max-h-40">
                 {JSON.stringify(lastResult, null, 2)}
               </pre>
