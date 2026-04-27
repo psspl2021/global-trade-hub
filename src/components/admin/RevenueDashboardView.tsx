@@ -28,6 +28,9 @@ function timeAgo(ts: string) {
 export default function RevenueDashboardView() {
   const [data, setData] = useState<DashboardRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("revenue_score");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   useEffect(() => {
     (async () => {
