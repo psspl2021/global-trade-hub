@@ -233,7 +233,7 @@ function WhyProcureSaathiSection() {
 
   return (
     <section className="py-6 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div>
           <h2 className="text-xl font-bold text-foreground mb-3">Why Source via ProcureSaathi?</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -268,7 +268,7 @@ function FAQSection({ product }: { product: IndustrialProduct }) {
     <section className="py-6 bg-muted/30">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <div className="container mx-auto px-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1680px] mx-auto">
           <h2 className="text-xl font-bold text-foreground mb-3 flex items-center gap-2">
             <HelpCircle className="h-5 w-5 text-primary" /> Frequently Asked Questions — {product.name}
           </h2>
@@ -301,7 +301,7 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
 
   return (
     <section className="py-6 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div className="space-y-6">
           {/* Grade Table — supports tensileStrength and elongation columns dynamically */}
           {sections.gradeTable && (
@@ -570,7 +570,7 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
 
   return (
     <section className="py-6 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div>
           <h2 className="text-xl font-bold text-foreground mb-3">Related Products</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -617,7 +617,7 @@ function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
   
   return (
     <section className="py-6 bg-muted/20 border-b">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div className="flex items-center gap-2 mb-3">
           <Globe className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-bold">Global Sourcing Corridors</h2>
