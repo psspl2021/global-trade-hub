@@ -323,10 +323,10 @@ export default function GeneratedDemandPage() {
         </section>
 
         {/* ─── MAIN CONTENT + SIDEBAR ─────────────────────────── */}
-        <div className="container mx-auto px-4 max-w-6xl py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        <div className="container mx-auto px-4 max-w-6xl py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main content */}
-            <div className="lg:col-span-3 space-y-16">
+            <div className="lg:col-span-3 space-y-10">
 
               {/* ─── AI DEMAND WIDGET ──────────────────────────── */}
               <section>
