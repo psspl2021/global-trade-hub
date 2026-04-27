@@ -25,38 +25,40 @@ export default function IntentKeywordSection({
   const sections = [
     {
       heading: `Top ${productBase} Suppliers in ${country}`,
-      content: `Finding verified ${productBase} suppliers in ${country} requires evaluating production capacity, certifications, delivery reliability, and pricing competitiveness. ProcureSaathi's AI engine pre-qualifies suppliers based on BIS/ISO compliance, past transaction performance, and real-time capacity data — so buyers receive quotes only from suppliers capable of fulfilling their specific requirements. ${recentRFQs ? `Over ${recentRFQs} RFQs have been processed for ${productBase} in the last quarter alone.` : ''}`,
+      content: `Verified ${productBase} suppliers are screened for capacity, compliance, delivery reliability, and pricing competitiveness. ${recentRFQs ? `${recentRFQs}+ recent RFQs indicate active buyer demand.` : ''}`,
     },
     {
       heading: `Bulk Procurement of ${productBase}`,
-      content: `Bulk procurement of ${productBase} is streamlined through ProcureSaathi's reverse auction model, where multiple verified suppliers compete on price, delivery, and terms — giving buyers transparent, market-competitive pricing without manual negotiation. Buyers typically achieve 8–15% savings on bulk orders compared to traditional sourcing channels. The sealed-bid format ensures pricing integrity and eliminates supplier collusion.`,
+      content: `Run sealed reverse auctions where verified suppliers compete on price, delivery, and terms without manual negotiation overhead.`,
     },
     {
       heading: `Leading ${productBase} Manufacturers in ${country}`,
-      content: `${country}'s ${productBase} manufacturing ecosystem spans mill-direct producers, secondary processors, and authorized stockists. ProcureSaathi maps this supply chain to match each buyer's requirement with the right manufacturing tier — whether that's a primary mill for large-tonnage orders or a specialized processor for custom grades and dimensions. All manufacturers on the platform undergo verification for production licenses, quality systems, and financial stability.`,
+      content: `Match with the right manufacturing tier: primary mills for large tonnage, processors for custom grades, and authorized stockists for faster dispatch.`,
     },
     {
       heading: `Latest ${productBase} Price Trends in ${country}`,
-      content: `${productBase} pricing in ${country} is influenced by raw material costs, grade specifications, order volume, delivery location, and market demand cycles. ${priceRange ? `Current indicative pricing ranges around ${priceRange}, though actual quotes vary by grade and quantity.` : `Prices fluctuate based on steel index movements and seasonal demand patterns.`} ProcureSaathi provides real-time competitive pricing through its reverse auction mechanism, ensuring buyers access the most current market rates from multiple suppliers simultaneously.`,
+      content: priceRange ? `Indicative range: ${priceRange}. Final quotes vary by grade, quantity, location, and delivery timeline.` : `Prices vary by raw material cost, grade, order size, location, and demand cycle.`,
     },
   ];
 
   return (
-    <section className="space-y-10">
-      <div className="flex items-center gap-3 mb-2">
-        <Search className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">Procurement Intelligence for {productBase}</h2>
+    <section className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Search className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">Procurement Intelligence for {productBase}</h2>
       </div>
 
-      {sections.map((s, i) => (
-        <div key={i}>
-          <h2 className="text-xl font-semibold text-foreground mb-3">{s.heading}</h2>
-          <p className="text-muted-foreground leading-relaxed">{s.content}</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        {sections.map((s, i) => (
+        <div key={i} className="rounded-lg border border-border bg-card p-4">
+          <h2 className="text-base font-semibold text-foreground mb-2">{s.heading}</h2>
+          <p className="text-sm text-muted-foreground leading-snug">{s.content}</p>
         </div>
-      ))}
+        ))}
+      </div>
 
       {/* Contextual internal links after keyword content */}
-      <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
+      <div className="flex flex-wrap gap-3 pt-3 border-t border-border">
         <Link
           to={`/demand/${slug}`}
           className="text-sm text-primary hover:underline flex items-center gap-1"
