@@ -20,6 +20,24 @@ export interface PipelineResult {
   slug: string;
   success: boolean;
   message: string;
+  skipped?: boolean;
+}
+
+/**
+ * Fetch the set of slugs already published (status = active) in demand_generated.
+ */
+export async function fetchPublishedSlugs(): Promise<Set<string>> {
+  try {
+    const { data, error } = await supabase
+      .from('demand_generated')
+      .select('slug')
+      .eq('status', 'active');
+    if (error) throw error;
+    return new Set((data || []).map((r: any) => r.slug));
+  } catch (err) {
+    console.error('Failed to fetch published slugs:', err);
+    return new Set();
+  }
 }
 
 /**
@@ -76,25 +94,32 @@ export async function injectInternalLinks(slug: string, categorySlug: string): P
  */
 export async function runFullSEOPipeline(
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200
+  delayMs = 1200,
+  options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
+  const published = options.skipPublished ? await fetchPublishedSlugs() : new Set<string>();
   const keywords = highIntentPages.map(p => p.keyword);
 
   for (let i = 0; i < keywords.length; i++) {
-    const result = await generateAndPublishPage(keywords[i]);
+    const page = highIntentPages.find(p => p.keyword === keywords[i])!;
+    let result: PipelineResult;
+
+    if (published.has(page.slug)) {
+      result = { keyword: keywords[i], slug: page.slug, success: true, skipped: true, message: 'Already published' };
+      results.push(result);
+      onProgress?.(result, i + 1, keywords.length);
+      continue;
+    }
+
+    result = await generateAndPublishPage(keywords[i]);
     results.push(result);
     onProgress?.(result, i + 1, keywords.length);
 
-    // Post-publish: inject internal links
     if (result.success) {
-      const page = highIntentPages.find(p => p.keyword === keywords[i]);
-      if (page) {
-        await injectInternalLinks(result.slug, page.categorySlug);
-      }
+      await injectInternalLinks(result.slug, page.categorySlug);
     }
 
-    // Rate-limit delay
     if (i < keywords.length - 1) {
       await new Promise(r => setTimeout(r, delayMs));
     }
@@ -132,13 +157,25 @@ export async function refreshSitemapAndPing(): Promise<void> {
 export async function runCategoryPipeline(
   categorySlug: string,
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200
+  delayMs = 1200,
+  options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
   const pages = highIntentPages.filter(p => p.categorySlug === categorySlug);
+  const published = options.skipPublished ? await fetchPublishedSlugs() : new Set<string>();
 
   for (let i = 0; i < pages.length; i++) {
-    const result = await generateAndPublishPage(pages[i].keyword);
+    const page = pages[i];
+    let result: PipelineResult;
+
+    if (published.has(page.slug)) {
+      result = { keyword: page.keyword, slug: page.slug, success: true, skipped: true, message: 'Already published' };
+      results.push(result);
+      onProgress?.(result, i + 1, pages.length);
+      continue;
+    }
+
+    result = await generateAndPublishPage(page.keyword);
     results.push(result);
     onProgress?.(result, i + 1, pages.length);
 
