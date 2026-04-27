@@ -157,13 +157,25 @@ export async function refreshSitemapAndPing(): Promise<void> {
 export async function runCategoryPipeline(
   categorySlug: string,
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200
+  delayMs = 1200,
+  options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
   const pages = highIntentPages.filter(p => p.categorySlug === categorySlug);
+  const published = options.skipPublished ? await fetchPublishedSlugs() : new Set<string>();
 
   for (let i = 0; i < pages.length; i++) {
-    const result = await generateAndPublishPage(pages[i].keyword);
+    const page = pages[i];
+    let result: PipelineResult;
+
+    if (published.has(page.slug)) {
+      result = { keyword: page.keyword, slug: page.slug, success: true, skipped: true, message: 'Already published' };
+      results.push(result);
+      onProgress?.(result, i + 1, pages.length);
+      continue;
+    }
+
+    result = await generateAndPublishPage(page.keyword);
     results.push(result);
     onProgress?.(result, i + 1, pages.length);
 
