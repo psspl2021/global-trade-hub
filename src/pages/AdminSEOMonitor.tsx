@@ -46,15 +46,29 @@ export default function AdminSEOMonitor() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [lastResult, setLastResult] = useState<Record<string, unknown> | null>(null);
+  const [stepIdx, setStepIdx] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const autoRanRef = useRef(false);
 
   async function triggerGscSync() {
+    if (syncing) return;
     setSyncing(true);
     setLastResult(null);
+    setStepIdx(0);
+    setProgress(8);
+
+    const stepTimer = setInterval(() => {
+      setStepIdx((s) => Math.min(s + 1, SYNC_STEPS.length - 1));
+      setProgress((p) => Math.min(p + 22, 90));
+    }, 1200);
+
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
       if (!token) {
         toast.error('Please sign in as admin first');
+        clearInterval(stepTimer);
         setSyncing(false);
         return;
       }
@@ -70,22 +84,37 @@ export default function AdminSEOMonitor() {
       });
       const result = await res.json();
       setLastResult(result);
+      setProgress(100);
 
       if (result.success) {
         toast.success(
           `✅ Sync done: ${result.gsc_rows_fetched} rows • ${result.seo_demand_pages_updated} pages • ${result.gsc_queries_inserted} queries • ${result.gsc_striking_distance_upserted} striking`
         );
-        // Refresh the table
-        window.location.reload();
+        // Refresh the table after a short delay so user sees the completed progress
+        setTimeout(() => window.location.reload(), 800);
       } else {
         toast.error(`❌ ${result.error || result.message || 'Sync failed'}`);
       }
     } catch (err) {
       toast.error(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
+      clearInterval(stepTimer);
       setSyncing(false);
     }
   }
+
+  // Auto-trigger when navigated with ?action=gsc-sync
+  useEffect(() => {
+    if (autoRanRef.current) return;
+    if (searchParams.get('action') === 'gsc-sync') {
+      autoRanRef.current = true;
+      const next = new URLSearchParams(searchParams);
+      next.delete('action');
+      setSearchParams(next, { replace: true });
+      void triggerGscSync();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchData() {
