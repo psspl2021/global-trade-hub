@@ -127,8 +127,8 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
 function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-8 bg-background">
+      <div className="container mx-auto px-4 max-w-6xl">
         <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
           <h2 className="text-2xl font-bold text-foreground mb-4">What are {product.name}?</h2>
           {sections.whatIs.split('\n\n').map((p, i) => <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>)}
