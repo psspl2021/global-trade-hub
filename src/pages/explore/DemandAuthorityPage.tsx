@@ -300,9 +300,9 @@ function DeepSKUSections({ product }: { product: IndustrialProduct }) {
   if (!hasDeep) return null;
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto space-y-12">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="space-y-6">
           {/* Grade Table — supports tensileStrength and elongation columns dynamically */}
           {sections.gradeTable && (
             <div>
@@ -569,16 +569,16 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
     .slice(0, 6);
 
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Related Products</h2>
-          <div className="grid md:grid-cols-3 gap-4">
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-3">Related Products</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {product.relatedProducts.map(slug => {
               const related = getProductBySlug(slug);
               if (!related) return null;
               return (
-                <Link key={slug} to={`/demand/${slug}`} className="border border-border rounded-lg p-4 bg-card hover:border-primary/50 transition group">
+                <Link key={slug} to={`/demand/${slug}`} className="border border-border rounded-lg p-3 bg-card hover:border-primary/50 transition group">
                   <h3 className="font-semibold text-foreground group-hover:text-primary transition">{related.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{related.country} • Intent: {related.demandIntelligence.intentScore}</p>
                 </Link>
@@ -588,9 +588,9 @@ function RelatedProductsSection({ product }: { product: IndustrialProduct }) {
 
           {/* Cross-category internal links for authority flow */}
           {crossCategoryLinks.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-xl font-bold text-foreground mb-4">Explore Other Procurement Categories</h2>
-              <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 list-none p-0 m-0">
+            <div className="mt-6">
+              <h2 className="text-lg font-bold text-foreground mb-3">Explore Other Procurement Categories</h2>
+              <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 list-none p-0 m-0">
                 {crossCategoryLinks.map(p => (
                   <li key={p.slug}>
                     <Link
