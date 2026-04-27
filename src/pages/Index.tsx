@@ -18,7 +18,7 @@ import { useSEO, injectStructuredData, getOrganizationSchema } from '@/hooks/use
 import { StickySignupBanner } from '@/components/StickySignupBanner';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
-import { AdminGscSyncFab } from '@/components/admin/AdminGscSyncFab';
+
 
 // Lazy load below-the-fold landing sections (mobile perf)
 const DemoRequestForm = lazy(() => import('@/components/landing/DemoRequestForm').then(m => ({ default: m.DemoRequestForm })));
