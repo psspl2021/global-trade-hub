@@ -97,7 +97,7 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
             </div>
           </div>
         ) : (
-          <div className="max-w-5xl">
+          <div className="max-w-none">
             <BreadcrumbNav product={product} />
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 gap-1">
@@ -127,21 +127,27 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
 function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
   return (
-    <section className="py-8 bg-background">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
-          <h2 className="text-2xl font-bold text-foreground mb-4">What are {product.name}?</h2>
-          {sections.whatIs.split('\n\n').map((p, i) => <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>)}
+    <section className="py-6 bg-background">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid gap-4 md:grid-cols-2 text-sm text-muted-foreground">
+          <div className="md:col-span-2">
+            <h2 className="text-xl font-bold text-foreground mb-3">What are {product.name}?</h2>
+            {sections.whatIs.split('\n\n').slice(0, 2).map((p, i) => <p key={i} className="leading-snug">{p}</p>)}
+          </div>
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Grades & Standards</h2>
-          {sections.grades.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-lg font-bold text-foreground mb-3">Grades & Standards</h2>
+            {sections.grades.split('\n\n').slice(0, 2).map((p, i) => (
+              <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+            ))}
+          </div>
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Specifications & Dimensions</h2>
-          {sections.specifications.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-lg font-bold text-foreground mb-3">Specifications & Dimensions</h2>
+            {sections.specifications.split('\n\n').slice(0, 2).map((p, i) => (
+              <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+            ))}
+          </div>
 
           <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Applications</h2>
           {sections.applications.split('\n\n').map((p, i) => (
