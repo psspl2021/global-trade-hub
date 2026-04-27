@@ -43,24 +43,22 @@ export function generateDemandContent(product: DemandProduct): GeneratedContent 
   const industryList = industries.join(', ');
   const topIndustries = industries.slice(0, 4);
 
-  // ─── HERO INTRO (120+ words) ──────────────────────────────────
-  const heroIntro = `${definition} In India, ${name} procurement is driven by demand from ${industryList} sectors. Industrial buyers and EPC contractors source ${name} in bulk through managed procurement channels to ensure grade compliance, competitive pricing, and reliable delivery schedules. ProcureSaathi's AI-powered procurement engine connects verified buyers with mill-direct and authorized distributor sources, enabling transparent price discovery and governance-compliant sourcing. Whether you are sourcing ${name} for a large infrastructure project or regular manufacturing consumption, our platform provides real-time demand intelligence, sealed bidding, and end-to-end procurement management. This page provides comprehensive procurement intelligence including specifications, grades, pricing factors, industry applications, and import corridor analysis for ${name} sourcing in India.`;
+  // ─── HERO INTRO (concise, 2 lines) ────────────────────────────
+  const heroIntro = `${definition} Source ${name} in India from verified, mill-direct suppliers via sealed reverse auctions — with transparent pricing, grade compliance, and managed delivery.`;
 
-  // ─── INDUSTRY DEMAND INTELLIGENCE (200+ words) ────────────────
-  const industryDemand = `${name} is procured across multiple industrial verticals in India, with primary demand originating from ${topIndustries.join(', ')} sectors. ${marketTrend}
+  // ─── INDUSTRY DEMAND INTELLIGENCE (scannable) ─────────────────
+  const industryDemand = `${marketTrend}
 
 **Key Demand Drivers:**
-${industries.map(ind => `• **${ind}:** Industrial buyers in the ${ind.toLowerCase()} sector typically procure ${name} for ${getIndustryContext(ind, name)}. Order sizes range from ${orderSizes}, with procurement cycles typically aligned with project milestones or quarterly consumption planning.`).join('\n')}
+${industries.map(ind => `• **${ind}:** ${getIndustryContext(ind, name)}.`).join('\n')}
 
 **Procurement Patterns:**
-Large-scale industrial procurement of ${name} in India follows established patterns. EPC contractors typically issue RFQs 4–8 weeks before required delivery dates. Manufacturing units maintain safety stock of 2–4 weeks consumption. Project-based procurement often involves bulk ordering with staggered delivery schedules to optimize logistics and working capital.
+RFQs typically issued 4–8 weeks before delivery. Order sizes ${orderSizes}. Buyers maintain 2–4 weeks safety stock with staggered delivery schedules.
 
-**Regional Demand Distribution:**
-Major consumption centres for ${name} in India include western India (Maharashtra, Gujarat), southern India (Tamil Nadu, Karnataka, Andhra Pradesh), and northern India (Delhi-NCR, Haryana, Punjab). Each region has distinct supply chain dynamics influenced by proximity to manufacturing hubs, port access for imports, and local industry concentration.
+**Regional Demand:**
+Western India (Maharashtra, Gujarat), Southern India (Tamil Nadu, Karnataka), Northern India (Delhi-NCR, Haryana) — driven by proximity to manufacturing hubs and port access.`;
 
-${name} procurement in India typically involves a mix of domestic sourcing and strategic imports, with buyers increasingly adopting managed procurement platforms for price transparency and supplier verification.`;
-
-  // ─── PROCUREMENT SPECIFICATIONS (150+ words) ──────────────────
+  // ─── PROCUREMENT SPECIFICATIONS (cards only, no prose) ────────
   const procurementSpecs = `**Available Grades:**
 ${grades.map(g => `• ${g}`).join('\n')}
 
@@ -70,28 +68,17 @@ ${specifications.map(s => `• ${s}`).join('\n')}
 **Applicable Standards:**
 ${standards.map(s => `• ${s}`).join('\n')}
 
-**Typical Price Range:** ${priceRange}
+**Typical Price Range:** ${priceRange}`;
 
-**Quality Assurance:**
-All ${name} sourced through ProcureSaathi undergoes rigorous quality verification including mill test certificates (MTC), third-party inspection reports, and compliance documentation per applicable Indian and international standards. Our AI engine cross-references supplier certifications, historical quality performance, and grade-specific compliance to ensure procurement integrity.
+  // ─── RFQ DEMAND SIGNALS (compact) ─────────────────────────────
+  const rfqSignals = `**Demand Snapshot:**
+• Typical order size: ${orderSizes}
+• Top buying industries: ${industryList}
+• Frequency: Monthly to quarterly
+• Price benchmark: ${priceRange}
 
-**Packaging and Dispatch:**
-${name} is typically dispatched with standardized packaging as per industry norms. Each consignment includes test certificates, packing lists, and compliance documentation. ProcureSaathi manages logistics coordination including weighment verification, quality inspection at dispatch point, and real-time tracking to delivery site.`;
-
-  // ─── RFQ DEMAND SIGNALS (150+ words) ──────────────────────────
-  const rfqSignals = `Recent procurement demand for ${name} in India reflects strong industrial activity across key consuming sectors. Our AI demand intelligence engine tracks RFQ patterns, buyer behaviour, and market signals to provide actionable procurement insights.
-
-**Demand Characteristics:**
-• Typical order sizes: ${orderSizes}
-• Primary buying industries: ${industryList}
-• Procurement frequency: Monthly to quarterly depending on consumption pattern
-• Price benchmark range: ${priceRange}
-
-**Current Market Intelligence:**
-${challenges.map(c => `• ${c}`).join('\n')}
-
-**Procurement Advisory:**
-For optimal ${name} procurement outcomes, industrial buyers should consider: (1) consolidating requirements across multiple delivery locations to leverage volume pricing; (2) establishing framework agreements with 2–3 verified suppliers for supply security; (3) utilizing managed procurement platforms for transparent price discovery; and (4) maintaining specification compliance documentation for audit readiness. ProcureSaathi's sealed bidding system ensures competitive pricing while maintaining supplier anonymity until award, preventing price manipulation and ensuring governance compliance.`;
+**Market Intelligence:**
+${challenges.map(c => `• ${c}`).join('\n')}`;
 
   // ─── USE CASES ────────────────────────────────────────────────
   const useCases = applications.slice(0, 4).map(app => {
