@@ -337,6 +337,31 @@ serve(async (req) => {
       }
     }
 
+    // 1b) Stamp last_checked for ALL active demand pages that GSC did not return.
+    //     These pages exist in our taxonomy but Google has no impressions yet
+    //     (typical for newly published URLs awaiting crawl/indexing).
+    //     Without this, the UI shows "Pending" with no last-check timestamp,
+    //     making it look like the sync never ran for those slugs.
+    let pagesTouched = 0;
+    {
+      const seenSlugs = Array.from(pageTotals.keys());
+      const { data: untouched, error: untouchedErr } = await supabase
+        .from("seo_demand_pages")
+        .select("slug")
+        .eq("is_active", true)
+        .not("slug", "in", `(${seenSlugs.length ? seenSlugs.map(s => `"${s.replace(/"/g, '')}"`).join(",") : '""'})`);
+      if (!untouchedErr && untouched) {
+        const touchSlugs = untouched.map(r => r.slug);
+        if (touchSlugs.length > 0) {
+          const { count: touchedCount } = await supabase
+            .from("seo_demand_pages")
+            .update({ last_checked: nowISO }, { count: "exact" })
+            .in("slug", touchSlugs);
+          pagesTouched = touchedCount ?? 0;
+        }
+      }
+    }
+
     // 2) gsc_queries: clear stale rows for these pages, then bulk insert fresh
     let queriesInserted = 0;
     if (queryRows.length > 0) {
