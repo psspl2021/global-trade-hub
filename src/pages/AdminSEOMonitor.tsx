@@ -310,7 +310,12 @@ export default function AdminSEOMonitor() {
                       <CheckCircle className="h-3 w-3" /> Indexed
                     </Badge>
                   )}
-                  {corridor.gsc_status === 'pending' && (
+                  {corridor.gsc_status === 'pending' && isAwaitingIndex(corridor) && (
+                    <Badge variant="outline" className="gap-1 border-amber-500 text-amber-700">
+                      <Clock className="h-3 w-3" /> Awaiting Index
+                    </Badge>
+                  )}
+                  {corridor.gsc_status === 'pending' && !isAwaitingIndex(corridor) && (
                     <Badge variant="secondary" className="gap-1">
                       <Clock className="h-3 w-3" /> Pending
                     </Badge>
