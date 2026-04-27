@@ -70,7 +70,8 @@ serve(async (req) => {
   );
 
   try {
-    // Normalize private key — handle accidental paste of JSON line fragment or full JSON object
+    // Normalize private key — handle accidental paste of JSON line fragment, full JSON object,
+    // or PEM with missing newlines around BEGIN/END markers.
     let normalizedKey = privateKey.trim();
 
     // If user pasted the whole service-account JSON object, extract private_key
@@ -81,16 +82,21 @@ serve(async (req) => {
       } catch (_) { /* fall through */ }
     }
 
-    // If user pasted a JSON line fragment like:  "private_key": "-----BEGIN..."
-    // extract just the value between the BEGIN/END markers (with surrounding \n)
-    const beginIdx = normalizedKey.indexOf("-----BEGIN PRIVATE KEY-----");
-    const endIdx = normalizedKey.indexOf("-----END PRIVATE KEY-----");
-    if (beginIdx > 0 && endIdx > beginIdx) {
-      normalizedKey = normalizedKey.slice(beginIdx, endIdx + "-----END PRIVATE KEY-----".length) + "\n";
-    }
-
-    // Convert literal \n to real newlines
+    // Convert literal \n to real newlines first
     normalizedKey = normalizedKey.replace(/\\n/g, "\n");
+
+    // Extract just the PEM portion (strip any "private_key": "..." wrapper)
+    const beginMarker = "-----BEGIN PRIVATE KEY-----";
+    const endMarker = "-----END PRIVATE KEY-----";
+    const beginIdx = normalizedKey.indexOf(beginMarker);
+    const endIdx = normalizedKey.indexOf(endMarker);
+    if (beginIdx >= 0 && endIdx > beginIdx) {
+      // Pull out the base64 body between markers, strip ALL whitespace, then re-wrap to 64-char lines
+      let body = normalizedKey.slice(beginIdx + beginMarker.length, endIdx);
+      body = body.replace(/[\s\\]/g, ""); // remove whitespace + stray backslashes
+      const wrapped = body.match(/.{1,64}/g)?.join("\n") || "";
+      normalizedKey = `${beginMarker}\n${wrapped}\n${endMarker}\n`;
+    }
 
     // Authenticate with Google
     const jwtClient = new google.auth.JWT(
