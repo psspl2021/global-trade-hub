@@ -150,8 +150,17 @@ export default function RevenueDashboardView() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <CardTitle className="text-lg">Page Performance Ranking</CardTitle>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Filter by slug..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {data.length === 0 ? (
@@ -162,41 +171,53 @@ export default function RevenueDashboardView() {
                 <thead>
                   <tr className="border-b border-border text-left">
                     <th className="py-3 px-2 text-muted-foreground font-medium">#</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium">Page Slug</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Views</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Visitors</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">RFQs</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Conv %</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Revenue Score</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Last Active</th>
+                    <SortHeader k="slug" label="Page Slug" />
+                    <SortHeader k="views" label="Views" align="right" />
+                    <SortHeader k="unique_visitors" label="Visitors" align="right" />
+                    <SortHeader k="rfq_clicks" label="RFQs" align="right" />
+                    <SortHeader k="conversion_rate" label="Conv %" align="right" />
+                    <SortHeader k="revenue_score" label="Revenue Score" align="right" />
+                    <SortHeader k="last_activity_at" label="Last Active" align="right" />
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((row, i) => (
-                    <tr key={row.slug} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
-                      <td className="py-3 px-2 font-medium text-foreground capitalize">{row.slug.replace(/-/g, " ")}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.views.toLocaleString()}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.unique_visitors.toLocaleString()}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.rfq_clicks}</td>
-                      <td className="py-3 px-2 text-right">
-                        <span className={`font-medium ${row.conversion_rate > 2 ? "text-green-600" : "text-foreground"}`}>
-                          {row.conversion_rate}%
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 text-right">
-                        <span className="font-bold text-primary">{row.revenue_score}</span>
-                      </td>
-                      <td className="py-3 px-2 text-right text-muted-foreground flex items-center justify-end gap-1">
-                        <Clock className="h-3 w-3" />
-                        {row.last_activity_at ? timeAgo(row.last_activity_at) : "—"}
+                  {filteredSorted.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-6 text-center text-muted-foreground">
+                        No pages match "{search}".
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredSorted.map((row, i) => (
+                      <tr key={row.slug} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                        <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
+                        <td className="py-3 px-2 font-medium text-foreground capitalize">{row.slug.replace(/-/g, " ")}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.views.toLocaleString()}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.unique_visitors.toLocaleString()}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.rfq_clicks}</td>
+                        <td className="py-3 px-2 text-right">
+                          <span className={`font-medium ${row.conversion_rate > 2 ? "text-green-600" : "text-foreground"}`}>
+                            {row.conversion_rate}%
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-right">
+                          <span className="font-bold text-primary">{row.revenue_score}</span>
+                        </td>
+                        <td className="py-3 px-2 text-right text-muted-foreground">
+                          <span className="inline-flex items-center justify-end gap-1">
+                            <Clock className="h-3 w-3" />
+                            {row.last_activity_at ? timeAgo(row.last_activity_at) : "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           )}
+        </CardContent>
+      </Card>
         </CardContent>
       </Card>
     </div>
