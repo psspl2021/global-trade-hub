@@ -49,31 +49,31 @@ function FAQAccordion({ allFaqs, productName }: { allFaqs: Array<{ question: str
 
   return (
     <section aria-label="Frequently Asked Questions">
-      <div className="flex items-center gap-3 mb-6">
-        <HelpCircle className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+      <div className="flex items-center gap-2 mb-3">
+        <HelpCircle className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions</h2>
       </div>
       <div className="divide-y divide-border">
         {faqs.map((faq, i) => (
-          <div id={`faq-${i}`} key={i} className="py-4">
+          <div id={`faq-${i}`} key={i} className="py-3">
             <button
               onClick={() => toggle(i)}
               aria-expanded={openIndexes.includes(i)}
               aria-controls={`faq-content-${i}`}
               className="font-semibold text-foreground cursor-pointer flex items-center justify-between gap-4 w-full text-left"
             >
-              <h3 className="text-left">{faq.question}</h3>
+              <h3 className="text-left text-sm md:text-base">{faq.question}</h3>
               <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${openIndexes.includes(i) ? 'rotate-90' : ''}`} />
             </button>
             {openIndexes.includes(i) && (
-              <div id={`faq-content-${i}`} role="region" className="text-muted-foreground mt-3 leading-relaxed">
+              <div id={`faq-content-${i}`} role="region" className="text-sm text-muted-foreground mt-2 leading-snug">
                 {renderSafeAnswer(faq.answer)}
               </div>
             )}
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground/70 mt-6">
+      <p className="text-xs text-muted-foreground/70 mt-4">
         Also searched: {productName} suppliers near me, bulk {productName} price,{' '}
         {productName} manufacturers India, {productName} wholesale rate,{' '}
         best {productName} dealer in India
@@ -117,9 +117,9 @@ function DemandClusterSidebar({ currentSlug, category }: { currentSlug: string; 
 
   return (
     <aside className="lg:col-span-1">
-      <div className="sticky top-24 space-y-6">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+      <div className="sticky top-24 space-y-4">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Layers className="h-4 w-4 text-primary" /> Popular Procurement Pages
           </h3>
           <ul className="space-y-2 list-none p-0 m-0">
@@ -138,7 +138,7 @@ function DemandClusterSidebar({ currentSlug, category }: { currentSlug: string; 
         </div>
 
         {/* Quick RFQ sidebar CTA */}
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 text-center">
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center">
           <p className="text-sm font-medium text-foreground mb-3">Need a quick quote?</p>
           <Link to="/post-rfq">
             <Button size="sm" className="w-full gap-1">
