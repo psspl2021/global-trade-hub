@@ -85,7 +85,7 @@ import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
 const SEOCommandCenter = lazy(() => import('@/components/admin/SEOCommandCenter'));
-import { GscSyncQuickAction } from '@/components/admin/GscSyncQuickAction';
+
 const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
 const PlatformControlHub = lazy(() => import('@/components/admin/PlatformControlHub'));
 const RevenueGrowthHub = lazy(() => import('@/components/admin/RevenueGrowthHub'));
