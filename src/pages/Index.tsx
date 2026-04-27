@@ -159,7 +159,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader />
-      <AdminGscSyncFab />
+      
 
       <main>
         {/* ===== SECTION 1: HERO ===== */}
