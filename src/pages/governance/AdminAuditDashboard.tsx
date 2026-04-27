@@ -380,9 +380,6 @@ export default function AdminAuditDashboard() {
         <p className="text-muted-foreground">ProcureSaathi Solutions Pvt Ltd • ADMIN</p>
       </div>
 
-      {/* Quick Action — GSC Sync (auto-runs when ?action=gsc-sync) */}
-      <GscSyncQuickAction />
-
       {/* Row 1 — Primary Hubs (consolidated) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-slate-800 text-white border-0">
