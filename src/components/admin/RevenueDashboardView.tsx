@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Eye, FileText, BarChart3, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { TrendingUp, Eye, FileText, BarChart3, Clock, ArrowUp, ArrowDown, Search } from "lucide-react";
+
+type SortKey = "slug" | "views" | "unique_visitors" | "rfq_clicks" | "conversion_rate" | "revenue_score" | "last_activity_at";
+type SortDir = "asc" | "desc";
 
 interface DashboardRow {
   slug: string;
