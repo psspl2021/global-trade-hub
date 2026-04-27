@@ -70,11 +70,33 @@ serve(async (req) => {
   );
 
   try {
+    // Normalize private key — handle accidental paste of JSON line fragment or full JSON object
+    let normalizedKey = privateKey.trim();
+
+    // If user pasted the whole service-account JSON object, extract private_key
+    if (normalizedKey.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(normalizedKey);
+        if (parsed.private_key) normalizedKey = parsed.private_key;
+      } catch (_) { /* fall through */ }
+    }
+
+    // If user pasted a JSON line fragment like:  "private_key": "-----BEGIN..."
+    // extract just the value between the BEGIN/END markers (with surrounding \n)
+    const beginIdx = normalizedKey.indexOf("-----BEGIN PRIVATE KEY-----");
+    const endIdx = normalizedKey.indexOf("-----END PRIVATE KEY-----");
+    if (beginIdx > 0 && endIdx > beginIdx) {
+      normalizedKey = normalizedKey.slice(beginIdx, endIdx + "-----END PRIVATE KEY-----".length) + "\n";
+    }
+
+    // Convert literal \n to real newlines
+    normalizedKey = normalizedKey.replace(/\\n/g, "\n");
+
     // Authenticate with Google
     const jwtClient = new google.auth.JWT(
       clientEmail,
       undefined,
-      privateKey.replace(/\\n/g, "\n"),
+      normalizedKey,
       ["https://www.googleapis.com/auth/webmasters.readonly"]
     );
     await jwtClient.authorize();
