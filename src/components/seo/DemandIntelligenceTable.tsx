@@ -42,32 +42,32 @@ export default function DemandIntelligenceTable({ product }: Props) {
 
   return (
     <section>
-      <div className="flex items-center gap-3 mb-6">
-        <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="flex items-center gap-2 mb-3">
+        <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h2 className="text-2xl font-bold text-foreground">Regional Procurement Intelligence</h2>
+        <h2 className="text-xl font-bold text-foreground">Regional Procurement Intelligence</h2>
       </div>
-      <p className="text-muted-foreground mb-6">
+      <p className="text-sm text-muted-foreground mb-3">
         {product.name} procurement patterns vary significantly by region in India. This intelligence table provides insights into order sizes, procurement frequency, and primary applications across major industrial hubs.
       </p>
-      <div className="overflow-x-auto rounded-xl border border-border">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/50 border-b border-border">
-              <th className="text-left p-4 font-semibold text-foreground">Region</th>
-              <th className="text-left p-4 font-semibold text-foreground">Avg. Order Size</th>
-              <th className="text-left p-4 font-semibold text-foreground">Procurement Frequency</th>
-              <th className="text-left p-4 font-semibold text-foreground">Primary Application</th>
+              <th className="text-left p-3 font-semibold text-foreground">Region</th>
+              <th className="text-left p-3 font-semibold text-foreground">Avg. Order Size</th>
+              <th className="text-left p-3 font-semibold text-foreground">Procurement Frequency</th>
+              <th className="text-left p-3 font-semibold text-foreground">Primary Application</th>
             </tr>
           </thead>
           <tbody>
             {regionalData.map((row, i) => (
               <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="p-4 font-medium text-foreground">{row.region}</td>
-                <td className="p-4 text-muted-foreground">{row.avgOrderSize}</td>
-                <td className="p-4 text-muted-foreground">{row.frequency}</td>
-                <td className="p-4 text-muted-foreground">{row.topUse}</td>
+                <td className="p-3 font-medium text-foreground">{row.region}</td>
+                <td className="p-3 text-muted-foreground">{row.avgOrderSize}</td>
+                <td className="p-3 text-muted-foreground">{row.frequency}</td>
+                <td className="p-3 text-muted-foreground">{row.topUse}</td>
               </tr>
             ))}
           </tbody>
