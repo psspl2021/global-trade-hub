@@ -393,9 +393,14 @@ serve(async (req) => {
         date_range: { startDate, endDate },
         gsc_rows_fetched: rows.length,
         seo_demand_pages_updated: pagesUpdated,
+        seo_demand_pages_missing: pagesMissing,
+        missing_slugs_sample: missingSlugs,
         gsc_queries_inserted: queriesInserted,
         gsc_striking_distance_upserted: strikingUpserted,
         synced_at: nowISO,
+        note: pagesMissing > 0
+          ? `${pagesMissing} slug(s) returned by GSC are not in seo_demand_pages — seed them via taxonomy to track impressions.`
+          : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
