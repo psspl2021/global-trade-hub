@@ -388,14 +388,22 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("[seo-gsc-sync] error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isCredentialError = /invalid PEM private key|invalid_grant|invalid_client|JWT|token exchange/i.test(errorMessage);
+    if (isCredentialError) {
+      console.warn("[seo-gsc-sync] credential error:", errorMessage);
+    } else {
+      console.error("[seo-gsc-sync] error:", error);
+    }
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : String(error),
-        hint: "If you see 'invalid_grant' or 'invalid_client', the GSC service-account key is rejected — likely needs OAuth refresh-token method instead.",
+        error: errorMessage,
+        hint: isCredentialError
+          ? "Paste a fresh, unedited Google service-account JSON key file into GSC_SERVICE_ACCOUNT_JSON and confirm the service account has access to the Search Console property."
+          : "If this persists, check the backend function logs for the failed sync request.",
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: isCredentialError ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
