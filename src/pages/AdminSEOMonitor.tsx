@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { PHASE_1_CORRIDORS, PHASE_1_SLUGS } from '@/data/seoPhaseConfig';
 import { canExpandToPhase2 } from '@/utils/seoPhaseGate';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, AlertTriangle, Clock, Shield, Rocket, Loader2, ShieldAlert } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Clock, Shield, Rocket, Loader2, ShieldAlert, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface CorridorRow {
   slug: string;
@@ -33,6 +35,48 @@ type MergedCorridor = {
 export default function AdminSEOMonitor() {
   const [corridors, setCorridors] = useState<MergedCorridor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [lastResult, setLastResult] = useState<Record<string, unknown> | null>(null);
+
+  async function triggerGscSync() {
+    setSyncing(true);
+    setLastResult(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error('Please sign in as admin first');
+        setSyncing(false);
+        return;
+      }
+
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seo-gsc-sync`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'x-admin-trigger': 'true',
+          'Content-Type': 'application/json',
+        },
+      });
+      const result = await res.json();
+      setLastResult(result);
+
+      if (result.success) {
+        toast.success(
+          `✅ Sync done: ${result.gsc_rows_fetched} rows • ${result.seo_demand_pages_updated} pages • ${result.gsc_queries_inserted} queries • ${result.gsc_striking_distance_upserted} striking`
+        );
+        // Refresh the table
+        window.location.reload();
+      } else {
+        toast.error(`❌ ${result.error || result.message || 'Sync failed'}`);
+      }
+    } catch (err) {
+      toast.error(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
