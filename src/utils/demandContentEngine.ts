@@ -86,15 +86,13 @@ ${challenges.map(c => `• ${c}`).join('\n')}`;
     return slug;
   });
 
-  // ─── WHY PROCURESAATHI (100+ words) ───────────────────────────
-  const whyProcureSaathi = `ProcureSaathi transforms ${name} procurement in India through AI-powered supplier matching, transparent sealed bidding, and end-to-end managed procurement. Our platform addresses the core challenges industrial buyers face: price opacity, supplier verification complexity, and compliance documentation burden.
-
-**Key Benefits:**
-• **AI Verified Suppliers:** Every supplier undergoes AI-driven verification including GST validation, financial health check, capacity assessment, and quality certification review.
-• **Sealed Bidding:** Competitive pricing through anonymous sealed bids, preventing price manipulation and ensuring fair market discovery.
-• **Managed Procurement:** End-to-end procurement management from RFQ to delivery, including quality inspection, logistics coordination, and payment reconciliation.
-• **Demand Intelligence:** Real-time market insights, price trend analysis, and procurement advisory powered by AI analysis of live demand signals.
-• **Governance Compliance:** Complete audit trail with tamper-proof ledger entries for every procurement transaction.`;
+  // ─── WHY PROCURESAATHI (concise) ──────────────────────────────
+  const whyProcureSaathi = `**Key Benefits:**
+• **AI Verified Suppliers:** GST validation, financial health, capacity and quality certifications.
+• **Sealed Bidding:** Anonymous bids prevent price manipulation and ensure fair discovery.
+• **Managed Procurement:** End-to-end from RFQ to delivery — inspection, logistics, reconciliation.
+• **Demand Intelligence:** Real-time price trends and procurement advisory from live RFQ signals.
+• **Governance Compliance:** Tamper-proof audit trail for every transaction.`;
 
   // ─── EXTRA FAQs (3 unique per product) ────────────────────────
   const extraFaqs = generateExtraFaqs(product);
