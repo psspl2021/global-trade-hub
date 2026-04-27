@@ -63,7 +63,7 @@ function HeroSection({ product, onOpenRFQ }: { product: IndustrialProduct; onOpe
   const hasImage = !!product.heroImage;
   return (
     <section className="relative py-8 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         {hasImage ? (
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
@@ -128,7 +128,7 @@ function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
   const { sections } = product;
   return (
     <section className="py-6 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div className="grid gap-4 md:grid-cols-2 text-sm text-muted-foreground">
           <div className="md:col-span-2">
             <h2 className="text-xl font-bold text-foreground mb-3">What are {product.name}?</h2>
@@ -179,7 +179,7 @@ function DemandIntelligenceSection({ product }: { product: IndustrialProduct }) 
   const { demandIntelligence: di } = product;
   return (
     <section className="py-6 bg-muted/30">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-[1680px]">
         <div>
           <h2 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" /> AI Demand Intelligence — {product.name}
