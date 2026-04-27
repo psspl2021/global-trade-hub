@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Eye, FileText, BarChart3, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { TrendingUp, Eye, FileText, BarChart3, Clock, ArrowUp, ArrowDown, Search } from "lucide-react";
+
+type SortKey = "slug" | "views" | "unique_visitors" | "rfq_clicks" | "conversion_rate" | "revenue_score" | "last_activity_at";
+type SortDir = "asc" | "desc";
 
 interface DashboardRow {
   slug: string;
@@ -24,6 +28,9 @@ function timeAgo(ts: string) {
 export default function RevenueDashboardView() {
   const [data, setData] = useState<DashboardRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("revenue_score");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   useEffect(() => {
     (async () => {
@@ -43,6 +50,50 @@ export default function RevenueDashboardView() {
   const avgConversion = data.length
     ? (data.reduce((s, d) => s + (d.conversion_rate || 0), 0) / data.length).toFixed(2)
     : "0";
+
+  const filteredSorted = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = q ? data.filter((d) => d.slug?.toLowerCase().includes(q)) : data;
+    const sorted = [...filtered].sort((a, b) => {
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (sortKey === "slug") {
+        return sortDir === "asc"
+          ? String(av).localeCompare(String(bv))
+          : String(bv).localeCompare(String(av));
+      }
+      if (sortKey === "last_activity_at") {
+        const at = av ? new Date(av as string).getTime() : 0;
+        const bt = bv ? new Date(bv as string).getTime() : 0;
+        return sortDir === "asc" ? at - bt : bt - at;
+      }
+      const an = Number(av) || 0;
+      const bn = Number(bv) || 0;
+      return sortDir === "asc" ? an - bn : bn - an;
+    });
+    return sorted;
+  }, [data, search, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else {
+      setSortKey(key);
+      setSortDir(key === "slug" ? "asc" : "desc");
+    }
+  };
+
+  const SortHeader = ({ k, label, align = "left" }: { k: SortKey; label: string; align?: "left" | "right" }) => (
+    <th className={`py-3 px-2 text-muted-foreground font-medium ${align === "right" ? "text-right" : "text-left"}`}>
+      <button
+        type="button"
+        onClick={() => toggleSort(k)}
+        className={`inline-flex items-center gap-1 hover:text-foreground transition-colors ${align === "right" ? "justify-end w-full" : ""}`}
+      >
+        {label}
+        {sortKey === k && (sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+      </button>
+    </th>
+  );
 
   if (loading) {
     return (
@@ -99,8 +150,17 @@ export default function RevenueDashboardView() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <CardTitle className="text-lg">Page Performance Ranking</CardTitle>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Filter by slug..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {data.length === 0 ? (
@@ -111,37 +171,47 @@ export default function RevenueDashboardView() {
                 <thead>
                   <tr className="border-b border-border text-left">
                     <th className="py-3 px-2 text-muted-foreground font-medium">#</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium">Page Slug</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Views</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Visitors</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">RFQs</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Conv %</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Revenue Score</th>
-                    <th className="py-3 px-2 text-muted-foreground font-medium text-right">Last Active</th>
+                    <SortHeader k="slug" label="Page Slug" />
+                    <SortHeader k="views" label="Views" align="right" />
+                    <SortHeader k="unique_visitors" label="Visitors" align="right" />
+                    <SortHeader k="rfq_clicks" label="RFQs" align="right" />
+                    <SortHeader k="conversion_rate" label="Conv %" align="right" />
+                    <SortHeader k="revenue_score" label="Revenue Score" align="right" />
+                    <SortHeader k="last_activity_at" label="Last Active" align="right" />
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((row, i) => (
-                    <tr key={row.slug} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
-                      <td className="py-3 px-2 font-medium text-foreground capitalize">{row.slug.replace(/-/g, " ")}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.views.toLocaleString()}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.unique_visitors.toLocaleString()}</td>
-                      <td className="py-3 px-2 text-right text-foreground">{row.rfq_clicks}</td>
-                      <td className="py-3 px-2 text-right">
-                        <span className={`font-medium ${row.conversion_rate > 2 ? "text-green-600" : "text-foreground"}`}>
-                          {row.conversion_rate}%
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 text-right">
-                        <span className="font-bold text-primary">{row.revenue_score}</span>
-                      </td>
-                      <td className="py-3 px-2 text-right text-muted-foreground flex items-center justify-end gap-1">
-                        <Clock className="h-3 w-3" />
-                        {row.last_activity_at ? timeAgo(row.last_activity_at) : "—"}
+                  {filteredSorted.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-6 text-center text-muted-foreground">
+                        No pages match "{search}".
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredSorted.map((row, i) => (
+                      <tr key={row.slug} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                        <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
+                        <td className="py-3 px-2 font-medium text-foreground capitalize">{row.slug.replace(/-/g, " ")}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.views.toLocaleString()}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.unique_visitors.toLocaleString()}</td>
+                        <td className="py-3 px-2 text-right text-foreground">{row.rfq_clicks}</td>
+                        <td className="py-3 px-2 text-right">
+                          <span className={`font-medium ${row.conversion_rate > 2 ? "text-green-600" : "text-foreground"}`}>
+                            {row.conversion_rate}%
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-right">
+                          <span className="font-bold text-primary">{row.revenue_score}</span>
+                        </td>
+                        <td className="py-3 px-2 text-right text-muted-foreground">
+                          <span className="inline-flex items-center justify-end gap-1">
+                            <Clock className="h-3 w-3" />
+                            {row.last_activity_at ? timeAgo(row.last_activity_at) : "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
