@@ -6,29 +6,29 @@ const corsHeaders = {
 Deno.serve((req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const key = Deno.env.get("GSC_PRIVATE_KEY") || "";
-  const email = Deno.env.get("GSC_CLIENT_EMAIL") || "";
-  const property = Deno.env.get("GSC_PROPERTY_URL") || "";
+  const privateKey = Deno.env.get("GSC_PRIVATE_KEY") || "";
 
-  const info = {
-    has_key: !!key,
-    key_length: key.length,
-    starts_with_begin: key.startsWith("-----BEGIN PRIVATE KEY-----"),
-    starts_with_quote: key.startsWith('"'),
-    contains_literal_backslash_n: key.includes("\\n"),
-    contains_real_newlines: key.includes("\n"),
-    ends_with_end_marker: key.trimEnd().endsWith("-----END PRIVATE KEY-----") || key.trimEnd().endsWith('-----END PRIVATE KEY-----"'),
-    line_count_real: key.split("\n").length,
-    line_count_literal: key.split("\\n").length,
-    first_60_chars: key.slice(0, 60),
-    last_60_chars: key.slice(-60),
-    char_codes_first_5: Array.from(key.slice(0, 5)).map((c) => c.charCodeAt(0)),
-    client_email: email,
-    email_ends_iam: email.endsWith(".iam.gserviceaccount.com"),
-    property_url: property,
-  };
+  let normalizedKey = privateKey.trim();
+  if (normalizedKey.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(normalizedKey);
+      if (parsed.private_key) normalizedKey = parsed.private_key;
+    } catch (_) {}
+  }
+  const beginIdx = normalizedKey.indexOf("-----BEGIN PRIVATE KEY-----");
+  const endIdx = normalizedKey.indexOf("-----END PRIVATE KEY-----");
+  if (beginIdx > 0 && endIdx > beginIdx) {
+    normalizedKey = normalizedKey.slice(beginIdx, endIdx + "-----END PRIVATE KEY-----".length) + "\n";
+  }
+  normalizedKey = normalizedKey.replace(/\\n/g, "\n");
 
-  return new Response(JSON.stringify(info, null, 2), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  const lines = normalizedKey.split("\n");
+  return new Response(JSON.stringify({
+    length: normalizedKey.length,
+    first_line: lines[0],
+    second_line_first_30: lines[1]?.slice(0, 30),
+    last_meaningful_line: lines.filter(l => l.length).slice(-1)[0],
+    total_lines: lines.length,
+    base64_line_lengths: lines.slice(1, -1).filter(l => l.length).map(l => l.length).slice(0, 5),
+  }, null, 2), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });
