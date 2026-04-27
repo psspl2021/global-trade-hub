@@ -94,25 +94,32 @@ export async function injectInternalLinks(slug: string, categorySlug: string): P
  */
 export async function runFullSEOPipeline(
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200
+  delayMs = 1200,
+  options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
+  const published = options.skipPublished ? await fetchPublishedSlugs() : new Set<string>();
   const keywords = highIntentPages.map(p => p.keyword);
 
   for (let i = 0; i < keywords.length; i++) {
-    const result = await generateAndPublishPage(keywords[i]);
+    const page = highIntentPages.find(p => p.keyword === keywords[i])!;
+    let result: PipelineResult;
+
+    if (published.has(page.slug)) {
+      result = { keyword: keywords[i], slug: page.slug, success: true, skipped: true, message: 'Already published' };
+      results.push(result);
+      onProgress?.(result, i + 1, keywords.length);
+      continue;
+    }
+
+    result = await generateAndPublishPage(keywords[i]);
     results.push(result);
     onProgress?.(result, i + 1, keywords.length);
 
-    // Post-publish: inject internal links
     if (result.success) {
-      const page = highIntentPages.find(p => p.keyword === keywords[i]);
-      if (page) {
-        await injectInternalLinks(result.slug, page.categorySlug);
-      }
+      await injectInternalLinks(result.slug, page.categorySlug);
     }
 
-    // Rate-limit delay
     if (i < keywords.length - 1) {
       await new Promise(r => setTimeout(r, delayMs));
     }
