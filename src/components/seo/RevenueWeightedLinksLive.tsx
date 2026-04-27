@@ -39,19 +39,19 @@ export default function RevenueWeightedLinksLive({ currentSlug }: Props) {
 
   return (
     <section>
-      <div className="flex items-center gap-3 mb-6">
-        <TrendingUp className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">High Demand Procurement Materials</h2>
+      <div className="flex items-center gap-2 mb-3">
+        <TrendingUp className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">High Demand Procurement Materials</h2>
       </div>
-      <p className="text-muted-foreground mb-6">
+      <p className="text-sm text-muted-foreground mb-3">
         These materials are seeing the highest procurement activity on ProcureSaathi. Internal linking prioritized by live RFQ demand signals.
       </p>
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-2">
         {liveLinks.map(link => (
           <Link
             key={link.slug}
             to={link.url}
-            className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+            className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors group"
           >
             <ArrowRight className="h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
             <div>
