@@ -217,8 +217,6 @@ export default function GeneratedDemandPage() {
     ...content.extraFaqs,
   ];
 
-  const hasSidebar = demandProducts.some(p => p.categorySlug === product.categorySlug && p.slug !== product.slug);
-
   // Strip HTML from answers for schema (plain text only)
   const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '');
 
@@ -326,9 +324,9 @@ export default function GeneratedDemandPage() {
 
         {/* ─── MAIN CONTENT + SIDEBAR ─────────────────────────── */}
         <div className="container mx-auto px-4 max-w-[1680px] py-6">
-          <div className={hasSidebar ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "grid grid-cols-1"}>
+          <div className="grid grid-cols-1">
             {/* Main content */}
-            <div className={hasSidebar ? "lg:col-span-3 space-y-6" : "space-y-6"}>
+            <div className="space-y-6">
 
               {/* ─── AI DEMAND WIDGET ──────────────────────────── */}
               <section>
@@ -744,8 +742,6 @@ export default function GeneratedDemandPage() {
               })()}
             </div>
 
-            {/* Sidebar */}
-            <DemandClusterSidebar currentSlug={product.slug} category={product.categorySlug} />
           </div>
         </div>
       </main>
