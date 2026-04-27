@@ -85,6 +85,7 @@ import { AdminRoleSwitch } from '@/components/admin/dashboards/AdminRoleSwitch';
 
 
 const SEOCommandCenter = lazy(() => import('@/components/admin/SEOCommandCenter'));
+import { GscSyncQuickAction } from '@/components/admin/GscSyncQuickAction';
 const DemoGuidedFlow = lazy(() => import('@/components/demo/DemoGuidedFlow').then(m => ({ default: m.DemoGuidedFlow })));
 const PlatformControlHub = lazy(() => import('@/components/admin/PlatformControlHub'));
 const RevenueGrowthHub = lazy(() => import('@/components/admin/RevenueGrowthHub'));
@@ -378,6 +379,9 @@ export default function AdminAuditDashboard() {
         <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}!</h1>
         <p className="text-muted-foreground">ProcureSaathi Solutions Pvt Ltd • ADMIN</p>
       </div>
+
+      {/* Quick Action — GSC Sync (auto-runs when ?action=gsc-sync) */}
+      <GscSyncQuickAction />
 
       {/* Row 1 — Primary Hubs (consolidated) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
