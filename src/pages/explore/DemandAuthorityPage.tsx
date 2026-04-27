@@ -178,32 +178,32 @@ function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
 function DemandIntelligenceSection({ product }: { product: IndustrialProduct }) {
   const { demandIntelligence: di } = product;
   return (
-    <section className="py-12 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-primary" /> AI Demand Intelligence — {product.name}
+    <section className="py-6 bg-muted/30">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" /> AI Demand Intelligence — {product.name}
           </h2>
-          <p className="text-muted-foreground mb-6">Live procurement signals detected by ProcureSaathi's AI engine.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Card><CardContent className="pt-6 text-center">
+          <p className="text-sm text-muted-foreground mb-3">Live procurement signals detected by ProcureSaathi's AI engine.</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <Card><CardContent className="p-3 text-center">
               <BarChart3 className="h-5 w-5 mx-auto mb-2 text-primary" />
-              <p className="text-3xl font-bold text-foreground">{di.intentScore}</p>
+              <p className="text-xl font-bold text-foreground">{di.intentScore}</p>
               <p className="text-xs text-muted-foreground">Intent Score</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <Shield className="h-5 w-5 mx-auto mb-2 text-green-600" />
-              <p className="text-3xl font-bold text-foreground">{di.confidencePercent}%</p>
+              <p className="text-xl font-bold text-foreground">{di.confidencePercent}%</p>
               <p className="text-xs text-muted-foreground">Confidence</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <FileCheck className="h-5 w-5 mx-auto mb-2 text-orange-500" />
-              <p className="text-3xl font-bold text-foreground">{di.recentRFQs}</p>
+              <p className="text-xl font-bold text-foreground">{di.recentRFQs}</p>
               <p className="text-xs text-muted-foreground">Recent RFQs</p>
             </CardContent></Card>
-            <Card><CardContent className="pt-6 text-center">
+            <Card><CardContent className="p-3 text-center">
               <Factory className="h-5 w-5 mx-auto mb-2 text-purple-600" />
-              <p className="text-3xl font-bold text-foreground">{di.avgDealSize}</p>
+              <p className="text-xl font-bold text-foreground">{di.avgDealSize}</p>
               <p className="text-xs text-muted-foreground">Avg Deal Size</p>
             </CardContent></Card>
           </div>
