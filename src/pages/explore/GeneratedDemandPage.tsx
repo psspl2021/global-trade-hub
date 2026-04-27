@@ -107,50 +107,6 @@ function BreadcrumbNav({ product }: { product: DemandProduct }) {
   );
 }
 
-/** Sidebar: Popular Procurement Pages */
-function DemandClusterSidebar({ currentSlug, category }: { currentSlug: string; category: string }) {
-  const related = demandProducts
-    .filter(p => p.categorySlug === category && p.slug !== currentSlug)
-    .slice(0, 6);
-
-  if (related.length === 0) return null;
-
-  return (
-    <aside className="lg:col-span-1">
-      <div className="sticky top-24 space-y-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Layers className="h-4 w-4 text-primary" /> Popular Procurement Pages
-          </h3>
-          <ul className="space-y-2 list-none p-0 m-0">
-            {related.map(p => (
-              <li key={p.slug}>
-                <Link
-                  to={`/demand/${p.slug}`}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                >
-                  <ArrowRight className="h-3 w-3 shrink-0" />
-                  {p.name} Procurement
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Quick RFQ sidebar CTA */}
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center">
-          <p className="text-sm font-medium text-foreground mb-3">Need a quick quote?</p>
-          <Link to="/post-rfq">
-            <Button size="sm" className="w-full gap-1">
-              Submit RFQ <ArrowRight className="h-3 w-3" />
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
 export default function GeneratedDemandPage() {
   const { slug } = useParams<{ slug: string }>();
   const [rfqOpen, setRfqOpen] = useState(false);
