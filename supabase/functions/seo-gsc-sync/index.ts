@@ -418,6 +418,7 @@ serve(async (req) => {
         date_range: { startDate, endDate },
         gsc_rows_fetched: rows.length,
         seo_demand_pages_updated: pagesUpdated,
+        seo_demand_pages_touched: pagesTouched,
         seo_demand_pages_missing: pagesMissing,
         missing_slugs_sample: missingSlugs,
         gsc_queries_inserted: queriesInserted,
@@ -425,7 +426,9 @@ serve(async (req) => {
         synced_at: nowISO,
         note: pagesMissing > 0
           ? `${pagesMissing} slug(s) returned by GSC are not in seo_demand_pages — seed them via taxonomy to track impressions.`
-          : undefined,
+          : (pagesUpdated === 0
+              ? `Sync ran successfully but Google has no impressions yet for the tracked Phase-1 corridor URLs. They remain "Pending" until Google crawls and indexes them (typically 3–14 days).`
+              : undefined),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
