@@ -218,8 +218,6 @@ export default function RevenueDashboardView() {
           )}
         </CardContent>
       </Card>
-        </CardContent>
-      </Card>
     </div>
   );
 }
