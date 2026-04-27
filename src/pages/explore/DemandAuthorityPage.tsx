@@ -616,18 +616,18 @@ function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
   if (countryLinks.length === 0) return null;
   
   return (
-    <section className="py-12 bg-muted/20 border-b">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className="flex items-center gap-2 mb-6">
+    <section className="py-6 bg-muted/20 border-b">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex items-center gap-2 mb-3">
           <Globe className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-bold">Global Sourcing Corridors</h2>
+          <h2 className="text-xl font-bold">Global Sourcing Corridors</h2>
         </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
           {countryLinks.map((c) => (
             <Link
               key={c.slug}
               to={`/source/${c.slug}`}
-              className="flex items-center gap-3 p-4 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-lg border border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors"
             >
               <ArrowRight className="h-4 w-4 text-primary shrink-0" />
               <span className="text-sm font-medium">Import {product.name} from {c.name}</span>
@@ -641,12 +641,12 @@ function GlobalSourcingCorridors({ product }: { product: IndustrialProduct }) {
 
 function CTASection({ onOpenRFQ }: { onOpenRFQ: () => void }) {
   return (
-    <section className="py-16 bg-primary/5">
+    <section className="py-8 bg-primary/5">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-2xl font-bold text-foreground mb-3">Ready to Source?</h2>
-        <p className="text-muted-foreground mb-6 max-w-xl mx-auto">Submit your procurement requirement and receive AI-matched competitive quotes from verified suppliers within 24 hours.</p>
-        <Button size="lg" onClick={onOpenRFQ} className="gap-2 text-lg px-8 py-6">
-          Submit RFQ Now <ArrowRight className="h-5 w-5" />
+        <p className="text-sm text-muted-foreground mb-4 max-w-xl mx-auto">Submit your requirement and receive AI-matched competitive quotes from verified suppliers.</p>
+        <Button size="default" onClick={onOpenRFQ} className="gap-2">
+          Submit RFQ Now <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </section>
