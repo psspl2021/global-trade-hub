@@ -149,27 +149,21 @@ function ProductOverviewSection({ product }: { product: IndustrialProduct }) {
             ))}
           </div>
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Applications</h2>
-          {sections.applications.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+          {[
+            ['Applications', sections.applications],
+            [`Market Trends in ${product.country}`, sections.marketTrends],
+            ['Procurement Challenges', sections.procurementChallenges],
+            ['Pricing Factors', sections.pricingFactors],
+          ].map(([title, body]) => (
+            <div key={title} className="rounded-lg border border-border bg-card p-4">
+              <h2 className="text-lg font-bold text-foreground mb-3">{title}</h2>
+              {body.split('\n\n').slice(0, 2).map((p, i) => (
+                <div key={i} className="leading-snug mb-2" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
+              ))}
+            </div>
           ))}
 
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Market Trends in {product.country}</h2>
-          {sections.marketTrends.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Procurement Challenges</h2>
-          {sections.procurementChallenges.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <h2 className="text-2xl font-bold text-foreground mt-10 mb-4">Pricing Factors</h2>
-          {sections.pricingFactors.split('\n\n').map((p, i) => (
-            <div key={i} className="text-muted-foreground leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-          ))}
-
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="md:col-span-2 flex flex-wrap gap-2">
             <span className="text-sm font-medium text-foreground">HSN Codes:</span>
             {product.hsnCodes.map(code => <Badge key={code} variant="outline">{code}</Badge>)}
             <span className="text-sm font-medium text-foreground ml-4">Standards:</span>
