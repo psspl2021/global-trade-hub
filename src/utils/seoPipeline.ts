@@ -130,7 +130,7 @@ export async function injectInternalLinks(slug: string, categorySlug: string): P
  */
 export async function runFullSEOPipeline(
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200,
+  delayMs = 3000,
   options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
@@ -193,7 +193,7 @@ export async function refreshSitemapAndPing(): Promise<void> {
 export async function runCategoryPipeline(
   categorySlug: string,
   onProgress?: (result: PipelineResult, index: number, total: number) => void,
-  delayMs = 1200,
+  delayMs = 3000,
   options: { skipPublished?: boolean } = { skipPublished: true }
 ): Promise<PipelineResult[]> {
   const results: PipelineResult[] = [];
