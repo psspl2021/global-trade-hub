@@ -313,7 +313,10 @@ serve(async (req) => {
     // ============ Writes ============
 
     // 1) seo_demand_pages: update impressions/clicks/last_checked per slug
+    //    Note: only updates existing rows. Slugs are seeded separately via taxonomy.
     let pagesUpdated = 0;
+    let pagesMissing = 0;
+    const missingSlugs: string[] = [];
     const nowISO = new Date().toISOString();
     for (const [slug, totals] of pageTotals) {
       const { error: updErr, count } = await supabase
@@ -325,7 +328,13 @@ serve(async (req) => {
           gsc_status: totals.impressions > 0 ? "indexed" : "pending",
         }, { count: "exact" })
         .eq("slug", slug);
-      if (!updErr && (count ?? 0) > 0) pagesUpdated++;
+      if (updErr) continue;
+      if ((count ?? 0) > 0) {
+        pagesUpdated++;
+      } else {
+        pagesMissing++;
+        if (missingSlugs.length < 25) missingSlugs.push(slug);
+      }
     }
 
     // 2) gsc_queries: clear stale rows for these pages, then bulk insert fresh
@@ -384,9 +393,14 @@ serve(async (req) => {
         date_range: { startDate, endDate },
         gsc_rows_fetched: rows.length,
         seo_demand_pages_updated: pagesUpdated,
+        seo_demand_pages_missing: pagesMissing,
+        missing_slugs_sample: missingSlugs,
         gsc_queries_inserted: queriesInserted,
         gsc_striking_distance_upserted: strikingUpserted,
         synced_at: nowISO,
+        note: pagesMissing > 0
+          ? `${pagesMissing} slug(s) returned by GSC are not in seo_demand_pages — seed them via taxonomy to track impressions.`
+          : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
