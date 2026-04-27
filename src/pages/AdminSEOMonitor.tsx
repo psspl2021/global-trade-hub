@@ -90,8 +90,9 @@ export default function AdminSEOMonitor() {
         toast.success(
           `✅ Sync done: ${result.gsc_rows_fetched} rows • ${result.seo_demand_pages_updated} pages • ${result.gsc_queries_inserted} queries • ${result.gsc_striking_distance_upserted} striking`
         );
-        // Refresh the table after a short delay so user sees the completed progress
-        setTimeout(() => window.location.reload(), 800);
+        // Refresh corridor data in-place (no full page reload — that would
+        // navigate away from the Performance tab back to the admin Overview).
+        setTimeout(() => { void refetchCorridors(); }, 600);
       } else {
         toast.error(`❌ ${result.error || result.message || 'Sync failed'}`);
       }
@@ -116,38 +117,39 @@ export default function AdminSEOMonitor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
+  async function refetchCorridors() {
+    const { data } = await supabase
+      .from('seo_demand_pages')
+      .select('slug, gsc_status, impressions, clicks, last_checked')
+      .in('slug', PHASE_1_SLUGS) as { data: CorridorRow[] | null };
+
+    const dbMap = new Map<string, CorridorRow>();
+    (data || []).forEach(row => dbMap.set(row.slug, row));
+
+    const merged: MergedCorridor[] = PHASE_1_CORRIDORS.map(c => {
+      const db = dbMap.get(c.slug);
+      const status = db?.gsc_status as 'pending' | 'indexed' | 'warning' | undefined;
+      const ctrStatus = db?.ctr_status as 'healthy' | 'warning' | 'critical' | undefined;
+      return {
+        slug: c.slug,
+        country: c.country,
+        category: c.category,
+        gsc_status: status && ['pending', 'indexed', 'warning'].includes(status) ? status : 'pending',
+        impressions: db?.impressions ?? 0,
+        clicks: db?.clicks ?? 0,
+        last_checked: db?.last_checked ?? null,
+        ctr: db?.ctr ?? 0,
+        ctr_status: ctrStatus && ['healthy', 'warning', 'critical'].includes(ctrStatus) ? ctrStatus : 'healthy',
+        rewrite_required: db?.rewrite_required ?? false,
+      };
+    });
+
+    setCorridors(merged);
+    setLoading(false);
+  }
+
   useEffect(() => {
-    async function fetchData() {
-      const { data } = await supabase
-        .from('seo_demand_pages')
-        .select('slug, gsc_status, impressions, clicks, last_checked')
-        .in('slug', PHASE_1_SLUGS) as { data: CorridorRow[] | null };
-
-      const dbMap = new Map<string, CorridorRow>();
-      (data || []).forEach(row => dbMap.set(row.slug, row));
-
-      const merged: MergedCorridor[] = PHASE_1_CORRIDORS.map(c => {
-        const db = dbMap.get(c.slug);
-        const status = db?.gsc_status as 'pending' | 'indexed' | 'warning' | undefined;
-        const ctrStatus = db?.ctr_status as 'healthy' | 'warning' | 'critical' | undefined;
-        return {
-          slug: c.slug,
-          country: c.country,
-          category: c.category,
-          gsc_status: status && ['pending', 'indexed', 'warning'].includes(status) ? status : 'pending',
-          impressions: db?.impressions ?? 0,
-          clicks: db?.clicks ?? 0,
-          last_checked: db?.last_checked ?? null,
-          ctr: db?.ctr ?? 0,
-          ctr_status: ctrStatus && ['healthy', 'warning', 'critical'].includes(ctrStatus) ? ctrStatus : 'healthy',
-          rewrite_required: db?.rewrite_required ?? false,
-        };
-      });
-
-      setCorridors(merged);
-      setLoading(false);
-    }
-    fetchData();
+    void refetchCorridors();
   }, []);
 
   if (loading) {
