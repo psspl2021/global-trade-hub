@@ -1,11 +1,113 @@
 import { serve } from "https://deno.land/std/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { google } from "https://esm.sh/googleapis@126";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type, x-admin-trigger",
 };
+
+const GSC_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+
+function base64Url(bytes: Uint8Array | string) {
+  const binary = typeof bytes === "string"
+    ? bytes
+    : Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64ToBytes(base64: string) {
+  const binary = atob(base64);
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+}
+
+function privateKeyCandidates(rawPrivateKey: string) {
+  const beginMarker = "-----BEGIN PRIVATE KEY-----";
+  const endMarker = "-----END PRIVATE KEY-----";
+  const normalized = rawPrivateKey.trim().replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\r/g, "\n");
+  const bodies: string[] = [];
+  const pemMatches = normalized.matchAll(/-----BEGIN PRIVATE KEY-----([\s\S]*?)-----END PRIVATE KEY-----/g);
+
+  for (const match of pemMatches) {
+    bodies.push(match[1]);
+  }
+
+  if (bodies.length === 0) {
+    bodies.push(normalized.replace(beginMarker, "").replace(endMarker, ""));
+  }
+
+  const candidates = new Set<string>();
+  for (const body of bodies) {
+    const compact = body.replace(/[^A-Za-z0-9+/=]/g, "");
+    if (compact.length > 0) candidates.add(compact);
+
+    // Service-account PKCS#8 keys normally start with MII. This also recovers
+    // the common broken paste where junk is accidentally prepended before MII.
+    const starts = [...compact.matchAll(/MII/g)].map((match) => match.index ?? -1).filter((index) => index >= 0);
+    for (const start of starts) {
+      candidates.add(compact.slice(start));
+    }
+  }
+
+  return [...candidates].filter((candidate) => candidate.length > 256);
+}
+
+async function importServiceAccountKey(rawPrivateKey: string) {
+  const attempts = privateKeyCandidates(rawPrivateKey);
+
+  for (const candidate of attempts) {
+    try {
+      return await crypto.subtle.importKey(
+        "pkcs8",
+        base64ToBytes(candidate),
+        { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+    } catch (_) {
+      // Try the next candidate.
+    }
+  }
+
+  throw new Error("invalid PEM private key. Use a fresh, unedited Google service-account JSON key file.");
+}
+
+async function getGoogleAccessToken(clientEmail: string, rawPrivateKey: string) {
+  const key = await importServiceAccountKey(rawPrivateKey);
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64Url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const payload = base64Url(JSON.stringify({
+    iss: clientEmail,
+    scope: GSC_SCOPE,
+    aud: GOOGLE_TOKEN_URL,
+    iat: now,
+    exp: now + 3600,
+  }));
+  const unsignedJwt = `${header}.${payload}`;
+  const signature = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    new TextEncoder().encode(unsignedJwt)
+  );
+  const assertion = `${unsignedJwt}.${base64Url(new Uint8Array(signature))}`;
+
+  const tokenResponse = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    }),
+  });
+  const tokenJson = await tokenResponse.json();
+
+  if (!tokenResponse.ok || !tokenJson.access_token) {
+    const message = tokenJson.error_description || tokenJson.error || "Google token exchange failed";
+    throw new Error(message);
+  }
+
+  return tokenJson.access_token as string;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
