@@ -164,6 +164,9 @@ serve(async (req) => {
       if (parsed.client_email && parsed.private_key) {
         clientEmail = parsed.client_email;
         privateKey = parsed.private_key;
+        // Diagnostic: log key shape (no secret material)
+        const pk = parsed.private_key as string;
+        console.log(`[seo-gsc-sync] key diag: length=${pk.length} startsWith=${JSON.stringify(pk.slice(0, 32))} endsWith=${JSON.stringify(pk.slice(-32))} hasBegin=${pk.includes("-----BEGIN PRIVATE KEY-----")} hasEnd=${pk.includes("-----END PRIVATE KEY-----")} hasLiteralBackslashN=${pk.includes("\\n")} hasNewline=${pk.includes("\n")} type=${parsed.type} client=${parsed.client_email}`);
       }
     } catch (e) {
       return new Response(
