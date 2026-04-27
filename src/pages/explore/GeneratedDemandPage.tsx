@@ -249,7 +249,7 @@ export default function GeneratedDemandPage() {
       <main className="min-h-screen bg-background">
         {/* ─── HERO ──────────────────────────────────────────── */}
         <section className="relative py-8 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
-          <div className="container mx-auto px-4 max-w-6xl">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BreadcrumbNav product={product} />
 
             {product.heroImage ? (
@@ -325,7 +325,7 @@ export default function GeneratedDemandPage() {
         </section>
 
         {/* ─── MAIN CONTENT + SIDEBAR ─────────────────────────── */}
-        <div className="container mx-auto px-4 max-w-7xl py-6">
+        <div className="container mx-auto px-4 max-w-[1680px] py-6">
           <div className={hasSidebar ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "grid grid-cols-1"}>
             {/* Main content */}
             <div className={hasSidebar ? "lg:col-span-3 space-y-6" : "space-y-6"}>
