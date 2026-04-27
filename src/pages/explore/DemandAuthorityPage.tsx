@@ -864,8 +864,8 @@ export default function DemandAuthorityPage() {
         <ProductOverviewSection product={product} />
 
         {/* Intent Keyword Layer — long-tail ranking signals */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <IntentKeywordSection
               productName={product.name}
               slug={product.slug}
@@ -879,8 +879,8 @@ export default function DemandAuthorityPage() {
         <DemandIntelligenceSection product={product} />
 
         {/* Commercial CTA + Freshness Signal */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <CommercialCTA
               productName={product.name}
               recentRFQs={product.demandIntelligence.recentRFQs}
@@ -890,8 +890,8 @@ export default function DemandAuthorityPage() {
         </section>
 
         {/* Breadcrumb Hierarchy for crawl depth */}
-        <section className="py-6 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-4 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BreadcrumbHierarchy
               industrySlug={product.industrySlug}
               industryName={product.industry}
@@ -901,8 +901,8 @@ export default function DemandAuthorityPage() {
         </section>
 
         {/* Buyer Trust (E-E-A-T signal) */}
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <section className="py-6 bg-background">
+          <div className="container mx-auto px-4 max-w-[1680px]">
             <BuyerTrustSection />
           </div>
         </section>
