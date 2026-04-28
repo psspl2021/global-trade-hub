@@ -225,16 +225,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== HIGH DEMAND ===== */}
-        <Suspense fallback={<SectionFallback />}>
-          <HighDemandSection />
-        </Suspense>
-
-        {/* ===== LIVE BUYER DEMAND ===== */}
-        <Suspense fallback={<SectionFallback />}>
-          <LiveBuyerDemandSection />
-        </Suspense>
-
         {/* ===== HOW IT WORKS ===== */}
         <Suspense fallback={<SectionFallback />}>
           <HowItWorksSection />
@@ -330,32 +320,14 @@ const Index = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                {
-                  icon: Gavel,
-                  t: 'Reverse auctions',
-                  d: 'Live, time-boxed competition with full bid history.',
-                },
-                {
-                  icon: FileText,
-                  t: 'Sealed-bid RFQs',
-                  d: 'Structured requirements, side-by-side comparison.',
-                },
-                {
-                  icon: ShieldCheck,
-                  t: 'Audit ledger',
-                  d: 'Cryptographically chained price trail on every order.',
-                },
-                {
-                  icon: LineChart,
-                  t: 'Savings reporting',
-                  d: 'CFO-ready evidence of measurable cost reduction.',
-                },
+                { icon: Gavel, t: 'Reverse auctions', d: 'Live, time-boxed competition with full bid history.' },
+                { icon: FileText, t: 'Sealed-bid RFQs', d: 'Structured requirements, side-by-side comparison.' },
+                { icon: ShieldCheck, t: 'Audit ledger', d: 'Cryptographically chained price trail on every order.' },
+                { icon: LineChart, t: 'Savings reporting', d: 'CFO-ready evidence of measurable cost reduction.' },
               ].map((f) => (
                 <div key={f.t}>
                   <f.icon className="h-5 w-5 text-primary mb-4" />
-                  <div className="text-[15px] font-semibold text-foreground mb-1.5">
-                    {f.t}
-                  </div>
+                  <div className="text-[15px] font-semibold text-foreground mb-1.5">{f.t}</div>
                   <div className="text-sm text-muted-foreground leading-relaxed">{f.d}</div>
                 </div>
               ))}
@@ -363,50 +335,68 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== CONCIERGE ===== */}
+        {/* ===== CONCIERGE — compact strip ===== */}
         <section className="border-b border-border bg-foreground">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div className="max-w-3xl">
-              <p className="text-xs font-medium text-background/60 uppercase tracking-wide mb-4">
-                Managed procurement
-              </p>
-              <h2 className="text-2xl sm:text-3xl lg:text-[36px] font-display font-semibold text-background tracking-tight leading-[1.15] mb-4">
-                Don't want to run the auction yourself? We will.
-              </h2>
-              <p className="text-[15px] text-background/70 leading-relaxed mb-8 max-w-2xl">
-                Send your requirement on WhatsApp. Our procurement desk runs the auction,
-                negotiates with suppliers, and returns a competitive quote — you only review
-                and approve.
-              </p>
-
-              <div className="grid sm:grid-cols-3 gap-6 mb-10 max-w-2xl">
-                {[
-                  { t: 'Zero learning curve', d: 'No system to onboard.' },
-                  { t: 'WhatsApp-first', d: 'Brief us in a message.' },
-                  { t: '24–48 hr turnaround', d: 'Quotes back, ready to award.' },
-                ].map((x) => (
-                  <div key={x.t} className="border-t border-background/15 pt-4">
-                    <div className="text-sm font-medium text-background mb-1">{x.t}</div>
-                    <div className="text-xs text-background/60">{x.d}</div>
-                  </div>
-                ))}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+              <div className="max-w-2xl">
+                <p className="text-xs font-medium text-background/60 uppercase tracking-wide mb-1.5">
+                  Managed procurement
+                </p>
+                <h2 className="text-lg sm:text-xl font-display font-semibold text-background tracking-tight leading-snug">
+                  Don't want to manage auctions? We'll handle it end-to-end.
+                </h2>
               </div>
-
               <Button
                 size="lg"
-                className="h-11 px-5 text-[14.5px] font-medium bg-background text-foreground hover:bg-background/90 shadow-none"
+                className="h-11 px-5 text-[14.5px] font-medium bg-background text-foreground hover:bg-background/90 shadow-none shrink-0"
                 onClick={openWhatsApp}
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Get procurement done for you
+                Send on WhatsApp
               </Button>
             </div>
           </div>
         </section>
 
-        {/* ===== FAQ ===== */}
+        {/* ===== FINAL CTA ===== */}
+        <section className="border-b border-border bg-background">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-display font-semibold text-foreground tracking-tight leading-[1.1] mb-4">
+                Stop overpaying for procurement.
+              </h2>
+              <p className="text-base sm:text-[17px] text-muted-foreground mb-8">
+                Run your first reverse auction today.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  size="lg"
+                  className="h-11 px-6 text-[14.5px] font-medium shadow-none"
+                  onClick={() => goPostRfq('final_cta')}
+                >
+                  Post requirement
+                  <ArrowRight className="h-4 w-4 ml-1.5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-11 px-6 text-[14.5px] font-medium"
+                  onClick={() => {
+                    trackEvent('final_cta_contact_sales_click', { source: 'homepage' });
+                    navigate('/contact');
+                  }}
+                >
+                  Talk to sales
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== FAQ — short ===== */}
         <Suspense fallback={<SectionFallback />}>
-          <LazyFAQ />
+          <HomepageFAQ />
         </Suspense>
       </main>
 
