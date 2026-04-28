@@ -4083,7 +4083,7 @@ export type Database = {
           id: string
           last_error: string | null
           max_retries: number
-          next_retry_at: string
+          next_retry_at: string | null
           po_id: string
           status: string
           updated_at: string
@@ -4096,7 +4096,7 @@ export type Database = {
           id?: string
           last_error?: string | null
           max_retries?: number
-          next_retry_at?: string
+          next_retry_at?: string | null
           po_id: string
           status?: string
           updated_at?: string
@@ -4109,7 +4109,7 @@ export type Database = {
           id?: string
           last_error?: string | null
           max_retries?: number
-          next_retry_at?: string
+          next_retry_at?: string | null
           po_id?: string
           status?: string
           updated_at?: string
@@ -14415,6 +14415,25 @@ export type Database = {
         Returns: undefined
       }
       recalculate_intent_scores: { Args: never; Returns: number }
+      record_demand_signal: {
+        Args: {
+          p_buyer_type?: string
+          p_category: string
+          p_classification: string
+          p_confidence_score: number
+          p_country: string
+          p_decision_action?: string
+          p_delivery_location?: string
+          p_discovered_at?: string
+          p_external_source_url?: string
+          p_intent_score: number
+          p_lane_state: string
+          p_product_description?: string
+          p_signal_source: string
+          p_subcategory?: string
+        }
+        Returns: undefined
+      }
       record_po_payment:
         | {
             Args: {

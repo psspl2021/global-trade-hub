@@ -142,14 +142,25 @@ serve(async (req) => {
       } else {
         // Retry or fail permanently
         const isFinal = newAttempt >= (job.max_retries || 3);
+        // For terminal failures, omit next_retry_at (column is nullable now);
+        // for retries, set the next attempt time.
+        const updatePayload: Record<string, unknown> = {
+          status: isFinal ? "failed" : "pending",
+          attempt_count: newAttempt,
+          last_error: typeof erpResponse === "string"
+            ? erpResponse
+            : JSON.stringify(erpResponse),
+          updated_at: new Date().toISOString(),
+        };
+        if (!isFinal) {
+          updatePayload.next_retry_at = new Date(
+            Date.now() + 5 * 60 * 1000 * newAttempt,
+          ).toISOString();
+        } else {
+          updatePayload.next_retry_at = null;
+        }
         await supabase.from("erp_sync_queue")
-          .update({
-            status: isFinal ? "failed" : "pending",
-            attempt_count: newAttempt,
-            last_error: JSON.stringify(erpResponse),
-            next_retry_at: isFinal ? null : new Date(Date.now() + 5 * 60 * 1000 * newAttempt).toISOString(),
-            updated_at: new Date().toISOString(),
-          })
+          .update(updatePayload)
           .eq("id", job.id);
 
         if (isFinal) {
