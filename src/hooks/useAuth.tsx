@@ -16,12 +16,18 @@ export const useAuth = () => {
   useSessionHeartbeat(activeSessionId);
 
   useEffect(() => {
-    // Set up auth state listener
+    let cancelled = false;
+
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (cancelled) return;
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
+        // Don't flip loading=false here on the very first SIGNED_IN —
+        // the initial getSession() path below owns that to avoid a
+        // brief authenticated flash before the stale-session check.
+        if (event !== 'INITIAL_SESSION') setLoading(false);
 
         // Register session on login (soft limit: max 2 concurrent)
         if (event === 'SIGNED_IN' && session?.user) {
@@ -37,14 +43,15 @@ export const useAuth = () => {
       }
     );
 
-    // Check for existing session — and validate it against the server.
-    // If the underlying auth user was deleted (user_not_found), wipe the
-    // dead session locally so the app doesn't get stuck in a 403 loop and
-    // the user can re-enter via the invite/login flow cleanly.
+    // Validate existing session against the server. If the underlying auth
+    // user was deleted, wipe the dead session locally before exposing it
+    // to the rest of the app (prevents permission flickers).
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
       if (session) {
         const { error: userErr } = await supabase.auth.getUser();
+        if (cancelled) return;
         if (userErr && (
           (userErr as any).code === 'user_not_found' ||
           /user.*not.*found/i.test(userErr.message || '')
@@ -63,7 +70,10 @@ export const useAuth = () => {
       setLoading(false);
     })();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, data: any, referralCode?: string | null) => {
