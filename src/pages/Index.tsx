@@ -518,6 +518,44 @@ const Index = () => {
           <LazyFAQ />
         </Suspense>
 
+        {/* ===== CONCIERGE — Done-for-you procurement ===== */}
+        <section className="py-14 sm:py-20 bg-foreground text-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <span className="inline-block px-3 py-1 bg-warning/20 text-warning text-xs font-semibold rounded-md mb-4">
+                Managed Procurement
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-display font-extrabold mb-4 tracking-tight">
+                Don't want to manage auctions? We'll handle it end-to-end.
+              </h2>
+              <p className="text-base sm:text-lg text-background/80 mb-8 max-w-2xl mx-auto">
+                Share your requirement on WhatsApp. Our procurement team runs the auction, negotiates with suppliers, and delivers a competitive quote — you only review and approve.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-3xl mx-auto">
+                {[
+                  { t: 'No effort', d: 'Zero learning curve' },
+                  { t: 'No system to learn', d: 'Just WhatsApp us' },
+                  { t: 'Immediate outcome', d: 'Quotes within 24–48 hrs' },
+                ].map((x) => (
+                  <div key={x.t} className="bg-background/5 border border-background/10 rounded-xl p-4">
+                    <div className="font-display font-bold text-warning text-base mb-1">{x.t}</div>
+                    <div className="text-xs text-background/70">{x.d}</div>
+                  </div>
+                ))}
+              </div>
+              <Button
+                size="lg"
+                className="h-14 px-10 font-bold bg-warning text-warning-foreground hover:bg-warning/90 shadow-xl"
+                onClick={() => window.open('https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.', '_blank')}
+              >
+                <MessageSquare className="h-5 w-5 mr-2" />
+                Get Procurement Done For You
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </section>
+
         {/* ===== SECTION 9: FINAL CTA STRIP ===== */}
         <section className="py-14 sm:py-20 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5 relative overflow-hidden">
           {/* Subtle decorative orbs */}
