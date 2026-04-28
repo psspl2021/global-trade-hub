@@ -17,11 +17,11 @@ import {
 
 interface EmailQuotaStatus {
   daily_sent: number;
-  monthly_sent: number;
   daily_limit: number;
-  monthly_limit: number;
-  is_subscribed: boolean;
-  subscription_expires_at: string | null;
+  emails_remaining: number;
+  lifetime_purchased: number;
+  has_premium_pack: boolean;
+  last_pack_activated_at: string | null;
 }
 
 declare global {
@@ -81,15 +81,15 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setQuotaStatus(data[0]);
+        setQuotaStatus(data[0] as EmailQuotaStatus);
       } else {
         setQuotaStatus({
           daily_sent: 0,
-          monthly_sent: 0,
           daily_limit: 2,
-          monthly_limit: 2,
-          is_subscribed: false,
-          subscription_expires_at: null
+          emails_remaining: 0,
+          lifetime_purchased: 0,
+          has_premium_pack: false,
+          last_pack_activated_at: null,
         });
       }
     } catch (error) {
@@ -175,15 +175,12 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
 
   if (!quotaStatus) return null;
 
-  const remainingEmails = quotaStatus.is_subscribed
-    ? quotaStatus.monthly_limit - quotaStatus.monthly_sent
-    : quotaStatus.daily_limit - quotaStatus.daily_sent;
-
-  const dailyProgress = quotaStatus.is_subscribed 
-    ? (quotaStatus.monthly_sent / quotaStatus.monthly_limit) * 100
-    : (quotaStatus.daily_sent / quotaStatus.daily_limit) * 100;
-
+  const dailyRemaining = Math.max(0, quotaStatus.daily_limit - quotaStatus.daily_sent);
+  // Total available right now = today's free remaining + premium pack balance
+  const remainingEmails = dailyRemaining + quotaStatus.emails_remaining;
+  const dailyProgress = (quotaStatus.daily_sent / quotaStatus.daily_limit) * 100;
   const isQuotaExhausted = remainingEmails <= 0;
+  const isSubscribed = quotaStatus.has_premium_pack; // alias for legacy UI blocks below
 
   // Expanded view - shows full details inline
   if (expanded) {
