@@ -288,20 +288,21 @@ async function sendSignalToServer(
     'SUPPLIER_INQUIRY': 0.3,
   };
   
-  await supabase.from('demand_intelligence_signals').insert({
-    signal_source: signal.source,
-    category: signal.category_slug,
-    subcategory: signal.subcategory_slug,
-    country: countryCode.toUpperCase(),
-    buyer_type: 'unknown_external',
-    classification: classificationMap[signal.event_type],
-    intent_score: intentScoreMap[signal.event_type],
-    confidence_score: 0.6, // Moderate confidence for organic signals
-    decision_action: 'pending',
-    discovered_at: signal.timestamp,
-    lane_state: signal.event_type === 'RFQ_SUBMITTED' ? 'confirmed' : 'detected',
-    product_description: signal.subcategory_slug || signal.category_slug,
-    delivery_location: signal.detected_country,
+  // Route through SECURITY DEFINER RPC; the table itself is admin-only.
+  await supabase.rpc('record_demand_signal', {
+    p_signal_source: signal.source,
+    p_category: signal.category_slug,
+    p_subcategory: signal.subcategory_slug ?? null,
+    p_country: countryCode.toUpperCase(),
+    p_buyer_type: 'unknown_external',
+    p_classification: classificationMap[signal.event_type],
+    p_intent_score: intentScoreMap[signal.event_type],
+    p_confidence_score: 0.6,
+    p_decision_action: 'pending',
+    p_discovered_at: signal.timestamp,
+    p_lane_state: signal.event_type === 'RFQ_SUBMITTED' ? 'confirmed' : 'detected',
+    p_product_description: signal.subcategory_slug || signal.category_slug,
+    p_delivery_location: signal.detected_country,
   });
 }
 

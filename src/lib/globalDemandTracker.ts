@@ -401,20 +401,20 @@ async function sendDemandSignal(params: {
   // Normalize intent score to 0-1 range for database
   const normalizedIntent = params.intentScore / 10;
   
-  await supabase.from('demand_intelligence_signals').insert({
-    signal_source: `seo_${params.pageType.toLowerCase()}`,
-    category: params.category,
-    country: params.countryCode.toUpperCase() || 'GLOBAL',
-    buyer_type: 'unknown_external',
-    classification: classificationMap[params.pageType],
-    intent_score: normalizedIntent,
-    confidence_score: params.hasRFQ ? 0.9 : 0.6,
-    decision_action: 'pending',
-    discovered_at: params.timestamp,
-    lane_state: laneState,
-    product_description: params.category,
-    delivery_location: params.geoCountry || params.country,
-    external_source_url: params.path,
+  await supabase.rpc('record_demand_signal', {
+    p_signal_source: `seo_${params.pageType.toLowerCase()}`,
+    p_category: params.category,
+    p_country: (params.countryCode || 'GLOBAL').toUpperCase(),
+    p_buyer_type: 'unknown_external',
+    p_classification: classificationMap[params.pageType],
+    p_intent_score: normalizedIntent,
+    p_confidence_score: params.hasRFQ ? 0.9 : 0.6,
+    p_decision_action: 'pending',
+    p_discovered_at: params.timestamp,
+    p_lane_state: laneState,
+    p_product_description: params.category,
+    p_delivery_location: params.geoCountry || params.country,
+    p_external_source_url: params.path,
   });
 }
 
