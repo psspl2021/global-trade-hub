@@ -10362,10 +10362,13 @@ export type Database = {
         Row: {
           created_at: string
           daily_emails_sent: number
+          emails_remaining: number
           has_email_subscription: boolean
           id: string
           last_daily_reset: string
           last_monthly_reset: string
+          last_pack_activated_at: string | null
+          lifetime_emails_purchased: number
           monthly_emails_sent: number
           subscription_expires_at: string | null
           subscription_started_at: string | null
@@ -10377,10 +10380,13 @@ export type Database = {
         Insert: {
           created_at?: string
           daily_emails_sent?: number
+          emails_remaining?: number
           has_email_subscription?: boolean
           id?: string
           last_daily_reset?: string
           last_monthly_reset?: string
+          last_pack_activated_at?: string | null
+          lifetime_emails_purchased?: number
           monthly_emails_sent?: number
           subscription_expires_at?: string | null
           subscription_started_at?: string | null
@@ -10392,10 +10398,13 @@ export type Database = {
         Update: {
           created_at?: string
           daily_emails_sent?: number
+          emails_remaining?: number
           has_email_subscription?: boolean
           id?: string
           last_daily_reset?: string
           last_monthly_reset?: string
+          last_pack_activated_at?: string | null
+          lifetime_emails_purchased?: number
           monthly_emails_sent?: number
           subscription_expires_at?: string | null
           subscription_started_at?: string | null
@@ -12643,6 +12652,17 @@ export type Database = {
         Args: { p_admin_id: string; p_signal_id: string }
         Returns: Json
       }
+      activate_email_pack: {
+        Args: {
+          p_emails_to_add?: number
+          p_order_id?: string
+          p_supplier_id: string
+        }
+        Returns: {
+          emails_remaining: number
+          lifetime_purchased: number
+        }[]
+      }
       activate_lane_from_award:
         | {
             Args: {
@@ -12997,9 +13017,9 @@ export type Database = {
         Args: { p_supplier_id: string }
         Returns: {
           can_send: boolean
-          is_subscribed: boolean
+          emails_remaining: number
           remaining_daily: number
-          remaining_monthly: number
+          used_premium: boolean
         }[]
       }
       check_can_create_po: { Args: { p_buyer_id: string }; Returns: Json }
@@ -13551,10 +13571,10 @@ export type Database = {
         Returns: {
           daily_limit: number
           daily_sent: number
-          is_subscribed: boolean
-          monthly_limit: number
-          monthly_sent: number
-          subscription_expires_at: string
+          emails_remaining: number
+          has_premium_pack: boolean
+          last_pack_activated_at: string
+          lifetime_purchased: number
         }[]
       }
       get_feedback_adjusted_confidence: {
