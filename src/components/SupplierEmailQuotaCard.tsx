@@ -192,7 +192,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
               <Mail className="h-5 w-5 text-primary" />
               <CardTitle>Email Notifications</CardTitle>
             </div>
-            {quotaStatus.is_subscribed ? (
+            {isSubscribed ? (
               <Badge variant="default" className="bg-gradient-to-r from-amber-500 to-orange-500">
                 <Crown className="h-3 w-3 mr-1" />
                 Premium
@@ -204,8 +204,8 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {quotaStatus.is_subscribed 
-              ? 'You have access to 500 requirement notification emails per month'
+            {isSubscribed 
+              ? 'Premium pack active — emails remaining are valid until consumed (no time expiry)'
               : 'You get 2 free requirement notification emails per day'
             }
           </p>
@@ -213,11 +213,11 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {quotaStatus.is_subscribed ? 'Monthly Usage' : 'Daily Usage'}
+                {isSubscribed ? 'Pack Usage' : 'Daily Usage'}
               </span>
               <span className="font-medium">
-                {quotaStatus.is_subscribed 
-                  ? `${quotaStatus.monthly_sent} / ${quotaStatus.monthly_limit}`
+                {isSubscribed 
+                  ? `${(quotaStatus.lifetime_purchased - quotaStatus.emails_remaining)} / ${quotaStatus.lifetime_purchased}`
                   : `${quotaStatus.daily_sent} / ${quotaStatus.daily_limit}`
                 }
               </span>
@@ -236,7 +236,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
             </span>
           </div>
 
-          {isQuotaExhausted && !quotaStatus.is_subscribed && (
+          {isQuotaExhausted && !isSubscribed && (
             <div className="flex items-start space-x-2 p-3 bg-destructive/10 rounded-lg">
               <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
               <div className="text-sm">
@@ -248,14 +248,14 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
             </div>
           )}
 
-          {quotaStatus.is_subscribed && quotaStatus.subscription_expires_at && (
+          {isSubscribed && quotaStatus.last_pack_activated_at && (
             <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Subscription expires:</span>
-              <span>{format(new Date(quotaStatus.subscription_expires_at), 'dd MMM yyyy')}</span>
+              <span>Pack activated on:</span>
+              <span>{format(new Date(quotaStatus.last_pack_activated_at), 'dd MMM yyyy')}</span>
             </div>
           )}
 
-          {!quotaStatus.is_subscribed && (
+          {!isSubscribed && (
             <div className="pt-2">
               <Button 
                 onClick={handleUpgrade} 
@@ -329,7 +329,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-3">
-            {remainingEmails} {quotaStatus.is_subscribed ? 'monthly' : 'daily'} emails left
+            {remainingEmails} {isSubscribed ? 'pack' : 'daily'} emails left
           </p>
           <Button variant="outline" className="w-full" onClick={() => setShowDetails(true)}>
             View Details
@@ -345,7 +345,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                 <Mail className="h-5 w-5 text-primary" />
                 <DialogTitle>Email Notifications</DialogTitle>
               </div>
-              {quotaStatus.is_subscribed ? (
+              {isSubscribed ? (
                 <Badge variant="default" className="bg-gradient-to-r from-amber-500 to-orange-500">
                   <Crown className="h-3 w-3 mr-1" />
                   Premium
@@ -355,8 +355,8 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
               )}
             </div>
             <DialogDescription>
-              {quotaStatus.is_subscribed 
-                ? 'You have access to 500 requirement notification emails per month'
+              {isSubscribed 
+                ? 'Premium pack active — emails remaining are valid until consumed (no time expiry)'
                 : 'You get 2 free requirement notification emails per day'
               }
             </DialogDescription>
@@ -366,11 +366,11 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  {quotaStatus.is_subscribed ? 'Monthly Usage' : 'Daily Usage'}
+                  {isSubscribed ? 'Pack Usage' : 'Daily Usage'}
                 </span>
                 <span className="font-medium">
-                  {quotaStatus.is_subscribed 
-                    ? `${quotaStatus.monthly_sent} / ${quotaStatus.monthly_limit}`
+                  {isSubscribed 
+                    ? `${(quotaStatus.lifetime_purchased - quotaStatus.emails_remaining)} / ${quotaStatus.lifetime_purchased}`
                     : `${quotaStatus.daily_sent} / ${quotaStatus.daily_limit}`
                   }
                 </span>
@@ -389,7 +389,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
               </span>
             </div>
 
-            {isQuotaExhausted && !quotaStatus.is_subscribed && (
+            {isQuotaExhausted && !isSubscribed && (
               <div className="flex items-start space-x-2 p-3 bg-destructive/10 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
@@ -401,14 +401,14 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
               </div>
             )}
 
-            {quotaStatus.is_subscribed && quotaStatus.subscription_expires_at && (
+            {isSubscribed && quotaStatus.last_pack_activated_at && (
               <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>Subscription expires:</span>
-                <span>{format(new Date(quotaStatus.subscription_expires_at), 'dd MMM yyyy')}</span>
+                <span>Pack activated on:</span>
+                <span>{format(new Date(quotaStatus.last_pack_activated_at), 'dd MMM yyyy')}</span>
               </div>
             )}
 
-            {!quotaStatus.is_subscribed && (
+            {!isSubscribed && (
               <div className="pt-2">
                 <Button 
                   onClick={handleUpgrade} 
