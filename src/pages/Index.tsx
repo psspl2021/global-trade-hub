@@ -16,11 +16,6 @@ import { PageHeader } from '@/components/landing/PageHeader';
 import { trackEvent } from '@/lib/analytics';
 
 // Below-the-fold lazy sections
-const LiveBuyerDemandSection = lazy(() =>
-  import('@/components/landing/LiveBuyerDemandSection').then((m) => ({
-    default: m.LiveBuyerDemandSection,
-  })),
-);
 const HowItWorksSection = lazy(() =>
   import('@/components/landing/HowItWorksSection').then((m) => ({
     default: m.HowItWorksSection,
@@ -32,7 +27,6 @@ const HomepageFAQ = lazy(() =>
 const Footer = lazy(() =>
   import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
 );
-const HighDemandSection = lazy(() => import('@/components/landing/HighDemandSection'));
 
 const SectionFallback = () => (
   <div className="py-20 bg-background">
