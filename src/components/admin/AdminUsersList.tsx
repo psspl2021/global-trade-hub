@@ -106,19 +106,40 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
     setCurrentPage(1);
   }, [activeTab, search, pageSize]);
 
-  const MAIN_ROLES = ['buyer', 'supplier', 'logistics_partner'];
+  // Role-family grouping. A user with multiple roles appears in the
+  // family of their HIGHEST-PRIORITY role only — never duplicated across tabs.
+  const BUYER_FAMILY = [
+    'buyer', 'buyer_purchaser', 'buyer_manager', 'buyer_cfo', 'buyer_ceo', 'buyer_hr',
+    'purchaser', 'manager', 'cfo', 'ceo', 'hr',
+  ];
+  const SUPPLIER_FAMILY = ['supplier'];
+  const LOGISTICS_FAMILY = ['logistics_partner', 'transporter'];
+  const KNOWN_FAMILIES = [...BUYER_FAMILY, ...SUPPLIER_FAMILY, ...LOGISTICS_FAMILY];
+
+  // Higher index = higher priority when picking which family a multi-role user belongs to.
+  const FAMILY_PRIORITY = ['supplier', 'logistics_partner', 'buyer'];
+
+  const classifyFamily = (roles: string[]): 'buyer' | 'supplier' | 'logistics_partner' | 'other' => {
+    if (roles.some(r => SUPPLIER_FAMILY.includes(r))) return 'supplier';
+    if (roles.some(r => LOGISTICS_FAMILY.includes(r))) return 'logistics_partner';
+    if (roles.some(r => BUYER_FAMILY.includes(r))) return 'buyer';
+    return 'other';
+  };
 
   const fetchTabCounts = async () => {
     try {
-      const { data: roles } = await supabase.from('user_roles').select('role');
-      if (roles) {
-        setTabCounts({
-          buyer: roles.filter(r => r.role === 'buyer').length,
-          supplier: roles.filter(r => r.role === 'supplier').length,
-          logistics_partner: roles.filter(r => r.role === 'logistics_partner').length,
-          other: roles.filter(r => !MAIN_ROLES.includes(r.role)).length,
-        });
+      const { data: roles } = await supabase.from('user_roles').select('user_id, role');
+      if (!roles) return;
+      // Group roles by user_id, then classify each user once.
+      const byUser = new Map<string, string[]>();
+      for (const r of roles) {
+        const arr = byUser.get(r.user_id) || [];
+        arr.push(r.role);
+        byUser.set(r.user_id, arr);
       }
+      const counts = { buyer: 0, supplier: 0, logistics_partner: 0, other: 0 };
+      byUser.forEach(rs => { counts[classifyFamily(rs)]++; });
+      setTabCounts(counts);
     } catch (error) {
       console.error('Error fetching counts:', error);
     }
@@ -127,30 +148,56 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   const fetchUsers = async (tab: string) => {
     setLoading(true);
     try {
-      const from = (currentPage - 1) * pageSize;
-      const to = from + pageSize - 1;
-
-      let rolesQuery = supabase
+      // Fetch ALL roles, group by user, classify, then paginate client-side.
+      // (User volumes here are admin-scale — a few thousand rows max.)
+      const { data: allRoles } = await supabase
         .from('user_roles')
-        .select('user_id, role', { count: 'exact' });
+        .select('user_id, role');
 
-      if (tab === 'other') {
-        rolesQuery = rolesQuery.not('role', 'in', `(${MAIN_ROLES.join(',')})`);
-      } else {
-        rolesQuery = rolesQuery.eq('role', tab as AppRole);
-      }
-
-      const { data: roles, count } = await rolesQuery.range(from, to);
-
-      if (!roles) {
+      if (!allRoles) {
         setUsers([]);
         setTotalCount(0);
         return;
       }
 
-      setTotalCount(count || 0);
+      const byUser = new Map<string, string[]>();
+      for (const r of allRoles) {
+        const arr = byUser.get(r.user_id) || [];
+        arr.push(r.role);
+        byUser.set(r.user_id, arr);
+      }
 
-      const userIds = roles.map(r => r.user_id);
+      // Filter users belonging to the active family.
+      const matchingUserIds: string[] = [];
+      const userPrimaryRole = new Map<string, string>();
+      byUser.forEach((rs, uid) => {
+        const family = classifyFamily(rs);
+        if (family === tab) {
+          matchingUserIds.push(uid);
+          // Pick a representative role for display: prefer family-relevant role.
+          let primary = rs[0];
+          if (tab === 'supplier') primary = rs.find(r => SUPPLIER_FAMILY.includes(r)) || primary;
+          else if (tab === 'logistics_partner') primary = rs.find(r => LOGISTICS_FAMILY.includes(r)) || primary;
+          else if (tab === 'buyer') primary = rs.find(r => BUYER_FAMILY.includes(r)) || primary;
+          else primary = rs.find(r => !KNOWN_FAMILIES.includes(r)) || primary;
+          userPrimaryRole.set(uid, primary);
+        }
+      });
+
+      setTotalCount(matchingUserIds.length);
+
+      // Paginate the deduped user list.
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize;
+      const pageUserIds = matchingUserIds.slice(from, to);
+
+      // Build a synthetic `roles` shape compatible with downstream code.
+      const roles = pageUserIds.map(uid => ({
+        user_id: uid,
+        role: userPrimaryRole.get(uid) || 'unknown',
+      }));
+
+      const userIds = pageUserIds;
 
       const [{ data: profiles }, { data: subs }] = await Promise.all([
         supabase
