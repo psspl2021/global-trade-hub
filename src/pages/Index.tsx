@@ -182,29 +182,51 @@ const Index = () => {
               {/* AI Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 backdrop-blur-md border border-primary/25 mb-8 animate-fade-in hover:bg-primary/20 transition-colors cursor-default">
                 <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                <span className="text-primary text-sm font-semibold tracking-wide">AI-Powered Procurement</span>
+                <span className="text-primary text-sm font-semibold tracking-wide">AI Operating System for Procurement</span>
               </div>
               
-              {/* H1 */}
+              {/* H1 — mechanism-anchored claim */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 leading-[1.08] animate-slide-up tracking-tight">
-                <span className="text-primary drop-shadow-lg">AI-Powered B2B</span>
+                <span className="text-primary drop-shadow-lg">Reduce Procurement Costs</span>
                 <br />
-                <span className="text-foreground drop-shadow-md">Procurement Platform</span>
+                <span className="text-foreground drop-shadow-md">by up to 15% annually</span>
               </h1>
               
               <p className="text-lg sm:text-xl text-foreground/90 font-semibold mb-3 animate-slide-up drop-shadow-md max-w-2xl mx-auto" style={{ animationDelay: '80ms' }}>
-                Verified sourcing through AI-detected buyer demand
+                Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
               </p>
               
-              <p className="text-sm sm:text-base text-primary font-semibold mb-10 animate-slide-up drop-shadow-md" style={{ animationDelay: '120ms' }}>
-                AI tracks live buyer intent and converts it into RFQs.
+              <p className="text-sm sm:text-base text-primary font-semibold mb-8 animate-slide-up drop-shadow-md" style={{ animationDelay: '120ms' }}>
+                Your existing vendors + our supplier network compete together — no need to switch vendors.
               </p>
               
               {/* AI Citation */}
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-5 sm:p-6 mb-10 animate-slide-up max-w-3xl mx-auto shadow-lg" style={{ animationDelay: '160ms' }}>
+              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-5 sm:p-6 mb-8 animate-slide-up max-w-3xl mx-auto shadow-lg" style={{ animationDelay: '160ms' }}>
                 <p className="text-base sm:text-lg text-black font-bold leading-relaxed">
-                  <strong className="text-primary text-lg sm:text-xl font-extrabold">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
+                  <strong className="text-primary text-lg sm:text-xl font-extrabold">ProcureSaathi</strong> is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
+              </div>
+
+              {/* Pre-filled RFQ template chips — friction reducer */}
+              <div className="mb-8 animate-slide-up" style={{ animationDelay: '180ms' }}>
+                <p className="text-xs font-semibold text-foreground/80 mb-2 drop-shadow">Post a requirement in 30 seconds:</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {[
+                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, 25 MT, monthly' },
+                    { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
+                    { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
+                    { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
+                    { label: 'Electricals', q: 'LT cables and switchgear — project lot' },
+                  ].map((c) => (
+                    <button
+                      key={c.label}
+                      onClick={() => navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)}
+                      className="px-3 py-1.5 rounded-full bg-white/70 hover:bg-white text-xs font-semibold text-foreground border border-border/60 shadow-sm hover:shadow transition-all hover:-translate-y-0.5"
+                    >
+                      + {c.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Trust Badges */}
@@ -246,6 +268,49 @@ const Index = () => {
         <Suspense fallback={<SectionFallback />}>
           <HighDemandSection />
         </Suspense>
+
+        {/* ===== PROOF STRIP — Illustrative auction outcomes ===== */}
+        <section className="py-12 sm:py-16 bg-background border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-md mb-3">
+                Illustrative Scenario
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+                What a single reverse auction can look like
+              </h2>
+              <p className="text-muted-foreground text-sm mt-2 max-w-xl mx-auto">
+                Outcomes vary by category, volume, and market conditions.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">3%</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved in a single auction</div>
+                  <div className="text-xs text-muted-foreground mt-1">vs. previous vendor quote</div>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">7</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Suppliers competed</div>
+                  <div className="text-xs text-muted-foreground mt-1">live, in real time</div>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">18 min</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Auction duration</div>
+                  <div className="text-xs text-muted-foreground mt-1">from start to award</div>
+                </CardContent>
+              </Card>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-6 max-w-2xl mx-auto">
+              Reverse auctions on ProcureSaathi are <strong className="text-foreground">100% free for suppliers to bid</strong> — the platform earns only on successful awards.
+            </p>
+          </div>
+        </section>
 
         {/* ===== SECTION 3: LIVE BUYER DEMAND SECTION ===== */}
         <Suspense fallback={<SectionFallback />}>
@@ -315,15 +380,15 @@ const Index = () => {
                   <ul className="space-y-3.5">
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">Demand-first onboarding — AI detects buyer intent first</span>
+                      <span className="text-foreground">Get live RFQs from real buyers — not just profile listings</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">No lead selling — matched with real buyer requirements</span>
+                      <span className="text-foreground">Compete only when relevant — matched to your category & capacity</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">Visibility into real buyer intent before you invest time</span>
+                      <span className="text-foreground"><strong>Reverse auctions are 100% free to bid</strong> — no subscription required</span>
                     </li>
                   </ul>
                   <Button 
@@ -452,6 +517,44 @@ const Index = () => {
         <Suspense fallback={<SectionFallback />}>
           <LazyFAQ />
         </Suspense>
+
+        {/* ===== CONCIERGE — Done-for-you procurement ===== */}
+        <section className="py-14 sm:py-20 bg-foreground text-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <span className="inline-block px-3 py-1 bg-warning/20 text-warning text-xs font-semibold rounded-md mb-4">
+                Managed Procurement
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-display font-extrabold mb-4 tracking-tight">
+                Don't want to manage auctions? We'll handle it end-to-end.
+              </h2>
+              <p className="text-base sm:text-lg text-background/80 mb-8 max-w-2xl mx-auto">
+                Share your requirement on WhatsApp. Our procurement team runs the auction, negotiates with suppliers, and delivers a competitive quote — you only review and approve.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-3xl mx-auto">
+                {[
+                  { t: 'No effort', d: 'Zero learning curve' },
+                  { t: 'No system to learn', d: 'Just WhatsApp us' },
+                  { t: 'Immediate outcome', d: 'Quotes within 24–48 hrs' },
+                ].map((x) => (
+                  <div key={x.t} className="bg-background/5 border border-background/10 rounded-xl p-4">
+                    <div className="font-display font-bold text-warning text-base mb-1">{x.t}</div>
+                    <div className="text-xs text-background/70">{x.d}</div>
+                  </div>
+                ))}
+              </div>
+              <Button
+                size="lg"
+                className="h-14 px-10 font-bold bg-warning text-warning-foreground hover:bg-warning/90 shadow-xl"
+                onClick={() => window.open('https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.', '_blank')}
+              >
+                <MessageSquare className="h-5 w-5 mr-2" />
+                Get Procurement Done For You
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </section>
 
         {/* ===== SECTION 9: FINAL CTA STRIP ===== */}
         <section className="py-14 sm:py-20 bg-gradient-to-br from-primary/5 via-muted/50 to-primary/5 relative overflow-hidden">
