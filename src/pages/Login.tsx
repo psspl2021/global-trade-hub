@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,6 +34,7 @@ const Login = () => {
   const [resetErrors, setResetErrors] = useState<{ email?: string }>({});
   const [showTOTPVerification, setShowTOTPVerification] = useState(false);
   const [checkingTOTP, setCheckingTOTP] = useState(false);
+  const totpCheckedRef = useRef<string | null>(null);
 
   useSEO({
     title: "Login | ProcureSaathi B2B Platform",
@@ -42,10 +43,17 @@ const Login = () => {
   });
 
   useEffect(() => {
-    if (user && !showTOTPVerification && !checkingTOTP) {
-      checkTOTPStatus();
+    // Only run once per user session — prevents loops after TOTP cancel/failure
+    if (authLoading) return;
+    if (!user) {
+      totpCheckedRef.current = null;
+      return;
     }
-  }, [user, showTOTPVerification, checkingTOTP]);
+    if (showTOTPVerification || checkingTOTP) return;
+    if (totpCheckedRef.current === user.id) return;
+    totpCheckedRef.current = user.id;
+    checkTOTPStatus();
+  }, [user, authLoading, showTOTPVerification, checkingTOTP]);
 
   const checkTOTPStatus = async () => {
     if (!user) return;
@@ -198,6 +206,7 @@ const Login = () => {
   };
 
   const handleTOTPCancel = async () => {
+    totpCheckedRef.current = null;
     await supabase.auth.signOut({ scope: 'local' });
     setShowTOTPVerification(false);
   };

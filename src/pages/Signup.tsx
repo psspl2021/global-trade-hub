@@ -90,20 +90,25 @@ const Signup = () => {
   
   const { supplierCount, logisticsCount, isLoading: countsLoading } = usePartnerCounts();
 
-  // Debounced GSTIN validation
-  const validateGSTINDebounced = useCallback((value: string) => {
-    if (!value.trim() || detectedCountry !== 'india') {
+  // Debounced GSTIN validation (cleanup handled by useEffect below)
+  const [gstinInput, setGstinInput] = useState('');
+  useEffect(() => {
+    if (!gstinInput.trim() || detectedCountry !== 'india') {
       setGstinValidation(null);
+      setGstinChecking(false);
       return;
     }
     setGstinChecking(true);
     const timer = setTimeout(() => {
-      const result = validateGSTIN(value);
+      const result = validateGSTIN(gstinInput);
       setGstinValidation(result);
       setGstinChecking(false);
     }, 400);
     return () => clearTimeout(timer);
-  }, [detectedCountry]);
+  }, [gstinInput, detectedCountry]);
+  const validateGSTINDebounced = useCallback((value: string) => {
+    setGstinInput(value);
+  }, []);
 
   const [formData, setFormData] = useState({
     email: inviteEmailFromUrl,
@@ -114,8 +119,8 @@ const Signup = () => {
     location: '',
     gstin: '',
     role: initialRole as 'buyer' | 'supplier' | 'logistics_partner' | 'transporter' | 'affiliate',
-    referredByName: 'Priyanka',
-    referredByPhone: '+918368127357',
+    referredByName: '',
+    referredByPhone: '',
     buyerType: '' as '' | 'end_buyer' | 'distributor' | 'dealer',
     logisticsPartnerType: '' as '' | 'agent' | 'fleet_owner',
     yardLocation: '',
@@ -125,7 +130,7 @@ const Signup = () => {
     exportCapability: false,
   });
 
-  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('priyanka');
+  const [referrerSelection, setReferrerSelection] = useState<'priyanka' | 'other'>('other');
 
   // SEO based on role
   const seoConfig = useMemo(() => ({
@@ -159,12 +164,11 @@ const Signup = () => {
   useSEO(seoConfig[formData.role]);
 
   useEffect(() => {
-    if (user) {
-      if (inviteId) {
-        navigate(`/invite/${inviteId}`);
-      } else {
-        navigate('/dashboard');
-      }
+    // Only redirect already-authenticated users away from /signup if they
+    // arrived via an invite link (so the membership flow can complete).
+    // Otherwise let the signup → /login flow run without a race.
+    if (user && inviteId) {
+      navigate(`/invite/${inviteId}`);
     }
   }, [user, navigate, inviteId]);
 
