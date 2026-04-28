@@ -363,7 +363,7 @@ export function AdminUsersList({ open, onOpenChange }: AdminUsersListProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-[98vw] w-[98vw] h-[95vh] max-h-[95vh] sm:rounded-lg overflow-hidden flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
