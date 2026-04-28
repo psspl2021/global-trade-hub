@@ -380,15 +380,15 @@ const Index = () => {
                   <ul className="space-y-3.5">
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">Demand-first onboarding — AI detects buyer intent first</span>
+                      <span className="text-foreground">Get live RFQs from real buyers — not just profile listings</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">No lead selling — matched with real buyer requirements</span>
+                      <span className="text-foreground">Compete only when relevant — matched to your category & capacity</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">Visibility into real buyer intent before you invest time</span>
+                      <span className="text-foreground"><strong>Reverse auctions are 100% free to bid</strong> — no subscription required</span>
                     </li>
                   </ul>
                   <Button 
