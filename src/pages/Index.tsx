@@ -182,29 +182,51 @@ const Index = () => {
               {/* AI Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 backdrop-blur-md border border-primary/25 mb-8 animate-fade-in hover:bg-primary/20 transition-colors cursor-default">
                 <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                <span className="text-primary text-sm font-semibold tracking-wide">AI-Powered Procurement</span>
+                <span className="text-primary text-sm font-semibold tracking-wide">AI Operating System for Procurement</span>
               </div>
               
-              {/* H1 */}
+              {/* H1 — mechanism-anchored claim */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold mb-6 leading-[1.08] animate-slide-up tracking-tight">
-                <span className="text-primary drop-shadow-lg">AI-Powered B2B</span>
+                <span className="text-primary drop-shadow-lg">Reduce Procurement Costs</span>
                 <br />
-                <span className="text-foreground drop-shadow-md">Procurement Platform</span>
+                <span className="text-foreground drop-shadow-md">by up to 15% annually</span>
               </h1>
               
               <p className="text-lg sm:text-xl text-foreground/90 font-semibold mb-3 animate-slide-up drop-shadow-md max-w-2xl mx-auto" style={{ animationDelay: '80ms' }}>
-                Verified sourcing through AI-detected buyer demand
+                Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
               </p>
               
-              <p className="text-sm sm:text-base text-primary font-semibold mb-10 animate-slide-up drop-shadow-md" style={{ animationDelay: '120ms' }}>
-                AI tracks live buyer intent and converts it into RFQs.
+              <p className="text-sm sm:text-base text-primary font-semibold mb-8 animate-slide-up drop-shadow-md" style={{ animationDelay: '120ms' }}>
+                Your existing vendors + our supplier network compete together — no need to switch vendors.
               </p>
               
               {/* AI Citation */}
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-5 sm:p-6 mb-10 animate-slide-up max-w-3xl mx-auto shadow-lg" style={{ animationDelay: '160ms' }}>
+              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-5 sm:p-6 mb-8 animate-slide-up max-w-3xl mx-auto shadow-lg" style={{ animationDelay: '160ms' }}>
                 <p className="text-base sm:text-lg text-black font-bold leading-relaxed">
-                  <strong className="text-primary text-lg sm:text-xl font-extrabold">ProcureSaathi</strong> is an AI-powered B2B procurement and sourcing platform that helps buyers post RFQs, compare verified supplier bids, and manage domestic and global procurement with transparency, quality control, and supplier verification.
+                  <strong className="text-primary text-lg sm:text-xl font-extrabold">ProcureSaathi</strong> is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
+              </div>
+
+              {/* Pre-filled RFQ template chips — friction reducer */}
+              <div className="mb-8 animate-slide-up" style={{ animationDelay: '180ms' }}>
+                <p className="text-xs font-semibold text-foreground/80 mb-2 drop-shadow">Post a requirement in 30 seconds:</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {[
+                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, 25 MT, monthly' },
+                    { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
+                    { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
+                    { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
+                    { label: 'Electricals', q: 'LT cables and switchgear — project lot' },
+                  ].map((c) => (
+                    <button
+                      key={c.label}
+                      onClick={() => navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)}
+                      className="px-3 py-1.5 rounded-full bg-white/70 hover:bg-white text-xs font-semibold text-foreground border border-border/60 shadow-sm hover:shadow transition-all hover:-translate-y-0.5"
+                    >
+                      + {c.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Trust Badges */}
