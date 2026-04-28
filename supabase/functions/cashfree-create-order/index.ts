@@ -47,7 +47,7 @@ serve(async (req) => {
       .insert({
         supplier_id,
         order_id: orderId,
-        amount: 300,
+        amount: 500,
         currency: "INR",
         status: "pending",
       });
@@ -63,7 +63,7 @@ serve(async (req) => {
 
     const orderPayload = {
       order_id: orderId,
-      order_amount: 300,
+      order_amount: 500,
       order_currency: "INR",
       customer_details: {
         customer_id: supplier_id.substring(0, 30),
@@ -75,7 +75,7 @@ serve(async (req) => {
         return_url: `${SUPABASE_URL}/functions/v1/cashfree-webhook?order_id=${orderId}`,
         notify_url: `${SUPABASE_URL}/functions/v1/cashfree-webhook`,
       },
-      order_note: "ProcureSaathi Email Subscription - 500 emails/month",
+      order_note: "ProcureSaathi Premium Email Pack — 200 emails (no expiry, forward + reverse)",
     };
 
     console.log("Creating Cashfree order:", JSON.stringify(orderPayload));
