@@ -146,44 +146,36 @@ serve(async (req) => {
       console.error("Error updating payment record:", updateError);
     }
 
-    // If payment is successful, activate the subscription
+    // If payment is successful, credit the 200-email pack (count-based, no expiry)
     if (paymentStatus === "paid") {
-      console.log("Activating email subscription for supplier:", paymentRecord.supplier_id);
+      console.log("Crediting email pack for supplier:", paymentRecord.supplier_id);
 
-      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const EMAILS_PER_PACK = 200;
 
-      // Update or insert supplier email quota
-      const { error: quotaError } = await supabase
-        .from("supplier_email_quotas")
-        .upsert({
-          supplier_id: paymentRecord.supplier_id,
-          has_email_subscription: true,
-          subscription_expires_at: expiresAt,
-          monthly_emails_sent: 0,
-          last_monthly_reset: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: "supplier_id",
-        });
+      const { error: packError } = await supabase.rpc("activate_email_pack", {
+        p_supplier_id: paymentRecord.supplier_id,
+        p_emails_to_add: EMAILS_PER_PACK,
+        p_order_id: orderId,
+      });
 
-      if (quotaError) {
-        console.error("Error updating quota:", quotaError);
+      if (packError) {
+        console.error("Error crediting email pack:", packError);
       } else {
-        console.log("Email subscription activated successfully");
+        console.log("Email pack credited successfully");
       }
 
       // Create notification for supplier
       await supabase.from("notifications").insert({
         user_id: paymentRecord.supplier_id,
-        type: "subscription_activated",
-        title: "Premium Email Subscription Activated!",
-        message: "Your premium email subscription is now active. You can now receive up to 500 email notifications per month.",
-        metadata: { order_id: orderId, expires_at: expiresAt },
+        type: "email_pack_activated",
+        title: "Premium Email Pack Activated!",
+        message:
+          "Your 200-email premium pack is now active. No time expiry — valid until all 200 emails are consumed. Covers both forward RFQs and reverse auctions.",
+        metadata: { order_id: orderId, emails_credited: EMAILS_PER_PACK },
       });
 
       // Generate and send invoice
       try {
-        // Get user profile for invoice details
         const { data: profile } = await supabase
           .from("profiles")
           .select("contact_person, company_name, email, phone, address, gstin, state")
@@ -191,25 +183,25 @@ serve(async (req) => {
           .single();
 
         if (profile) {
-          const basePrice = 300; // Email subscription base price
-          const gstAmount = Math.round(basePrice * 0.18);
-          const totalAmount = basePrice + gstAmount;
-          
+          // ₹500 pack: base ≈ ₹423.73 → GST 18% → total ₹500
+          const totalAmount = 500;
+          const basePrice = Math.round((totalAmount / 1.18) * 100) / 100; // 423.73
+          const gstAmount = Math.round((totalAmount - basePrice) * 100) / 100; // 76.27
+
           const invoiceResponse = await fetch(
             `${SUPABASE_URL}/functions/v1/generate-payment-invoice`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                payment_type: "email_subscription",
+                payment_type: "email_pack",
                 payment_id: orderId,
                 user_id: paymentRecord.supplier_id,
                 amount: basePrice,
                 tax_amount: gstAmount,
                 total_amount: totalAmount,
-                description: "Premium Email Subscription - 500 Emails/Month (30 Days)",
+                description:
+                  "Premium Email Pack — 200 Emails (No Time Expiry, Forward RFQs + Reverse Auctions)",
                 customer_name: profile.company_name || profile.contact_person,
                 customer_email: profile.email,
                 customer_phone: profile.phone,
@@ -217,8 +209,10 @@ serve(async (req) => {
                 customer_gstin: profile.gstin,
                 customer_state: profile.state,
                 metadata: {
-                  subscription_duration: "30 days",
-                  emails_included: 500,
+                  pack_type: "email_200_lifetime",
+                  emails_included: EMAILS_PER_PACK,
+                  expiry: "none",
+                  scope: "forward_and_reverse_auctions",
                 },
               }),
             }
@@ -229,7 +223,6 @@ serve(async (req) => {
         }
       } catch (invoiceError) {
         console.error("Error generating invoice:", invoiceError);
-        // Don't fail the webhook if invoice generation fails
       }
     }
 
