@@ -269,6 +269,49 @@ const Index = () => {
           <HighDemandSection />
         </Suspense>
 
+        {/* ===== PROOF STRIP — Illustrative auction outcomes ===== */}
+        <section className="py-12 sm:py-16 bg-background border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-md mb-3">
+                Illustrative Scenario
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+                What a single reverse auction can look like
+              </h2>
+              <p className="text-muted-foreground text-sm mt-2 max-w-xl mx-auto">
+                Outcomes vary by category, volume, and market conditions.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">3%</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved in a single auction</div>
+                  <div className="text-xs text-muted-foreground mt-1">vs. previous vendor quote</div>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">7</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Suppliers competed</div>
+                  <div className="text-xs text-muted-foreground mt-1">live, in real time</div>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <div className="text-3xl font-display font-extrabold text-primary mb-1">18 min</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Auction duration</div>
+                  <div className="text-xs text-muted-foreground mt-1">from start to award</div>
+                </CardContent>
+              </Card>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-6 max-w-2xl mx-auto">
+              Reverse auctions on ProcureSaathi are <strong className="text-foreground">100% free for suppliers to bid</strong> — the platform earns only on successful awards.
+            </p>
+          </div>
+        </section>
+
         {/* ===== SECTION 3: LIVE BUYER DEMAND SECTION ===== */}
         <Suspense fallback={<SectionFallback />}>
           <LiveBuyerDemandSection />
