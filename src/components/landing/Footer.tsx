@@ -1,43 +1,32 @@
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import procureSaathiLogo from "@/assets/procuresaathi-logo.png";
-import { TrustSignalsGlobal } from "@/components/seo/TrustSignalsGlobal";
-import { 
-  Mail, 
-  Phone, 
-  MapPin,
-  Linkedin,
-  Twitter,
-  Facebook,
-  ArrowRight,
-  Globe
-} from "lucide-react";
+import { Linkedin, Twitter } from "lucide-react";
 
 const footerLinks = {
-  company: [
-    { label: "About Us", path: "/about" },
-    { label: "Contact", path: "/contact" },
-    { label: "Blogs", path: "/blogs" },
-    { label: "Careers", path: "/contact" },
+  product: [
+    { label: "Post Requirement", path: "/post-rfq" },
+    { label: "Reverse Auctions", path: "/reverse-auction" },
+    { label: "Categories", path: "/categories" },
+    { label: "Private Label", path: "/private-label" },
+    { label: "Pricing", path: "/pricing" },
   ],
   buyers: [
-    { label: "How It Works", path: "/buyer" },
-    { label: "Post RFQ", path: "/post-rfq" },
-    { label: "Browse Categories", path: "/categories" },
-    { label: "Private Label", path: "/private-label" },
+    { label: "How it works", path: "/buyer" },
+    { label: "Solutions", path: "/solutions" },
+    { label: "Industries", path: "/industries" },
+    { label: "Customer stories", path: "/customer-stories" },
   ],
   suppliers: [
-    { label: "Become a Seller", path: "/seller" },
-    { label: "Supplier Portal", path: "/login" },
-    { label: "AI Detected Demand – List Products", path: "/signup?role=supplier" },
-    { label: "Logistics Partner", path: "/signup?role=logistics_partner" },
+    { label: "Become a supplier", path: "/seller" },
+    { label: "Supplier portal", path: "/login" },
+    { label: "Logistics partner", path: "/signup?role=logistics_partner" },
+    { label: "Affiliate program", path: "/affiliate-signup" },
   ],
-  resources: [
-    { label: "Help Center", path: "/contact" },
-    { label: "FAQs", path: "/#faq" },
-    { label: "Procurement Solutions", path: "/solutions" },
-    { label: "Affiliate Program", path: "/affiliate-signup" },
-    { label: "Invoice Generator", path: "/invoice-generator" },
+  company: [
+    { label: "About", path: "/about" },
+    { label: "Blog", path: "/blogs" },
+    { label: "Contact", path: "/contact" },
+    { label: "Help center", path: "/contact" },
   ],
 };
 
@@ -46,62 +35,47 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-foreground text-background">
-      {/* Global Trust Signals Banner */}
-      <div className="bg-background/5 border-b border-background/10 py-3">
-        <div className="container mx-auto px-4 flex flex-wrap items-center justify-center gap-2 text-sm text-background/80">
-          <Globe className="h-4 w-4 text-primary" />
-          <span>Serving B2B buyers and suppliers across <strong>195 countries</strong></span>
-        </div>
-      </div>
-
-      {/* Main Footer */}
-      <div className="container mx-auto px-4 py-14 lg:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
+    <footer className="bg-background border-t border-border">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-10">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-3 lg:col-span-2">
-            <div className="mb-6">
-              <img 
-                src={procureSaathiLogo} 
-                alt="ProcureSaathi Logo" 
-                className="h-20 md:h-24 w-auto object-contain brightness-0 invert opacity-90"
+          <div className="col-span-2 md:col-span-4">
+            <button onClick={() => navigate('/')} className="block mb-5" aria-label="ProcureSaathi home">
+              <img
+                src={procureSaathiLogo}
+                alt="ProcureSaathi"
+                className="h-10 w-auto object-contain"
               />
-            </div>
-            <p className="text-background/70 text-sm leading-relaxed mb-6 max-w-xs">
-              India's trusted B2B procurement platform. Connecting verified buyers with 
-              reliable suppliers through transparent sealed bidding.
+            </button>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mb-6">
+              The procurement operating system for enterprises. Real supplier competition, transparent price discovery, measurable savings.
             </p>
-            <div className="space-y-3">
-              <a href="mailto:sales@procuresaathi.com" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors duration-200">
-                <Mail className="h-4 w-4" />
+            <div className="space-y-2 text-sm">
+              <a href="mailto:sales@procuresaathi.com" className="block text-muted-foreground hover:text-foreground transition-colors">
                 sales@procuresaathi.com
               </a>
-              <a href="tel:+918368127357" className="flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors duration-200">
-                <Phone className="h-4 w-4" />
-                +91 8368127357
+              <a href="tel:+918368127357" className="block text-muted-foreground hover:text-foreground transition-colors">
+                +91 83681 27357
               </a>
-              <div className="flex items-center gap-2 text-sm text-background/70">
-                <MapPin className="h-4 w-4" />
-                New Delhi, India
-              </div>
+              <p className="text-muted-foreground">New Delhi, India</p>
             </div>
           </div>
 
           {/* Link Columns */}
           {[
+            { title: 'Product', links: footerLinks.product },
+            { title: 'For buyers', links: footerLinks.buyers },
+            { title: 'For suppliers', links: footerLinks.suppliers },
             { title: 'Company', links: footerLinks.company },
-            { title: 'For Buyers', links: footerLinks.buyers },
-            { title: 'For Suppliers', links: footerLinks.suppliers },
-            { title: 'Resources', links: footerLinks.resources },
           ].map((section) => (
-            <div key={section.title}>
-              <h3 className="font-semibold text-sm uppercase tracking-wider mb-4 text-background/90">{section.title}</h3>
+            <div key={section.title} className="md:col-span-2">
+              <h3 className="text-[13px] font-semibold text-foreground mb-4">{section.title}</h3>
               <ul className="space-y-2.5">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <button 
+                    <button
                       onClick={() => navigate(link.path)}
-                      className="text-sm text-background/60 hover:text-background hover:translate-x-0.5 transition-all duration-200 text-left"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
                     >
                       {link.label}
                     </button>
@@ -112,78 +86,38 @@ export const Footer = () => {
           ))}
         </div>
 
-        {/* Newsletter CTA */}
-        <div className="mt-12 pt-8 border-t border-background/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="font-semibold text-lg mb-1">Ready to transform your procurement?</h3>
-              <p className="text-sm text-background/60">Join thousands of businesses on ProcureSaathi.</p>
-            </div>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Button 
-                onClick={() => navigate('/post-rfq')}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground group"
-              >
-                Looking to Buy?
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-              </Button>
-              <Button 
-                onClick={() => navigate('/signup?role=supplier')}
-                variant="outline"
-                className="border-background/30 bg-background text-foreground hover:bg-background/90"
-              >
-                Join as Supplier
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/contact')}
-                className="border-background/30 bg-transparent text-background hover:bg-background/10"
-              >
-                Contact Sales
-              </Button>
+        {/* Bottom Bar */}
+        <div className="mt-14 pt-6 border-t border-border flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1">
+            <p className="text-xs text-muted-foreground">
+              © {currentYear} ProcureSaathi. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4">
+              <button onClick={() => navigate('/terms')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Terms
+              </button>
+              <button onClick={() => navigate('/terms')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Privacy
+              </button>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-background/10">
-        <div className="container mx-auto px-4 py-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-xs text-background/60">
-                © {currentYear} ProcureSaathi. All rights reserved.
-              </p>
-              <p className="text-xs text-background/50 max-w-md">
-                ProcureSaathi does not sell leads. AI matches verified buyers and suppliers based on real demand signals.
-              </p>
-            </div>
-            <div className="flex items-center gap-6">
-              <button className="text-xs text-background/60 hover:text-background transition-colors duration-200">
-                Privacy Policy
-              </button>
-              <button className="text-xs text-background/60 hover:text-background transition-colors duration-200">
-                Terms of Service
-              </button>
-              <div className="flex items-center gap-2">
-                {[
-                  { href: "https://www.linkedin.com/company/procuresaathi", icon: Linkedin },
-                  { href: "#", icon: Twitter },
-                  { href: "#", icon: Facebook },
-                ].map((social, i) => (
-                  <a 
-                    key={i}
-                    href={social.href} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 hover:scale-110 transition-all duration-200"
-                  >
-                    <social.icon className="h-4 w-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://www.linkedin.com/company/procuresaathi"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a
+              href="#"
+              aria-label="Twitter"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Twitter className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </div>
