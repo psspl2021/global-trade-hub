@@ -17,7 +17,7 @@ export const EmailNotificationConsent = ({
   role
 }: EmailNotificationConsentProps) => {
   const description = role === 'supplier'
-    ? "I agree to receive email notifications when new buyer requirements matching my selected categories are posted. (Free: 2 emails/day, Premium: 500 emails/month for ₹300/month)"
+    ? "I agree to receive email notifications for new buyer requirements and live auction bids matching my selected categories. (Free: 2 emails/day · Premium: 200 emails for ₹500, no time expiry — valid till all 200 are used)"
     : "I agree to receive email notifications for new logistics and shipment requirements matching my service routes.";
 
   return (
@@ -60,7 +60,7 @@ export const EmailNotificationConsent = ({
           </div>
           <div className="flex items-center space-x-2 text-primary">
             <Bell className="h-3 w-3" />
-            <span>Premium Plan: 500 emails/month for ₹300/month</span>
+            <span>Premium: 200 emails for ₹500 (no expiry · forward RFQs + reverse auctions)</span>
           </div>
         </div>
       )}

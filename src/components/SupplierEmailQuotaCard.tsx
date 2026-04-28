@@ -245,7 +245,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
               <div className="text-sm">
                 <p className="font-medium text-destructive">Daily Quota Exhausted</p>
                 <p className="text-muted-foreground">
-                  Upgrade to Premium for 500 emails/month at ₹300/month
+                  Upgrade to Premium — ₹500 for 200 emails (no expiry, valid till all 200 are used)
                 </p>
               </div>
             </div>
@@ -273,12 +273,12 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                 ) : (
                   <>
                     <Crown className="h-4 w-4 mr-2" />
-                    Upgrade to Premium - ₹300/month
+                    Upgrade to Premium — ₹500 / 200 emails
                   </>
                 )}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Get 500 requirement notification emails per month
+                Get 200 requirement & live-bid notification emails (no time expiry — valid till all 200 are consumed). Covers both forward RFQs and reverse auctions.
               </p>
             </div>
           )}
@@ -304,7 +304,11 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                 <ul className="space-y-1 text-muted-foreground">
                   <li className="flex items-center">
                     <Check className="h-3 w-3 mr-1 text-amber-500" />
-                    500 emails/month
+                    200 emails @ ₹500 (no expiry)
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-3 w-3 mr-1 text-amber-500" />
+                    Forward RFQs + reverse auctions
                   </li>
                   <li className="flex items-center">
                     <Check className="h-3 w-3 mr-1 text-amber-500" />
@@ -394,7 +398,7 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                 <div className="text-sm">
                   <p className="font-medium text-destructive">Daily Quota Exhausted</p>
                   <p className="text-muted-foreground">
-                    Upgrade to Premium for 500 emails/month at ₹300/month
+                    Upgrade to Premium — ₹500 for 200 emails (no expiry, valid till all 200 are used)
                   </p>
                 </div>
               </div>
@@ -422,12 +426,12 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                   ) : (
                     <>
                       <Crown className="h-4 w-4 mr-2" />
-                      Upgrade to Premium - ₹300/month
+                      Upgrade to Premium — ₹500 / 200 emails
                     </>
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  Get 500 requirement notification emails per month
+                  Get 200 requirement & live-bid notification emails (no time expiry — valid till all 200 are consumed). Covers both forward RFQs and reverse auctions.
                 </p>
               </div>
             )}
@@ -453,7 +457,11 @@ export const SupplierEmailQuotaCard = ({ expanded = false }: SupplierEmailQuotaC
                   <ul className="space-y-1 text-muted-foreground">
                     <li className="flex items-center">
                       <Check className="h-3 w-3 mr-1 text-amber-500" />
-                      500 emails/month
+                      200 emails @ ₹500 (no expiry)
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-3 w-3 mr-1 text-amber-500" />
+                      Forward RFQs + reverse auctions
                     </li>
                     <li className="flex items-center">
                       <Check className="h-3 w-3 mr-1 text-amber-500" />
