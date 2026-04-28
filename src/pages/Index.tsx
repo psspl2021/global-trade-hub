@@ -26,8 +26,8 @@ const HowItWorksSection = lazy(() =>
     default: m.HowItWorksSection,
   })),
 );
-const LazyFAQ = lazy(() =>
-  import('@/components/landing/LazyFAQ').then((m) => ({ default: m.LazyFAQ })),
+const HomepageFAQ = lazy(() =>
+  import('@/components/landing/HomepageFAQ').then((m) => ({ default: m.HomepageFAQ })),
 );
 const Footer = lazy(() =>
   import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
