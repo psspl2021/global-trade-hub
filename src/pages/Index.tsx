@@ -262,14 +262,6 @@ const Index = () => {
                   Post Requirement
                   <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
                 </Button>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="h-12 px-5 text-[14.5px] font-semibold text-foreground hover:bg-accent w-full sm:w-auto"
-                  onClick={() => navigate('/contact')}
-                >
-                  Talk to Sales
-                </Button>
               </div>
             </div>
           </div>
