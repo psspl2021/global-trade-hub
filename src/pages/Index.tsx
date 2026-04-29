@@ -180,7 +180,7 @@ const Index = () => {
               <div className="xl:col-span-7 text-center xl:text-left max-w-2xl mx-auto xl:mx-0 xl:max-w-none">
 
                 {/* Eyebrow pills */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-6 animate-fade-in">
+                <div className="flex flex-wrap items-center justify-center xl:justify-start gap-2 mb-6 animate-fade-in">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10">
                     <span className="relative flex h-1.5 w-1.5">
                       <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
@@ -224,21 +224,21 @@ const Index = () => {
                 </h1>
 
                 <p
-                  className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto lg:mx-0 animate-fade-in leading-relaxed"
+                  className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '120ms' }}
                 >
                   Designed to unlock <strong className="text-gold">up to 15% cost savings</strong> through real supplier competition.
                 </p>
 
                 <p
-                  className="text-[14px] sm:text-[15px] text-white/65 mb-2 max-w-xl mx-auto lg:mx-0 animate-fade-in leading-relaxed"
+                  className="text-[14px] sm:text-[15px] text-white/65 mb-2 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '150ms' }}
                 >
                   Get competitive bids within minutes — not days.
                 </p>
 
                 <p
-                  className="text-[13px] sm:text-[14px] text-white/55 mb-7 max-w-xl mx-auto lg:mx-0 animate-fade-in"
+                  className="text-[13px] sm:text-[14px] text-white/55 mb-7 max-w-xl mx-auto xl:mx-0 animate-fade-in"
                   style={{ animationDelay: '180ms' }}
                 >
                   Works with your existing suppliers <span className="text-gold font-semibold">+</span> our verified network. No vendor switching required.
@@ -246,7 +246,7 @@ const Index = () => {
 
                 {/* CTAs — Primary + WhatsApp secondary */}
                 <div
-                  className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start items-center animate-fade-in mb-6"
+                  className="flex flex-col sm:flex-row gap-3 justify-center xl:justify-start items-center animate-fade-in mb-6"
                   style={{ animationDelay: '240ms' }}
                 >
                   <Button
@@ -277,7 +277,7 @@ const Index = () => {
 
                 {/* Microcopy line */}
                 <div
-                  className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1.5 text-[12px] text-white/55 animate-fade-in mb-6"
+                  className="flex flex-wrap items-center justify-center xl:justify-start gap-x-4 gap-y-1.5 text-[12px] text-white/55 animate-fade-in mb-6"
                   style={{ animationDelay: '300ms' }}
                 >
                   <span className="inline-flex items-center gap-1.5">
@@ -295,10 +295,10 @@ const Index = () => {
                   className="animate-fade-in"
                   style={{ animationDelay: '340ms' }}
                 >
-                  <div className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-white/45 mb-2.5 text-center lg:text-left">
+                  <div className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-white/45 mb-2.5 text-center xl:text-left">
                     Try a 30-second requirement
                   </div>
-                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                  <div className="flex flex-wrap gap-2 justify-center xl:justify-start">
                     {[
                       { label: 'TMT Bars', q: 'TMT bars Fe 500D, monthly requirement' },
                       { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
