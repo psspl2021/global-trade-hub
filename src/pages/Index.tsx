@@ -32,6 +32,7 @@ import {
 } from '@/hooks/useSEO';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
+import { HeroVisual } from '@/components/landing/HeroVisual';
 import FloatingWhatsApp from '@/components/conversion/FloatingWhatsApp';
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from '@/lib/whatsapp';
 import { trackEvent } from '@/lib/analytics';
@@ -129,9 +130,9 @@ const Index = () => {
       <PageHeader />
 
       <main>
-        {/* ===== HERO — original industrial image + fintech polish ===== */}
-        <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden">
-          {/* Industrial background image */}
+        {/* ===== HERO — cinematic dark + 3D visual (Cognilix-grade polish) ===== */}
+        <section className="relative pt-14 pb-16 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 overflow-hidden bg-[hsl(222_70%_8%)]">
+          {/* Industrial photo as deep base layer */}
           <img
             src={heroBgProcurement}
             alt=""
@@ -141,190 +142,208 @@ const Index = () => {
             loading="eager"
             width={1920}
             height={1080}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.18]"
           />
-          {/* Balanced overlay — image visible but text-safe */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/60" />
-
-          {/* Decorative depth layers */}
+          {/* Cinematic gradient veil */}
           <div
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-[520px] pointer-events-none opacity-[0.55]"
+            className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(60% 50% at 50% 0%, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
+                'linear-gradient(180deg, hsl(222 75% 6% / 0.92) 0%, hsl(222 70% 8% / 0.85) 50%, hsl(222 75% 6% / 0.95) 100%)',
             }}
           />
+          {/* Brand glow — gold from top-right, primary from bottom-left */}
           <div
             aria-hidden
-            className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-25 pointer-events-none"
-            style={{ background: 'hsl(var(--primary) / 0.25)' }}
+            className="absolute -top-40 -right-32 w-[640px] h-[640px] rounded-full blur-[120px] opacity-30 pointer-events-none"
+            style={{ background: 'hsl(var(--gold) / 0.55)' }}
           />
           <div
             aria-hidden
-            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full blur-3xl opacity-20 pointer-events-none"
-            style={{ background: 'hsl(var(--gold) / 0.35)' }}
+            className="absolute -bottom-40 -left-40 w-[560px] h-[560px] rounded-full blur-[120px] opacity-35 pointer-events-none"
+            style={{ background: 'hsl(220 100% 55% / 0.45)' }}
+          />
+          {/* Subtle grid texture */}
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(hsl(0 0% 100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100%) 1px, transparent 1px)',
+              backgroundSize: '64px 64px',
+            }}
           />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="max-w-3xl mx-auto text-center">
-              {/* Eyebrow pills */}
-              <div className="flex flex-wrap items-center justify-center gap-2 mb-7 animate-fade-in">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-soft">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
-                  </span>
-                  <span className="text-foreground text-[11.5px] font-semibold tracking-wide">
-                    AI Operating System for Procurement
-                  </span>
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+              {/* LEFT — copy + CTAs */}
+              <div className="lg:col-span-7 text-center lg:text-left">
+                {/* Eyebrow pills */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-6 animate-fade-in">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                    </span>
+                    <span className="text-white/90 text-[11.5px] font-semibold tracking-wide">
+                      AI Operating System for Procurement
+                    </span>
+                  </div>
+                  <Link
+                    to="/global-sourcing-countries"
+                    className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 hover:bg-white/[0.1] hover:border-white/20 transition-all"
+                    aria-label="Explore global sourcing across countries"
+                  >
+                    <Globe className="h-3 w-3 text-gold" />
+                    <span className="text-white/90 text-[11.5px] font-semibold tracking-wide">
+                      Global sourcing available
+                    </span>
+                    <ArrowRight className="h-3 w-3 text-white/70 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
-                <Link
-                  to="/global-sourcing-countries"
-                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/25 hover:bg-primary/12 hover:border-primary/40 transition-all shadow-soft"
-                  aria-label="Explore global sourcing across countries"
-                >
-                  <Globe className="h-3 w-3 text-primary" />
-                  <span className="text-primary text-[11.5px] font-semibold tracking-wide">
-                    Global sourcing available
-                  </span>
-                  <ArrowRight className="h-3 w-3 text-primary opacity-70 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
 
-              <h1
-                className="font-display font-extrabold mb-5 leading-[1.04] tracking-tight animate-fade-in text-foreground"
-                style={{
-                  fontSize: 'clamp(32px, 5.8vw, 56px)',
-                  animationDelay: '60ms',
-                }}
-              >
-                AI Operating System
-                <br />
-                <span className="bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
-                  for Procurement
-                </span>
-              </h1>
-
-              <p
-                className="text-[15.5px] sm:text-lg text-foreground/85 mb-3 max-w-2xl mx-auto animate-fade-in leading-relaxed font-medium"
-                style={{ animationDelay: '120ms' }}
-              >
-                Designed to unlock <strong className="text-primary">up to 15% cost savings</strong> through real supplier competition.
-              </p>
-
-              <p
-                className="text-[14px] sm:text-[15px] text-muted-foreground mb-2 max-w-2xl mx-auto animate-fade-in leading-relaxed"
-                style={{ animationDelay: '150ms' }}
-              >
-                Get competitive bids within minutes — not days.
-              </p>
-
-              <p
-                className="text-[13px] sm:text-[14px] text-foreground/75 mb-8 max-w-2xl mx-auto animate-fade-in"
-                style={{ animationDelay: '180ms' }}
-              >
-                Works with your existing suppliers <span className="text-primary font-semibold">+</span> our verified network. No vendor switching required.
-              </p>
-
-              {/* RFQ chips */}
-              <div
-                className="mb-8 animate-fade-in"
-                style={{ animationDelay: '240ms' }}
-              >
-                <div className="flex justify-center mb-3">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full uppercase tracking-[0.16em] shadow-brand">
-                    Post a requirement in 30 seconds
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {[
-                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, monthly requirement' },
-                    { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
-                    { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
-                    { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
-                    { label: 'Electricals', q: 'LT cables and switchgear — project lot' },
-                  ].map((c) => (
-                    <button
-                      key={c.label}
-                      onClick={() =>
-                        navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)
-                      }
-                      className="px-3.5 py-1.5 rounded-full bg-card text-[12.5px] font-medium text-foreground border border-border hover:border-primary/40 hover:bg-accent shadow-xs hover:shadow-sm transition-all"
-                    >
-                      + {c.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Trust badges */}
-              <div
-                className="mb-7 animate-fade-in"
-                style={{ animationDelay: '280ms' }}
-              >
-                <HeroTrustBadges />
-              </div>
-
-              {/* CTAs — Primary + WhatsApp secondary */}
-              <div
-                className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-in"
-                style={{ animationDelay: '320ms' }}
-              >
-                <Button
-                  size="lg"
-                  className="h-12 px-7 text-[15px] font-semibold shadow-brand hover:shadow-lg bg-gradient-primary hover:opacity-95 transition-all w-full sm:w-auto"
-                  onClick={() => {
-                    trackEvent('cta_click', { source: 'hero_primary', label: 'get_better_price_now' });
-                    navigate('/post-rfq');
+                <h1
+                  className="font-display font-extrabold mb-5 leading-[1.02] tracking-tight animate-fade-in text-white"
+                  style={{
+                    fontSize: 'clamp(36px, 6.4vw, 68px)',
+                    animationDelay: '60ms',
                   }}
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Get Better Price Now
-                  <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
-                </Button>
-                <a
-                  href={buildWhatsAppLink(WHATSAPP_DEFAULT_MESSAGE)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent('whatsapp_click', { source: 'hero_secondary' })}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-md text-[15px] font-semibold bg-[#25D366] hover:bg-[#1da851] text-white shadow-md transition-all w-full sm:w-auto"
+                  AI Operating System
+                  <br />
+                  <span
+                    className="bg-clip-text text-transparent"
+                    style={{
+                      backgroundImage:
+                        'linear-gradient(135deg, hsl(38 95% 65%) 0%, hsl(38 88% 52%) 45%, hsl(220 100% 75%) 100%)',
+                    }}
+                  >
+                    for Procurement
+                  </span>
+                </h1>
+
+                <p
+                  className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto lg:mx-0 animate-fade-in leading-relaxed"
+                  style={{ animationDelay: '120ms' }}
                 >
-                  <svg viewBox="0 0 32 32" className="h-4 w-4" fill="currentColor" aria-hidden>
-                    <path d="M16.001 3.2c-7.07 0-12.8 5.73-12.8 12.8 0 2.26.59 4.46 1.71 6.4L3.2 28.8l6.58-1.72a12.76 12.76 0 0 0 6.22 1.6h.01c7.06 0 12.79-5.73 12.79-12.8 0-3.42-1.33-6.63-3.75-9.05A12.72 12.72 0 0 0 16 3.2zm5.81 16.39c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.82 1.03-1 1.24-.18.21-.37.24-.69.08-.32-.16-1.34-.5-2.55-1.58-.94-.84-1.58-1.87-1.76-2.19-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.11-.21.05-.4-.03-.55-.08-.16-.71-1.71-.97-2.34-.26-.62-.52-.53-.71-.54-.18-.01-.4-.01-.61-.01-.21 0-.55.08-.84.4-.29.32-1.1 1.08-1.1 2.62 0 1.55 1.13 3.05 1.29 3.26.16.21 2.22 3.39 5.38 4.75.75.32 1.34.51 1.8.66.76.24 1.45.21 2 .13.61-.09 1.88-.77 2.14-1.51.26-.74.26-1.38.18-1.51-.08-.13-.29-.21-.61-.37z"/>
-                  </svg>
-                  Send Requirement on WhatsApp
-                </a>
+                  Designed to unlock <strong className="text-gold">up to 15% cost savings</strong> through real supplier competition.
+                </p>
+
+                <p
+                  className="text-[14px] sm:text-[15px] text-white/65 mb-2 max-w-xl mx-auto lg:mx-0 animate-fade-in leading-relaxed"
+                  style={{ animationDelay: '150ms' }}
+                >
+                  Get competitive bids within minutes — not days.
+                </p>
+
+                <p
+                  className="text-[13px] sm:text-[14px] text-white/55 mb-7 max-w-xl mx-auto lg:mx-0 animate-fade-in"
+                  style={{ animationDelay: '180ms' }}
+                >
+                  Works with your existing suppliers <span className="text-gold font-semibold">+</span> our verified network. No vendor switching required.
+                </p>
+
+                {/* CTAs — Primary + WhatsApp secondary */}
+                <div
+                  className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start items-center animate-fade-in mb-6"
+                  style={{ animationDelay: '240ms' }}
+                >
+                  <Button
+                    size="lg"
+                    className="h-12 px-7 text-[15px] font-semibold shadow-[0_10px_40px_-10px_hsl(38_88%_52%/0.6)] hover:shadow-[0_15px_50px_-10px_hsl(38_88%_52%/0.8)] bg-gradient-to-r from-gold to-[hsl(32_92%_48%)] hover:opacity-95 text-[hsl(222_75%_10%)] transition-all w-full sm:w-auto border-0"
+                    onClick={() => {
+                      trackEvent('cta_click', { source: 'hero_primary', label: 'get_better_price_now' });
+                      navigate('/post-rfq');
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Get Better Price Now
+                    <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
+                  </Button>
+                  <a
+                    href={buildWhatsAppLink(WHATSAPP_DEFAULT_MESSAGE)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('whatsapp_click', { source: 'hero_secondary' })}
+                    className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-md text-[15px] font-semibold bg-[#25D366] hover:bg-[#1da851] text-white shadow-md transition-all w-full sm:w-auto"
+                  >
+                    <svg viewBox="0 0 32 32" className="h-4 w-4" fill="currentColor" aria-hidden>
+                      <path d="M16.001 3.2c-7.07 0-12.8 5.73-12.8 12.8 0 2.26.59 4.46 1.71 6.4L3.2 28.8l6.58-1.72a12.76 12.76 0 0 0 6.22 1.6h.01c7.06 0 12.79-5.73 12.79-12.8 0-3.42-1.33-6.63-3.75-9.05A12.72 12.72 0 0 0 16 3.2zm5.81 16.39c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.82 1.03-1 1.24-.18.21-.37.24-.69.08-.32-.16-1.34-.5-2.55-1.58-.94-.84-1.58-1.87-1.76-2.19-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.11-.21.05-.4-.03-.55-.08-.16-.71-1.71-.97-2.34-.26-.62-.52-.53-.71-.54-.18-.01-.4-.01-.61-.01-.21 0-.55.08-.84.4-.29.32-1.1 1.08-1.1 2.62 0 1.55 1.13 3.05 1.29 3.26.16.21 2.22 3.39 5.38 4.75.75.32 1.34.51 1.8.66.76.24 1.45.21 2 .13.61-.09 1.88-.77 2.14-1.51.26-.74.26-1.38.18-1.51-.08-.13-.29-.21-.61-.37z"/>
+                    </svg>
+                    Send Requirement on WhatsApp
+                  </a>
+                </div>
+
+                {/* Microcopy line */}
+                <div
+                  className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1.5 text-[12px] text-white/55 animate-fade-in mb-6"
+                  style={{ animationDelay: '300ms' }}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                    No signup required • No cost to try
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-gold" />
+                    Multiple suppliers compete on every RFQ
+                  </span>
+                </div>
+
+                {/* RFQ chips — compact, glassy */}
+                <div
+                  className="animate-fade-in"
+                  style={{ animationDelay: '340ms' }}
+                >
+                  <div className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-white/45 mb-2.5 text-center lg:text-left">
+                    Try a 30-second requirement
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                    {[
+                      { label: 'TMT Bars', q: 'TMT bars Fe 500D, monthly requirement' },
+                      { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
+                      { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
+                      { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
+                      { label: 'Electricals', q: 'LT cables and switchgear — project lot' },
+                    ].map((c) => (
+                      <button
+                        key={c.label}
+                        onClick={() =>
+                          navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)
+                        }
+                        className="px-3.5 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md text-[12px] font-medium text-white/85 border border-white/10 hover:border-gold/40 hover:bg-white/[0.1] hover:text-white transition-all"
+                      >
+                        + {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Microcopy line */}
+              {/* RIGHT — 3D visual */}
               <div
-                className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px] text-muted-foreground animate-fade-in"
-                style={{ animationDelay: '360ms' }}
+                className="lg:col-span-5 animate-fade-in"
+                style={{ animationDelay: '200ms' }}
               >
-                <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                  No signup required • No cost to try
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-primary" />
-                  Multiple suppliers compete on every RFQ
-                </span>
+                <HeroVisual />
               </div>
+            </div>
 
-              {/* Urgency reframe */}
-              <p
-                className="mt-3 text-center text-[12.5px] text-muted-foreground/90 max-w-xl mx-auto animate-fade-in"
-                style={{ animationDelay: '400ms' }}
-              >
-                If you're already negotiating with suppliers, you're leaving competitive pricing on the table.
-              </p>
-              <p
-                className="mt-1.5 text-center text-[11.5px] italic text-muted-foreground/70 animate-fade-in"
-                style={{ animationDelay: '440ms' }}
-              >
-                We don't replace your process — we improve your outcome.
-              </p>
+            {/* Bottom strip — trust + reframe */}
+            <div
+              className="mt-12 lg:mt-16 pt-8 border-t border-white/10 animate-fade-in"
+              style={{ animationDelay: '440ms' }}
+            >
+              <div className="grid md:grid-cols-2 gap-6 items-center">
+                <HeroTrustBadges />
+                <div className="text-center md:text-right">
+                  <p className="text-[13px] text-white/65 max-w-md md:ml-auto leading-relaxed">
+                    If you're already negotiating with suppliers, you're leaving competitive pricing on the table.
+                  </p>
+                  <p className="mt-1 text-[12px] italic text-white/45">
+                    We don't replace your process — we improve your outcome.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
