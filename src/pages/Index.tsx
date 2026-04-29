@@ -618,19 +618,16 @@ const Index = () => {
                     Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
                   </p>
                 </div>
-                <Button
-                  size="default"
-                  className="h-11 px-5 font-semibold shrink-0 bg-gradient-to-br from-[#25D366] to-[#1da851] hover:opacity-95 text-white shadow-md w-full sm:w-auto"
-                  onClick={() =>
-                    window.open(
-                      'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
-                      '_blank',
-                    )
-                  }
+                <a
+                  href={buildWhatsAppLink(WHATSAPP_CONCIERGE_MESSAGE)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('whatsapp_click', { source: 'concierge_card' })}
+                  className="inline-flex items-center justify-center gap-1 h-11 px-5 rounded-md text-sm font-semibold shrink-0 bg-gradient-to-br from-[#25D366] to-[#1da851] hover:opacity-95 text-white shadow-md w-full sm:w-auto transition-all"
                 >
                   Send on WhatsApp
                   <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -671,10 +668,13 @@ const Index = () => {
                   <Button
                     size="lg"
                     className="h-12 px-7 text-[15px] font-semibold bg-gold hover:bg-gold/90 text-gold-foreground shadow-gold border-0"
-                    onClick={() => navigate('/post-rfq')}
+                    onClick={() => {
+                      trackEvent('cta_click', { source: 'final_cta', label: 'get_better_price_now' });
+                      navigate('/post-rfq');
+                    }}
                   >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Post Requirement
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Get Better Price Now
                   </Button>
                   <Button
                     size="lg"
@@ -723,12 +723,18 @@ const Index = () => {
       <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-background/95 backdrop-blur border-t border-border px-4 py-3">
         <Button
           className="w-full h-11 font-semibold"
-          onClick={() => navigate('/post-rfq')}
+          onClick={() => {
+            trackEvent('cta_click', { source: 'mobile_sticky', label: 'get_better_price_now' });
+            navigate('/post-rfq');
+          }}
         >
-          <FileText className="h-4 w-4 mr-2" />
-          Post Requirement
+          <Sparkles className="h-4 w-4 mr-2" />
+          Get Better Price Now
         </Button>
       </div>
+
+      {/* Floating WhatsApp button — sticky right side */}
+      <FloatingWhatsApp />
 
       {/* Footer */}
       <Suspense fallback={<div className="h-32 bg-muted/20" />}>
