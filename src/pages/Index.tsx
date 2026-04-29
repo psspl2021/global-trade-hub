@@ -397,7 +397,7 @@ const Index = () => {
         </section>
 
         {/* ===== CAPABILITIES ===== */}
-        <section className="py-16 sm:py-24 bg-primary text-primary-foreground">
+        <section className="py-12 sm:py-20 lg:py-24 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="max-w-2xl mb-12">
