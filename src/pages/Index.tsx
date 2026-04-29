@@ -134,10 +134,10 @@ const Index = () => {
             fetchPriority="high"
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(1.08) saturate(1.05)' }}
+            style={{ filter: 'brightness(1.18) saturate(1.08)' }}
           />
-          {/* Light, airy readability overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/25 to-background/55" />
+          {/* Very light, airy overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/10 to-background/35" />
 
           {/* Decorative depth layers */}
           <div
