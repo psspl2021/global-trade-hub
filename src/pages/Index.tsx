@@ -239,172 +239,220 @@ const Index = () => {
         </section>
 
 
-        {/* ===== PROOF STRIP — single ===== */}
-        <section className="py-10 sm:py-14 bg-[hsl(var(--muted))]/40 border-y border-border/60">
+        {/* ===== PROOF STRIP ===== */}
+        <section className="py-14 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-6">
-                <span className="inline-block px-2.5 py-0.5 bg-primary/10 text-primary text-[11px] font-semibold rounded uppercase tracking-wider">
-                  Illustrative Scenario
-                </span>
-              </div>
-              <div className="bg-card border border-border rounded-xl shadow-sm px-6 py-7 sm:py-8">
-                <div className="grid grid-cols-3 divide-x divide-border">
-                  <div className="text-center px-2">
-                    <div className="text-2xl sm:text-3xl font-display font-extrabold text-primary mb-1">
-                      3%
-                    </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-muted-foreground leading-snug">
-                      cost reduction in one auction
-                    </div>
+            <div className="max-w-5xl mx-auto">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+                <div>
+                  <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2">
+                    Illustrative Scenario
                   </div>
-                  <div className="text-center px-2">
-                    <div className="text-2xl sm:text-3xl font-display font-extrabold text-primary mb-1">
-                      7
-                    </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-muted-foreground leading-snug">
-                      suppliers competed
-                    </div>
-                  </div>
-                  <div className="text-center px-2">
-                    <div className="text-2xl sm:text-3xl font-display font-extrabold text-primary mb-1">
-                      18 min
-                    </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-muted-foreground leading-snug">
-                      to final price
-                    </div>
-                  </div>
+                  <h2 className="text-[24px] sm:text-[28px] font-display font-bold tracking-tight text-foreground">
+                    What a single auction looks like
+                  </h2>
                 </div>
+                <p className="text-sm text-muted-foreground md:max-w-xs md:text-right">
+                  Outcomes vary by category, volume and market conditions.
+                </p>
               </div>
-              <p className="text-center text-[11px] text-muted-foreground mt-3">
-                Results vary by category and volume.
-              </p>
-            </div>
-          </div>
-        </section>
 
-        {/* ===== HOW IT WORKS — compressed vertical steps ===== */}
-        <section className="py-14 sm:py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto">
-              <h2 className="text-[26px] sm:text-[30px] font-display font-bold text-center tracking-tight mb-10">
-                How it works
-              </h2>
-              <ol className="space-y-5">
-                {steps.map((s, i) => (
-                  <li key={s.title} className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center">
-                      <s.icon className="h-4.5 w-4.5" strokeWidth={2} />
-                    </div>
-                    <div className="flex-1 pt-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[11px] font-mono font-semibold text-muted-foreground">
-                          0{i + 1}
-                        </span>
-                        <h3 className="text-[15px] sm:text-base font-semibold text-foreground">
-                          {s.title}
-                        </h3>
+              <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-border">
+                  {[
+                    { v: '3%', l: 'Cost reduction', s: 'In a single auction vs. previous quote' },
+                    { v: '7', l: 'Suppliers competed', s: 'Live, sealed, in real time' },
+                    { v: '18 min', l: 'Time to final price', s: 'From auction start to award' },
+                  ].map((m, i) => (
+                    <div
+                      key={m.l}
+                      className={`px-6 py-7 sm:py-8 ${i > 0 ? 'border-t sm:border-t-0 border-border' : ''}`}
+                    >
+                      <div className="text-[32px] sm:text-[36px] leading-none font-display font-extrabold text-foreground tracking-tight mb-2">
+                        {m.v}
                       </div>
-                      <p className="text-[14px] text-muted-foreground mt-0.5 leading-relaxed">
-                        {s.desc}
-                      </p>
+                      <div className="text-[13px] font-semibold text-foreground mb-1">
+                        {m.l}
+                      </div>
+                      <div className="text-[12.5px] text-muted-foreground leading-snug">
+                        {m.s}
+                      </div>
                     </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== BUYERS + SUPPLIERS — merged ===== */}
-        <section className="py-14 sm:py-16 bg-[hsl(var(--muted))]/40 border-y border-border/60">
-          <div className="container mx-auto px-4">
-            <h2 className="text-[26px] sm:text-[30px] font-display font-bold text-center tracking-tight mb-10">
-              Built for Buyers &amp; Suppliers
-            </h2>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div>
-                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">
-                  Buyers
-                </h3>
-                <ul className="space-y-3 text-[15px] text-foreground">
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>Run RFQs &amp; reverse auctions</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>Invite existing + new suppliers</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>Audit-ready price trail</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="md:border-l md:border-border md:pl-8">
-                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">
-                  Suppliers
-                </h3>
-                <ul className="space-y-3 text-[15px] text-foreground">
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>Get real RFQs (not listings)</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>Matched to your category</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-primary mt-1">•</span>
-                    <span>
-                      <strong className="font-semibold">Free to bid</strong> — no subscription
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== CAPABILITIES — blue, tightened ===== */}
-        <section className="py-14 sm:py-16 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
-            <h2 className="text-[26px] sm:text-[30px] font-display font-bold text-center tracking-tight mb-10">
-              Platform capabilities
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              {capabilities.map((c) => (
-                <div key={c.title} className="text-center">
-                  <div className="w-11 h-11 mx-auto mb-3 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
-                    <c.icon className="w-5 h-5" />
-                  </div>
-                  <div className="font-semibold text-[15px] mb-1">{c.title}</div>
-                  <div className="text-[12.5px] text-primary-foreground/70">
-                    {c.desc}
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ===== CONCIERGE — single strip ===== */}
-        <section className="py-10 sm:py-12">
+        {/* ===== HOW IT WORKS ===== */}
+        <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto bg-card border border-border rounded-xl px-6 py-5 sm:px-8 sm:py-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 shadow-sm">
-              <div className="flex-1">
-                <p className="text-[15px] sm:text-base font-medium text-foreground leading-snug">
-                  Don’t want to manage auctions?{' '}
-                  <span className="text-muted-foreground">
-                    We’ll handle it end-to-end.
-                  </span>
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16">
+              <div className="lg:col-span-4">
+                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-3">
+                  How it works
+                </div>
+                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-4 leading-[1.15]">
+                  From requirement to award in one workflow
+                </h2>
+                <p className="text-[15px] text-muted-foreground leading-relaxed">
+                  Post once. Suppliers compete on a sealed reverse auction. You award with a full audit trail.
+                </p>
+              </div>
+
+              <div className="lg:col-span-8">
+                <ol className="relative">
+                  {steps.map((s, i) => (
+                    <li
+                      key={s.title}
+                      className={`flex items-start gap-5 py-5 ${i < steps.length - 1 ? 'border-b border-border' : ''}`}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
+                        <s.icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <div className="flex items-baseline gap-3 mb-1">
+                          <span className="text-[11px] font-mono font-semibold text-muted-foreground tracking-wider">
+                            0{i + 1}
+                          </span>
+                          <h3 className="text-[15.5px] font-semibold text-foreground">
+                            {s.title}
+                          </h3>
+                        </div>
+                        <p className="text-[14px] text-muted-foreground leading-relaxed">
+                          {s.desc}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== BUYERS + SUPPLIERS ===== */}
+        <section className="py-16 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-12">
+                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-3">
+                  Who it's for
+                </div>
+                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-4 leading-[1.15]">
+                  Built for buyers and suppliers
+                </h2>
+                <p className="text-[15px] text-muted-foreground leading-relaxed">
+                  One platform, two sides of the table. Buyers run structured sourcing. Suppliers see real demand — not directory listings.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
+                {[
+                  {
+                    label: 'For Buyers',
+                    items: [
+                      { t: 'Run RFQs & reverse auctions', d: 'Sealed, time-boxed, fully structured.' },
+                      { t: 'Invite existing + new suppliers', d: 'Your vendors compete alongside ours.' },
+                      { t: 'Audit-ready price trail', d: 'Every bid and award captured immutably.' },
+                    ],
+                  },
+                  {
+                    label: 'For Suppliers',
+                    items: [
+                      { t: 'Real RFQs, not listings', d: 'Live demand from verified buyers.' },
+                      { t: 'Matched to your category', d: 'Only see what fits your capacity.' },
+                      { t: 'Free to bid', d: 'No subscription, no per-bid fees.' },
+                    ],
+                  },
+                ].map((col) => (
+                  <div
+                    key={col.label}
+                    className="bg-card border border-border rounded-2xl p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                  >
+                    <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-5">
+                      {col.label}
+                    </div>
+                    <ul className="space-y-5">
+                      {col.items.map((it) => (
+                        <li key={it.t} className="flex gap-3">
+                          <div className="mt-[7px] h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                          <div>
+                            <div className="text-[14.5px] font-semibold text-foreground leading-snug">
+                              {it.t}
+                            </div>
+                            <div className="text-[13.5px] text-muted-foreground mt-0.5 leading-relaxed">
+                              {it.d}
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== CAPABILITIES ===== */}
+        <section className="py-16 sm:py-24 bg-primary text-primary-foreground">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-12">
+                <div className="text-[11px] font-semibold text-primary-foreground/70 uppercase tracking-[0.14em] mb-3">
+                  Platform
+                </div>
+                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight mb-4 leading-[1.15]">
+                  Procurement infrastructure, not a marketplace
+                </h2>
+                <p className="text-[15px] text-primary-foreground/75 leading-relaxed">
+                  Everything you need to run sourcing with discipline — auctions, sealed RFQs, an immutable audit trail and CFO-ready reporting.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-primary-foreground/10 rounded-2xl overflow-hidden border border-primary-foreground/15">
+                {capabilities.map((c) => (
+                  <div
+                    key={c.title}
+                    className="bg-primary p-6 sm:p-7 hover:bg-primary-foreground/[0.04] transition-colors"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center mb-4">
+                      <c.icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                    </div>
+                    <div className="font-semibold text-[15px] mb-1.5">{c.title}</div>
+                    <div className="text-[13px] text-primary-foreground/70 leading-relaxed">
+                      {c.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== CONCIERGE ===== */}
+        <section className="py-14 sm:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto bg-card border border-border rounded-2xl px-6 py-6 sm:px-10 sm:py-7 flex flex-col sm:flex-row sm:items-center gap-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+              <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center">
+                <MessageSquare className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-1.5">
+                  Managed Procurement
+                </div>
+                <p className="text-[15.5px] sm:text-base font-semibold text-foreground leading-snug mb-1">
+                  Don't want to manage auctions? We'll run them for you.
+                </p>
+                <p className="text-[13.5px] text-muted-foreground leading-relaxed">
+                  Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
                 </p>
               </div>
               <Button
-                variant="outline"
-                size="sm"
-                className="h-10 px-4 font-semibold shrink-0"
+                size="default"
+                className="h-11 px-5 font-semibold shrink-0 shadow-none"
                 onClick={() =>
                   window.open(
                     'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
@@ -412,42 +460,52 @@ const Index = () => {
                   )
                 }
               >
-                <MessageSquare className="h-4 w-4 mr-2" />
                 Send on WhatsApp
+                <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </div>
         </section>
 
         {/* ===== FINAL CTA ===== */}
-        <section className="py-16 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight mb-3">
-              Stop overpaying for procurement
-            </h2>
-            <p className="text-muted-foreground text-base mb-8 max-w-lg mx-auto">
-              Run your first reverse auction today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                size="lg"
-                className="h-12 px-8 text-[15px] font-semibold shadow-md"
-                onClick={() => navigate('/post-rfq')}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Post Requirement
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-8 text-[15px] font-semibold"
-                onClick={() => navigate('/contact')}
-              >
-                Talk to Sales
-              </Button>
+        <section className="pb-16 sm:pb-24">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto bg-foreground text-background rounded-2xl px-8 py-12 sm:px-14 sm:py-16 relative overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+              <div className="relative z-10 max-w-2xl">
+                <div className="text-[11px] font-semibold text-background/60 uppercase tracking-[0.14em] mb-3">
+                  Get started
+                </div>
+                <h2 className="text-[28px] sm:text-[36px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                  Stop overpaying for procurement
+                </h2>
+                <p className="text-[15px] sm:text-base text-background/75 mb-8 leading-relaxed max-w-lg">
+                  Run your first reverse auction today. No setup fees, no contracts — pay only when you save.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    size="lg"
+                    className="h-12 px-7 text-[15px] font-semibold bg-background text-foreground hover:bg-background/90 shadow-none"
+                    onClick={() => navigate('/post-rfq')}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Post Requirement
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-12 px-7 text-[15px] font-semibold bg-transparent border-background/25 text-background hover:bg-background/10 hover:text-background hover:border-background/40 shadow-none"
+                    onClick={() => navigate('/contact')}
+                  >
+                    Talk to Sales
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
+
 
         {/* ===== FAQ — max 5 ===== */}
         <section className="py-14 sm:py-16">
