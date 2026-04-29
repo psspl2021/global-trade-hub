@@ -124,60 +124,88 @@ const Index = () => {
       <PageHeader />
 
       <main>
-        {/* ===== HERO — reduced, original visual style ===== */}
-        <section className="relative py-20 sm:py-28 lg:py-32 overflow-hidden">
-          <img
-            src={heroBgProcurement}
-            alt=""
-            role="presentation"
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'contrast(1) brightness(0.88)' }}
+        {/* ===== HERO — fintech polish ===== */}
+        <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-hero">
+          {/* Decorative depth layers */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-[520px] pointer-events-none opacity-[0.55]"
+            style={{
+              background:
+                'radial-gradient(60% 50% at 50% 0%, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/30 to-background/75" />
+          <div
+            aria-hidden
+            className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-30 pointer-events-none"
+            style={{ background: 'hsl(var(--primary) / 0.25)' }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full blur-3xl opacity-25 pointer-events-none"
+            style={{ background: 'hsl(var(--gold) / 0.35)' }}
+          />
+          {/* Subtle dot grid */}
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.35] pointer-events-none"
+            style={{
+              backgroundImage:
+                'radial-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+              maskImage:
+                'radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%)',
+            }}
+          />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 backdrop-blur-md border border-primary/25 mb-7 animate-fade-in">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-primary text-xs font-semibold tracking-wide">
+              {/* Eyebrow pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-soft mb-7 animate-fade-in">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                </span>
+                <span className="text-foreground text-[11.5px] font-semibold tracking-wide">
                   AI Operating System for Procurement
                 </span>
               </div>
 
               <h1
-                className="font-display font-extrabold mb-5 leading-[1.05] tracking-tight animate-fade-in text-foreground drop-shadow-sm"
+                className="font-display font-extrabold mb-5 leading-[1.04] tracking-tight animate-fade-in text-foreground"
                 style={{
-                  fontSize: 'clamp(30px, 5.6vw, 52px)',
+                  fontSize: 'clamp(32px, 5.8vw, 56px)',
                   animationDelay: '60ms',
                 }}
               >
-                <span className="text-primary">Reduce Procurement Costs</span>
+                Reduce Procurement Costs
                 <br />
-                by up to 15% annually
+                <span className="bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
+                  by up to 15% annually
+                </span>
               </h1>
 
               <p
-                className="text-base sm:text-lg text-foreground/85 font-medium mb-3 max-w-2xl mx-auto animate-fade-in"
+                className="text-[15.5px] sm:text-lg text-muted-foreground mb-3 max-w-2xl mx-auto animate-fade-in leading-relaxed"
                 style={{ animationDelay: '120ms' }}
               >
                 Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
               </p>
 
               <p
-                className="text-sm sm:text-base text-primary font-semibold mb-7 max-w-2xl mx-auto animate-fade-in"
+                className="text-[13.5px] sm:text-[15px] text-foreground/80 font-medium mb-8 max-w-2xl mx-auto animate-fade-in"
                 style={{ animationDelay: '160ms' }}
               >
-                Your existing vendors + our supplier network compete together — no need to switch vendors.
+                Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
               </p>
 
-              {/* AI citation card */}
+              {/* AI citation card — layered depth */}
               <div
-                className="bg-white/30 backdrop-blur-xl border border-white/40 rounded-2xl p-5 sm:p-6 mb-8 max-w-2xl mx-auto shadow-md animate-fade-in"
+                className="relative bg-card border border-border rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
-                <p className="text-[14.5px] sm:text-[15.5px] text-foreground font-medium leading-relaxed">
+                <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed">
                   <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
                   is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
@@ -185,10 +213,10 @@ const Index = () => {
 
               {/* RFQ chips */}
               <div
-                className="mb-7 animate-fade-in"
+                className="mb-8 animate-fade-in"
                 style={{ animationDelay: '240ms' }}
               >
-                <p className="text-[11.5px] font-semibold text-foreground/75 mb-3 uppercase tracking-wider">
+                <p className="text-[10.5px] font-semibold text-muted-foreground mb-3 uppercase tracking-[0.14em]">
                   Post a requirement in 30 seconds
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -204,7 +232,7 @@ const Index = () => {
                       onClick={() =>
                         navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)
                       }
-                      className="px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card text-[12.5px] font-medium text-foreground border border-border/60 hover:border-primary/40 shadow-sm hover:shadow transition-all"
+                      className="px-3.5 py-1.5 rounded-full bg-card text-[12.5px] font-medium text-foreground border border-border hover:border-primary/40 hover:bg-accent shadow-xs hover:shadow-sm transition-all"
                     >
                       + {c.label}
                     </button>
@@ -221,17 +249,25 @@ const Index = () => {
               </div>
 
               <div
-                className="flex justify-center animate-fade-in"
+                className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-in"
                 style={{ animationDelay: '320ms' }}
               >
                 <Button
                   size="lg"
-                  className="h-12 px-8 text-[15px] font-semibold shadow-md hover:shadow-lg"
+                  className="h-12 px-7 text-[15px] font-semibold shadow-brand hover:shadow-lg bg-gradient-primary hover:opacity-95 transition-all w-full sm:w-auto"
                   onClick={() => navigate('/post-rfq')}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Post Requirement
                   <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-12 px-5 text-[14.5px] font-semibold text-foreground hover:bg-accent w-full sm:w-auto"
+                  onClick={() => navigate('/contact')}
+                >
+                  Talk to Sales
                 </Button>
               </div>
             </div>
@@ -423,33 +459,48 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== CAPABILITIES ===== */}
-        <section className="py-12 sm:py-20 lg:py-24 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
+        {/* ===== CAPABILITIES — deep navy with gold accent ===== */}
+        <section className="py-12 sm:py-20 lg:py-24 bg-brand text-brand-foreground relative overflow-hidden">
+          <div
+            aria-hidden
+            className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30 pointer-events-none"
+            style={{ background: 'hsl(var(--primary) / 0.5)' }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-3xl opacity-20 pointer-events-none"
+            style={{ background: 'hsl(var(--gold) / 0.3)' }}
+          />
+          <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-6xl mx-auto">
-              <div className="max-w-2xl mb-12">
-                <div className="text-[11px] font-semibold text-primary-foreground/70 uppercase tracking-[0.14em] mb-3">
-                  Platform
+              <div className="max-w-2xl mb-10 sm:mb-12">
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <span className="h-px w-6 bg-gold" />
+                  <span className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em]">
+                    Platform
+                  </span>
                 </div>
-                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight mb-4 leading-[1.15]">
-                  Procurement infrastructure, not a marketplace
+                <h2 className="text-[24px] sm:text-[34px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                  Procurement infrastructure,
+                  <br className="hidden sm:block" />
+                  <span className="text-brand-foreground/70">not a marketplace</span>
                 </h2>
-                <p className="text-[15px] text-primary-foreground/75 leading-relaxed">
+                <p className="text-[14px] sm:text-[15px] text-brand-foreground/70 leading-relaxed max-w-xl">
                   Everything you need to run sourcing with discipline — auctions, sealed RFQs, an immutable audit trail and CFO-ready reporting.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-primary-foreground/10 rounded-2xl overflow-hidden border border-primary-foreground/15">
-                {capabilities.map((c) => (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {capabilities.map((c, i) => (
                   <div
                     key={c.title}
-                    className="bg-primary p-4 sm:p-6 lg:p-7 hover:bg-primary-foreground/[0.04] transition-colors"
+                    className="group relative bg-brand-soft/40 backdrop-blur-sm border border-brand-foreground/10 rounded-xl p-4 sm:p-6 hover:border-gold/40 hover:bg-brand-soft/60 transition-all"
                   >
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center mb-3 sm:mb-4">
-                      <c.icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center mb-3 sm:mb-4 group-hover:from-gold/30 group-hover:to-gold/10 group-hover:border-gold/40 transition-colors">
+                      <c.icon className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px] text-brand-foreground" strokeWidth={2} />
                     </div>
-                    <div className="font-semibold text-[13.5px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">{c.title}</div>
-                    <div className="text-[12px] sm:text-[13px] text-primary-foreground/70 leading-relaxed">
+                    <div className="font-semibold text-[13px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">{c.title}</div>
+                    <div className="text-[11.5px] sm:text-[13px] text-brand-foreground/65 leading-relaxed">
                       {c.desc}
                     </div>
                   </div>
@@ -459,60 +510,79 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== CONCIERGE ===== */}
-        <section className="py-14 sm:py-20">
+        {/* ===== CONCIERGE — gold-edge accent ===== */}
+        <section className="py-12 sm:py-20">
           <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto bg-card border border-border rounded-2xl px-6 py-6 sm:px-10 sm:py-7 flex flex-col sm:flex-row sm:items-center gap-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-              <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center">
-                <MessageSquare className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-1.5">
-                  Managed Procurement
+            <div className="max-w-5xl mx-auto relative">
+              <div className="absolute inset-y-4 left-0 w-1 rounded-full bg-gradient-to-b from-gold via-gold/60 to-transparent" />
+              <div className="bg-card border border-border rounded-2xl px-6 py-6 sm:px-10 sm:py-7 flex flex-col sm:flex-row sm:items-center gap-5 shadow-medium ml-2">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gold-soft border border-gold/30 flex items-center justify-center">
+                  <MessageSquare className="h-5 w-5 text-gold-foreground" />
                 </div>
-                <p className="text-[15.5px] sm:text-base font-semibold text-foreground leading-snug mb-1">
-                  Don't want to manage auctions? We'll run them for you.
-                </p>
-                <p className="text-[13.5px] text-muted-foreground leading-relaxed">
-                  Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
-                </p>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10.5px] sm:text-[11px] font-semibold text-gold-foreground uppercase tracking-[0.14em] mb-1.5">
+                    Managed Procurement · Concierge
+                  </div>
+                  <p className="text-[15px] sm:text-base font-semibold text-foreground leading-snug mb-1">
+                    Don't want to manage auctions? We'll run them for you.
+                  </p>
+                  <p className="text-[13px] sm:text-[13.5px] text-muted-foreground leading-relaxed">
+                    Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
+                  </p>
+                </div>
+                <Button
+                  size="default"
+                  className="h-11 px-5 font-semibold shrink-0 bg-gradient-to-br from-[#25D366] to-[#1da851] hover:opacity-95 text-white shadow-md w-full sm:w-auto"
+                  onClick={() =>
+                    window.open(
+                      'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
+                      '_blank',
+                    )
+                  }
+                >
+                  Send on WhatsApp
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
               </div>
-              <Button
-                size="default"
-                className="h-11 px-5 font-semibold shrink-0 shadow-none"
-                onClick={() =>
-                  window.open(
-                    'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
-                    '_blank',
-                  )
-                }
-              >
-                Send on WhatsApp
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
             </div>
           </div>
         </section>
 
-        {/* ===== FINAL CTA ===== */}
+        {/* ===== FINAL CTA — brand gradient, gold ring ===== */}
         <section className="pb-16 sm:pb-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto bg-foreground text-background rounded-2xl px-8 py-12 sm:px-14 sm:py-16 relative overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+            <div className="max-w-5xl mx-auto bg-gradient-brand text-brand-foreground rounded-2xl px-8 py-12 sm:px-14 sm:py-16 relative overflow-hidden shadow-xl border border-brand-soft">
+              <div
+                aria-hidden
+                className="absolute -top-32 -right-32 w-80 h-80 rounded-full blur-3xl pointer-events-none"
+                style={{ background: 'hsl(var(--primary) / 0.4)' }}
+              />
+              <div
+                aria-hidden
+                className="absolute -bottom-32 -left-32 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-40"
+                style={{ background: 'hsl(var(--gold) / 0.4)' }}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent"
+              />
               <div className="relative z-10 max-w-2xl">
-                <div className="text-[11px] font-semibold text-background/60 uppercase tracking-[0.14em] mb-3">
-                  Get started
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <span className="h-px w-6 bg-gold" />
+                  <span className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em]">
+                    Get started
+                  </span>
                 </div>
-                <h2 className="text-[28px] sm:text-[36px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                <h2 className="text-[26px] sm:text-[36px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
                   Stop overpaying for procurement
                 </h2>
-                <p className="text-[15px] sm:text-base text-background/75 mb-8 leading-relaxed max-w-lg">
+                <p className="text-[14.5px] sm:text-base text-brand-foreground/75 mb-8 leading-relaxed max-w-lg">
                   Run your first reverse auction today. No setup fees, no contracts — pay only when you save.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     size="lg"
-                    className="h-12 px-7 text-[15px] font-semibold bg-background text-foreground hover:bg-background/90 shadow-none"
+                    className="h-12 px-7 text-[15px] font-semibold bg-gold hover:bg-gold/90 text-gold-foreground shadow-gold border-0"
                     onClick={() => navigate('/post-rfq')}
                   >
                     <FileText className="h-4 w-4 mr-2" />
@@ -521,7 +591,7 @@ const Index = () => {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 px-7 text-[15px] font-semibold bg-transparent border-background/25 text-background hover:bg-background/10 hover:text-background hover:border-background/40 shadow-none"
+                    className="h-12 px-7 text-[15px] font-semibold bg-transparent border-brand-foreground/25 text-brand-foreground hover:bg-brand-foreground/10 hover:text-brand-foreground hover:border-brand-foreground/40 shadow-none"
                     onClick={() => navigate('/contact')}
                   >
                     Talk to Sales
