@@ -46,12 +46,12 @@ const Index = () => {
 
   useSEO({
     title:
-      'ProcureSaathi | Reduce Procurement Costs by up to 15% with Reverse Auctions',
+      'ProcureSaathi | AI Operating System for Procurement',
     description:
-      'ProcureSaathi runs real reverse auctions between your existing vendors and a verified supplier network. Cut procurement cost, keep an audit trail, stay in control.',
+      'AI Operating System for Procurement that drives better pricing through real supplier competition. Designed to unlock significant cost savings via sealed reverse auctions across your existing and verified suppliers.',
     canonical: 'https://www.procuresaathi.com/',
     keywords:
-      'reverse auction platform, B2B procurement India, RFQ software, sealed bidding, procurement cost reduction, supplier competition',
+      'AI procurement platform, reverse auction software, B2B procurement India, RFQ software, sealed bidding, supplier competition, procurement cost savings',
     ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
     ogType: 'website',
     twitterCard: 'summary_large_image',
@@ -404,6 +404,23 @@ const Index = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Illustrative TMT example — clearly labeled */}
+                <div className="border-t border-border bg-muted/30 px-4 py-4 sm:px-6 sm:py-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-wider text-primary">
+                        Illustrative example
+                      </span>
+                    </div>
+                    <p className="text-[12.5px] sm:text-[14px] text-foreground leading-relaxed">
+                      A construction contractor sourcing <strong>25 MT of TMT bars (Fe 500D)</strong> ran a sealed reverse auction with 6 suppliers — a <strong className="text-primary">~3% drop from the opening quote</strong> translated into approximately <strong className="text-primary">₹1.2 lakh in savings</strong> on a single order.
+                      <span className="block text-[11px] sm:text-[12px] text-muted-foreground mt-1">
+                        Based on typical reverse auction outcomes. Actual savings vary by category, volume and market conditions.
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
