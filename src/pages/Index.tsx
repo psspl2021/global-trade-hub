@@ -239,7 +239,7 @@ const Index = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
-                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, 25 MT, monthly' },
+                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, monthly requirement' },
                     { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
                     { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
                     { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
@@ -415,7 +415,7 @@ const Index = () => {
                       </span>
                     </div>
                     <p className="text-[12.5px] sm:text-[14px] text-foreground leading-relaxed">
-                      A construction contractor sourcing <strong>25 MT of TMT bars (Fe 500D)</strong> ran a sealed reverse auction with 6 suppliers — a <strong className="text-primary">~3% drop from the opening quote</strong> translated into approximately <strong className="text-primary">₹1.2 lakh in savings</strong> on a single order.
+                      A construction contractor sourcing <strong>TMT bars (Fe 500D)</strong> ran a sealed reverse auction with 6 suppliers — a <strong className="text-primary">~3% drop from the opening quote</strong> translated into a <strong className="text-primary">meaningful per-order saving</strong> on the same requirement.
                       <span className="block text-[11px] sm:text-[12px] text-muted-foreground mt-1">
                         Based on typical reverse auction outcomes. Actual savings vary by category, volume and market conditions.
                       </span>
