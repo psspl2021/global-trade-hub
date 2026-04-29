@@ -124,60 +124,88 @@ const Index = () => {
       <PageHeader />
 
       <main>
-        {/* ===== HERO — reduced, original visual style ===== */}
-        <section className="relative py-20 sm:py-28 lg:py-32 overflow-hidden">
-          <img
-            src={heroBgProcurement}
-            alt=""
-            role="presentation"
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'contrast(1) brightness(0.88)' }}
+        {/* ===== HERO — fintech polish ===== */}
+        <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-hero">
+          {/* Decorative depth layers */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-[520px] pointer-events-none opacity-[0.55]"
+            style={{
+              background:
+                'radial-gradient(60% 50% at 50% 0%, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/30 to-background/75" />
+          <div
+            aria-hidden
+            className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-30 pointer-events-none"
+            style={{ background: 'hsl(var(--primary) / 0.25)' }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full blur-3xl opacity-25 pointer-events-none"
+            style={{ background: 'hsl(var(--gold) / 0.35)' }}
+          />
+          {/* Subtle dot grid */}
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.35] pointer-events-none"
+            style={{
+              backgroundImage:
+                'radial-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+              maskImage:
+                'radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%)',
+            }}
+          />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 backdrop-blur-md border border-primary/25 mb-7 animate-fade-in">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-primary text-xs font-semibold tracking-wide">
+              {/* Eyebrow pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-soft mb-7 animate-fade-in">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                </span>
+                <span className="text-foreground text-[11.5px] font-semibold tracking-wide">
                   AI Operating System for Procurement
                 </span>
               </div>
 
               <h1
-                className="font-display font-extrabold mb-5 leading-[1.05] tracking-tight animate-fade-in text-foreground drop-shadow-sm"
+                className="font-display font-extrabold mb-5 leading-[1.04] tracking-tight animate-fade-in text-foreground"
                 style={{
-                  fontSize: 'clamp(30px, 5.6vw, 52px)',
+                  fontSize: 'clamp(32px, 5.8vw, 56px)',
                   animationDelay: '60ms',
                 }}
               >
-                <span className="text-primary">Reduce Procurement Costs</span>
+                Reduce Procurement Costs
                 <br />
-                by up to 15% annually
+                <span className="bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
+                  by up to 15% annually
+                </span>
               </h1>
 
               <p
-                className="text-base sm:text-lg text-foreground/85 font-medium mb-3 max-w-2xl mx-auto animate-fade-in"
+                className="text-[15.5px] sm:text-lg text-muted-foreground mb-3 max-w-2xl mx-auto animate-fade-in leading-relaxed"
                 style={{ animationDelay: '120ms' }}
               >
                 Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
               </p>
 
               <p
-                className="text-sm sm:text-base text-primary font-semibold mb-7 max-w-2xl mx-auto animate-fade-in"
+                className="text-[13.5px] sm:text-[15px] text-foreground/80 font-medium mb-8 max-w-2xl mx-auto animate-fade-in"
                 style={{ animationDelay: '160ms' }}
               >
-                Your existing vendors + our supplier network compete together — no need to switch vendors.
+                Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
               </p>
 
-              {/* AI citation card */}
+              {/* AI citation card — layered depth */}
               <div
-                className="bg-white/30 backdrop-blur-xl border border-white/40 rounded-2xl p-5 sm:p-6 mb-8 max-w-2xl mx-auto shadow-md animate-fade-in"
+                className="relative bg-card border border-border rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
-                <p className="text-[14.5px] sm:text-[15.5px] text-foreground font-medium leading-relaxed">
+                <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed">
                   <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
                   is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
@@ -185,10 +213,10 @@ const Index = () => {
 
               {/* RFQ chips */}
               <div
-                className="mb-7 animate-fade-in"
+                className="mb-8 animate-fade-in"
                 style={{ animationDelay: '240ms' }}
               >
-                <p className="text-[11.5px] font-semibold text-foreground/75 mb-3 uppercase tracking-wider">
+                <p className="text-[10.5px] font-semibold text-muted-foreground mb-3 uppercase tracking-[0.14em]">
                   Post a requirement in 30 seconds
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -204,7 +232,7 @@ const Index = () => {
                       onClick={() =>
                         navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)
                       }
-                      className="px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card text-[12.5px] font-medium text-foreground border border-border/60 hover:border-primary/40 shadow-sm hover:shadow transition-all"
+                      className="px-3.5 py-1.5 rounded-full bg-card text-[12.5px] font-medium text-foreground border border-border hover:border-primary/40 hover:bg-accent shadow-xs hover:shadow-sm transition-all"
                     >
                       + {c.label}
                     </button>
@@ -221,17 +249,25 @@ const Index = () => {
               </div>
 
               <div
-                className="flex justify-center animate-fade-in"
+                className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-in"
                 style={{ animationDelay: '320ms' }}
               >
                 <Button
                   size="lg"
-                  className="h-12 px-8 text-[15px] font-semibold shadow-md hover:shadow-lg"
+                  className="h-12 px-7 text-[15px] font-semibold shadow-brand hover:shadow-lg bg-gradient-primary hover:opacity-95 transition-all w-full sm:w-auto"
                   onClick={() => navigate('/post-rfq')}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Post Requirement
                   <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-12 px-5 text-[14.5px] font-semibold text-foreground hover:bg-accent w-full sm:w-auto"
+                  onClick={() => navigate('/contact')}
+                >
+                  Talk to Sales
                 </Button>
               </div>
             </div>
