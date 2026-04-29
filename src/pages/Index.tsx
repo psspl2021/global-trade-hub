@@ -29,6 +29,7 @@ import {
   getOrganizationSchema,
 } from '@/hooks/useSEO';
 import { PageHeader } from '@/components/landing/PageHeader';
+import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 
 const Footer = lazy(() =>
   import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
