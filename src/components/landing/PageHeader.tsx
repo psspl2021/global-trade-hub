@@ -29,7 +29,7 @@ export const PageHeader = () => {
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between" style={{ height: "60px" }}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between" style={{ height: "76px" }}>
         {/* Logo */}
         <button
           className="flex items-center shrink-0 -ml-1 px-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
@@ -39,9 +39,9 @@ export const PageHeader = () => {
           <img
             src={procureSaathiLogo}
             alt="ProcureSaathi"
-            className="h-9 w-auto object-contain"
-            width={140}
-            height={36}
+            className="h-14 sm:h-16 w-auto object-contain"
+            width={240}
+            height={64}
             loading="eager"
           />
         </button>
