@@ -10,7 +10,7 @@ const navLinks = [
   { label: "For Suppliers", path: "/seller" },
   { label: "Solutions", path: "/solutions" },
   { label: "Categories", path: "/categories" },
-  { label: "Pricing", path: "/pricing" },
+  
   { label: "Resources", path: "/blogs" },
   { label: "Contact", path: "/contact" },
 ];
