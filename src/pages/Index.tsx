@@ -133,11 +133,13 @@ const Index = () => {
             role="presentation"
             fetchPriority="high"
             decoding="async"
+            loading="eager"
+            width={1920}
+            height={1080}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(1.15) saturate(0.95)', opacity: 0.75 }}
           />
           {/* Balanced overlay — image visible but text-safe */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-background/30 to-background/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/60" />
 
           {/* Decorative depth layers */}
           <div
@@ -200,12 +202,13 @@ const Index = () => {
                 Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
               </p>
 
-              {/* AI citation — transparent style */}
+              {/* AI citation card — white card style */}
               <div
-                className="relative mb-9 max-w-2xl mx-auto animate-fade-in"
+                className="relative bg-card border border-border rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
-                <p className="text-[14px] sm:text-[15px] text-foreground/85 leading-relaxed text-center">
+                <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed text-center">
                   <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
                   is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
@@ -260,14 +263,6 @@ const Index = () => {
                   <FileText className="h-4 w-4 mr-2" />
                   Post Requirement
                   <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="h-12 px-5 text-[14.5px] font-semibold text-foreground hover:bg-accent w-full sm:w-auto"
-                  onClick={() => navigate('/contact')}
-                >
-                  Talk to Sales
                 </Button>
               </div>
             </div>
