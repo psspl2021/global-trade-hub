@@ -219,7 +219,7 @@ const Index = () => {
                 className="mb-8 animate-fade-in"
                 style={{ animationDelay: '240ms' }}
               >
-                <p className="text-[10.5px] font-semibold text-muted-foreground mb-3 uppercase tracking-[0.14em]">
+                <p className="text-[11px] font-bold text-primary mb-3 uppercase tracking-[0.16em] drop-shadow-sm">
                   Post a requirement in 30 seconds
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
