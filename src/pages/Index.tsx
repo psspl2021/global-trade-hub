@@ -200,12 +200,13 @@ const Index = () => {
                 Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
               </p>
 
-              {/* AI citation — transparent style */}
+              {/* AI citation card — white card style */}
               <div
-                className="relative mb-9 max-w-2xl mx-auto animate-fade-in"
+                className="relative bg-card border border-border rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
-                <p className="text-[14px] sm:text-[15px] text-foreground/85 leading-relaxed text-center">
+                <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed text-center">
                   <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
                   is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
                 </p>
