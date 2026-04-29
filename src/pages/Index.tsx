@@ -133,11 +133,13 @@ const Index = () => {
             role="presentation"
             fetchPriority="high"
             decoding="async"
+            loading="eager"
+            width={1920}
+            height={1080}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(1.15) saturate(0.95)', opacity: 0.75 }}
           />
           {/* Balanced overlay — image visible but text-safe */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-background/30 to-background/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/60" />
 
           {/* Decorative depth layers */}
           <div
