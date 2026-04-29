@@ -510,60 +510,79 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== CONCIERGE ===== */}
-        <section className="py-14 sm:py-20">
+        {/* ===== CONCIERGE — gold-edge accent ===== */}
+        <section className="py-12 sm:py-20">
           <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto bg-card border border-border rounded-2xl px-6 py-6 sm:px-10 sm:py-7 flex flex-col sm:flex-row sm:items-center gap-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-              <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/8 border border-primary/15 flex items-center justify-center">
-                <MessageSquare className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-1.5">
-                  Managed Procurement
+            <div className="max-w-5xl mx-auto relative">
+              <div className="absolute inset-y-4 left-0 w-1 rounded-full bg-gradient-to-b from-gold via-gold/60 to-transparent" />
+              <div className="bg-card border border-border rounded-2xl px-6 py-6 sm:px-10 sm:py-7 flex flex-col sm:flex-row sm:items-center gap-5 shadow-medium ml-2">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gold-soft border border-gold/30 flex items-center justify-center">
+                  <MessageSquare className="h-5 w-5 text-gold-foreground" />
                 </div>
-                <p className="text-[15.5px] sm:text-base font-semibold text-foreground leading-snug mb-1">
-                  Don't want to manage auctions? We'll run them for you.
-                </p>
-                <p className="text-[13.5px] text-muted-foreground leading-relaxed">
-                  Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
-                </p>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10.5px] sm:text-[11px] font-semibold text-gold-foreground uppercase tracking-[0.14em] mb-1.5">
+                    Managed Procurement · Concierge
+                  </div>
+                  <p className="text-[15px] sm:text-base font-semibold text-foreground leading-snug mb-1">
+                    Don't want to manage auctions? We'll run them for you.
+                  </p>
+                  <p className="text-[13px] sm:text-[13.5px] text-muted-foreground leading-relaxed">
+                    Share your requirement on WhatsApp. Our team negotiates. You only review and approve.
+                  </p>
+                </div>
+                <Button
+                  size="default"
+                  className="h-11 px-5 font-semibold shrink-0 bg-gradient-to-br from-[#25D366] to-[#1da851] hover:opacity-95 text-white shadow-md w-full sm:w-auto"
+                  onClick={() =>
+                    window.open(
+                      'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
+                      '_blank',
+                    )
+                  }
+                >
+                  Send on WhatsApp
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
               </div>
-              <Button
-                size="default"
-                className="h-11 px-5 font-semibold shrink-0 shadow-none"
-                onClick={() =>
-                  window.open(
-                    'https://wa.me/919876543210?text=Hi%2C%20I%20want%20ProcureSaathi%20to%20handle%20my%20procurement%20end-to-end.',
-                    '_blank',
-                  )
-                }
-              >
-                Send on WhatsApp
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
             </div>
           </div>
         </section>
 
-        {/* ===== FINAL CTA ===== */}
+        {/* ===== FINAL CTA — brand gradient, gold ring ===== */}
         <section className="pb-16 sm:pb-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto bg-foreground text-background rounded-2xl px-8 py-12 sm:px-14 sm:py-16 relative overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+            <div className="max-w-5xl mx-auto bg-gradient-brand text-brand-foreground rounded-2xl px-8 py-12 sm:px-14 sm:py-16 relative overflow-hidden shadow-xl border border-brand-soft">
+              <div
+                aria-hidden
+                className="absolute -top-32 -right-32 w-80 h-80 rounded-full blur-3xl pointer-events-none"
+                style={{ background: 'hsl(var(--primary) / 0.4)' }}
+              />
+              <div
+                aria-hidden
+                className="absolute -bottom-32 -left-32 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-40"
+                style={{ background: 'hsl(var(--gold) / 0.4)' }}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent"
+              />
               <div className="relative z-10 max-w-2xl">
-                <div className="text-[11px] font-semibold text-background/60 uppercase tracking-[0.14em] mb-3">
-                  Get started
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <span className="h-px w-6 bg-gold" />
+                  <span className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em]">
+                    Get started
+                  </span>
                 </div>
-                <h2 className="text-[28px] sm:text-[36px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                <h2 className="text-[26px] sm:text-[36px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
                   Stop overpaying for procurement
                 </h2>
-                <p className="text-[15px] sm:text-base text-background/75 mb-8 leading-relaxed max-w-lg">
+                <p className="text-[14.5px] sm:text-base text-brand-foreground/75 mb-8 leading-relaxed max-w-lg">
                   Run your first reverse auction today. No setup fees, no contracts — pay only when you save.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     size="lg"
-                    className="h-12 px-7 text-[15px] font-semibold bg-background text-foreground hover:bg-background/90 shadow-none"
+                    className="h-12 px-7 text-[15px] font-semibold bg-gold hover:bg-gold/90 text-gold-foreground shadow-gold border-0"
                     onClick={() => navigate('/post-rfq')}
                   >
                     <FileText className="h-4 w-4 mr-2" />
@@ -572,7 +591,7 @@ const Index = () => {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 px-7 text-[15px] font-semibold bg-transparent border-background/25 text-background hover:bg-background/10 hover:text-background hover:border-background/40 shadow-none"
+                    className="h-12 px-7 text-[15px] font-semibold bg-transparent border-brand-foreground/25 text-brand-foreground hover:bg-brand-foreground/10 hover:text-brand-foreground hover:border-brand-foreground/40 shadow-none"
                     onClick={() => navigate('/contact')}
                   >
                     Talk to Sales
