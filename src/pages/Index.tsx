@@ -240,41 +240,42 @@ const Index = () => {
 
 
         {/* ===== PROOF STRIP ===== */}
-        <section className="py-14 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
+        <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6 sm:mb-8">
                 <div>
-                  <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2">
+                  <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2">
                     Illustrative Scenario
                   </div>
-                  <h2 className="text-[24px] sm:text-[28px] font-display font-bold tracking-tight text-foreground">
+                  <h2 className="text-[20px] sm:text-[28px] font-display font-bold tracking-tight text-foreground leading-tight">
                     What a single auction looks like
                   </h2>
                 </div>
-                <p className="text-sm text-muted-foreground md:max-w-xs md:text-right">
+                <p className="text-[12.5px] sm:text-sm text-muted-foreground md:max-w-xs md:text-right">
                   Outcomes vary by category, volume and market conditions.
                 </p>
               </div>
 
-              <div className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
-                <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-border">
+              <div className="bg-card border border-border rounded-xl sm:rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
+                <div className="grid grid-cols-3 divide-x divide-border">
                   {[
                     { v: '3%', l: 'Cost reduction', s: 'In a single auction vs. previous quote' },
                     { v: '7', l: 'Suppliers competed', s: 'Live, sealed, in real time' },
-                    { v: '18 min', l: 'Time to final price', s: 'From auction start to award' },
-                  ].map((m, i) => (
+                    { v: '18m', vFull: '18 min', l: 'Time to final price', s: 'From auction start to award' },
+                  ].map((m) => (
                     <div
                       key={m.l}
-                      className={`px-6 py-7 sm:py-8 ${i > 0 ? 'border-t sm:border-t-0 border-border' : ''}`}
+                      className="px-3 py-4 sm:px-6 sm:py-8"
                     >
-                      <div className="text-[32px] sm:text-[36px] leading-none font-display font-extrabold text-foreground tracking-tight mb-2">
-                        {m.v}
+                      <div className="text-[22px] sm:text-[36px] leading-none font-display font-extrabold text-foreground tracking-tight mb-1.5 sm:mb-2">
+                        <span className="sm:hidden">{m.v}</span>
+                        <span className="hidden sm:inline">{m.vFull ?? m.v}</span>
                       </div>
-                      <div className="text-[13px] font-semibold text-foreground mb-1">
+                      <div className="text-[11.5px] sm:text-[13px] font-semibold text-foreground leading-tight mb-1">
                         {m.l}
                       </div>
-                      <div className="text-[12.5px] text-muted-foreground leading-snug">
+                      <div className="hidden sm:block text-[12.5px] text-muted-foreground leading-snug">
                         {m.s}
                       </div>
                     </div>
@@ -286,23 +287,49 @@ const Index = () => {
         </section>
 
         {/* ===== HOW IT WORKS ===== */}
-        <section className="py-16 sm:py-24">
+        <section className="py-12 sm:py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16">
-              <div className="lg:col-span-4">
-                <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-3">
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-16">
+              <div className="lg:col-span-4 max-w-2xl">
+                <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2 sm:mb-3">
                   How it works
                 </div>
-                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-4 leading-[1.15]">
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
                   From requirement to award in one workflow
                 </h2>
-                <p className="text-[15px] text-muted-foreground leading-relaxed">
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
                   Post once. Suppliers compete on a sealed reverse auction. You award with a full audit trail.
                 </p>
               </div>
 
               <div className="lg:col-span-8">
-                <ol className="relative">
+                {/* Mobile: compact 2x2 card grid */}
+                <ol className="grid grid-cols-2 gap-2.5 lg:hidden">
+                  {steps.map((s, i) => (
+                    <li
+                      key={s.title}
+                      className="bg-card border border-border rounded-xl p-3.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
+                          <s.icon className="h-[14px] w-[14px]" strokeWidth={2} />
+                        </div>
+                        <span className="text-[10px] font-mono font-semibold text-muted-foreground tracking-wider">
+                          0{i + 1}
+                        </span>
+                      </div>
+                      <h3 className="text-[12.5px] font-semibold text-foreground leading-snug mb-1">
+                        {s.title}
+                      </h3>
+                      <p className="text-[11.5px] text-muted-foreground leading-snug">
+                        {s.desc}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+
+                {/* Desktop: vertical numbered list */}
+                <ol className="relative hidden lg:block">
                   {steps.map((s, i) => (
                     <li
                       key={s.title}
