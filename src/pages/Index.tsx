@@ -124,8 +124,21 @@ const Index = () => {
       <PageHeader />
 
       <main>
-        {/* ===== HERO — fintech polish ===== */}
-        <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-hero">
+        {/* ===== HERO — original industrial image + fintech polish ===== */}
+        <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden">
+          {/* Industrial background image */}
+          <img
+            src={heroBgProcurement}
+            alt=""
+            role="presentation"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'contrast(1) brightness(0.92)' }}
+          />
+          {/* Readability overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/55 to-background/85" />
+
           {/* Decorative depth layers */}
           <div
             aria-hidden
@@ -137,25 +150,13 @@ const Index = () => {
           />
           <div
             aria-hidden
-            className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-30 pointer-events-none"
+            className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-25 pointer-events-none"
             style={{ background: 'hsl(var(--primary) / 0.25)' }}
           />
           <div
             aria-hidden
-            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full blur-3xl opacity-25 pointer-events-none"
+            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full blur-3xl opacity-20 pointer-events-none"
             style={{ background: 'hsl(var(--gold) / 0.35)' }}
-          />
-          {/* Subtle dot grid */}
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-[0.35] pointer-events-none"
-            style={{
-              backgroundImage:
-                'radial-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
-              maskImage:
-                'radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%)',
-            }}
           />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
