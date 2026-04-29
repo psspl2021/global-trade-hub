@@ -304,13 +304,27 @@ const Index = () => {
               >
                 <span className="inline-flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                  No signup required
+                  No signup required • No cost to try
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5 text-primary" />
-                  Typical RFQs see 5–8 suppliers participate
+                  Multiple suppliers compete on every RFQ
                 </span>
               </div>
+
+              {/* Urgency reframe */}
+              <p
+                className="mt-3 text-center text-[12.5px] text-muted-foreground/90 max-w-xl mx-auto animate-fade-in"
+                style={{ animationDelay: '400ms' }}
+              >
+                If you're already negotiating with suppliers, you're leaving competitive pricing on the table.
+              </p>
+              <p
+                className="mt-1.5 text-center text-[11.5px] italic text-muted-foreground/70 animate-fade-in"
+                style={{ animationDelay: '440ms' }}
+              >
+                We don't replace your process — we improve your outcome.
+              </p>
             </div>
           </div>
         </section>
@@ -415,7 +429,10 @@ const Index = () => {
                       </span>
                     </div>
                     <p className="text-[12.5px] sm:text-[14px] text-foreground leading-relaxed">
-                      A construction contractor sourcing <strong>TMT bars (Fe 500D)</strong> ran a sealed reverse auction with 6 suppliers — a <strong className="text-primary">~3% drop from the opening quote</strong> translated into a <strong className="text-primary">meaningful per-order saving</strong> on the same requirement.
+                      A construction contractor sourcing <strong>TMT bars (Fe 500D)</strong> ran a sealed reverse auction with <strong>6 suppliers</strong>, resulting in a <strong className="text-primary">measurable price reduction from the initial quote</strong> on the same requirement.
+                      <span className="block mt-2 text-[11.5px] italic text-muted-foreground/70 not-italic">
+                        Illustrative example based on reverse auction outcomes. Actual results vary by category, geography, and competition intensity.
+                      </span>
                       <span className="block text-[11px] sm:text-[12px] text-muted-foreground mt-1">
                         Based on typical reverse auction outcomes. Actual savings vary by category, volume and market conditions.
                       </span>
