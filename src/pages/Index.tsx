@@ -219,9 +219,11 @@ const Index = () => {
                 className="mb-8 animate-fade-in"
                 style={{ animationDelay: '240ms' }}
               >
-                <p className="text-[11px] font-bold text-primary mb-3 uppercase tracking-[0.16em] drop-shadow-sm">
-                  Post a requirement in 30 seconds
-                </p>
+                <div className="flex justify-center mb-3">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full uppercase tracking-[0.16em] shadow-brand">
+                    Post a requirement in 30 seconds
+                  </span>
+                </div>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
                     { label: 'TMT Bars', q: 'TMT bars Fe 500D, 25 MT, monthly' },
