@@ -320,9 +320,9 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* RIGHT — 3D visual */}
+              {/* RIGHT — 3D visual (only renders when there's enough space) */}
               <div
-                className="lg:col-span-5 animate-fade-in"
+                className="hidden xl:block xl:col-span-5 animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
                 <HeroVisual />
