@@ -333,22 +333,22 @@ const Index = () => {
         </section>
 
         {/* ===== BUYERS + SUPPLIERS ===== */}
-        <section className="py-16 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
+        <section className="py-12 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <div className="max-w-2xl mb-12">
+              <div className="max-w-2xl mb-8 sm:mb-12">
                 <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-3">
                   Who it's for
                 </div>
-                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-4 leading-[1.15]">
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
                   Built for buyers and suppliers
                 </h2>
-                <p className="text-[15px] text-muted-foreground leading-relaxed">
-                  One platform, two sides of the table. Buyers run structured sourcing. Suppliers see real demand — not directory listings.
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  One platform, two sides of the table. Buyers run structured sourcing. Suppliers see real demand.
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:gap-6">
                 {[
                   {
                     label: 'For Buyers',
@@ -369,20 +369,20 @@ const Index = () => {
                 ].map((col) => (
                   <div
                     key={col.label}
-                    className="bg-card border border-border rounded-2xl px-6 py-7 sm:px-8 sm:py-9 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                    className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:px-8 sm:py-9 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
                   >
-                    <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-6 pb-4 border-b border-border">
+                    <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-3 sm:mb-6 pb-2.5 sm:pb-4 border-b border-border">
                       {col.label}
                     </div>
-                    <ul className="space-y-5">
+                    <ul className="space-y-3 sm:space-y-5">
                       {col.items.map((it) => (
-                        <li key={it.t} className="flex gap-3.5">
-                          <div className="mt-[7px] h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                        <li key={it.t} className="flex gap-2 sm:gap-3.5">
+                          <div className="mt-[6px] sm:mt-[7px] h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-primary flex-shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <div className="text-[14.5px] font-semibold text-foreground leading-snug">
+                            <div className="text-[12.5px] sm:text-[14.5px] font-semibold text-foreground leading-snug">
                               {it.t}
                             </div>
-                            <div className="text-[13.5px] text-muted-foreground mt-1 leading-relaxed">
+                            <div className="hidden sm:block text-[13.5px] text-muted-foreground mt-1 leading-relaxed">
                               {it.d}
                             </div>
                           </div>
