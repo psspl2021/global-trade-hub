@@ -397,7 +397,7 @@ const Index = () => {
         </section>
 
         {/* ===== CAPABILITIES ===== */}
-        <section className="py-16 sm:py-24 bg-primary text-primary-foreground">
+        <section className="py-12 sm:py-20 lg:py-24 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="max-w-2xl mb-12">
@@ -412,17 +412,17 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-primary-foreground/10 rounded-2xl overflow-hidden border border-primary-foreground/15">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-primary-foreground/10 rounded-2xl overflow-hidden border border-primary-foreground/15">
                 {capabilities.map((c) => (
                   <div
                     key={c.title}
-                    className="bg-primary p-6 sm:p-7 hover:bg-primary-foreground/[0.04] transition-colors"
+                    className="bg-primary p-4 sm:p-6 lg:p-7 hover:bg-primary-foreground/[0.04] transition-colors"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center mb-4">
-                      <c.icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center mb-3 sm:mb-4">
+                      <c.icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
                     </div>
-                    <div className="font-semibold text-[15px] mb-1.5">{c.title}</div>
-                    <div className="text-[13px] text-primary-foreground/70 leading-relaxed">
+                    <div className="font-semibold text-[13.5px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">{c.title}</div>
+                    <div className="text-[12px] sm:text-[13px] text-primary-foreground/70 leading-relaxed">
                       {c.desc}
                     </div>
                   </div>
