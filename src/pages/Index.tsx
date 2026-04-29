@@ -142,14 +142,14 @@ const Index = () => {
             loading="eager"
             width={1920}
             height={1080}
-            className="absolute inset-0 w-full h-full object-cover opacity-[0.48] contrast-125 saturate-110"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.32] contrast-110 saturate-105"
           />
-          {/* Cinematic gradient veil — preserves readability without hiding the photo */}
+          {/* Cinematic gradient veil — readability first, photo as atmosphere */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(90deg, hsl(222 75% 6% / 0.86) 0%, hsl(222 70% 8% / 0.64) 42%, hsl(222 65% 9% / 0.38) 100%), linear-gradient(180deg, hsl(222 75% 6% / 0.62) 0%, hsl(222 70% 8% / 0.34) 48%, hsl(222 75% 6% / 0.72) 100%)',
+                'linear-gradient(90deg, hsl(222 75% 6% / 0.94) 0%, hsl(222 70% 8% / 0.82) 45%, hsl(222 65% 9% / 0.62) 100%), linear-gradient(180deg, hsl(222 75% 6% / 0.78) 0%, hsl(222 70% 8% / 0.55) 50%, hsl(222 75% 6% / 0.85) 100%)',
             }}
           />
           {/* Brand glow — gold from top-right, primary from bottom-left */}
