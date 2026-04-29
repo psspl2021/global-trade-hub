@@ -32,6 +32,7 @@ import {
 } from '@/hooks/useSEO';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
+import { HeroVisual } from '@/components/landing/HeroVisual';
 import FloatingWhatsApp from '@/components/conversion/FloatingWhatsApp';
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from '@/lib/whatsapp';
 import { trackEvent } from '@/lib/analytics';
