@@ -202,9 +202,9 @@ const Index = () => {
                 Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
               </p>
 
-              {/* AI citation card — white card style */}
+              {/* AI citation card — frosted glass blends with hero */}
               <div
-                className="relative bg-card border border-border rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
+                className="relative bg-card/55 backdrop-blur-xl border border-white/40 rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               >
                 <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
