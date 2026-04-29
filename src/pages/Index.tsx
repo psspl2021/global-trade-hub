@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   ClipboardList,
   BarChart3,
+  Globe,
 } from 'lucide-react';
 import heroBgProcurement from '@/assets/hero-bg-procurement.jpg';
 import { useAuth } from '@/hooks/useAuth';
@@ -163,15 +164,28 @@ const Index = () => {
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              {/* Eyebrow pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-soft mb-7 animate-fade-in">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
-                </span>
-                <span className="text-foreground text-[11.5px] font-semibold tracking-wide">
-                  AI Operating System for Procurement
-                </span>
+              {/* Eyebrow pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-7 animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-soft">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                  </span>
+                  <span className="text-foreground text-[11.5px] font-semibold tracking-wide">
+                    AI Operating System for Procurement
+                  </span>
+                </div>
+                <Link
+                  to="/global-sourcing-countries"
+                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/25 hover:bg-primary/12 hover:border-primary/40 transition-all shadow-soft"
+                  aria-label="Explore global sourcing across countries"
+                >
+                  <Globe className="h-3 w-3 text-primary" />
+                  <span className="text-primary text-[11.5px] font-semibold tracking-wide">
+                    Global sourcing available
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-primary opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
               </div>
 
               <h1
