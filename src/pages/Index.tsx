@@ -459,33 +459,48 @@ const Index = () => {
           </div>
         </section>
 
-        {/* ===== CAPABILITIES ===== */}
-        <section className="py-12 sm:py-20 lg:py-24 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
+        {/* ===== CAPABILITIES — deep navy with gold accent ===== */}
+        <section className="py-12 sm:py-20 lg:py-24 bg-brand text-brand-foreground relative overflow-hidden">
+          <div
+            aria-hidden
+            className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30 pointer-events-none"
+            style={{ background: 'hsl(var(--primary) / 0.5)' }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-3xl opacity-20 pointer-events-none"
+            style={{ background: 'hsl(var(--gold) / 0.3)' }}
+          />
+          <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-6xl mx-auto">
-              <div className="max-w-2xl mb-12">
-                <div className="text-[11px] font-semibold text-primary-foreground/70 uppercase tracking-[0.14em] mb-3">
-                  Platform
+              <div className="max-w-2xl mb-10 sm:mb-12">
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <span className="h-px w-6 bg-gold" />
+                  <span className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em]">
+                    Platform
+                  </span>
                 </div>
-                <h2 className="text-[26px] sm:text-[32px] font-display font-bold tracking-tight mb-4 leading-[1.15]">
-                  Procurement infrastructure, not a marketplace
+                <h2 className="text-[24px] sm:text-[34px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                  Procurement infrastructure,
+                  <br className="hidden sm:block" />
+                  <span className="text-brand-foreground/70">not a marketplace</span>
                 </h2>
-                <p className="text-[15px] text-primary-foreground/75 leading-relaxed">
+                <p className="text-[14px] sm:text-[15px] text-brand-foreground/70 leading-relaxed max-w-xl">
                   Everything you need to run sourcing with discipline — auctions, sealed RFQs, an immutable audit trail and CFO-ready reporting.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-primary-foreground/10 rounded-2xl overflow-hidden border border-primary-foreground/15">
-                {capabilities.map((c) => (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {capabilities.map((c, i) => (
                   <div
                     key={c.title}
-                    className="bg-primary p-4 sm:p-6 lg:p-7 hover:bg-primary-foreground/[0.04] transition-colors"
+                    className="group relative bg-brand-soft/40 backdrop-blur-sm border border-brand-foreground/10 rounded-xl p-4 sm:p-6 hover:border-gold/40 hover:bg-brand-soft/60 transition-all"
                   >
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center mb-3 sm:mb-4">
-                      <c.icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center mb-3 sm:mb-4 group-hover:from-gold/30 group-hover:to-gold/10 group-hover:border-gold/40 transition-colors">
+                      <c.icon className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px] text-brand-foreground" strokeWidth={2} />
                     </div>
-                    <div className="font-semibold text-[13.5px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">{c.title}</div>
-                    <div className="text-[12px] sm:text-[13px] text-primary-foreground/70 leading-relaxed">
+                    <div className="font-semibold text-[13px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">{c.title}</div>
+                    <div className="text-[11.5px] sm:text-[13px] text-brand-foreground/65 leading-relaxed">
                       {c.desc}
                     </div>
                   </div>
