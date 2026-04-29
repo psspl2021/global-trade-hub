@@ -103,7 +103,7 @@ export const PageHeader = () => {
                 <img
                   src={procureSaathiLogo}
                   alt="ProcureSaathi"
-                  className="h-9 w-auto object-contain"
+                  className="h-12 w-auto object-contain"
                 />
               </div>
               <nav className="flex flex-col p-3 gap-0.5">
