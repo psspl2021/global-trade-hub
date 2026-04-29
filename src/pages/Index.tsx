@@ -369,20 +369,20 @@ const Index = () => {
                 ].map((col) => (
                   <div
                     key={col.label}
-                    className="bg-card border border-border rounded-2xl p-7 sm:p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                    className="bg-card border border-border rounded-2xl px-6 py-7 sm:px-8 sm:py-9 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
                   >
-                    <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-5">
+                    <div className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-6 pb-4 border-b border-border">
                       {col.label}
                     </div>
                     <ul className="space-y-5">
                       {col.items.map((it) => (
-                        <li key={it.t} className="flex gap-3">
+                        <li key={it.t} className="flex gap-3.5">
                           <div className="mt-[7px] h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <div className="text-[14.5px] font-semibold text-foreground leading-snug">
                               {it.t}
                             </div>
-                            <div className="text-[13.5px] text-muted-foreground mt-0.5 leading-relaxed">
+                            <div className="text-[13.5px] text-muted-foreground mt-1 leading-relaxed">
                               {it.d}
                             </div>
                           </div>
