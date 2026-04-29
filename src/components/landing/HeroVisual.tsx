@@ -77,7 +77,7 @@ export const HeroVisual = () => {
         <div className="text-white text-2xl font-extrabold leading-none mt-1 tabular-nums">
           5–15%
         </div>
-        <div className="text-white/80 text-[9.5px] mt-1.5">Per competitive RFQ</div>
+        <div className="text-white/80 text-[9.5px] mt-1.5">Annually</div>
       </div>
 
       {/* Tile: Verified suppliers (middle-right) */}
