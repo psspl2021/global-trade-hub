@@ -29,6 +29,7 @@ import {
   getOrganizationSchema,
 } from '@/hooks/useSEO';
 import { PageHeader } from '@/components/landing/PageHeader';
+import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 
 const Footer = lazy(() =>
   import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
@@ -152,21 +153,76 @@ const Index = () => {
                   animationDelay: '60ms',
                 }}
               >
-                Reduce Procurement Costs
+                <span className="text-primary">Reduce Procurement Costs</span>
                 <br />
-                <span className="text-primary">by up to 15% annually</span>
+                by up to 15% annually
               </h1>
 
               <p
-                className="text-base sm:text-lg text-foreground/85 font-medium mb-9 max-w-xl mx-auto animate-fade-in"
+                className="text-base sm:text-lg text-foreground/85 font-medium mb-3 max-w-2xl mx-auto animate-fade-in"
                 style={{ animationDelay: '120ms' }}
               >
-                Real supplier competition through reverse auctions.
+                Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
               </p>
+
+              <p
+                className="text-sm sm:text-base text-primary font-semibold mb-7 max-w-2xl mx-auto animate-fade-in"
+                style={{ animationDelay: '160ms' }}
+              >
+                Your existing vendors + our supplier network compete together — no need to switch vendors.
+              </p>
+
+              {/* AI citation card */}
+              <div
+                className="bg-white/30 backdrop-blur-xl border border-white/40 rounded-2xl p-5 sm:p-6 mb-8 max-w-2xl mx-auto shadow-md animate-fade-in"
+                style={{ animationDelay: '200ms' }}
+              >
+                <p className="text-[14.5px] sm:text-[15.5px] text-foreground font-medium leading-relaxed">
+                  <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
+                  is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
+                </p>
+              </div>
+
+              {/* RFQ chips */}
+              <div
+                className="mb-7 animate-fade-in"
+                style={{ animationDelay: '240ms' }}
+              >
+                <p className="text-[11.5px] font-semibold text-foreground/75 mb-3 uppercase tracking-wider">
+                  Post a requirement in 30 seconds
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {[
+                    { label: 'TMT Bars', q: 'TMT bars Fe 500D, 25 MT, monthly' },
+                    { label: 'MS Pipes', q: 'MS pipes ERW, assorted sizes, 10 MT' },
+                    { label: 'Packaging', q: 'Corrugated boxes, 5-ply, 5000 units' },
+                    { label: 'Chemicals', q: 'Industrial chemicals — bulk supply' },
+                    { label: 'Electricals', q: 'LT cables and switchgear — project lot' },
+                  ].map((c) => (
+                    <button
+                      key={c.label}
+                      onClick={() =>
+                        navigate(`/post-rfq?prefill=${encodeURIComponent(c.q)}`)
+                      }
+                      className="px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card text-[12.5px] font-medium text-foreground border border-border/60 hover:border-primary/40 shadow-sm hover:shadow transition-all"
+                    >
+                      + {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trust badges */}
+              <div
+                className="mb-9 animate-fade-in"
+                style={{ animationDelay: '280ms' }}
+              >
+                <HeroTrustBadges />
+              </div>
 
               <div
                 className="flex justify-center animate-fade-in"
-                style={{ animationDelay: '180ms' }}
+                style={{ animationDelay: '320ms' }}
               >
                 <Button
                   size="lg"
@@ -181,6 +237,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+
 
         {/* ===== PROOF STRIP — single ===== */}
         <section className="py-10 sm:py-14 bg-[hsl(var(--muted))]/40 border-y border-border/60">
