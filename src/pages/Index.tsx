@@ -175,9 +175,10 @@ const Index = () => {
           />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+            <div className="grid xl:grid-cols-12 gap-10 xl:gap-12 items-center">
               {/* LEFT — copy + CTAs */}
-              <div className="lg:col-span-7 text-center lg:text-left">
+              <div className="xl:col-span-7 text-center xl:text-left max-w-2xl mx-auto xl:mx-0 xl:max-w-none">
+
                 {/* Eyebrow pills */}
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-6 animate-fade-in">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10">
