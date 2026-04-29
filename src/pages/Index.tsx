@@ -199,38 +199,33 @@ const Index = () => {
                   animationDelay: '60ms',
                 }}
               >
-                Reduce Procurement Costs
+                AI Operating System
                 <br />
                 <span className="bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
-                  by up to 15% annually
+                  for Procurement
                 </span>
               </h1>
 
               <p
-                className="text-[15.5px] sm:text-lg text-muted-foreground mb-3 max-w-2xl mx-auto animate-fade-in leading-relaxed"
+                className="text-[15.5px] sm:text-lg text-foreground/85 mb-3 max-w-2xl mx-auto animate-fade-in leading-relaxed font-medium"
                 style={{ animationDelay: '120ms' }}
               >
-                Through real supplier competition — price discovery, sealed bidding, and live reverse auctions.
+                Designed to unlock <strong className="text-primary">up to 15% cost savings</strong> through real supplier competition.
               </p>
 
               <p
-                className="text-[13.5px] sm:text-[15px] text-foreground/80 font-medium mb-8 max-w-2xl mx-auto animate-fade-in"
-                style={{ animationDelay: '160ms' }}
+                className="text-[14px] sm:text-[15px] text-muted-foreground mb-2 max-w-2xl mx-auto animate-fade-in leading-relaxed"
+                style={{ animationDelay: '150ms' }}
               >
-                Your existing vendors <span className="text-primary font-semibold">+</span> our verified supplier network compete together — no need to switch vendors.
+                Get competitive bids within minutes — not days.
               </p>
 
-              {/* AI citation card — frosted glass blends with hero */}
-              <div
-                className="relative bg-card/55 backdrop-blur-xl border border-white/40 rounded-2xl p-5 sm:p-6 mb-9 max-w-2xl mx-auto shadow-large animate-fade-in"
-                style={{ animationDelay: '200ms' }}
+              <p
+                className="text-[13px] sm:text-[14px] text-foreground/75 mb-8 max-w-2xl mx-auto animate-fade-in"
+                style={{ animationDelay: '180ms' }}
               >
-                <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed text-center">
-                  <strong className="text-primary font-bold">ProcureSaathi</strong>{' '}
-                  is the AI Operating System for B2B procurement — bringing price discovery, supplier competition, and measurable savings into one platform across domestic and global sourcing.
-                </p>
-              </div>
+                Works with your existing suppliers <span className="text-primary font-semibold">+</span> our verified network. No vendor switching required.
+              </p>
 
               {/* RFQ chips */}
               <div
@@ -265,12 +260,13 @@ const Index = () => {
 
               {/* Trust badges */}
               <div
-                className="mb-9 animate-fade-in"
+                className="mb-7 animate-fade-in"
                 style={{ animationDelay: '280ms' }}
               >
                 <HeroTrustBadges />
               </div>
 
+              {/* CTAs — Primary + WhatsApp secondary */}
               <div
                 className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-in"
                 style={{ animationDelay: '320ms' }}
@@ -278,12 +274,89 @@ const Index = () => {
                 <Button
                   size="lg"
                   className="h-12 px-7 text-[15px] font-semibold shadow-brand hover:shadow-lg bg-gradient-primary hover:opacity-95 transition-all w-full sm:w-auto"
-                  onClick={() => navigate('/post-rfq')}
+                  onClick={() => {
+                    trackEvent('cta_click', { source: 'hero_primary', label: 'get_better_price_now' });
+                    navigate('/post-rfq');
+                  }}
                 >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Post Requirement
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Get Better Price Now
                   <ArrowRight className="h-4 w-4 ml-2 opacity-80" />
                 </Button>
+                <a
+                  href={buildWhatsAppLink(WHATSAPP_DEFAULT_MESSAGE)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('whatsapp_click', { source: 'hero_secondary' })}
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-md text-[15px] font-semibold bg-[#25D366] hover:bg-[#1da851] text-white shadow-md transition-all w-full sm:w-auto"
+                >
+                  <svg viewBox="0 0 32 32" className="h-4 w-4" fill="currentColor" aria-hidden>
+                    <path d="M16.001 3.2c-7.07 0-12.8 5.73-12.8 12.8 0 2.26.59 4.46 1.71 6.4L3.2 28.8l6.58-1.72a12.76 12.76 0 0 0 6.22 1.6h.01c7.06 0 12.79-5.73 12.79-12.8 0-3.42-1.33-6.63-3.75-9.05A12.72 12.72 0 0 0 16 3.2zm5.81 16.39c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.82 1.03-1 1.24-.18.21-.37.24-.69.08-.32-.16-1.34-.5-2.55-1.58-.94-.84-1.58-1.87-1.76-2.19-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.11-.21.05-.4-.03-.55-.08-.16-.71-1.71-.97-2.34-.26-.62-.52-.53-.71-.54-.18-.01-.4-.01-.61-.01-.21 0-.55.08-.84.4-.29.32-1.1 1.08-1.1 2.62 0 1.55 1.13 3.05 1.29 3.26.16.21 2.22 3.39 5.38 4.75.75.32 1.34.51 1.8.66.76.24 1.45.21 2 .13.61-.09 1.88-.77 2.14-1.51.26-.74.26-1.38.18-1.51-.08-.13-.29-.21-.61-.37z"/>
+                  </svg>
+                  Send Requirement on WhatsApp
+                </a>
+              </div>
+
+              {/* Microcopy line */}
+              <div
+                className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px] text-muted-foreground animate-fade-in"
+                style={{ animationDelay: '360ms' }}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                  No signup required
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-primary" />
+                  Typical RFQs see 5–8 suppliers participate
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== TRUST BAND — No Vendor Disruption ===== */}
+        <section className="py-10 sm:py-14 bg-card border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-6 sm:mb-8">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2">
+                  No vendor disruption required
+                </div>
+                <h2 className="text-[20px] sm:text-[26px] font-display font-bold tracking-tight text-foreground">
+                  Keep your existing suppliers. Just unlock better pricing.
+                </h2>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-3 sm:gap-5">
+                {[
+                  {
+                    t: 'Use your existing suppliers',
+                    d: 'Invite your current vendors to compete in sealed auctions — no need to switch.',
+                  },
+                  {
+                    t: 'Add new verified suppliers',
+                    d: 'Optionally widen the pool with our verified network for stronger competition.',
+                  },
+                  {
+                    t: 'Stay in full control',
+                    d: 'You choose who participates, you award the bid, you keep the relationship.',
+                  },
+                ].map((b) => (
+                  <div
+                    key={b.t}
+                    className="flex gap-3 p-4 sm:p-5 rounded-xl bg-background border border-border"
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-[14px] font-semibold text-foreground mb-1 leading-snug">
+                        {b.t}
+                      </div>
+                      <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                        {b.d}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
