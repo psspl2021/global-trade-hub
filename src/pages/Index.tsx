@@ -385,7 +385,7 @@ const Index = () => {
                 <div className="grid grid-cols-3 divide-x divide-border">
                   {[
                     { v: '3%', l: 'Cost reduction', s: 'In a single auction vs. previous quote' },
-                    { v: '7', l: 'Suppliers competed', s: 'Live, sealed, in real time' },
+                    { v: '6', l: 'Suppliers competed', s: 'Live, sealed, in real time' },
                     { v: '18m', vFull: '18 min', l: 'Time to final price', s: 'From auction start to award' },
                   ].map((m) => (
                     <div
