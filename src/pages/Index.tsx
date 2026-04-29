@@ -21,6 +21,7 @@ import {
   ClipboardList,
   BarChart3,
   Globe,
+  CheckCircle2,
 } from 'lucide-react';
 import heroBgProcurement from '@/assets/hero-bg-procurement.jpg';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,6 +32,9 @@ import {
 } from '@/hooks/useSEO';
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
+import FloatingWhatsApp from '@/components/conversion/FloatingWhatsApp';
+import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from '@/lib/whatsapp';
+import { trackEvent } from '@/lib/analytics';
 
 const Footer = lazy(() =>
   import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
