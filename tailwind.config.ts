@@ -116,13 +116,22 @@ export default {
         '30': '7.5rem',
       },
       boxShadow: {
-        'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.06), 0 1px 2px -1px hsl(var(--foreground) / 0.04)',
-        'medium': '0 4px 16px -4px hsl(var(--foreground) / 0.08), 0 2px 4px -2px hsl(var(--foreground) / 0.04)',
-        'large': '0 8px 32px -8px hsl(var(--foreground) / 0.1), 0 4px 8px -4px hsl(var(--foreground) / 0.05)',
-        'xl': '0 16px 48px -12px hsl(var(--foreground) / 0.12), 0 8px 16px -8px hsl(var(--foreground) / 0.06)',
+        'soft': 'var(--shadow-sm)',
+        'medium': 'var(--shadow-md)',
+        'large': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
+        'brand': 'var(--shadow-brand)',
+        'gold': 'var(--shadow-gold)',
         'glow': '0 0 20px -5px hsl(var(--primary) / 0.25)',
         'glow-lg': '0 0 40px -10px hsl(var(--primary) / 0.35)',
         'inner-soft': 'inset 0 2px 4px 0 hsl(var(--foreground) / 0.04)',
+      },
+      backgroundImage: {
+        'gradient-brand': 'var(--gradient-brand)',
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-surface': 'var(--gradient-surface)',
+        'gradient-hero': 'var(--gradient-hero)',
       },
       keyframes: {
         "accordion-down": {
