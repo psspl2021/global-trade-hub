@@ -55,13 +55,19 @@ import {
   BadgeCheck,
   Activity,
   Filter,
-  
+  Star,
 } from "lucide-react";
 
 const rfqInputs = [
   { icon: Type, title: "Text / Typed RFQ", desc: "Describe your requirement in simple terms." },
   { icon: FileUp, title: "File Upload", desc: "Upload BOQ, Excel, PDF or screenshots." },
   { icon: Mic, title: "Voice Input", desc: "Speak your requirement — AI structures it." },
+];
+
+const quoteRows = [
+  { supplier: "Supplier A", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
+  { supplier: "Supplier B", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
+  { supplier: "Supplier C", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
 ];
 
 const verificationCards = [
