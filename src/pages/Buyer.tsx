@@ -166,7 +166,7 @@ const Buyer = () => {
             src={heroBgBuyer}
             alt=""
             role="presentation"
-            fetchPriority="high"
+            {...({ fetchpriority: "high" } as Record<string, string>)}
             decoding="async"
             loading="eager"
             className="absolute inset-0 w-full h-full object-cover opacity-[0.18] saturate-110"
