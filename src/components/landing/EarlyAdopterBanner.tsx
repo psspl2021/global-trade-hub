@@ -323,7 +323,7 @@ export const EarlyAdopterBanner = () => {
               <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
                 <li className="flex items-center gap-2 bg-success/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Star className="h-5 w-5 text-success shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Yr Forward Premium</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Unlimited Forward Bids (1 Yr)</span>
                   <meta itemProp="position" content="1" />
                 </li>
                 <li className="flex items-center gap-2 bg-primary/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
