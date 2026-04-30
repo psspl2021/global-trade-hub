@@ -60,8 +60,8 @@ export const EarlyAdopterBanner = () => {
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "1 Year Free Forward-Auction Premium (Unlimited Bids) + Free CRM & Tax Invoice Generator",
-      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access with unlimited bidding (valid till 15 August 2026). Reverse auctions are 100% free for everyone. Bidding is not restricted; email notifications follow a separate, shared usage model: 2 free notifications/day, plus an optional one-time ₹500 pack of 200 emails (no expiry, until consumed). Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support.",
+      "name": "1 Year FREE Premium (Unlimited Forward Auction Bids) + Free CRM & Tax Invoice Generator",
+      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Premium Access with unlimited forward auction bids (valid till 15 August 2026). Reverse auctions are 100% free for everyone. You can bid freely — only email notifications are metered: 2 free emails/day, plus an optional one-time ₹500 pack of 200 emails (no expiry, until consumed). Email credits are used only to receive RFQ notifications, not to place bids. Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support.",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
@@ -248,14 +248,14 @@ export const EarlyAdopterBanner = () => {
                     className="text-2xl md:text-3xl font-bold text-foreground mt-1" 
                     itemProp="name"
                   >
-                    First 100 Partners — <span className="text-warning">1 Year FREE</span> Forward-Auction Premium
+                    First 100 Partners — <span className="text-warning">1 Year FREE</span> Premium (Unlimited Forward Auction Bids)
                   </h2>
                   <p
                     id="early-adopter-description"
                     className="text-sm text-muted-foreground mt-1"
                     itemProp="description"
                   >
-                    Unlimited bidding on forward auctions (1 year, first 100 suppliers). Reverse auctions are 100% free for everyone. <span className="italic">Bidding is not restricted — email notifications follow a separate, shared usage model.</span>
+                    Unlimited forward auction bids for 1 year (first 100 suppliers). Reverse auctions are 100% free for everyone. <span className="italic">You can bid freely — only email notifications are metered.</span>
                   </p>
                 </div>
               </div>
@@ -318,6 +318,32 @@ export const EarlyAdopterBanner = () => {
               )}
             </div>
 
+            {/* Visual separation: Bidding vs Notifications — two distinct mechanics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              {/* Block 1: Bidding (free / unlimited) — always shown FIRST */}
+              <div className="rounded-xl border-2 border-success/30 bg-success/5 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg" aria-hidden="true">🟢</span>
+                  <span className="text-xs font-bold tracking-wide uppercase text-success">Bidding</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  Unlimited (Forward Premium, 1 yr) · Free (Reverse Auctions)
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">No bid fees. Ever.</p>
+              </div>
+              {/* Block 2: Notifications (metered) — always shown SECOND */}
+              <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg" aria-hidden="true">✉️</span>
+                  <span className="text-xs font-bold tracking-wide uppercase text-primary">Notifications</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  2 emails/day free · ₹500 = 200 emails (no expiry)
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Used only to receive RFQ alerts — not to place bids.</p>
+              </div>
+            </div>
+
             {/* Benefits grid - SEO optimized with semantic list */}
             <nav aria-label="Premium benefits included" className="mb-6">
               <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
@@ -370,7 +396,7 @@ export const EarlyAdopterBanner = () => {
             <footer className="mt-4">
               <p className="text-center text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">Unlimited forward auction bids (1 year) • Reverse auctions free.</span><br />
-                Notifications (shared, both auction types): 2 emails/day included • ₹500 = 200 emails (no expiry). No credit card required.
+                2 emails/day free • ₹500 = 200 emails (no expiry). No credit card required.
               </p>
               
               {/* Additional SEO text for crawlers */}
