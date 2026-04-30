@@ -60,8 +60,8 @@ export const EarlyAdopterBanner = () => {
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "1 Year Free Forward-Auction Premium + Free CRM & Tax Invoice Generator",
-      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access. Reverse auctions are 100% free for everyone. Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support. Both forward and reverse auctions share the same email rule: 2 free notifications/day, with an optional one-time ₹500 pack of 200 emails (no expiry, until consumed).",
+      "name": "1 Year Free Forward-Auction Premium (Unlimited Bids) + Free CRM & Tax Invoice Generator",
+      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access with unlimited bidding (valid till 15 August 2026). Reverse auctions are 100% free for everyone. Bidding is not restricted; email notifications follow a separate, shared usage model: 2 free notifications/day, plus an optional one-time ₹500 pack of 200 emails (no expiry, until consumed). Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support.",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
@@ -255,7 +255,7 @@ export const EarlyAdopterBanner = () => {
                     className="text-sm text-muted-foreground mt-1"
                     itemProp="description"
                   >
-                    Reverse auctions are 100% free for everyone. Both forward and reverse share the same email rule: 2 free notifications/day, plus a one-time ₹500 pack of 200 emails (no expiry). Free CRM & GST invoice tools included.
+                    Unlimited bidding on forward auctions (1 year, first 100 suppliers). Reverse auctions are 100% free for everyone. <span className="italic">Bidding is not restricted — email notifications follow a separate, shared usage model.</span>
                   </p>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export const EarlyAdopterBanner = () => {
               <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
                 <li className="flex items-center gap-2 bg-success/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Star className="h-5 w-5 text-success shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Yr Forward Premium</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Unlimited Forward Bids (1 Yr)</span>
                   <meta itemProp="position" content="1" />
                 </li>
                 <li className="flex items-center gap-2 bg-primary/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
@@ -369,7 +369,8 @@ export const EarlyAdopterBanner = () => {
             {/* Fine print with schema markup */}
             <footer className="mt-4">
               <p className="text-center text-xs text-muted-foreground">
-                Email rule (forward + reverse): <span className="font-semibold text-foreground">2 free emails/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed). No credit card required.
+                <span className="font-semibold text-foreground">Unlimited forward auction bids (1 year) • Reverse auctions free.</span><br />
+                Notifications (shared, both auction types): 2 emails/day included • ₹500 = 200 emails (no expiry). No credit card required.
               </p>
               
               {/* Additional SEO text for crawlers */}

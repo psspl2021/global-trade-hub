@@ -32,13 +32,16 @@ export const EarlyPartnerOffer = ({
               </div>
               
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                Build Your Network Early
+                Early Access for Category Leaders
               </h2>
               
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 First 100 verified suppliers receive{" "}
-                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions</span>{" "}
-                — priority listing and featured visibility. Reverse auctions stay free for everyone.
+                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions (Unlimited Bids)</span>
+                {" "}— valid for signups till <span className="font-semibold text-foreground">15 August 2026</span>. Reverse auctions remain free for all suppliers.
+              </p>
+              <p className="text-xs text-muted-foreground/80 mt-2 italic">
+                Bidding is not restricted. Email notifications follow a separate usage model.
               </p>
             </div>
 
@@ -61,16 +64,23 @@ export const EarlyPartnerOffer = ({
 
             {/* Urgency Copy - Only show when showCountdown is true */}
             {showCountdown && (
-              <div className="flex flex-col gap-2 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-3 px-4">
+              <div className="flex flex-col gap-3 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-4 px-4">
                 <div className="flex items-center justify-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span className="text-sm">
-                    Register by <span className="font-semibold text-primary">15th August 2026</span> to get 1 Year Forward-Auction Premium Access free — limited slots remaining.
+                    Register by <span className="font-semibold text-primary">15 August 2026</span> to lock in 1 Year Free Premium Access on Forward Auctions — limited slots remaining.
                   </span>
                 </div>
-                <p className="text-xs text-center text-muted-foreground/90">
-                  Reverse auctions are <span className="font-semibold text-foreground">100% free</span> — no bid fees. Both forward and reverse auctions share the same email rule: <span className="font-semibold text-foreground">2 free email notifications/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed).
-                </p>
+                <div className="grid sm:grid-cols-2 gap-2 text-xs">
+                  <div className="bg-card/60 border border-border rounded-md px-3 py-2">
+                    <p className="font-semibold text-foreground mb-0.5">Bidding</p>
+                    <p className="text-muted-foreground">Unlimited on forward auctions (1 yr, first 100). Reverse auctions always free for all.</p>
+                  </div>
+                  <div className="bg-card/60 border border-border rounded-md px-3 py-2">
+                    <p className="font-semibold text-foreground mb-0.5">Notifications (shared)</p>
+                    <p className="text-muted-foreground">2 emails/day free • ₹500 = 200 emails (no expiry, until consumed).</p>
+                  </div>
+                </div>
               </div>
             )}
 
