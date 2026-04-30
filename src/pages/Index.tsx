@@ -398,72 +398,11 @@ const Index = () => {
         </section>
 
 
-        {/* ===== PROOF STRIP ===== */}
-        <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6 sm:mb-8">
-                <div>
-                  <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2">
-                    Illustrative Scenario
-                  </div>
-                  <h2 className="text-[20px] sm:text-[28px] font-display font-bold tracking-tight text-foreground leading-tight">
-                    What a single auction looks like
-                  </h2>
-                </div>
-                <p className="text-[12.5px] sm:text-sm text-muted-foreground md:max-w-xs md:text-right">
-                  Outcomes vary by category, volume and market conditions.
-                </p>
-              </div>
+        {/* ===== SUPPLIER TRUST ===== */}
+        <SupplierTrustSection />
 
-              <div className="bg-card border border-border rounded-xl sm:rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
-                <div className="grid grid-cols-3 divide-x divide-border">
-                  {[
-                    { v: '3%', l: 'Cost reduction', s: 'In a single auction vs. previous quote' },
-                    { v: '6', l: 'Suppliers competed', s: 'Live, sealed, in real time' },
-                    { v: '18m', vFull: '18 min', l: 'Time to final price', s: 'From auction start to award' },
-                  ].map((m) => (
-                    <div
-                      key={m.l}
-                      className="px-3 py-4 sm:px-6 sm:py-8"
-                    >
-                      <div className="text-[22px] sm:text-[36px] leading-none font-display font-extrabold text-foreground tracking-tight mb-1.5 sm:mb-2">
-                        <span className="sm:hidden">{m.v}</span>
-                        <span className="hidden sm:inline">{m.vFull ?? m.v}</span>
-                      </div>
-                      <div className="text-[11.5px] sm:text-[13px] font-semibold text-foreground leading-tight mb-1">
-                        {m.l}
-                      </div>
-                      <div className="hidden sm:block text-[12.5px] text-muted-foreground leading-snug">
-                        {m.s}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Illustrative TMT example — clearly labeled */}
-                <div className="border-t border-border bg-muted/30 px-4 py-4 sm:px-6 sm:py-5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-wider text-primary">
-                        Illustrative example
-                      </span>
-                    </div>
-                    <p className="text-[12.5px] sm:text-[14px] text-foreground leading-relaxed">
-                      A construction contractor sourcing <strong>TMT bars (Fe 500D)</strong> ran a sealed reverse auction with <strong>6 suppliers</strong>, resulting in a <strong className="text-primary">measurable price reduction from the initial quote</strong> on the same requirement.
-                      <span className="block mt-2 text-[11.5px] italic text-muted-foreground/70 not-italic">
-                        Illustrative example based on reverse auction outcomes. Actual results vary by category, geography, and competition intensity.
-                      </span>
-                      <span className="block text-[11px] sm:text-[12px] text-muted-foreground mt-1">
-                        Based on typical reverse auction outcomes. Actual savings vary by category, volume and market conditions.
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* ===== QUOTE COMPARISON PREVIEW (decision view) ===== */}
+        <QuoteComparisonSection />
 
         {/* ===== HOW IT WORKS ===== */}
         <section className="py-12 sm:py-24">
@@ -474,10 +413,10 @@ const Index = () => {
                   How it works
                 </div>
                 <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  From requirement to award in one workflow
+                  From requirement to quotes — in three steps
                 </h2>
                 <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                  Post once. Suppliers compete on a sealed reverse auction. You award with a full audit trail.
+                  Post once. Suppliers respond. You compare in one place.
                 </p>
               </div>
 
