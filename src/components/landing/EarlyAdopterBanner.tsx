@@ -12,7 +12,7 @@ interface TimeLeft {
   seconds: number;
 }
 
-const OFFER_END_DATE = new Date('2026-03-31T23:59:59');
+const OFFER_END_DATE = new Date('2026-08-15T23:59:59');
 
 const calculateTimeLeft = (): TimeLeft => {
   const difference = OFFER_END_DATE.getTime() - new Date().getTime();
@@ -60,13 +60,13 @@ export const EarlyAdopterBanner = () => {
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "Free CRM & Tax Invoice Generator - 1 Year FREE Premium",
-      "description": "First 100 suppliers and logistics partners get 1 year FREE premium subscription worth ₹24,950. Includes free CRM software, GST tax invoice generator, unlimited bids, early adopter badge, and priority support for B2B businesses in India.",
+      "name": "1 Year Free Forward-Auction Premium + Free CRM & Tax Invoice Generator",
+      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access. Reverse auctions are 100% free for everyone. Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support. Both forward and reverse auctions share the same email rule: 2 free notifications/day, with an optional one-time ₹500 pack of 200 emails (no expiry, until consumed).",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
-      "validFrom": "2024-01-01",
-      "validThrough": "2025-12-31",
+      "validFrom": "2026-01-01",
+      "validThrough": "2026-08-15",
       "eligibleRegion": {
         "@type": "Country",
         "name": "India"
@@ -208,8 +208,8 @@ export const EarlyAdopterBanner = () => {
       <meta itemProp="price" content="0" />
       <meta itemProp="priceCurrency" content="INR" />
       <meta itemProp="availability" content="https://schema.org/LimitedAvailability" />
-      <meta itemProp="validFrom" content="2024-01-01" />
-      <meta itemProp="validThrough" content="2026-03-31" />
+      <meta itemProp="validFrom" content="2026-01-01" />
+      <meta itemProp="validThrough" content="2026-08-15" />
       <link itemProp="url" href="https://procuresaathi.com/#early-adopter-offer" />
       
       {/* Animated gradient background */}
@@ -248,14 +248,14 @@ export const EarlyAdopterBanner = () => {
                     className="text-2xl md:text-3xl font-bold text-foreground mt-1" 
                     itemProp="name"
                   >
-                    First 100 Partners Get <span className="text-warning">1 Year FREE</span> Premium!
+                    First 100 Partners — <span className="text-warning">1 Year FREE</span> Forward-Auction Premium
                   </h2>
-                  <p 
+                  <p
                     id="early-adopter-description"
-                    className="text-sm text-muted-foreground mt-1" 
+                    className="text-sm text-muted-foreground mt-1"
                     itemProp="description"
                   >
-                    Free CRM Software & GST Tax Invoice Generator included with premium subscription worth ₹24,950 — India's best B2B procurement platform for suppliers and logistics partners
+                    Reverse auctions are 100% free for everyone. Both forward and reverse share the same email rule: 2 free notifications/day, plus a one-time ₹500 pack of 200 emails (no expiry). Free CRM & GST invoice tools included.
                   </p>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export const EarlyAdopterBanner = () => {
             <div className="mb-6 bg-gradient-to-r from-destructive/10 via-warning/10 to-destructive/10 rounded-xl p-4 border border-warning/30">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Clock className="h-5 w-5 text-warning animate-pulse" aria-hidden="true" />
-                <span className="text-sm font-semibold text-foreground">Offer Ends March 31st, 2026</span>
+                <span className="text-sm font-semibold text-foreground">Offer Ends 15th August 2026</span>
               </div>
               <div 
                 className="flex justify-center gap-2 sm:gap-4" 
@@ -323,12 +323,12 @@ export const EarlyAdopterBanner = () => {
               <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
                 <li className="flex items-center gap-2 bg-success/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Star className="h-5 w-5 text-success shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Year FREE Premium</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Yr Forward Premium</span>
                   <meta itemProp="position" content="1" />
                 </li>
                 <li className="flex items-center gap-2 bg-primary/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Zap className="h-5 w-5 text-primary shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">Unlimited Bids</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Reverse Auctions 100% Free</span>
                   <meta itemProp="position" content="2" />
                 </li>
                 <li className="flex items-center gap-2 bg-warning/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
@@ -338,7 +338,7 @@ export const EarlyAdopterBanner = () => {
                 </li>
                 <li className="flex items-center gap-2 bg-muted rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Sparkles className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">Priority Support</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Free CRM + GST Invoicing</span>
                   <meta itemProp="position" content="4" />
                 </li>
               </ul>
@@ -369,11 +369,7 @@ export const EarlyAdopterBanner = () => {
             {/* Fine print with schema markup */}
             <footer className="mt-4">
               <p className="text-center text-xs text-muted-foreground">
-                <span itemProp="priceSpecification" itemScope itemType="https://schema.org/PriceSpecification">
-                  Premium subscription worth <span itemProp="price">₹24,950</span> — completely FREE for early adopters. 
-                  <meta itemProp="priceCurrency" content="INR" />
-                </span>
-                No credit card required.
+                Email rule (forward + reverse): <span className="font-semibold text-foreground">2 free emails/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed). No credit card required.
               </p>
               
               {/* Additional SEO text for crawlers */}
