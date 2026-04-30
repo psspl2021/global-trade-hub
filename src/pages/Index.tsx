@@ -49,7 +49,7 @@ const Index = () => {
     title:
       'ProcureSaathi | AI Operating System for Procurement',
     description:
-      'AI Operating System for Procurement that drives better pricing through real supplier competition. Designed to unlock significant cost savings via sealed reverse auctions across your existing and verified suppliers.',
+      'AI Operating System for Procurement that creates real supplier competition for better pricing — via sealed reverse auctions across your existing and verified suppliers.',
     canonical: 'https://www.procuresaathi.com/',
     keywords:
       'AI procurement platform, reverse auction software, B2B procurement India, RFQ software, sealed bidding, supplier competition, procurement cost savings',
