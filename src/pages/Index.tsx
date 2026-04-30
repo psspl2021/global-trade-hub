@@ -389,6 +389,63 @@ const Index = () => {
         </section>
 
 
+        {/* ===== TWO WAYS TO PROCURE — forward vs reverse explainer ===== */}
+        <section className="py-12 sm:py-16 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-8 sm:mb-10">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2">
+                  Two ways to procure
+                </div>
+                <h2 className="text-[22px] sm:text-[30px] font-display font-bold tracking-tight text-foreground leading-[1.15]">
+                  One platform. Two bidding modes.
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed mt-3 max-w-2xl mx-auto">
+                  Choose the right mode for the right requirement — both run on the same structured engine.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
+                <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                  <div className="inline-flex items-center gap-2 mb-3">
+                    <ClipboardList className="h-4 w-4 text-primary" />
+                    <span className="text-[11px] font-semibold text-primary uppercase tracking-[0.14em]">
+                      Forward Auction
+                    </span>
+                  </div>
+                  <div className="text-[16px] sm:text-[18px] font-display font-semibold text-foreground mb-1.5 leading-snug">
+                    Suppliers submit structured quotes
+                  </div>
+                  <p className="text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
+                    You post a requirement once. Matched suppliers respond with structured bids — price, delivery and terms — that you compare side by side.
+                  </p>
+                  <div className="text-[12px] text-muted-foreground/80 mt-3">
+                    Best for: new requirements, custom specs, multi-line RFQs.
+                  </div>
+                </div>
+
+                <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                  <div className="inline-flex items-center gap-2 mb-3">
+                    <Gavel className="h-4 w-4 text-gold" />
+                    <span className="text-[11px] font-semibold text-gold uppercase tracking-[0.14em]">
+                      Reverse Auction
+                    </span>
+                  </div>
+                  <div className="text-[16px] sm:text-[18px] font-display font-semibold text-foreground mb-1.5 leading-snug">
+                    Suppliers compete by lowering price
+                  </div>
+                  <p className="text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
+                    Invited suppliers bid live in a time-boxed sealed auction. Prices fall as they compete — you watch every bid in real time and award when ready.
+                  </p>
+                  <div className="text-[12px] text-muted-foreground/80 mt-3">
+                    Best for: commodities, repeat buys, known supplier pool.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
 
         {/* ===== BUYERS + SUPPLIERS ===== */}
         <section className="py-12 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
