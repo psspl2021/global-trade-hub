@@ -54,7 +54,41 @@ import {
   Gavel,
   ClipboardList,
   BarChart3,
+  Type,
+  FileUp,
+  Mic,
+  Tags,
+  BadgeCheck,
+  Activity,
+  Filter,
+  Star,
 } from "lucide-react";
+
+const rfqInputs = [
+  { icon: Type, title: "Text / Typed RFQ", desc: "Describe your requirement in simple terms." },
+  { icon: FileUp, title: "File Upload", desc: "Upload BOQ, Excel, PDF or screenshots." },
+  { icon: Mic, title: "Voice Input", desc: "Speak your requirement — AI structures it." },
+];
+
+const verificationCards = [
+  { icon: Building2, title: "Supplier Type Clarity", desc: "Manufacturer, authorised distributor or stockist — clearly identified." },
+  { icon: Tags, title: "Category Mapping", desc: "Suppliers matched to specific categories — not generic listings." },
+  { icon: BadgeCheck, title: "Business Verification", desc: "GST, operational presence and compliance checks." },
+  { icon: Activity, title: "Participation Quality", desc: "Consistent responders prioritised. Inactive suppliers filtered out." },
+];
+
+const matchingFlow = [
+  { title: "Requirement submitted", desc: "Buyer posts text, file or voice RFQ." },
+  { title: "AI parses specifications", desc: "Quantities, grade, delivery and terms extracted." },
+  { title: "Matches relevant suppliers", desc: "Filtered by category, capability and region." },
+  { title: "RFQ sent only to qualified suppliers", desc: "No spam blasts. No irrelevant outreach." },
+];
+
+const quoteRows = [
+  { supplier: "Supplier A", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
+  { supplier: "Supplier B", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
+  { supplier: "Supplier C", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
+];
 
 const buyerProfiles = [
   { title: "Bulk buyers sourcing recurring materials", desc: "Ongoing procurement with supplier consistency.", icon: Package },
