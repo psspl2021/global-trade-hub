@@ -68,8 +68,8 @@ const supplierFAQs = [
     answer: "No. ProcureSaathi does not sell leads or buyer contact information. Suppliers are matched to verified buyer requirements through AI-detected demand signals."
   },
   {
-    question: "Is onboarding free?",
-    answer: "Yes. Supplier registration, onboarding and product listing are completely free. A small service fee applies only when you successfully close a deal."
+    question: "Is onboarding free? What does it cost to bid?",
+    answer: "Onboarding is completely free. Reverse auctions are 100% free — no bid fees ever. Forward auctions are also free to bid; the first 100 verified suppliers (register by 15th August 2026) get 1 Year Forward-Auction Premium Access free. The only optional cost is email notifications: every supplier gets 2 free email alerts per day, and extra alerts are available via a one-time ₹500 pack of 200 emails (no expiry, until consumed) — the same pack covers both forward and reverse."
   },
   {
     question: "Who sees my details?",
