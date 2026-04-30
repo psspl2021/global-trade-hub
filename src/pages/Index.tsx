@@ -46,12 +46,12 @@ const Index = () => {
 
   useSEO({
     title:
-      'ProcureSaathi | AI Operating System for Procurement',
+      'ProcureSaathi | Structured Procurement with Forward & Reverse Bidding',
     description:
-      'AI Operating System for Procurement that creates real supplier competition for better pricing — via sealed reverse auctions across your existing and verified suppliers.',
+      'Structured procurement platform with forward and reverse bidding. Run reverse auctions or receive structured supplier quotes — compare and award in one place.',
     canonical: 'https://www.procuresaathi.com/',
     keywords:
-      'AI procurement platform, reverse auction software, B2B procurement India, RFQ software, sealed bidding, supplier competition, procurement cost savings',
+      'AI procurement platform, forward auction, reverse auction software, B2B procurement India, RFQ software, sealed bidding, supplier competition, procurement cost savings',
     ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
     ogType: 'website',
     twitterCard: 'summary_large_image',
@@ -67,7 +67,7 @@ const Index = () => {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       description:
-        'AI-powered B2B procurement platform with reverse auctions, sealed RFQs and audit-ready price trail.',
+        'Structured B2B procurement platform with forward and reverse bidding, sealed RFQs and an audit-ready price trail.',
       url: 'https://www.procuresaathi.com',
       offers: {
         '@type': 'Offer',
@@ -88,7 +88,7 @@ const Index = () => {
   }
 
   const capabilities = [
-    { icon: Gavel, title: 'Reverse auctions', desc: 'Live, sealed, time-boxed.' },
+    { icon: Gavel, title: 'Forward & reverse auctions', desc: 'Structured quotes or live price discovery.' },
     { icon: ClipboardList, title: 'Sealed RFQs', desc: 'Structured specs, fair comparison.' },
     { icon: ShieldCheck, title: 'Audit trail', desc: 'Every bid, every move, immutable.' },
     { icon: BarChart3, title: 'Savings reporting', desc: 'CFO-ready cost-out evidence.' },
@@ -97,11 +97,11 @@ const Index = () => {
   const faqs = [
     {
       q: 'What is ProcureSaathi?',
-      a: 'A B2B procurement platform that runs real reverse auctions between your existing vendors and a verified supplier network — so you discover the true market price instead of negotiating on guesses.',
+      a: 'A structured B2B procurement platform with forward and reverse bidding. Receive structured supplier quotes (forward auction) or run live reverse auctions across your existing vendors and a verified supplier network — and compare everything in one place.',
     },
     {
-      q: 'How do reverse auctions work?',
-      a: 'You post a requirement, suppliers are invited to a time-boxed sealed auction, and prices fall as they compete. You see every bid in real time and award when you’re ready.',
+      q: 'What is the difference between forward and reverse auctions?',
+      a: 'Forward auction: you post a requirement and suppliers submit structured quotes you can compare side by side. Reverse auction: invited suppliers compete live, lowering price in a time-boxed sealed bid. Same platform, two ways to procure.',
     },
     {
       q: 'Is it free for buyers?',
@@ -219,14 +219,14 @@ const Index = () => {
                   className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '120ms' }}
                 >
-                  Designed to create <strong className="text-gold">real supplier competition</strong> for better pricing across your verified suppliers.
+                  Structured procurement with <strong className="text-gold">forward and reverse bidding</strong> — receive supplier quotes or run live reverse auctions, all in one place.
                 </p>
 
                 <p
                   className="text-[14px] sm:text-[15px] text-white/65 mb-2 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '150ms' }}
                 >
-                  Post your requirement once. Receive and compare quotes in one place.
+                  Post your requirement once. Compare structured quotes or let suppliers compete live.
                 </p>
 
                 <p
@@ -411,7 +411,7 @@ const Index = () => {
                   {
                     label: 'For Buyers',
                     items: [
-                      { t: 'Run RFQs & reverse auctions', d: 'Sealed, time-boxed, fully structured.' },
+                      { t: 'Run forward & reverse auctions', d: 'Structured quotes or live, sealed, time-boxed bidding.' },
                       { t: 'Invite existing + new suppliers', d: 'Your vendors compete alongside ours.' },
                       { t: 'Audit-ready price trail', d: 'Every bid and award captured immutably.' },
                     ],
@@ -569,7 +569,7 @@ const Index = () => {
                   Stop overpaying for procurement
                 </h2>
                 <p className="text-[14.5px] sm:text-base text-brand-foreground/75 mb-8 leading-relaxed max-w-lg">
-                  Run your first reverse auction today. No setup fees, no contracts — pay only when you save.
+                  Post a requirement and run your first forward or reverse auction today. No setup fees, no contracts — pay only when you save.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
