@@ -422,12 +422,12 @@ const Buyer = () => {
                           </td>
                           <td className="px-4 py-3.5">
                             {q.auctionType === "Reverse" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-soft border border-gold/30 text-[10.5px] font-semibold text-gold-foreground uppercase tracking-wider">
-                                <span className="h-1.5 w-1.5 rounded-full bg-gold" /> Reverse
+                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/8 border border-primary/15 text-[10.5px] font-medium text-primary">
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Reverse
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10.5px] font-semibold text-primary uppercase tracking-wider">
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Forward
+                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted border border-border text-[10.5px] font-medium text-muted-foreground">
+                                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" /> Forward
                               </span>
                             )}
                           </td>
