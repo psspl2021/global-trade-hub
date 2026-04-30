@@ -148,71 +148,60 @@ const Buyer = () => {
       <PageHeader />
 
       <main>
-        {/* ===== HERO — cinematic dark + gold/navy gradient (homepage parity) ===== */}
-        <section className="relative pt-14 pb-16 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 overflow-hidden bg-[hsl(222_70%_8%)]">
-          <img
-            src={heroBgBuyer}
-            alt=""
-            role="presentation"
-            fetchPriority="high"
-            decoding="async"
-            loading="eager"
-            className="absolute inset-0 w-full h-full object-cover opacity-[0.32] contrast-110 saturate-105"
-          />
+        {/* ===== HERO — light, premium, buyer-friendly (NOT homepage's dark cinematic) ===== */}
+        <section className="relative pt-14 pb-16 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 overflow-hidden bg-background">
+          {/* Soft layered surfaces — gold + navy washes on white */}
           <div
-            className="absolute inset-0"
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(90deg, hsl(222 75% 6% / 0.94) 0%, hsl(222 70% 8% / 0.82) 45%, hsl(222 65% 9% / 0.62) 100%), linear-gradient(180deg, hsl(222 75% 6% / 0.78) 0%, hsl(222 70% 8% / 0.55) 50%, hsl(222 75% 6% / 0.85) 100%)",
+                "radial-gradient(900px 480px at 88% -10%, hsl(38 88% 52% / 0.10), transparent 60%), radial-gradient(720px 420px at -5% 110%, hsl(222 65% 28% / 0.08), transparent 60%)",
             }}
           />
+          {/* Subtle dotted texture */}
           <div
             aria-hidden
-            className="absolute -top-40 -right-32 w-[640px] h-[640px] rounded-full blur-[120px] opacity-30 pointer-events-none"
-            style={{ background: "hsl(var(--gold) / 0.55)" }}
-          />
-          <div
-            aria-hidden
-            className="absolute -bottom-40 -left-40 w-[560px] h-[560px] rounded-full blur-[120px] opacity-35 pointer-events-none"
-            style={{ background: "hsl(220 100% 55% / 0.45)" }}
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-[0.025] pointer-events-none"
+            className="absolute inset-0 opacity-[0.5] pointer-events-none"
             style={{
               backgroundImage:
-                "linear-gradient(hsl(0 0% 100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100%) 1px, transparent 1px)",
-              backgroundSize: "64px 64px",
+                "radial-gradient(hsl(222 30% 20% / 0.07) 1px, transparent 1px)",
+              backgroundSize: "22px 22px",
             }}
+          />
+          {/* Top hairline accent */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent"
           />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              {/* Eyebrow pills */}
+              {/* Eyebrow pills — light glass */}
               <div className="flex flex-wrap items-center justify-center gap-2 mb-6 animate-fade-in">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border border-border shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
                   </span>
-                  <span className="text-white/90 text-[11.5px] font-semibold tracking-wide">
+                  <span className="text-foreground/80 text-[11.5px] font-semibold tracking-wide">
                     For Buyers · Managed Procurement
                   </span>
                 </div>
                 <Link
                   to="/global-sourcing-countries"
-                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 hover:bg-white/[0.1] hover:border-white/20 transition-all"
+                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border hover:border-gold/40 hover:bg-gold-soft/50 transition-all"
                 >
-                  <Globe className="h-3 w-3 text-gold" />
-                  <span className="text-white/90 text-[11.5px] font-semibold tracking-wide">
+                  <Globe className="h-3 w-3 text-gold-foreground" />
+                  <span className="text-foreground/80 text-[11.5px] font-semibold tracking-wide">
                     Global sourcing available
                   </span>
-                  <ArrowRight className="h-3 w-3 text-white/70 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
 
               <h1
-                className="font-display font-extrabold mb-5 leading-[1.02] tracking-tight animate-fade-in text-white"
+                className="font-display font-extrabold mb-5 leading-[1.04] tracking-tight animate-fade-in text-foreground"
                 style={{ fontSize: "clamp(34px, 5.6vw, 60px)", animationDelay: "60ms" }}
               >
                 AI-Powered Procurement
@@ -221,7 +210,7 @@ const Buyer = () => {
                   className="bg-clip-text text-transparent"
                   style={{
                     backgroundImage:
-                      "linear-gradient(135deg, hsl(38 95% 65%) 0%, hsl(38 88% 52%) 45%, hsl(220 100% 75%) 100%)",
+                      "linear-gradient(135deg, hsl(222 65% 28%) 0%, hsl(222 60% 38%) 50%, hsl(38 88% 48%) 100%)",
                   }}
                 >
                   for Smarter Sourcing
@@ -229,14 +218,14 @@ const Buyer = () => {
               </h1>
 
               <p
-                className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto animate-fade-in leading-relaxed"
+                className="text-[16px] sm:text-lg text-foreground/80 mb-3 max-w-xl mx-auto animate-fade-in leading-relaxed"
                 style={{ animationDelay: "120ms" }}
               >
-                Post one RFQ. AI structures it and invites <strong className="text-gold">verified suppliers</strong> to bid.
+                Post one RFQ. AI structures it and invites <strong className="text-foreground">verified suppliers</strong> to bid.
               </p>
 
               <p
-                className="text-[14px] sm:text-[15px] text-white/65 mb-8 max-w-xl mx-auto animate-fade-in leading-relaxed"
+                className="text-[14px] sm:text-[15px] text-muted-foreground mb-8 max-w-xl mx-auto animate-fade-in leading-relaxed"
                 style={{ animationDelay: "150ms" }}
               >
                 Every quote lands in one structured view. Compare price, delivery and terms without chasing follow-ups.
@@ -249,7 +238,7 @@ const Buyer = () => {
               >
                 <Button
                   size="lg"
-                  className="h-12 px-7 text-[15px] font-semibold shadow-[0_10px_40px_-10px_hsl(38_88%_52%/0.6)] hover:shadow-[0_15px_50px_-10px_hsl(38_88%_52%/0.8)] bg-gradient-to-r from-gold to-[hsl(32_92%_48%)] hover:opacity-95 text-[hsl(222_75%_10%)] transition-all w-full sm:w-auto border-0"
+                  className="h-12 px-7 text-[15px] font-semibold shadow-[0_10px_30px_-10px_hsl(222_65%_28%/0.45)] hover:shadow-[0_15px_40px_-10px_hsl(222_65%_28%/0.6)] bg-gradient-to-r from-[hsl(222_65%_28%)] to-[hsl(222_55%_36%)] hover:opacity-95 text-primary-foreground transition-all w-full sm:w-auto border-0"
                   onClick={() => {
                     trackEvent("cta_click", { source: "buyer_hero_primary", label: "post_rfq" });
                     setShowRFQModal(true);
@@ -274,19 +263,19 @@ const Buyer = () => {
               </div>
 
               <div
-                className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px] text-white/55 animate-fade-in"
+                className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px] text-muted-foreground animate-fade-in"
                 style={{ animationDelay: "300ms" }}
               >
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                   Verified suppliers only
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-gold" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                   Buyer details protected
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Scale className="h-3.5 w-3.5 text-emerald-400" />
+                  <Scale className="h-3.5 w-3.5 text-emerald-600" />
                   No obligation to award
                 </span>
               </div>
