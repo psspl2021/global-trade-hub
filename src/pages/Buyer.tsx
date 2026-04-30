@@ -58,10 +58,11 @@ import {
   Star,
 } from "lucide-react";
 
-const rfqInputs = [
-  { icon: Type, title: "Text / Typed RFQ", desc: "Describe your requirement in simple terms." },
-  { icon: FileUp, title: "File Upload", desc: "Upload BOQ, Excel, PDF or screenshots." },
-  { icon: Mic, title: "Voice Input", desc: "Speak your requirement — AI structures it." },
+const procurementSteps = [
+  { icon: Send, title: "Submit requirement", desc: "Text, file or voice — no fixed format." },
+  { icon: Bot, title: "AI structures your RFQ", desc: "Extracts quantities, specs, delivery and terms." },
+  { icon: Filter, title: "Matches relevant suppliers", desc: "Filtered by category, capability and region." },
+  { icon: ClipboardCheck, title: "Receive structured quotes", desc: "Compare price, delivery and terms in one view." },
 ];
 
 const quoteRows = [
