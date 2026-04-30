@@ -8,16 +8,27 @@ import {
 } from "@/components/ui/collapsible";
 import { PostRFQModal } from "@/components/PostRFQModal";
 import { PageHeader } from "@/components/landing/PageHeader";
-import { QuoteComparisonSection } from "@/components/landing/QuoteComparisonSection";
-import { SupplierTrustSection } from "@/components/landing/SupplierTrustSection";
-import { GlobalProcurementCorridors } from "@/components/GlobalProcurementCorridors";
-import { StickySignupBanner } from "@/components/StickySignupBanner";
-import { AILinkingSection } from "@/components/seo";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from "@/lib/whatsapp";
 import { trackEvent } from "@/lib/analytics";
 import heroBgBuyer from "@/assets/hero-bg-buyer.jpg";
 
+// Lazy below-the-fold sections so initial paint isn't blocked
+const QuoteComparisonSection = lazy(() =>
+  import("@/components/landing/QuoteComparisonSection").then((m) => ({ default: m.QuoteComparisonSection })),
+);
+const SupplierTrustSection = lazy(() =>
+  import("@/components/landing/SupplierTrustSection").then((m) => ({ default: m.SupplierTrustSection })),
+);
+const GlobalProcurementCorridors = lazy(() =>
+  import("@/components/GlobalProcurementCorridors").then((m) => ({ default: m.GlobalProcurementCorridors })),
+);
+const AILinkingSection = lazy(() =>
+  import("@/components/seo").then((m) => ({ default: m.AILinkingSection })),
+);
+const StickySignupBanner = lazy(() =>
+  import("@/components/StickySignupBanner").then((m) => ({ default: m.StickySignupBanner })),
+);
 const ExitIntentPopup = lazy(() =>
   import("@/components/landing/ExitIntentPopup").then((m) => ({ default: m.ExitIntentPopup })),
 );
@@ -155,7 +166,7 @@ const Buyer = () => {
             src={heroBgBuyer}
             alt=""
             role="presentation"
-            fetchPriority="high"
+            {...({ fetchpriority: "high" } as Record<string, string>)}
             decoding="async"
             loading="eager"
             className="absolute inset-0 w-full h-full object-cover opacity-[0.18] saturate-110"
@@ -303,7 +314,9 @@ const Buyer = () => {
         </section>
 
         {/* ===== DECISION VIEW (white) — moved high for trust ===== */}
-        <QuoteComparisonSection />
+        <Suspense fallback={<div className="py-20" />}>
+          <QuoteComparisonSection />
+        </Suspense>
 
         {/* ===== WHO THIS IS FOR — light grey band ===== */}
         <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
@@ -417,7 +430,9 @@ const Buyer = () => {
         </section>
 
         {/* ===== SUPPLIER TRUST (homepage component) ===== */}
-        <SupplierTrustSection />
+        <Suspense fallback={<div className="py-20" />}>
+          <SupplierTrustSection />
+        </Suspense>
 
         {/* ===== WHAT WE ARE NOT — chips ===== */}
         <section className="py-12 sm:py-16 bg-card border-y border-border/60">
@@ -624,22 +639,26 @@ const Buyer = () => {
         </section>
       </main>
 
-      {/* AI Linking + corridors */}
-      <AILinkingSection
-        title="Related Resources for Buyers"
-        links={[
-          { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
-          { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
-          { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
-        ]}
-      />
+      {/* AI Linking + corridors — lazy below the fold */}
+      <Suspense fallback={null}>
+        <AILinkingSection
+          title="Related Resources for Buyers"
+          links={[
+            { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
+            { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
+            { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
+          ]}
+        />
+      </Suspense>
 
-      <GlobalProcurementCorridors />
+      <Suspense fallback={null}>
+        <GlobalProcurementCorridors />
+      </Suspense>
 
       <PostRFQModal open={showRFQModal} onOpenChange={setShowRFQModal} />
 
-      <StickySignupBanner />
       <Suspense fallback={null}>
+        <StickySignupBanner />
         <ExitIntentPopup />
       </Suspense>
     </div>
