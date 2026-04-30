@@ -30,7 +30,7 @@ import {
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HeroVisual } from '@/components/landing/HeroVisual';
-import { SupplierTrustSection } from '@/components/landing/SupplierTrustSection';
+
 import { QuoteComparisonSection } from '@/components/landing/QuoteComparisonSection';
 import FloatingWhatsApp from '@/components/conversion/FloatingWhatsApp';
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from '@/lib/whatsapp';
