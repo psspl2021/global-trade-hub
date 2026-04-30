@@ -48,9 +48,6 @@ import {
   Gavel,
   ClipboardList,
   BarChart3,
-  Type,
-  FileUp,
-  Mic,
   Tags,
   BadgeCheck,
   Activity,
@@ -58,10 +55,11 @@ import {
   Star,
 } from "lucide-react";
 
-const rfqInputs = [
-  { icon: Type, title: "Text / Typed RFQ", desc: "Describe your requirement in simple terms." },
-  { icon: FileUp, title: "File Upload", desc: "Upload BOQ, Excel, PDF or screenshots." },
-  { icon: Mic, title: "Voice Input", desc: "Speak your requirement — AI structures it." },
+const procurementSteps = [
+  { icon: Send, title: "Submit requirement", desc: "Text, file or voice — no fixed format." },
+  { icon: Bot, title: "AI structures your RFQ", desc: "Extracts quantities, specs, delivery and terms." },
+  { icon: Filter, title: "Matches relevant suppliers", desc: "Filtered by category, capability and region." },
+  { icon: ClipboardCheck, title: "Receive structured quotes", desc: "Compare price, delivery and terms in one view." },
 ];
 
 const quoteRows = [
@@ -77,24 +75,11 @@ const verificationCards = [
   { icon: Activity, title: "Participation Quality", desc: "Consistent responders prioritised. Inactive suppliers filtered out." },
 ];
 
-const matchingFlow = [
-  { title: "Requirement submitted", desc: "Buyer posts text, file or voice RFQ." },
-  { title: "AI parses specifications", desc: "Quantities, grade, delivery and terms extracted." },
-  { title: "Matches relevant suppliers", desc: "Filtered by category, capability and region." },
-  { title: "RFQ sent only to qualified suppliers", desc: "No spam blasts. No irrelevant outreach." },
-];
-
 const buyerProfiles = [
   { title: "Bulk buyers sourcing recurring materials", desc: "Ongoing procurement with supplier consistency.", icon: Package },
   { title: "Project-based procurement teams", desc: "Compare multiple suppliers for each requirement.", icon: Building2 },
   { title: "Importers sourcing from India", desc: "Access verified manufacturers for export.", icon: Globe },
   { title: "Businesses needing price transparency", desc: "Clear comparison without negotiation loops.", icon: Scale },
-];
-
-const steps = [
-  { icon: Send, title: "Post your requirement", desc: "Text, voice or upload — takes about 30 seconds." },
-  { icon: Bot, title: "AI matches relevant suppliers", desc: "Verified suppliers in your category are invited automatically." },
-  { icon: ClipboardCheck, title: "Receive and compare quotes", desc: "Every quote in one structured view — decide without follow-ups." },
 ];
 
 const capabilities = [
@@ -341,48 +326,6 @@ const Buyer = () => {
           </div>
         </section>
 
-        {/* ===== RFQ INPUT FLEXIBILITY ===== */}
-        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="max-w-2xl mb-8 sm:mb-12">
-                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
-                  Input flexibility
-                </div>
-                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  Post requirement your way
-                </h2>
-                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                  Share your requirement in the format you already use. No rigid forms.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                {rfqInputs.map((r) => (
-                  <div
-                    key={r.title}
-                    className="bg-background border border-border rounded-xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-12px_hsl(38_88%_52%/0.25)] transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 flex items-center justify-center mb-3">
-                      <r.icon className="h-[18px] w-[18px] text-primary" strokeWidth={2} />
-                    </div>
-                    <div className="text-[14.5px] font-semibold text-foreground leading-snug mb-1">
-                      {r.title}
-                    </div>
-                    <div className="text-[13px] text-muted-foreground leading-relaxed">
-                      {r.desc}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 inline-flex items-center gap-2 text-[13px] text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-gold-foreground" />
-                AI converts your input into a structured RFQ automatically.
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* ===== STRUCTURED QUOTE TABLE — decision view ===== */}
         <section className="py-12 sm:py-20">
@@ -445,6 +388,56 @@ const Buyer = () => {
           </div>
         </section>
 
+        {/* ===== HOW PROCUREMENT WORKS — unified process strip ===== */}
+        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-8 sm:mb-10">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  How procurement works
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  From requirement to quotes
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
+                </p>
+              </div>
+
+              <ol className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative">
+                {procurementSteps.map((s, i) => (
+                  <li
+                    key={s.title}
+                    className="relative bg-background border border-border rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                  >
+                    <div className="flex items-center gap-2.5 mb-2.5">
+                      <span className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
+                        <s.icon className="h-[14px] w-[14px]" strokeWidth={2} />
+                      </span>
+                      <span className="text-[10.5px] font-mono font-semibold text-muted-foreground tracking-wider">
+                        0{i + 1}
+                      </span>
+                      {i < procurementSteps.length - 1 && (
+                        <ArrowRight className="hidden lg:block h-3.5 w-3.5 text-muted-foreground absolute -right-3 top-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                    <div className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug mb-1">
+                      {s.title}
+                    </div>
+                    <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                      {s.desc}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="text-[13.5px] sm:text-[14px] text-foreground mt-6 font-medium">
+                You don't search for suppliers — the right suppliers come to you.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* ===== WHO THIS IS FOR — light grey band ===== */}
         <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
           <div className="container mx-auto px-4">
@@ -485,123 +478,6 @@ const Buyer = () => {
           </div>
         </section>
 
-        {/* ===== HOW IT WORKS — vertical numbered list (homepage pattern) ===== */}
-        <section className="py-12 sm:py-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-16">
-              <div className="lg:col-span-4 max-w-2xl">
-                <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2 sm:mb-3">
-                  How it works
-                </div>
-                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  From requirement to quotes — in three steps
-                </h2>
-                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                  Post once. Suppliers respond. You compare in one place.
-                </p>
-              </div>
-
-              <div className="lg:col-span-8">
-                <ol className="grid grid-cols-2 gap-2.5 lg:hidden">
-                  {steps.map((s, i) => (
-                    <li
-                      key={s.title}
-                      className="bg-card border border-border rounded-xl p-3.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
-                          <s.icon className="h-[14px] w-[14px]" strokeWidth={2} />
-                        </div>
-                        <span className="text-[10px] font-mono font-semibold text-muted-foreground tracking-wider">
-                          0{i + 1}
-                        </span>
-                      </div>
-                      <h3 className="text-[12.5px] font-semibold text-foreground leading-snug mb-1">
-                        {s.title}
-                      </h3>
-                      <p className="text-[11.5px] text-muted-foreground leading-snug">
-                        {s.desc}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-
-                <ol className="relative hidden lg:block">
-                  {steps.map((s, i) => (
-                    <li
-                      key={s.title}
-                      className={`flex items-start gap-5 py-5 ${i < steps.length - 1 ? "border-b border-border" : ""}`}
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
-                        <s.icon className="h-[18px] w-[18px]" strokeWidth={2} />
-                      </div>
-                      <div className="flex-1 pt-0.5">
-                        <div className="flex items-baseline gap-3 mb-1">
-                          <span className="text-[11px] font-mono font-semibold text-muted-foreground tracking-wider">
-                            0{i + 1}
-                          </span>
-                          <h3 className="text-[15.5px] font-semibold text-foreground">
-                            {s.title}
-                          </h3>
-                        </div>
-                        <p className="text-[14px] text-muted-foreground leading-relaxed">
-                          {s.desc}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== SUPPLIER MATCHING PREVIEW ===== */}
-        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="max-w-2xl mb-8 sm:mb-12">
-                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
-                  Matching logic
-                </div>
-                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  How suppliers are matched to your requirement
-                </h2>
-                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                  Specifications are parsed automatically. Only relevant suppliers receive your RFQ.
-                </p>
-              </div>
-
-              <ol className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 relative">
-                {matchingFlow.map((m, i) => (
-                  <li
-                    key={m.title}
-                    className="relative bg-background border border-border rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
-                  >
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <span className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary text-[12px] font-mono font-semibold flex items-center justify-center">
-                        {i + 1}
-                      </span>
-                      {i < matchingFlow.length - 1 && (
-                        <ArrowRight className="hidden md:block h-3.5 w-3.5 text-muted-foreground absolute -right-3 top-1/2 -translate-y-1/2" />
-                      )}
-                    </div>
-                    <div className="text-[14px] font-semibold text-foreground leading-snug mb-1">
-                      {m.title}
-                    </div>
-                    <div className="text-[12.5px] text-muted-foreground leading-relaxed">
-                      {m.desc}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-
-              <p className="text-[13.5px] text-foreground mt-6 font-medium">
-                You don't search for suppliers — the right suppliers come to you.
-              </p>
-            </div>
-          </div>
-        </section>
 
         {/* ===== SUPPLIER VERIFICATION (upgraded) ===== */}
         <section className="py-12 sm:py-20">
