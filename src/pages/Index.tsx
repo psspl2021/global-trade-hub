@@ -227,14 +227,14 @@ const Index = () => {
                   className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '120ms' }}
                 >
-                  Designed to unlock <strong className="text-gold">up to 15% cost savings</strong> through real supplier competition.
+                  Designed to create <strong className="text-gold">real supplier competition</strong> for better pricing across your verified suppliers.
                 </p>
 
                 <p
                   className="text-[14px] sm:text-[15px] text-white/65 mb-2 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '150ms' }}
                 >
-                  Get competitive bids within minutes — not days.
+                  Post your requirement once. Receive and compare quotes in one place.
                 </p>
 
                 <p
