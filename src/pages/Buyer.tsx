@@ -78,24 +78,11 @@ const verificationCards = [
   { icon: Activity, title: "Participation Quality", desc: "Consistent responders prioritised. Inactive suppliers filtered out." },
 ];
 
-const matchingFlow = [
-  { title: "Requirement submitted", desc: "Buyer posts text, file or voice RFQ." },
-  { title: "AI parses specifications", desc: "Quantities, grade, delivery and terms extracted." },
-  { title: "Matches relevant suppliers", desc: "Filtered by category, capability and region." },
-  { title: "RFQ sent only to qualified suppliers", desc: "No spam blasts. No irrelevant outreach." },
-];
-
 const buyerProfiles = [
   { title: "Bulk buyers sourcing recurring materials", desc: "Ongoing procurement with supplier consistency.", icon: Package },
   { title: "Project-based procurement teams", desc: "Compare multiple suppliers for each requirement.", icon: Building2 },
   { title: "Importers sourcing from India", desc: "Access verified manufacturers for export.", icon: Globe },
   { title: "Businesses needing price transparency", desc: "Clear comparison without negotiation loops.", icon: Scale },
-];
-
-const steps = [
-  { icon: Send, title: "Post your requirement", desc: "Text, voice or upload — takes about 30 seconds." },
-  { icon: Bot, title: "AI matches relevant suppliers", desc: "Verified suppliers in your category are invited automatically." },
-  { icon: ClipboardCheck, title: "Receive and compare quotes", desc: "Every quote in one structured view — decide without follow-ups." },
 ];
 
 const capabilities = [
