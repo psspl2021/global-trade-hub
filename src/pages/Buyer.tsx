@@ -391,6 +391,56 @@ const Buyer = () => {
           </div>
         </section>
 
+        {/* ===== HOW PROCUREMENT WORKS — unified process strip ===== */}
+        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-8 sm:mb-10">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  How procurement works
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  From requirement to quotes
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
+                </p>
+              </div>
+
+              <ol className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative">
+                {procurementSteps.map((s, i) => (
+                  <li
+                    key={s.title}
+                    className="relative bg-background border border-border rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                  >
+                    <div className="flex items-center gap-2.5 mb-2.5">
+                      <span className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
+                        <s.icon className="h-[14px] w-[14px]" strokeWidth={2} />
+                      </span>
+                      <span className="text-[10.5px] font-mono font-semibold text-muted-foreground tracking-wider">
+                        0{i + 1}
+                      </span>
+                      {i < procurementSteps.length - 1 && (
+                        <ArrowRight className="hidden lg:block h-3.5 w-3.5 text-muted-foreground absolute -right-3 top-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                    <div className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug mb-1">
+                      {s.title}
+                    </div>
+                    <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                      {s.desc}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="text-[13.5px] sm:text-[14px] text-foreground mt-6 font-medium">
+                You don't search for suppliers — the right suppliers come to you.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* ===== WHO THIS IS FOR — light grey band ===== */}
         <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
           <div className="container mx-auto px-4">
