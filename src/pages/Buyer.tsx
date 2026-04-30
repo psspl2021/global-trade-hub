@@ -350,13 +350,13 @@ const Buyer = () => {
                         </span>
                         <s.icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug">
+                      <div className="mb-0.5 leading-snug">
+                        <span className="text-[13.5px] sm:text-[14px] font-semibold text-foreground">
                           {s.title}
                         </span>
                         {(s as any).label && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-[9.5px] font-semibold text-primary uppercase tracking-wider">
-                            {(s as any).label}
+                          <span className="ml-1.5 text-[11.5px] font-normal text-muted-foreground/70">
+                            ({(s as any).label})
                           </span>
                         )}
                       </div>
