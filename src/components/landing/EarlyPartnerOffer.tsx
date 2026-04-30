@@ -32,13 +32,16 @@ export const EarlyPartnerOffer = ({
               </div>
               
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                Build Your Network Early
+                Early Access for Category Leaders
               </h2>
               
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 First 100 verified suppliers receive{" "}
-                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions</span>{" "}
-                — priority listing and featured visibility. Reverse auctions stay free for everyone.
+                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions (Unlimited Bids)</span>
+                {" "}— valid for signups till <span className="font-semibold text-foreground">15 August 2026</span>. Reverse auctions remain free for all suppliers.
+              </p>
+              <p className="text-xs text-muted-foreground/80 mt-2 italic">
+                Bidding is not restricted. Email notifications follow a separate usage model.
               </p>
             </div>
 
