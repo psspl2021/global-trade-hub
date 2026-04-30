@@ -1,8 +1,9 @@
-import { TrendingDown, Gavel, ShieldCheck, Zap, Users } from "lucide-react";
+import { FileText, Sparkles, ShieldCheck, Columns3, Users } from "lucide-react";
 
 /**
  * HeroVisual — premium 3D-style stacked tiles for the hero right column.
- * Cinematic, layered, with subtle float animations. Pure CSS/SVG, no images.
+ * Mechanism-based proof (no numbers, no pseudo-live signals).
+ * Communicates: process reliability, supplier quality, decision clarity.
  */
 export const HeroVisual = () => {
   return (
@@ -16,7 +17,7 @@ export const HeroVisual = () => {
         }}
       />
 
-      {/* Tile: Live Auction (top-left, large) */}
+      {/* Tile 1: Live RFQ (top-left, large) */}
       <div
         className="absolute top-[6%] left-[4%] w-[58%] rounded-2xl p-5 backdrop-blur-xl border border-white/10 shadow-2xl animate-float-slow"
         style={{
@@ -28,40 +29,34 @@ export const HeroVisual = () => {
       >
         <div className="flex items-center justify-between mb-3">
           <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gold">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-gold opacity-75 animate-ping" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
-            </span>
-            Live Auction
+            <FileText className="h-3 w-3" />
+            Live RFQ
           </span>
-          <Gavel className="h-3.5 w-3.5 text-white/40" />
         </div>
         <div className="text-white/95 text-[13px] font-semibold mb-1">TMT Bars Fe 500D</div>
-        <div className="text-white/50 text-[10.5px] mb-4">6 suppliers competing</div>
+        <div className="text-white/50 text-[10.5px] mb-4">Multiple suppliers invited</div>
         <div className="space-y-1.5">
           {[
-            { name: 'Supplier A', drop: '-3.2%', highlight: true },
-            { name: 'Supplier B', drop: '-2.1%', highlight: false },
-            { name: 'Supplier C', drop: '-1.8%', highlight: false },
-          ].map((b) => (
+            { label: 'Requirement posted', done: true },
+            { label: 'Suppliers invited', done: true },
+            { label: 'Quotes received in one place', done: false },
+          ].map((step) => (
             <div
-              key={b.name}
-              className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-[10.5px] ${
-                b.highlight
-                  ? 'bg-gold/15 border border-gold/30'
-                  : 'bg-white/[0.03] border border-white/5'
-              }`}
+              key={step.label}
+              className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[10.5px] bg-white/[0.03] border border-white/5"
             >
-              <span className="text-white/80 font-medium">{b.name}</span>
-              <span className={`font-bold tabular-nums ${b.highlight ? 'text-gold' : 'text-emerald-400/80'}`}>
-                {b.drop}
-              </span>
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  step.done ? 'bg-gold' : 'bg-white/30'
+                }`}
+              />
+              <span className="text-white/80 font-medium">{step.label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Tile: Savings (top-right, small) */}
+      {/* Tile 2: AI Matching (top-right) */}
       <div
         className="absolute top-[2%] right-[3%] w-[36%] rounded-2xl p-4 backdrop-blur-xl border border-white/10 shadow-2xl animate-float-medium"
         style={{
@@ -70,17 +65,16 @@ export const HeroVisual = () => {
           boxShadow: '0 30px 60px -20px hsl(32 80% 20% / 0.5)',
         }}
       >
-        <TrendingDown className="h-4 w-4 text-white/90 mb-2" strokeWidth={2.5} />
+        <Sparkles className="h-4 w-4 text-white/95 mb-2" strokeWidth={2.5} />
         <div className="text-white text-[10px] font-semibold uppercase tracking-wider opacity-85">
-          Avg. Saving
+          AI Matching
         </div>
-        <div className="text-white text-2xl font-extrabold leading-none mt-1 tabular-nums">
-          5–15%
+        <div className="text-white text-[13px] font-bold leading-tight mt-1.5">
+          Requirement routed to relevant suppliers
         </div>
-        <div className="text-white/80 text-[9.5px] mt-1.5">Annually</div>
       </div>
 
-      {/* Tile: Verified suppliers (middle-right) */}
+      {/* Tile 3: Verified Network (middle-right) */}
       <div
         className="absolute top-[42%] right-[2%] w-[42%] rounded-2xl p-4 backdrop-blur-xl border border-white/10 shadow-2xl animate-float-fast"
         style={{
@@ -94,11 +88,11 @@ export const HeroVisual = () => {
             <ShieldCheck className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
           </div>
           <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-            Verified
+            Verified Network
           </span>
         </div>
         <div className="text-foreground text-[12px] font-semibold leading-tight">
-          Pan-India network
+          Pre-screened industrial suppliers
         </div>
         <div className="flex -space-x-1.5 mt-2.5">
           {['A', 'B', 'C', 'D'].map((l, i) => (
@@ -118,7 +112,7 @@ export const HeroVisual = () => {
         </div>
       </div>
 
-      {/* Tile: AI brain (bottom-left) */}
+      {/* Tile 4: Transparent Comparison (bottom-left) */}
       <div
         className="absolute bottom-[6%] left-[10%] w-[44%] rounded-2xl p-4 backdrop-blur-xl border border-white/10 shadow-2xl animate-float-medium"
         style={{
@@ -130,24 +124,25 @@ export const HeroVisual = () => {
         }}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Zap className="h-3.5 w-3.5 text-gold" fill="currentColor" />
+          <Columns3 className="h-3.5 w-3.5 text-gold" strokeWidth={2.5} />
           <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-            AI Sourcing
+            Transparent Comparison
           </span>
         </div>
-        <div className="text-white text-[12px] font-semibold leading-tight mb-2">
-          Bids in minutes
+        <div className="text-white text-[12px] font-semibold leading-tight mb-2.5">
+          Side-by-side quote evaluation
         </div>
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((i) => (
+        <div className="grid grid-cols-3 gap-1">
+          {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-1 flex-1 rounded-full bg-gradient-to-r from-gold to-primary-glow opacity-70"
-              style={{ animationDelay: `${i * 100}ms` }}
-            />
+              className="rounded-md bg-white/[0.04] border border-white/10 p-1.5"
+            >
+              <div className="h-1 w-full rounded-full bg-white/20 mb-1" />
+              <div className="h-1 w-2/3 rounded-full bg-gold/60" />
+            </div>
           ))}
         </div>
-        <div className="text-white/50 text-[9.5px] mt-2">5 suppliers notified instantly</div>
       </div>
 
       {/* Floating mini chip: bottom-right */}
