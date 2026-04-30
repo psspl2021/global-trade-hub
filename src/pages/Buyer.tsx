@@ -78,12 +78,6 @@ const matchingFlow = [
   { title: "RFQ sent only to qualified suppliers", desc: "No spam blasts. No irrelevant outreach." },
 ];
 
-const quoteRows = [
-  { supplier: "Supplier A", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
-  { supplier: "Supplier B", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
-  { supplier: "Supplier C", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
-];
-
 const buyerProfiles = [
   { title: "Bulk buyers sourcing recurring materials", desc: "Ongoing procurement with supplier consistency.", icon: Package },
   { title: "Project-based procurement teams", desc: "Compare multiple suppliers for each requirement.", icon: Building2 },
