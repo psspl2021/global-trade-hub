@@ -639,22 +639,26 @@ const Buyer = () => {
         </section>
       </main>
 
-      {/* AI Linking + corridors */}
-      <AILinkingSection
-        title="Related Resources for Buyers"
-        links={[
-          { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
-          { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
-          { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
-        ]}
-      />
+      {/* AI Linking + corridors — lazy below the fold */}
+      <Suspense fallback={null}>
+        <AILinkingSection
+          title="Related Resources for Buyers"
+          links={[
+            { title: "How to Post RFQ Online", url: "/how-to-post-rfq-online", description: "Step-by-step guide", emoji: "📝" },
+            { title: "Find Verified Suppliers", url: "/find-verified-b2b-suppliers", description: "Supplier discovery guide", emoji: "🔍" },
+            { title: "Enterprise Procurement", url: "/enterprise-procurement-guide", description: "For large organizations", emoji: "🏢" },
+          ]}
+        />
+      </Suspense>
 
-      <GlobalProcurementCorridors />
+      <Suspense fallback={null}>
+        <GlobalProcurementCorridors />
+      </Suspense>
 
       <PostRFQModal open={showRFQModal} onOpenChange={setShowRFQModal} />
 
-      <StickySignupBanner />
       <Suspense fallback={null}>
+        <StickySignupBanner />
         <ExitIntentPopup />
       </Suspense>
     </div>
