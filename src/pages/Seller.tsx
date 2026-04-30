@@ -69,7 +69,7 @@ const supplierFAQs = [
   },
   {
     question: "How does pricing and notifications work?",
-    answer: "Supplier onboarding is free. Reverse auctions are always free with no bid fees. For forward auctions, the first 100 suppliers receive 1 year of free premium access (valid till 15 August 2026), which includes unlimited bidding. Email notifications are separate from bidding and follow a shared usage model across both auction types: each supplier gets 2 free email notifications per day. Additional notifications can be purchased via a one-time ₹500 pack for 200 emails, with no expiry. Bidding is not restricted — only communication scale is metered."
+    answer: "Forward auctions: First 100 suppliers get 1 year of free premium access (till 15 August 2026), including unlimited bidding. Reverse auctions: Always free. Email notifications are separate: 2 per day free, plus a one-time ₹500 pack for 200 emails (no expiry, until consumed). Email credits are only used to receive RFQ alerts — not to place bids. You can bid freely; only email notifications are metered."
   },
   {
     question: "Who sees my details?",
@@ -167,7 +167,7 @@ const Seller = () => {
               </Button>
             </div>
             <p className="text-xs text-foreground/80 font-semibold mt-4 tracking-wide">
-              No lead selling. No subscription traps. Unlimited bidding — pay only for communication scale when needed.
+              No lead selling. No subscription traps. You can bid freely — only email notifications (used to receive RFQ alerts) are metered.
             </p>
           </div>
         </div>

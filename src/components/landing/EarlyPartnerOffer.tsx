@@ -37,12 +37,36 @@ export const EarlyPartnerOffer = ({
               
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 First 100 verified suppliers receive{" "}
-                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions (Unlimited Bids)</span>
+                <span className="text-primary font-semibold">1 Year Free Premium (Unlimited Forward Auction Bids)</span>
                 {" "}— valid for signups till <span className="font-semibold text-foreground">15 August 2026</span>. Reverse auctions remain free for all suppliers.
               </p>
               <p className="text-xs text-muted-foreground/80 mt-2 italic">
-                Bidding is not restricted. Email notifications follow a separate usage model.
+                You can bid freely — only email notifications are metered. Email credits are used only to receive RFQ alerts, not to place bids.
               </p>
+            </div>
+
+            {/* Visual separation: Bidding vs Notifications — two mechanics, never reversed */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 max-w-3xl mx-auto">
+              <div className="rounded-xl border-2 border-success/30 bg-success/5 p-4">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-lg" aria-hidden="true">🟢</span>
+                  <span className="text-xs font-bold tracking-wide uppercase text-success">Bidding</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  Unlimited (Forward Premium) · Free (Reverse)
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">No bid fees. Ever.</p>
+              </div>
+              <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-lg" aria-hidden="true">✉️</span>
+                  <span className="text-xs font-bold tracking-wide uppercase text-primary">Notifications</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  2/day free · ₹500 = 200 emails (no expiry)
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">For receiving RFQ alerts only.</p>
+              </div>
             </div>
 
             {/* Live Counter - Only show when showNumbers is true */}
@@ -64,23 +88,11 @@ export const EarlyPartnerOffer = ({
 
             {/* Urgency Copy - Only show when showCountdown is true */}
             {showCountdown && (
-              <div className="flex flex-col gap-3 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-4 px-4">
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span className="text-sm">
-                    Register by <span className="font-semibold text-primary">15 August 2026</span> to lock in 1 Year Free Premium Access on Forward Auctions — limited slots remaining.
-                  </span>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-2 text-xs">
-                  <div className="bg-card/60 border border-border rounded-md px-3 py-2">
-                    <p className="font-semibold text-foreground mb-0.5">Bidding</p>
-                    <p className="text-muted-foreground">Unlimited on forward auctions (1 yr, first 100). Reverse auctions always free for all.</p>
-                  </div>
-                  <div className="bg-card/60 border border-border rounded-md px-3 py-2">
-                    <p className="font-semibold text-foreground mb-0.5">Notifications (shared)</p>
-                    <p className="text-muted-foreground">2 emails/day free • ₹500 = 200 emails (no expiry, until consumed).</p>
-                  </div>
-                </div>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-3 px-4">
+                <Clock className="h-4 w-4" />
+                <span className="text-sm text-center">
+                  Register by <span className="font-semibold text-primary">15 August 2026</span> to lock in 1 Year Free Premium — limited slots remaining.
+                </span>
               </div>
             )}
 
