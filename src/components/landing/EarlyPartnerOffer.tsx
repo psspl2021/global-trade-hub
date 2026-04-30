@@ -69,7 +69,7 @@ export const EarlyPartnerOffer = ({
                   </span>
                 </div>
                 <p className="text-xs text-center text-muted-foreground/90">
-                  Reverse auctions are <span className="font-semibold text-foreground">100% free</span> — no bid fees. Each supplier gets <span className="font-semibold text-foreground">2 free email notifications/day</span>; extra notifications via a one-time ₹500 pack of 200 emails (lifetime, until consumed).
+                  Reverse auctions are <span className="font-semibold text-foreground">100% free</span> — no bid fees. Both forward and reverse auctions share the same email rule: <span className="font-semibold text-foreground">2 free email notifications/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed).
                 </p>
               </div>
             )}
