@@ -428,34 +428,19 @@ const Buyer = () => {
           </div>
         </section>
 
-        {/* ===== CAPABILITIES — deep navy with gold accent (homepage parity) ===== */}
-        <section className="py-12 sm:py-20 lg:py-24 bg-brand text-brand-foreground relative overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30 pointer-events-none"
-            style={{ background: "hsl(var(--primary) / 0.5)" }}
-          />
-          <div
-            aria-hidden
-            className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-3xl opacity-20 pointer-events-none"
-            style={{ background: "hsl(var(--gold) / 0.3)" }}
-          />
-          <div className="container mx-auto px-4 relative z-10">
+        {/* ===== BUYER ADVANTAGES — light card grid (no dark navy band) ===== */}
+        <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
+          <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="max-w-2xl mb-10 sm:mb-12">
-                <div className="inline-flex items-center gap-2 mb-3">
-                  <span className="h-px w-6 bg-gold" />
-                  <span className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em]">
-                    Buyer advantages
-                  </span>
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  Buyer advantages
                 </div>
-                <h2 className="text-[24px] sm:text-[34px] font-display font-bold tracking-tight mb-4 leading-[1.1]">
-                  Procurement infrastructure,
-                  <br className="hidden sm:block" />
-                  <span className="text-brand-foreground/70">built around the buyer</span>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  Built around the buyer
                 </h2>
-                <p className="text-[14px] sm:text-[15px] text-brand-foreground/70 leading-relaxed max-w-xl">
-                  Structured RFQs, sealed bidding, transparent comparison — and an audit trail you can defend in any review.
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed max-w-xl">
+                  Structured RFQs, transparent comparison and an audit trail you can defend in any review.
                 </p>
               </div>
 
@@ -463,15 +448,15 @@ const Buyer = () => {
                 {buyerAdvantages.map((c) => (
                   <div
                     key={c.title}
-                    className="group relative bg-brand-soft/40 backdrop-blur-sm border border-brand-foreground/10 rounded-xl p-4 sm:p-6 hover:border-gold/40 hover:bg-brand-soft/60 transition-all"
+                    className="group bg-card border border-border rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-12px_hsl(38_88%_52%/0.25)] transition-all"
                   >
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center mb-3 sm:mb-4 group-hover:from-gold/30 group-hover:to-gold/10 group-hover:border-gold/40 transition-colors">
-                      <c.icon className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px] text-brand-foreground" strokeWidth={2} />
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/8 border border-primary/15 flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-gold-soft/60 group-hover:border-gold/30 transition-colors">
+                      <c.icon className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px] text-primary group-hover:text-gold-foreground transition-colors" strokeWidth={2} />
                     </div>
-                    <div className="font-semibold text-[13px] sm:text-[15px] mb-1 sm:mb-1.5 leading-snug">
+                    <div className="font-semibold text-[13px] sm:text-[15px] text-foreground mb-1 sm:mb-1.5 leading-snug">
                       {c.title}
                     </div>
-                    <div className="text-[11.5px] sm:text-[13px] text-brand-foreground/65 leading-relaxed">
+                    <div className="text-[11.5px] sm:text-[13px] text-muted-foreground leading-relaxed">
                       {c.description}
                     </div>
                   </div>
@@ -479,20 +464,20 @@ const Buyer = () => {
               </div>
 
               {/* Capability strip */}
-              <div className="mt-10 pt-8 border-t border-brand-foreground/10">
-                <div className="text-[10.5px] sm:text-[11px] font-semibold text-gold uppercase tracking-[0.16em] mb-4">
+              <div className="mt-10 pt-8 border-t border-border">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-4">
                   Powered by
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {capabilities.map((c) => (
                     <div
                       key={c.title}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-brand-soft/30 border border-brand-foreground/10"
+                      className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border"
                     >
-                      <c.icon className="h-4 w-4 text-gold mt-0.5 flex-shrink-0" strokeWidth={2} />
+                      <c.icon className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
                       <div>
-                        <div className="text-[12.5px] font-semibold leading-snug">{c.title}</div>
-                        <div className="text-[11.5px] text-brand-foreground/60 leading-snug mt-0.5">{c.desc}</div>
+                        <div className="text-[12.5px] font-semibold text-foreground leading-snug">{c.title}</div>
+                        <div className="text-[11.5px] text-muted-foreground leading-snug mt-0.5">{c.desc}</div>
                       </div>
                     </div>
                   ))}
