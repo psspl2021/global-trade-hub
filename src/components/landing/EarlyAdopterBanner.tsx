@@ -60,8 +60,8 @@ export const EarlyAdopterBanner = () => {
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "1 Year Free Forward-Auction Premium + Free CRM & Tax Invoice Generator",
-      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access. Reverse auctions are 100% free for everyone. Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support. Both forward and reverse auctions share the same email rule: 2 free notifications/day, with an optional one-time ₹500 pack of 200 emails (no expiry, until consumed).",
+      "name": "1 Year Free Forward-Auction Premium (Unlimited Bids) + Free CRM & Tax Invoice Generator",
+      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access with unlimited bidding (valid till 15 August 2026). Reverse auctions are 100% free for everyone. Bidding is not restricted; email notifications follow a separate, shared usage model: 2 free notifications/day, plus an optional one-time ₹500 pack of 200 emails (no expiry, until consumed). Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support.",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
