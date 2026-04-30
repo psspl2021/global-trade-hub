@@ -323,12 +323,12 @@ export const EarlyAdopterBanner = () => {
               <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 list-none p-0 m-0" itemScope itemType="https://schema.org/ItemList">
                 <li className="flex items-center gap-2 bg-success/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Star className="h-5 w-5 text-success shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Year FREE Premium</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">1 Yr Forward Premium</span>
                   <meta itemProp="position" content="1" />
                 </li>
                 <li className="flex items-center gap-2 bg-primary/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Zap className="h-5 w-5 text-primary shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">Unlimited Bids</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Reverse Auctions 100% Free</span>
                   <meta itemProp="position" content="2" />
                 </li>
                 <li className="flex items-center gap-2 bg-warning/10 rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
@@ -338,7 +338,7 @@ export const EarlyAdopterBanner = () => {
                 </li>
                 <li className="flex items-center gap-2 bg-muted rounded-lg p-3" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                   <Sparkles className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" role="img" />
-                  <span className="text-sm font-medium text-foreground" itemProp="name">Priority Support</span>
+                  <span className="text-sm font-medium text-foreground" itemProp="name">Free CRM + GST Invoicing</span>
                   <meta itemProp="position" content="4" />
                 </li>
               </ul>
