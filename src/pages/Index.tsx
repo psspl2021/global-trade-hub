@@ -389,8 +389,6 @@ const Index = () => {
         </section>
 
 
-        {/* ===== QUOTE COMPARISON PREVIEW (decision view) ===== */}
-        <QuoteComparisonSection />
 
         {/* ===== BUYERS + SUPPLIERS ===== */}
         <section className="py-12 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
