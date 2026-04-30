@@ -566,10 +566,105 @@ const Buyer = () => {
           </div>
         </section>
 
-        {/* ===== SUPPLIER TRUST (homepage component) ===== */}
-        <Suspense fallback={<div className="py-20" />}>
-          <SupplierTrustSection />
-        </Suspense>
+        {/* ===== SUPPLIER MATCHING PREVIEW ===== */}
+        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-8 sm:mb-12">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  Matching logic
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  How suppliers are matched to your requirement
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Specifications are parsed automatically. Only relevant suppliers receive your RFQ.
+                </p>
+              </div>
+
+              <ol className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 relative">
+                {matchingFlow.map((m, i) => (
+                  <li
+                    key={m.title}
+                    className="relative bg-background border border-border rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                  >
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <span className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary text-[12px] font-mono font-semibold flex items-center justify-center">
+                        {i + 1}
+                      </span>
+                      {i < matchingFlow.length - 1 && (
+                        <ArrowRight className="hidden md:block h-3.5 w-3.5 text-muted-foreground absolute -right-3 top-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                    <div className="text-[14px] font-semibold text-foreground leading-snug mb-1">
+                      {m.title}
+                    </div>
+                    <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                      {m.desc}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="text-[13.5px] text-foreground mt-6 font-medium">
+                You don't search for suppliers — the right suppliers come to you.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== SUPPLIER VERIFICATION (upgraded) ===== */}
+        <section className="py-12 sm:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-8 sm:mb-12">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  Supplier verification
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  Verified suppliers — before they see your RFQ
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Suppliers are screened for business legitimacy and relevance before participation.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {verificationCards.map((v) => (
+                  <div
+                    key={v.title}
+                    className="bg-card border border-border rounded-xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-12px_hsl(38_88%_52%/0.25)] transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 flex items-center justify-center mb-3">
+                      <v.icon className="h-[18px] w-[18px] text-primary" strokeWidth={2} />
+                    </div>
+                    <div className="text-[14.5px] font-semibold text-foreground leading-snug mb-1">
+                      {v.title}
+                    </div>
+                    <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                      {v.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Participation quality strip */}
+              <div className="mt-8 flex items-start gap-4 p-5 rounded-xl bg-gold-soft/40 border border-gold/30">
+                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-card border border-gold/30 flex items-center justify-center">
+                  <Filter className="h-4 w-4 text-gold-foreground" strokeWidth={2} />
+                </div>
+                <div>
+                  <div className="text-[13.5px] font-semibold text-foreground mb-1">
+                    Supplier participation quality
+                  </div>
+                  <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                    Suppliers who consistently respond to RFQs and honour quotes are prioritised. Inactive or low-response suppliers are filtered out.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ===== WHAT WE ARE NOT — chips ===== */}
         <section className="py-12 sm:py-16 bg-card border-y border-border/60">
