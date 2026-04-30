@@ -265,7 +265,7 @@ export const EarlyAdopterBanner = () => {
             <div className="mb-6 bg-gradient-to-r from-destructive/10 via-warning/10 to-destructive/10 rounded-xl p-4 border border-warning/30">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Clock className="h-5 w-5 text-warning animate-pulse" aria-hidden="true" />
-                <span className="text-sm font-semibold text-foreground">Offer Ends March 31st, 2026</span>
+                <span className="text-sm font-semibold text-foreground">Offer Ends 15th August 2026</span>
               </div>
               <div 
                 className="flex justify-center gap-2 sm:gap-4" 
