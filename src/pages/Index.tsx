@@ -33,6 +33,8 @@ import {
 import { PageHeader } from '@/components/landing/PageHeader';
 import { HeroTrustBadges } from '@/components/landing/HeroTrustBadges';
 import { HeroVisual } from '@/components/landing/HeroVisual';
+import { SupplierTrustSection } from '@/components/landing/SupplierTrustSection';
+import { QuoteComparisonSection } from '@/components/landing/QuoteComparisonSection';
 import FloatingWhatsApp from '@/components/conversion/FloatingWhatsApp';
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from '@/lib/whatsapp';
 import { trackEvent } from '@/lib/analytics';
@@ -89,10 +91,9 @@ const Index = () => {
   }
 
   const steps = [
-    { icon: Send, title: 'Submit requirement', desc: 'Post in 30 seconds — text, voice or upload.' },
-    { icon: Bot, title: 'AI structures the RFQ', desc: 'Specs, quantities and terms cleaned automatically.' },
-    { icon: Users, title: 'Suppliers compete live', desc: 'Your vendors + our network bid in a sealed reverse auction.' },
-    { icon: Award, title: 'You select best price', desc: 'Award with one click. Full audit trail saved.' },
+    { icon: Send, title: 'Post your requirement', desc: 'Text, voice or upload — takes about 30 seconds.' },
+    { icon: Bot, title: 'AI matches relevant suppliers', desc: 'Verified suppliers in your category are invited automatically.' },
+    { icon: Award, title: 'Receive and compare quotes', desc: 'Every quote in one structured view — decide without follow-ups.' },
   ];
 
   const capabilities = [
