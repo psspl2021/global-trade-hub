@@ -215,7 +215,7 @@ const Index = () => {
                   className="text-[16px] sm:text-lg text-white/80 mb-3 max-w-xl mx-auto xl:mx-0 animate-fade-in leading-relaxed"
                   style={{ animationDelay: '120ms' }}
                 >
-                  Structured procurement with <strong className="text-gold">forward and reverse bidding</strong> — receive supplier quotes or run live reverse auctions, all in one place.
+                  Run <strong className="text-gold">reverse auctions</strong> or receive <strong className="text-gold">supplier bids</strong> — structured and comparable in one place.
                 </p>
 
                 <p
