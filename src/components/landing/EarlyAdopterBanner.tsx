@@ -255,7 +255,7 @@ export const EarlyAdopterBanner = () => {
                     className="text-sm text-muted-foreground mt-1"
                     itemProp="description"
                   >
-                    Reverse auctions are 100% free for everyone. Both forward and reverse share the same email rule: 2 free notifications/day, plus a one-time ₹500 pack of 200 emails (no expiry). Free CRM & GST invoice tools included.
+                    Unlimited bidding on forward auctions (1 year, first 100 suppliers). Reverse auctions are 100% free for everyone. <span className="italic">Bidding is not restricted — email notifications follow a separate, shared usage model.</span>
                   </p>
                 </div>
               </div>
