@@ -61,11 +61,16 @@ export const EarlyPartnerOffer = ({
 
             {/* Urgency Copy - Only show when showCountdown is true */}
             {showCountdown && (
-              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-3 px-4">
-                <Clock className="h-4 w-4" />
-                <span className="text-sm">
-                  Register by <span className="font-semibold text-primary">15th June 2026</span> to get 1 Year Premium Access free — limited slots remaining.
-                </span>
+              <div className="flex flex-col gap-2 text-muted-foreground mb-6 bg-muted/30 rounded-lg py-3 px-4">
+                <div className="flex items-center justify-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm">
+                    Register by <span className="font-semibold text-primary">15th August 2026</span> to get 1 Year Forward-Auction Premium Access free — limited slots remaining.
+                  </span>
+                </div>
+                <p className="text-xs text-center text-muted-foreground/90">
+                  Reverse auctions are <span className="font-semibold text-foreground">100% free</span> — no bid fees. Each supplier gets <span className="font-semibold text-foreground">2 free email notifications/day</span>; extra notifications via a one-time ₹500 pack of 200 emails (lifetime, until consumed).
+                </p>
               </div>
             )}
 
