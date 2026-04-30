@@ -248,14 +248,14 @@ export const EarlyAdopterBanner = () => {
                     className="text-2xl md:text-3xl font-bold text-foreground mt-1" 
                     itemProp="name"
                   >
-                    First 100 Partners Get <span className="text-warning">1 Year FREE</span> Premium!
+                    First 100 Partners — <span className="text-warning">1 Year FREE</span> Forward-Auction Premium
                   </h2>
-                  <p 
+                  <p
                     id="early-adopter-description"
-                    className="text-sm text-muted-foreground mt-1" 
+                    className="text-sm text-muted-foreground mt-1"
                     itemProp="description"
                   >
-                    Free CRM Software & GST Tax Invoice Generator included with premium subscription worth ₹24,950 — India's best B2B procurement platform for suppliers and logistics partners
+                    Reverse auctions are 100% free for everyone. Both forward and reverse share the same email rule: 2 free notifications/day, plus a one-time ₹500 pack of 200 emails (no expiry). Free CRM & GST invoice tools included.
                   </p>
                 </div>
               </div>
