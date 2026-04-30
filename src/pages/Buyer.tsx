@@ -169,15 +169,19 @@ const Buyer = () => {
             {...({ fetchpriority: "high" } as Record<string, string>)}
             decoding="async"
             loading="eager"
-            className="absolute inset-0 w-full h-full object-cover opacity-[0.18] saturate-110"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.55] saturate-125 contrast-110"
+            style={{
+              animation: "buyerHeroDrop 900ms cubic-bezier(0.22, 1, 0.36, 1) both",
+            }}
           />
-          {/* White wash so text stays crisp on light hero */}
+          <style>{`@keyframes buyerHeroDrop { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 0.55; } }`}</style>
+          {/* Light wash so text stays crisp while image stays visible */}
           <div
             aria-hidden
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(180deg, hsl(0 0% 100% / 0.82) 0%, hsl(0 0% 100% / 0.78) 55%, hsl(0 0% 100% / 0.9) 100%)",
+                "linear-gradient(180deg, hsl(0 0% 100% / 0.55) 0%, hsl(0 0% 100% / 0.45) 55%, hsl(0 0% 100% / 0.75) 100%)",
             }}
           />
           {/* Soft layered surfaces — gold + navy washes */}
