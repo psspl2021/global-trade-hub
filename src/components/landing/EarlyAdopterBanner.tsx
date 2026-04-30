@@ -369,11 +369,7 @@ export const EarlyAdopterBanner = () => {
             {/* Fine print with schema markup */}
             <footer className="mt-4">
               <p className="text-center text-xs text-muted-foreground">
-                <span itemProp="priceSpecification" itemScope itemType="https://schema.org/PriceSpecification">
-                  Premium subscription worth <span itemProp="price">₹24,950</span> — completely FREE for early adopters. 
-                  <meta itemProp="priceCurrency" content="INR" />
-                </span>
-                No credit card required.
+                Email rule (forward + reverse): <span className="font-semibold text-foreground">2 free emails/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed). No credit card required.
               </p>
               
               {/* Additional SEO text for crawlers */}
