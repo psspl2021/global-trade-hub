@@ -430,7 +430,9 @@ const Buyer = () => {
         </section>
 
         {/* ===== SUPPLIER TRUST (homepage component) ===== */}
-        <SupplierTrustSection />
+        <Suspense fallback={<div className="py-20" />}>
+          <SupplierTrustSection />
+        </Suspense>
 
         {/* ===== WHAT WE ARE NOT — chips ===== */}
         <section className="py-12 sm:py-16 bg-card border-y border-border/60">
