@@ -12,7 +12,7 @@ interface TimeLeft {
   seconds: number;
 }
 
-const OFFER_END_DATE = new Date('2026-03-31T23:59:59');
+const OFFER_END_DATE = new Date('2026-08-15T23:59:59');
 
 const calculateTimeLeft = (): TimeLeft => {
   const difference = OFFER_END_DATE.getTime() - new Date().getTime();
