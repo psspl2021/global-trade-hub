@@ -393,6 +393,7 @@ const Buyer = () => {
                     <thead className="bg-[hsl(var(--muted))]/50 border-b border-border">
                       <tr>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Supplier</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Auction Type</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Price</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Delivery</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Payment Terms</th>
@@ -411,6 +412,11 @@ const Buyer = () => {
                                 </span>
                               )}
                             </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10.5px] font-semibold text-primary uppercase tracking-wider">
+                              {q.auctionType}
+                            </span>
                           </td>
                           <td className="px-4 py-3.5 text-foreground">{q.price}</td>
                           <td className="px-4 py-3.5 text-muted-foreground">{q.delivery}</td>
