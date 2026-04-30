@@ -60,8 +60,8 @@ export const EarlyAdopterBanner = () => {
     const offerData = {
       "@context": "https://schema.org",
       "@type": "Offer",
-      "name": "Free CRM & Tax Invoice Generator - 1 Year FREE Premium",
-      "description": "First 100 suppliers and logistics partners get 1 year FREE premium subscription worth ₹24,950. Includes free CRM software, GST tax invoice generator, unlimited bids, early adopter badge, and priority support for B2B businesses in India.",
+      "name": "1 Year Free Forward-Auction Premium + Free CRM & Tax Invoice Generator",
+      "description": "First 100 verified suppliers and logistics partners get 1 Year FREE Forward-Auction Premium Access. Reverse auctions are 100% free for everyone. Includes free CRM software, GST tax invoice generator, early adopter badge, and priority support. Both forward and reverse auctions share the same email rule: 2 free notifications/day, with an optional one-time ₹500 pack of 200 emails (no expiry, until consumed).",
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
