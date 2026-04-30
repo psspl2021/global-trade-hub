@@ -389,9 +389,6 @@ const Index = () => {
         </section>
 
 
-        {/* ===== SUPPLIER TRUST ===== */}
-        <SupplierTrustSection />
-
         {/* ===== QUOTE COMPARISON PREVIEW (decision view) ===== */}
         <QuoteComparisonSection />
 
