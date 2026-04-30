@@ -167,7 +167,7 @@ const Seller = () => {
               </Button>
             </div>
             <p className="text-xs text-foreground/80 font-semibold mt-4 tracking-wide">
-              Verified RFQs • No lead selling • Demand-first onboarding
+              No lead selling. No subscription traps. Unlimited bidding — pay only for communication scale when needed.
             </p>
           </div>
         </div>
