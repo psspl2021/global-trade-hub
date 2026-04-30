@@ -327,8 +327,52 @@ const Buyer = () => {
         </section>
 
 
-        {/* ===== STRUCTURED QUOTE TABLE — decision view ===== */}
-        <section className="py-12 sm:py-20">
+        {/* ===== HOW PROCUREMENT WORKS — inline process strip (white) ===== */}
+        <section className="py-10 sm:py-12 border-y border-border/60 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-3xl mb-6 sm:mb-8">
+                <h2 className="text-[20px] sm:text-[28px] font-display font-bold tracking-tight text-foreground mb-2 leading-[1.2]">
+                  How procurement works — from requirement to quotes
+                </h2>
+                <p className="text-[13px] sm:text-[14.5px] text-muted-foreground leading-relaxed">
+                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
+                </p>
+              </div>
+
+              <ol className="flex flex-col lg:flex-row lg:items-stretch gap-3 lg:gap-2">
+                {procurementSteps.map((s, i) => (
+                  <li key={s.title} className="flex-1 flex items-start lg:items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10.5px] font-mono font-semibold text-primary tracking-wider">
+                          0{i + 1}
+                        </span>
+                        <s.icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+                      </div>
+                      <div className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug mb-0.5">
+                        {s.title}
+                      </div>
+                      <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                        {s.desc}
+                      </div>
+                    </div>
+                    {i < procurementSteps.length - 1 && (
+                      <ArrowRight className="hidden lg:block h-4 w-4 text-border shrink-0 self-center" />
+                    )}
+                  </li>
+                ))}
+              </ol>
+
+              <p className="text-[13.5px] sm:text-[14.5px] text-foreground mt-5 font-semibold">
+                You don't search for suppliers — the right suppliers come to you.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== STRUCTURED QUOTE TABLE — decision view (light grey for visual break) ===== */}
+        <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="max-w-3xl mb-8 sm:mb-10">
@@ -336,7 +380,7 @@ const Buyer = () => {
                   Decision view
                 </div>
                 <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  Compare supplier quotes clearly — not across calls and spreadsheets
+                  Compare supplier quotes clearly — in one structured view
                 </h2>
                 <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
                   Every quote lands in one structured view — price, delivery, terms and notes.
@@ -383,50 +427,6 @@ const Buyer = () => {
               </div>
               <p className="text-[11.5px] text-muted-foreground mt-3 italic">
                 Illustrative view. Actual values vary by category, supplier and market conditions.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== HOW PROCUREMENT WORKS — inline process strip ===== */}
-        <section className="py-10 sm:py-12 border-y border-border/60">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="max-w-3xl mb-6 sm:mb-8">
-                <h2 className="text-[20px] sm:text-[28px] font-display font-bold tracking-tight text-foreground mb-2 leading-[1.2]">
-                  How procurement works — from requirement to quotes
-                </h2>
-                <p className="text-[13px] sm:text-[14.5px] text-muted-foreground leading-relaxed">
-                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
-                </p>
-              </div>
-
-              <ol className="flex flex-col lg:flex-row lg:items-stretch gap-3 lg:gap-2">
-                {procurementSteps.map((s, i) => (
-                  <li key={s.title} className="flex-1 flex items-start lg:items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10.5px] font-mono font-semibold text-primary tracking-wider">
-                          0{i + 1}
-                        </span>
-                        <s.icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-                      </div>
-                      <div className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug mb-0.5">
-                        {s.title}
-                      </div>
-                      <div className="text-[12.5px] text-muted-foreground leading-relaxed">
-                        {s.desc}
-                      </div>
-                    </div>
-                    {i < procurementSteps.length - 1 && (
-                      <ArrowRight className="hidden lg:block h-4 w-4 text-border shrink-0 self-center" />
-                    )}
-                  </li>
-                ))}
-              </ol>
-
-              <p className="text-[13.5px] sm:text-[14.5px] text-foreground mt-5 font-semibold">
-                You don't search for suppliers — the right suppliers come to you.
               </p>
             </div>
           </div>
