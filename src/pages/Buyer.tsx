@@ -58,14 +58,14 @@ import {
 const procurementSteps = [
   { icon: Send, title: "Submit requirement", desc: "Text, file or voice — no fixed format" },
   { icon: Bot, title: "AI structures RFQ", desc: "Extracts quantities, specs, delivery and terms" },
-  { icon: Filter, title: "Match suppliers", desc: "Filtered by category, capability and region" },
+  { icon: Filter, title: "Suppliers submit bids (forward auction)", desc: "Matched by category, capability and region" },
   { icon: ClipboardCheck, title: "Compare quotes", desc: "Price, delivery and terms in one view" },
 ];
 
 const quoteRows = [
-  { supplier: "Supplier A", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
-  { supplier: "Supplier B", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
-  { supplier: "Supplier C", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
+  { supplier: "Supplier A", auctionType: "Forward Auction", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
+  { supplier: "Supplier B", auctionType: "Forward Auction", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
+  { supplier: "Supplier C", auctionType: "Forward Auction", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
 ];
 
 const verificationCards = [
@@ -336,7 +336,7 @@ const Buyer = () => {
                   How procurement works — from requirement to quotes
                 </h2>
                 <p className="text-[13px] sm:text-[14.5px] text-muted-foreground leading-relaxed">
-                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
+                  Post once. AI structures it. Suppliers submit structured bids (forward auction). You compare in one place.
                 </p>
               </div>
 
