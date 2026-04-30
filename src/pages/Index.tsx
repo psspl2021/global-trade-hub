@@ -394,11 +394,8 @@ const Index = () => {
                   Two ways to procure
                 </div>
                 <h2 className="text-[22px] sm:text-[30px] font-display font-bold tracking-tight text-foreground leading-[1.15]">
-                  One platform. Two bidding modes.
+                  Two Ways to Procure
                 </h2>
-                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed mt-3 max-w-2xl mx-auto">
-                  Choose the right mode for the right requirement — both run on the same structured engine.
-                </p>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
@@ -409,15 +406,9 @@ const Index = () => {
                       Forward Auction
                     </span>
                   </div>
-                  <div className="text-[16px] sm:text-[18px] font-display font-semibold text-foreground mb-1.5 leading-snug">
-                    Suppliers submit structured quotes
-                  </div>
-                  <p className="text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
-                    You post a requirement once. Matched suppliers respond with structured bids — price, delivery and terms — that you compare side by side.
+                  <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed">
+                    Suppliers submit structured bids.
                   </p>
-                  <div className="text-[12px] text-muted-foreground/80 mt-3">
-                    Best for: new or custom requirements.
-                  </div>
                 </div>
 
                 <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
@@ -427,17 +418,15 @@ const Index = () => {
                       Reverse Auction
                     </span>
                   </div>
-                  <div className="text-[16px] sm:text-[18px] font-display font-semibold text-foreground mb-1.5 leading-snug">
-                    Suppliers compete by lowering price
-                  </div>
-                  <p className="text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
-                    Invited suppliers bid live in a time-boxed sealed auction. Prices fall as they compete — you watch every bid in real time and award when ready.
+                  <p className="text-[14px] sm:text-[15px] text-foreground leading-relaxed">
+                    Suppliers compete by lowering price.
                   </p>
-                  <div className="text-[12px] text-muted-foreground/80 mt-3">
-                    Best for: repeat or price-driven procurement.
-                  </div>
                 </div>
               </div>
+
+              <p className="text-center text-[12px] sm:text-[12.5px] text-muted-foreground/80 mt-5">
+                Forward: new requirements · Reverse: price-driven buys
+              </p>
             </div>
           </div>
         </section>
