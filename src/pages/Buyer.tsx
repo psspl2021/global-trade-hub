@@ -8,16 +8,27 @@ import {
 } from "@/components/ui/collapsible";
 import { PostRFQModal } from "@/components/PostRFQModal";
 import { PageHeader } from "@/components/landing/PageHeader";
-import { QuoteComparisonSection } from "@/components/landing/QuoteComparisonSection";
-import { SupplierTrustSection } from "@/components/landing/SupplierTrustSection";
-import { GlobalProcurementCorridors } from "@/components/GlobalProcurementCorridors";
-import { StickySignupBanner } from "@/components/StickySignupBanner";
-import { AILinkingSection } from "@/components/seo";
 import { useSEO, injectStructuredData, getBreadcrumbSchema, getFAQSchema } from "@/hooks/useSEO";
 import { buildWhatsAppLink, WHATSAPP_DEFAULT_MESSAGE, WHATSAPP_CONCIERGE_MESSAGE } from "@/lib/whatsapp";
 import { trackEvent } from "@/lib/analytics";
 import heroBgBuyer from "@/assets/hero-bg-buyer.jpg";
 
+// Lazy below-the-fold sections so initial paint isn't blocked
+const QuoteComparisonSection = lazy(() =>
+  import("@/components/landing/QuoteComparisonSection").then((m) => ({ default: m.QuoteComparisonSection })),
+);
+const SupplierTrustSection = lazy(() =>
+  import("@/components/landing/SupplierTrustSection").then((m) => ({ default: m.SupplierTrustSection })),
+);
+const GlobalProcurementCorridors = lazy(() =>
+  import("@/components/GlobalProcurementCorridors").then((m) => ({ default: m.GlobalProcurementCorridors })),
+);
+const AILinkingSection = lazy(() =>
+  import("@/components/seo").then((m) => ({ default: m.AILinkingSection })),
+);
+const StickySignupBanner = lazy(() =>
+  import("@/components/StickySignupBanner").then((m) => ({ default: m.StickySignupBanner })),
+);
 const ExitIntentPopup = lazy(() =>
   import("@/components/landing/ExitIntentPopup").then((m) => ({ default: m.ExitIntentPopup })),
 );
