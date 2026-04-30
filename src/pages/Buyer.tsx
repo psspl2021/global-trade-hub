@@ -351,10 +351,109 @@ const Buyer = () => {
           </div>
         </section>
 
-        {/* ===== DECISION VIEW (white) — moved high for trust ===== */}
-        <Suspense fallback={<div className="py-20" />}>
-          <QuoteComparisonSection />
-        </Suspense>
+        {/* ===== RFQ INPUT FLEXIBILITY ===== */}
+        <section className="py-12 sm:py-20 bg-card border-y border-border/60">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-2xl mb-8 sm:mb-12">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  Input flexibility
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  Post requirement your way
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Share your requirement in the format you already use. No rigid forms.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                {rfqInputs.map((r) => (
+                  <div
+                    key={r.title}
+                    className="bg-background border border-border rounded-xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-12px_hsl(38_88%_52%/0.25)] transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 flex items-center justify-center mb-3">
+                      <r.icon className="h-[18px] w-[18px] text-primary" strokeWidth={2} />
+                    </div>
+                    <div className="text-[14.5px] font-semibold text-foreground leading-snug mb-1">
+                      {r.title}
+                    </div>
+                    <div className="text-[13px] text-muted-foreground leading-relaxed">
+                      {r.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-gold-foreground" />
+                AI converts your input into a structured RFQ automatically.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== STRUCTURED QUOTE TABLE — decision interface ===== */}
+        <section className="py-12 sm:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="max-w-3xl mb-8 sm:mb-10">
+                <div className="text-[10.5px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.16em] mb-2.5">
+                  Decision interface
+                </div>
+                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
+                  Compare supplier quotes clearly — not across calls and spreadsheets
+                </h2>
+                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
+                  Every quote lands in one structured view — price, delivery, terms and notes.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-[13.5px]">
+                    <thead className="bg-[hsl(var(--muted))]/50 border-b border-border">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Supplier</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Price</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Delivery</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Payment Terms</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {quoteRows.map((q) => (
+                        <tr key={q.supplier} className={q.best ? "bg-gold-soft/30" : "bg-card"}>
+                          <td className="px-4 py-3.5 font-medium text-foreground">
+                            <div className="flex items-center gap-2">
+                              {q.supplier}
+                              {q.best && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-soft border border-gold/30 text-[10.5px] font-semibold text-gold-foreground">
+                                  <Star className="h-3 w-3" /> Best fit
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5 text-foreground">{q.price}</td>
+                          <td className="px-4 py-3.5 text-muted-foreground">{q.delivery}</td>
+                          <td className="px-4 py-3.5 text-muted-foreground">{q.terms}</td>
+                          <td className="px-4 py-3.5 text-muted-foreground">{q.notes}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-4 py-3 bg-[hsl(var(--muted))]/30 border-t border-border text-[12.5px] text-muted-foreground">
+                  All quotes visible in one place. No follow-ups. No fragmented conversations.
+                </div>
+              </div>
+              <p className="text-[11.5px] text-muted-foreground mt-3 italic">
+                Illustrative view. Actual values vary by category, supplier and market conditions.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* ===== WHO THIS IS FOR — light grey band ===== */}
         <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
