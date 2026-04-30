@@ -384,10 +384,6 @@ const Buyer = () => {
           </div>
         </section>
 
-
-          </div>
-        </section>
-
         {/* ===== STRUCTURED QUOTE TABLE — decision view ===== */}
         <section className="py-12 sm:py-20">
           <div className="container mx-auto px-4">
