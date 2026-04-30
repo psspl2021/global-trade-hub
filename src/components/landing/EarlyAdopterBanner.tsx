@@ -208,8 +208,8 @@ export const EarlyAdopterBanner = () => {
       <meta itemProp="price" content="0" />
       <meta itemProp="priceCurrency" content="INR" />
       <meta itemProp="availability" content="https://schema.org/LimitedAvailability" />
-      <meta itemProp="validFrom" content="2024-01-01" />
-      <meta itemProp="validThrough" content="2026-03-31" />
+      <meta itemProp="validFrom" content="2026-01-01" />
+      <meta itemProp="validThrough" content="2026-08-15" />
       <link itemProp="url" href="https://procuresaathi.com/#early-adopter-offer" />
       
       {/* Animated gradient background */}
