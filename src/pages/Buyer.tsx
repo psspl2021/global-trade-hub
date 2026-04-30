@@ -38,10 +38,18 @@ const buyerProfiles = [
   { text: "Businesses needing price transparency", icon: Scale },
 ];
 
-// 4-Step AI Flow
+// 5-Step AI Flow
 const howAIHelps = [
   {
     step: 1,
+    title: "AI Detects Demand",
+    description: "AI surfaces recurring requirements, consumption patterns and upcoming sourcing needs—so nothing slips through.",
+    icon: Sparkles,
+    iconBg: "bg-gold/10",
+    iconColor: "text-gold",
+  },
+  {
+    step: 2,
     title: "Buyer Posts Requirement",
     description: "Submit your sourcing need in plain language. AI understands context and intent.",
     icon: FileText,
@@ -49,7 +57,7 @@ const howAIHelps = [
     iconColor: "text-primary",
   },
   {
-    step: 2,
+    step: 3,
     title: "AI Structures RFQ & Filters Suppliers",
     description: "AI formats your requirement professionally and identifies matching verified suppliers.",
     icon: Brain,
@@ -57,7 +65,7 @@ const howAIHelps = [
     iconColor: "text-amber-600",
   },
   {
-    step: 3,
+    step: 4,
     title: "Verified Suppliers Submit Sealed Bids",
     description: "Pre-verified suppliers compete through sealed bidding—transparent and fair.",
     icon: Users,
@@ -65,7 +73,7 @@ const howAIHelps = [
     iconColor: "text-green-600",
   },
   {
-    step: 4,
+    step: 5,
     title: "Single Contract, Managed Fulfilment",
     description: "Deal with ProcureSaathi as your counterparty. One contract, one price, end-to-end delivery.",
     icon: Handshake,
