@@ -369,7 +369,8 @@ export const EarlyAdopterBanner = () => {
             {/* Fine print with schema markup */}
             <footer className="mt-4">
               <p className="text-center text-xs text-muted-foreground">
-                Email rule (forward + reverse): <span className="font-semibold text-foreground">2 free emails/day</span>; extra notifications via a one-time <span className="font-semibold text-foreground">₹500 pack = 200 emails</span> (no expiry, until consumed). No credit card required.
+                <span className="font-semibold text-foreground">Unlimited forward auction bids (1 year) • Reverse auctions free.</span><br />
+                Notifications (shared, both auction types): 2 emails/day included • ₹500 = 200 emails (no expiry). No credit card required.
               </p>
               
               {/* Additional SEO text for crawlers */}
