@@ -65,8 +65,8 @@ export const EarlyAdopterBanner = () => {
       "price": "0",
       "priceCurrency": "INR",
       "availability": "https://schema.org/LimitedAvailability",
-      "validFrom": "2024-01-01",
-      "validThrough": "2025-12-31",
+      "validFrom": "2026-01-01",
+      "validThrough": "2026-08-15",
       "eligibleRegion": {
         "@type": "Country",
         "name": "India"
