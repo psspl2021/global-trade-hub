@@ -14,12 +14,6 @@ import { trackEvent } from "@/lib/analytics";
 import heroBgBuyer from "@/assets/hero-bg-buyer.jpg";
 
 // Lazy below-the-fold sections so initial paint isn't blocked
-const QuoteComparisonSection = lazy(() =>
-  import("@/components/landing/QuoteComparisonSection").then((m) => ({ default: m.QuoteComparisonSection })),
-);
-const SupplierTrustSection = lazy(() =>
-  import("@/components/landing/SupplierTrustSection").then((m) => ({ default: m.SupplierTrustSection })),
-);
 const GlobalProcurementCorridors = lazy(() =>
   import("@/components/GlobalProcurementCorridors").then((m) => ({ default: m.GlobalProcurementCorridors })),
 );
