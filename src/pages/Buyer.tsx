@@ -58,14 +58,14 @@ import {
 const procurementSteps = [
   { icon: Send, title: "Submit requirement", desc: "Text, file or voice — no fixed format" },
   { icon: Bot, title: "AI structures RFQ", desc: "Extracts quantities, specs, delivery and terms" },
-  { icon: Filter, title: "Match suppliers", desc: "Filtered by category, capability and region" },
+  { icon: Filter, title: "Suppliers submit bids (forward auction)", desc: "Matched by category, capability and region" },
   { icon: ClipboardCheck, title: "Compare quotes", desc: "Price, delivery and terms in one view" },
 ];
 
 const quoteRows = [
-  { supplier: "Supplier A", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
-  { supplier: "Supplier B", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
-  { supplier: "Supplier C", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
+  { supplier: "Supplier A", auctionType: "Forward Auction", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
+  { supplier: "Supplier B", auctionType: "Forward Auction", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
+  { supplier: "Supplier C", auctionType: "Forward Auction", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
 ];
 
 const verificationCards = [
@@ -336,7 +336,7 @@ const Buyer = () => {
                   How procurement works — from requirement to quotes
                 </h2>
                 <p className="text-[13px] sm:text-[14.5px] text-muted-foreground leading-relaxed">
-                  Post once. AI structures it. Relevant suppliers respond. You compare in one place.
+                  Post once. AI structures it. Suppliers submit structured bids (forward auction). You compare in one place.
                 </p>
               </div>
 
@@ -393,6 +393,7 @@ const Buyer = () => {
                     <thead className="bg-[hsl(var(--muted))]/50 border-b border-border">
                       <tr>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Supplier</th>
+                        <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Auction Type</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Price</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Delivery</th>
                         <th className="px-4 py-3 font-semibold text-foreground text-[12px] uppercase tracking-wider">Payment Terms</th>
@@ -411,6 +412,11 @@ const Buyer = () => {
                                 </span>
                               )}
                             </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10.5px] font-semibold text-primary uppercase tracking-wider">
+                              {q.auctionType}
+                            </span>
                           </td>
                           <td className="px-4 py-3.5 text-foreground">{q.price}</td>
                           <td className="px-4 py-3.5 text-muted-foreground">{q.delivery}</td>
