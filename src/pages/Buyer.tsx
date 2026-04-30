@@ -314,7 +314,9 @@ const Buyer = () => {
         </section>
 
         {/* ===== DECISION VIEW (white) — moved high for trust ===== */}
-        <QuoteComparisonSection />
+        <Suspense fallback={<div className="py-20" />}>
+          <QuoteComparisonSection />
+        </Suspense>
 
         {/* ===== WHO THIS IS FOR — light grey band ===== */}
         <section className="py-12 sm:py-20 bg-[hsl(var(--muted))]/40 border-y border-border/60">
