@@ -36,9 +36,9 @@ export const EarlyPartnerOffer = ({
               </h2>
               
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                First 100 verified suppliers may receive{" "}
-                <span className="text-primary font-semibold">1 Year Premium Access</span>{" "}
-                — unlimited bids, priority listing, and featured visibility.
+                First 100 verified suppliers receive{" "}
+                <span className="text-primary font-semibold">1 Year Free Premium Access on Forward Auctions</span>{" "}
+                — priority listing and featured visibility. Reverse auctions stay free for everyone.
               </p>
             </div>
 
