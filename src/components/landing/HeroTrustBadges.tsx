@@ -13,11 +13,11 @@ export const HeroTrustBadges = () => {
       {badges.map((badge, i) => (
         <div 
           key={badge.text}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/40 hover:bg-card/80 hover:border-primary/30 transition-all duration-300 cursor-default group animate-slide-up"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 backdrop-blur-sm border border-white/20 shadow-lg hover:bg-white hover:border-gold/40 hover:shadow-gold transition-all duration-300 cursor-default group animate-slide-up"
           style={{ animationDelay: `${250 + i * 80}ms` }}
         >
-          <badge.icon className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
-          <span className="text-xs sm:text-sm text-muted-foreground font-medium group-hover:text-foreground transition-colors">
+          <badge.icon className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+          <span className="text-xs sm:text-sm text-foreground font-semibold">
             {badge.text}
           </span>
         </div>
