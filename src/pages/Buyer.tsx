@@ -150,13 +150,32 @@ const Buyer = () => {
       <main>
         {/* ===== HERO — light, premium, buyer-friendly (NOT homepage's dark cinematic) ===== */}
         <section className="relative pt-14 pb-16 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 overflow-hidden bg-background">
-          {/* Soft layered surfaces — gold + navy washes on white */}
+          {/* Industrial photo — soft base layer */}
+          <img
+            src={heroBgBuyer}
+            alt=""
+            role="presentation"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.18] saturate-110"
+          />
+          {/* White wash so text stays crisp on light hero */}
           <div
             aria-hidden
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(900px 480px at 88% -10%, hsl(38 88% 52% / 0.10), transparent 60%), radial-gradient(720px 420px at -5% 110%, hsl(222 65% 28% / 0.08), transparent 60%)",
+                "linear-gradient(180deg, hsl(0 0% 100% / 0.82) 0%, hsl(0 0% 100% / 0.78) 55%, hsl(0 0% 100% / 0.9) 100%)",
+            }}
+          />
+          {/* Soft layered surfaces — gold + navy washes */}
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(900px 480px at 88% -10%, hsl(38 88% 52% / 0.12), transparent 60%), radial-gradient(720px 420px at -5% 110%, hsl(222 65% 28% / 0.10), transparent 60%)",
             }}
           />
           {/* Subtle dotted texture */}
