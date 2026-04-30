@@ -12,10 +12,7 @@ import {
   ArrowRight,
   ChevronDown,
   MessageSquare,
-  Send,
-  Bot,
   Users,
-  Award,
   Gavel,
   ShieldCheck,
   ClipboardList,
@@ -89,12 +86,6 @@ const Index = () => {
       </div>
     );
   }
-
-  const steps = [
-    { icon: Send, title: 'Post your requirement', desc: 'Text, voice or upload — takes about 30 seconds.' },
-    { icon: Bot, title: 'AI matches relevant suppliers', desc: 'Verified suppliers in your category are invited automatically.' },
-    { icon: Award, title: 'Receive and compare quotes', desc: 'Every quote in one structured view — decide without follow-ups.' },
-  ];
 
   const capabilities = [
     { icon: Gavel, title: 'Reverse auctions', desc: 'Live, sealed, time-boxed.' },
@@ -403,79 +394,6 @@ const Index = () => {
 
         {/* ===== QUOTE COMPARISON PREVIEW (decision view) ===== */}
         <QuoteComparisonSection />
-
-        {/* ===== HOW IT WORKS ===== */}
-        <section className="py-12 sm:py-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-16">
-              <div className="lg:col-span-4 max-w-2xl">
-                <div className="text-[10px] sm:text-[11px] font-semibold text-primary uppercase tracking-[0.14em] mb-2 sm:mb-3">
-                  How it works
-                </div>
-                <h2 className="text-[22px] sm:text-[32px] font-display font-bold tracking-tight text-foreground mb-3 sm:mb-4 leading-[1.15]">
-                  From requirement to quotes — in three steps
-                </h2>
-                <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                  Post once. Suppliers respond. You compare in one place.
-                </p>
-              </div>
-
-              <div className="lg:col-span-8">
-                {/* Mobile: compact 2x2 card grid */}
-                <ol className="grid grid-cols-2 gap-2.5 lg:hidden">
-                  {steps.map((s, i) => (
-                    <li
-                      key={s.title}
-                      className="bg-card border border-border rounded-xl p-3.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 rounded-md bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
-                          <s.icon className="h-[14px] w-[14px]" strokeWidth={2} />
-                        </div>
-                        <span className="text-[10px] font-mono font-semibold text-muted-foreground tracking-wider">
-                          0{i + 1}
-                        </span>
-                      </div>
-                      <h3 className="text-[12.5px] font-semibold text-foreground leading-snug mb-1">
-                        {s.title}
-                      </h3>
-                      <p className="text-[11.5px] text-muted-foreground leading-snug">
-                        {s.desc}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-
-                {/* Desktop: vertical numbered list */}
-                <ol className="relative hidden lg:block">
-                  {steps.map((s, i) => (
-                    <li
-                      key={s.title}
-                      className={`flex items-start gap-5 py-5 ${i < steps.length - 1 ? 'border-b border-border' : ''}`}
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/8 border border-primary/15 text-primary flex items-center justify-center">
-                        <s.icon className="h-[18px] w-[18px]" strokeWidth={2} />
-                      </div>
-                      <div className="flex-1 pt-0.5">
-                        <div className="flex items-baseline gap-3 mb-1">
-                          <span className="text-[11px] font-mono font-semibold text-muted-foreground tracking-wider">
-                            0{i + 1}
-                          </span>
-                          <h3 className="text-[15.5px] font-semibold text-foreground">
-                            {s.title}
-                          </h3>
-                        </div>
-                        <p className="text-[14px] text-muted-foreground leading-relaxed">
-                          {s.desc}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* ===== BUYERS + SUPPLIERS ===== */}
         <section className="py-12 sm:py-24 bg-[hsl(var(--muted))]/40 border-y border-border/60">
