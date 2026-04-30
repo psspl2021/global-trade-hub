@@ -46,12 +46,12 @@ const Index = () => {
 
   useSEO({
     title:
-      'ProcureSaathi | Structured Procurement with Forward & Reverse Bidding',
+      'ProcureSaathi | AI Procurement with Forward & Reverse Bidding',
     description:
-      'Structured procurement platform with forward and reverse bidding. Run reverse auctions or receive structured supplier quotes — compare and award in one place.',
+      'AI-powered procurement platform with forward and reverse bidding. Compare structured supplier quotes or run live auctions — award in one place.',
     canonical: 'https://www.procuresaathi.com/',
     keywords:
-      'AI procurement platform, forward auction, reverse auction software, B2B procurement India, RFQ software, sealed bidding, supplier competition, procurement cost savings',
+      'AI procurement platform, forward and reverse auction, B2B procurement India, RFQ software, sealed bidding',
     ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
     ogType: 'website',
     twitterCard: 'summary_large_image',
@@ -67,7 +67,7 @@ const Index = () => {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       description:
-        'Structured B2B procurement platform with forward and reverse bidding, sealed RFQs and an audit-ready price trail.',
+        'AI-powered B2B procurement platform with forward and reverse bidding, sealed RFQs and an audit-ready price trail.',
       url: 'https://www.procuresaathi.com',
       offers: {
         '@type': 'Offer',
@@ -97,11 +97,7 @@ const Index = () => {
   const faqs = [
     {
       q: 'What is ProcureSaathi?',
-      a: 'A structured B2B procurement platform with forward and reverse bidding. Receive structured supplier quotes (forward auction) or run live reverse auctions across your existing vendors and a verified supplier network — and compare everything in one place.',
-    },
-    {
-      q: 'What is the difference between forward and reverse auctions?',
-      a: 'Forward auction: you post a requirement and suppliers submit structured quotes you can compare side by side. Reverse auction: invited suppliers compete live, lowering price in a time-boxed sealed bid. Same platform, two ways to procure.',
+      a: 'An AI-powered B2B procurement platform with forward and reverse bidding. Post a requirement, receive structured supplier quotes or run live auctions across your existing vendors and a verified supplier network — and compare everything in one place.',
     },
     {
       q: 'Is it free for buyers?',
@@ -420,7 +416,7 @@ const Index = () => {
                     You post a requirement once. Matched suppliers respond with structured bids — price, delivery and terms — that you compare side by side.
                   </p>
                   <div className="text-[12px] text-muted-foreground/80 mt-3">
-                    Best for: new requirements, custom specs, multi-line RFQs.
+                    Best for: new or custom requirements.
                   </div>
                 </div>
 
@@ -438,7 +434,7 @@ const Index = () => {
                     Invited suppliers bid live in a time-boxed sealed auction. Prices fall as they compete — you watch every bid in real time and award when ready.
                   </p>
                   <div className="text-[12px] text-muted-foreground/80 mt-3">
-                    Best for: commodities, repeat buys, known supplier pool.
+                    Best for: repeat or price-driven procurement.
                   </div>
                 </div>
               </div>

@@ -58,14 +58,14 @@ import {
 const procurementSteps = [
   { icon: Send, title: "Submit requirement", desc: "Text, file or voice — no fixed format" },
   { icon: Bot, title: "AI structures RFQ", desc: "Extracts quantities, specs, delivery and terms" },
-  { icon: Filter, title: "Suppliers submit bids (forward auction)", desc: "Matched by category, capability and region" },
+  { icon: Filter, title: "Suppliers submit bids", label: "Forward auction", desc: "Matched by category, capability and region" },
   { icon: ClipboardCheck, title: "Compare quotes", desc: "Price, delivery and terms in one view" },
 ];
 
 const quoteRows = [
-  { supplier: "Supplier A", auctionType: "Forward Auction", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
-  { supplier: "Supplier B", auctionType: "Forward Auction", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
-  { supplier: "Supplier C", auctionType: "Forward Auction", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
+  { supplier: "Supplier A", auctionType: "Forward", price: "Quote 1", delivery: "7–10 days", terms: "Net 30", notes: "Direct manufacturer", best: false },
+  { supplier: "Supplier B", auctionType: "Reverse", price: "Quote 2 — lowest", delivery: "5–7 days", terms: "Net 30", notes: "Best fit on price + delivery", best: true },
+  { supplier: "Supplier C", auctionType: "Forward", price: "Quote 3", delivery: "10–14 days", terms: "Advance + balance", notes: "Authorised distributor", best: false },
 ];
 
 const verificationCards = [
@@ -336,7 +336,7 @@ const Buyer = () => {
                   How procurement works — from requirement to quotes
                 </h2>
                 <p className="text-[13px] sm:text-[14.5px] text-muted-foreground leading-relaxed">
-                  Post once. AI structures it. Suppliers submit structured bids (forward auction). You compare in one place.
+                  Post once. AI structures it. Suppliers submit structured bids. You compare in one place.
                 </p>
               </div>
 
@@ -350,8 +350,15 @@ const Buyer = () => {
                         </span>
                         <s.icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
                       </div>
-                      <div className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug mb-0.5">
-                        {s.title}
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span className="text-[13.5px] sm:text-[14px] font-semibold text-foreground leading-snug">
+                          {s.title}
+                        </span>
+                        {(s as any).label && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-[9.5px] font-semibold text-primary uppercase tracking-wider">
+                            {(s as any).label}
+                          </span>
+                        )}
                       </div>
                       <div className="text-[12.5px] text-muted-foreground leading-relaxed">
                         {s.desc}
@@ -414,9 +421,15 @@ const Buyer = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3.5">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10.5px] font-semibold text-primary uppercase tracking-wider">
-                              {q.auctionType}
-                            </span>
+                            {q.auctionType === "Reverse" ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-soft border border-gold/30 text-[10.5px] font-semibold text-gold-foreground uppercase tracking-wider">
+                                <span className="h-1.5 w-1.5 rounded-full bg-gold" /> Reverse
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10.5px] font-semibold text-primary uppercase tracking-wider">
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Forward
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3.5 text-foreground">{q.price}</td>
                           <td className="px-4 py-3.5 text-muted-foreground">{q.delivery}</td>
