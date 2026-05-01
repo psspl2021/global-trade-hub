@@ -158,24 +158,30 @@ const SetupReverseAuction = () => {
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
-  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
+  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent.
+  // Strategy: SHOW conversion preview first, then reset fields ~1.5s later so the user can
+  // actually read the equivalence before values disappear (avoids "flash confusion").
   const handleUnitOverrideChange = (u: string) => {
-    const prevUnit = unitOverride || ''; // we may not know inferred here; capture before override
+    const prevUnit = unitOverride || '';
     const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
-      // Build conversion preview (ton↔kg only — only deterministic conversion we support)
+      let previewShown = false;
       if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
         const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
+          previewShown = true;
           window.setTimeout(() => setUnitConvertPreview(null), 5000);
         }
       }
-      setStartingPrice('');
-      setMinDecrement('');
-      setUnitSwitchNote(true);
-      window.setTimeout(() => setUnitSwitchNote(false), 4000);
+      const resetDelay = previewShown ? 1500 : 0;
+      window.setTimeout(() => {
+        setStartingPrice('');
+        setMinDecrement('');
+        setUnitSwitchNote(true);
+        window.setTimeout(() => setUnitSwitchNote(false), 4000);
+      }, resetDelay);
     }
   };
 
