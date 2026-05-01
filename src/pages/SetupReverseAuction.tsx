@@ -1239,7 +1239,7 @@ function StepRules({
                 ) : truncationWarning === 'starting' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
+                    Value reduced significantly — previous value restored. Clear the field to enter a new value.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{startHelper}</p>
@@ -1276,7 +1276,7 @@ function StepRules({
                 ) : truncationWarning === 'decrement' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
+                    Value reduced significantly — previous value restored. Clear the field to enter a new value.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{decHelper}</p>
