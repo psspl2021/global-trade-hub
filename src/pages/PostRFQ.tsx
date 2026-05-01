@@ -40,6 +40,17 @@ interface GeneratedRFQ {
 const PostRFQ = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // URL mode rule: /post-rfq?mode=reverse → redirect to reverse bridge
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'reverse') {
+      navigate('/setup-reverse-auction', { replace: true });
+    } else {
+      try { localStorage.setItem('lastMode', 'forward'); } catch {}
+    }
+  }, [navigate]);
+
   const [description, setDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedRFQ, setGeneratedRFQ] = useState<GeneratedRFQ | null>(null);
