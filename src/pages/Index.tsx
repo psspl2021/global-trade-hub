@@ -242,7 +242,7 @@ const Index = () => {
                     className="h-12 px-7 text-[15px] font-semibold shadow-[0_10px_40px_-10px_hsl(38_88%_52%/0.6)] hover:shadow-[0_15px_50px_-10px_hsl(38_88%_52%/0.8)] bg-gradient-to-r from-gold to-[hsl(32_92%_48%)] hover:opacity-95 text-[hsl(222_75%_10%)] transition-all w-full sm:w-auto border-0"
                     onClick={() => {
                       trackEvent('cta_click', { source: 'hero_primary', label: 'get_better_price_now' });
-                      navigate('/post-rfq');
+                      navigate('/choose-procurement-mode');
                     }}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
@@ -619,7 +619,7 @@ const Index = () => {
                     className="h-12 px-7 text-[15px] font-semibold bg-gold hover:bg-gold/90 text-gold-foreground shadow-gold border-0"
                     onClick={() => {
                       trackEvent('cta_click', { source: 'final_cta', label: 'get_better_price_now' });
-                      navigate('/post-rfq');
+                      navigate('/choose-procurement-mode');
                     }}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
@@ -674,7 +674,7 @@ const Index = () => {
           className="w-full h-11 font-semibold"
           onClick={() => {
             trackEvent('cta_click', { source: 'mobile_sticky', label: 'get_better_price_now' });
-            navigate('/post-rfq');
+            navigate('/choose-procurement-mode');
           }}
         >
           <Sparkles className="h-4 w-4 mr-2" />
