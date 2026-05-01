@@ -645,13 +645,18 @@ function StepRules({
 
         {/* Soft unit affordance when inferred + alternates exist */}
         {isPerUnit && unitHint && (hasAlternates || unitOverride) && (
-          <div className="flex items-center justify-between gap-2 text-xs">
-            <span className="text-muted-foreground">
-              Pricing unit: <span className="font-semibold text-foreground">{unitWord}</span>
-              {inferenceConfidence !== 'high' && !unitOverride && (
-                <span className="ml-1 text-[10px] text-muted-foreground">(suggested)</span>
-              )}
-            </span>
+          <div className="flex items-center justify-between gap-2 text-xs flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">
+                Pricing unit: <span className="font-semibold text-foreground">{unitWord}</span>
+                {inferenceConfidence !== 'high' && !unitOverride && (
+                  <span className="ml-1 text-[10px] text-muted-foreground">(suggested)</span>
+                )}
+              </span>
+              <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                Locked across all bids
+              </Badge>
+            </div>
             {hasAlternates && (
               <div className="flex gap-1">
                 {allowedUnits.map((u) => (
