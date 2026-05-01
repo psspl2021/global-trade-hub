@@ -171,7 +171,11 @@ const SetupReverseAuction = () => {
   // SNAPSHOT RULE: if the field is empty, snapshot is 0 — guarantees the next
   // edit is treated as fresh input (explicit override path for the user).
   const handleStartingPriceFocus = () => {
-    if (!startingPrice) {
+    // Strict equality: only an explicitly cleared field resets the snapshot.
+    // Falsy-but-non-empty states (shouldn't happen for strings, but guards
+    // against future refactors using number/null) keep the prior snapshot so
+    // truncation protection isn't unintentionally disabled.
+    if (startingPrice === '') {
       startingPriceFocusSnapshotRef.current = 0;
       return;
     }
