@@ -946,6 +946,7 @@ function StepRules({
   suggestedDecrement: number;
   applySuggestedDecrement: () => void;
   effectiveError: 'unit' | 'starting' | 'decrement' | 'duration' | null;
+  truncationWarning: 'starting' | 'decrement' | null;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
