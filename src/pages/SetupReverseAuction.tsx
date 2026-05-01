@@ -248,6 +248,7 @@ const SetupReverseAuction = () => {
               pricingMethod={pricingMethod}
               startingPrice={startingPrice}
               minDecrement={minDecrement}
+              unitHint={unitHint}
             />
           )}
 
