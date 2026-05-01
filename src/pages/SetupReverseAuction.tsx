@@ -105,10 +105,12 @@ const SetupReverseAuction = () => {
   const canNextStep1 = requirement.trim().length >= 6;
   const canNextStep2 = !!duration && !decrementError;
 
-  // Infer unit context from requirement text (e.g. "ton", "kg", "piece", "litre", "metre")
-  const unitHint = useMemo(() => {
+  // Infer unit context from requirement text. Two-pass:
+  //   1) Explicit unit token in text  → high confidence
+  //   2) Category keyword (steel/tiles/cement…) → default unit + alternates
+  const unitInference = useMemo(() => {
     const text = requirement.toLowerCase();
-    const units: Array<{ match: RegExp; label: string }> = [
+    const explicit: Array<{ match: RegExp; label: string }> = [
       { match: /\btons?\b|\bmt\b|\btonnes?\b/, label: 'ton' },
       { match: /\bkgs?\b|\bkilograms?\b/, label: 'kg' },
       { match: /\bpcs?\b|\bpieces?\b|\bunits?\b|\bnos?\b/, label: 'piece' },
@@ -118,9 +120,28 @@ const SetupReverseAuction = () => {
       { match: /\bbox(es)?\b/, label: 'box' },
       { match: /\bdrums?\b/, label: 'drum' },
     ];
-    for (const u of units) if (u.match.test(text)) return u.label;
-    return '';
+    for (const u of explicit) if (u.match.test(text)) {
+      // Allowed alternates by category
+      if (u.label === 'ton' || u.label === 'kg') return { unit: u.label, allowed: ['ton', 'kg'], confidence: 'high' as const };
+      return { unit: u.label, allowed: [u.label], confidence: 'high' as const };
+    }
+    // Category keywords (no explicit unit)
+    const categories: Array<{ match: RegExp; unit: string; allowed: string[] }> = [
+      { match: /\b(steel|tmt|rebar|rod|rods|iron)\b/, unit: 'ton', allowed: ['ton', 'kg'] },
+      { match: /\b(cement)\b/, unit: 'bag', allowed: ['bag'] },
+      { match: /\b(tiles?|bricks?|blocks?)\b/, unit: 'piece', allowed: ['piece'] },
+      { match: /\b(pipes?)\b/, unit: 'metre', allowed: ['metre'] },
+      { match: /\b(chemicals?|acid|solvent)\b/, unit: 'litre', allowed: ['litre', 'kg'] },
+    ];
+    for (const c of categories) if (c.match.test(text)) {
+      return { unit: c.unit, allowed: c.allowed, confidence: 'medium' as const };
+    }
+    return { unit: '', allowed: ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'], confidence: 'low' as const };
   }, [requirement]);
+
+  const effectiveUnit = unitOverride || unitInference.unit;
+  const unitHint = effectiveUnit; // backward compat for downstream
+  const needsUnitSelection = pricingMethod === 'per_unit' && !effectiveUnit;
 
   // Next valid bid preview
   const nextValidBid = useMemo(() => {
