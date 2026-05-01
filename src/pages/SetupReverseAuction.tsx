@@ -285,6 +285,7 @@ const SetupReverseAuction = () => {
               inferenceConfidence={unitInference.confidence}
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
+              unitSwitchNote={unitSwitchNote}
             />
           )}
           {step === 3 && (
