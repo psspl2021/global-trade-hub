@@ -161,10 +161,25 @@ const SetupReverseAuction = () => {
   // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent.
   // Strategy: SHOW conversion preview first, then reset fields ~1.5s later so the user can
   // actually read the equivalence before values disappear (avoids "flash confusion").
+  // Timeout refs prevent overlapping/stale resets if user toggles units rapidly.
+  const resetTimeoutRef = useRef<number | null>(null);
+  const previewTimeoutRef = useRef<number | null>(null);
+
   const handleUnitOverrideChange = (u: string) => {
     const prevUnit = unitOverride || '';
     const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
+
+    // Cancel any pending reset/preview from a previous switch (race-safe).
+    if (resetTimeoutRef.current) {
+      window.clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+    if (previewTimeoutRef.current) {
+      window.clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
       let previewShown = false;
       if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
@@ -172,24 +187,44 @@ const SetupReverseAuction = () => {
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
           previewShown = true;
-          window.setTimeout(() => setUnitConvertPreview(null), 5000);
+          previewTimeoutRef.current = window.setTimeout(() => {
+            setUnitConvertPreview(null);
+            previewTimeoutRef.current = null;
+          }, 5000);
         }
       }
       const resetDelay = previewShown ? 1500 : 0;
-      window.setTimeout(() => {
+      resetTimeoutRef.current = window.setTimeout(() => {
         setStartingPrice('');
         setMinDecrement('');
         setUnitSwitchNote(true);
         window.setTimeout(() => setUnitSwitchNote(false), 4000);
+        resetTimeoutRef.current = null;
       }, resetDelay);
     }
   };
+
+  // Cleanup on unmount — never let a stale timer fire on an unmounted tree.
+  useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current);
+      if (previewTimeoutRef.current) window.clearTimeout(previewTimeoutRef.current);
+    };
+  }, []);
 
   // Deterministic unit conversion for known pairs (ton ↔ kg). Returns null if not convertible.
   function convertUnitPrice(price: number, from: string, to: string): number | null {
     if (!from || !to || from === to) return null;
     if (from === 'ton' && to === 'kg') return Math.round((price / 1000) * 100) / 100;
     if (from === 'kg' && to === 'ton') return Math.round(price * 1000);
+    return null;
+  }
+
+  // Quantity conversion (ton ↔ kg). Returns equivalent quantity in `to` unit, or null.
+  function convertQuantity(qty: number, from: string, to: string): number | null {
+    if (!from || !to || from === to) return null;
+    if (from === 'ton' && to === 'kg') return qty * 1000;
+    if (from === 'kg' && to === 'ton') return qty / 1000;
     return null;
   }
 
