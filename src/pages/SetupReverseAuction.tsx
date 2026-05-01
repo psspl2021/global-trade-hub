@@ -415,6 +415,11 @@ const SetupReverseAuction = () => {
     : null;
   const canNextStep2 = effectiveError == null;
 
+  // Stateful (non-blocking) condition: starting price set but decrement is empty.
+  // System will use a default (1%), but this is *explicit* state — surfaced via
+  // the disclosure block below — not an implicit assumption. Does not block CTA.
+  const decrementMissing = hasStartingPrice && !minDecrement && !decrementError;
+
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
   const persistDraft = () => {
