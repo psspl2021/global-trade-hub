@@ -1308,22 +1308,27 @@ function PricingPill({
 }
 
 /**
- * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms
- * after the underlying issue clears. Prevents the message from vanishing
- * the instant the user fixes the field, which feels jarring/unstable.
+ * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms after
+ * the underlying issue clears so the user has time to read it.
+ *
+ * Anti-flicker design: rendered text comes from `lastReasonRef`, NOT a transient
+ * `shown` state. When the user rapidly toggles inputs across multiple errors,
+ * the last non-empty reason is preserved through the fade-out window — the
+ * message can never go blank or revert to a stale value mid-transition.
  */
 function StickyBlockReason({ reason }: { reason: string }) {
-  const [shown, setShown] = useState(reason);
+  const lastReasonRef = useRef<string>(reason);
+  const [, force] = useState(0);
   const [visible, setVisible] = useState(!!reason);
   const fadeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (reason) {
       if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
-      setShown(reason);
+      lastReasonRef.current = reason; // capture latest reason explicitly
       setVisible(true);
+      force((n) => n + 1); // re-render with new ref content
     } else if (visible) {
-      // Fade out after a short grace period so feedback feels continuous.
       fadeRef.current = window.setTimeout(() => {
         setVisible(false);
         fadeRef.current = null;
@@ -1334,7 +1339,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
     };
   }, [reason]);
 
-  if (!shown) return null;
+  if (!lastReasonRef.current) return null;
   return (
     <p
       className={cn(
@@ -1342,7 +1347,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
         visible ? 'opacity-100' : 'opacity-0'
       )}
     >
-      {shown}
+      {lastReasonRef.current}
     </p>
   );
 }
