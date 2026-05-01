@@ -624,7 +624,7 @@ function StepRules({
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {fallbackUnits.map((u) => (
+              {mandatorySelectorUnits.map((u) => (
                 <button
                   key={u}
                   type="button"
