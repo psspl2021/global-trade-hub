@@ -772,7 +772,7 @@ function StepRules({
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
   needsUnitSelection, methodSwitchNote, unitSwitchNote,
   unitConvertPreview, totalEstimate, quantityInfo,
-  quantityMismatch, startingPriceNum,
+  quantityMismatch, startingPriceNum, suggestedDecrement,
 }: {
   duration: string;
   setDuration: (v: string) => void;
