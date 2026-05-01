@@ -377,6 +377,15 @@ const SetupReverseAuction = () => {
     quantityInfo.unit !== effectiveUnit &&
     quantityConverted == null; // only "true mismatch" when no conversion path exists
 
+  // Transparency flag: did we silently convert the requirement quantity into
+  // the pricing unit to compute the estimate? If yes, surface a tiny hint near
+  // the estimate so users understand WHERE the number came from.
+  const quantityWasConverted =
+    pricingMethod === 'per_unit' &&
+    !!quantityInfo && !!effectiveUnit &&
+    quantityInfo.unit !== effectiveUnit &&
+    quantityConverted != null;
+
   // Total estimate (per-unit pricing only). Uses converted quantity when units differ
   // but a deterministic conversion (ton ↔ kg) exists.
   const totalEstimate = useMemo(() => {
