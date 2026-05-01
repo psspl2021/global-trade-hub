@@ -16,19 +16,10 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Find expired RFQs that buyer hasn't closed (soft-expired)
+    // NOTE: profiles is not FK-joined (no auth.users FK by design); we only need buyer_id.
     const { data: expiredRFQs, error: rfqError } = await supabase
       .from("requirements")
-      .select(`
-        id,
-        title,
-        product_category,
-        deadline,
-        buyer_id,
-        profiles!requirements_buyer_id_fkey (
-          email,
-          company_name
-        )
-      `)
+      .select("id, title, product_category, deadline, buyer_id")
       .eq("status", "expired")
       .eq("buyer_closure_status", "open");
 
@@ -39,17 +30,7 @@ Deno.serve(async (req) => {
     // Find expired logistics loads that buyer hasn't closed
     const { data: expiredLoads, error: loadError } = await supabase
       .from("logistics_requirements")
-      .select(`
-        id,
-        title,
-        material_type,
-        delivery_deadline,
-        customer_id,
-        profiles!logistics_requirements_customer_id_fkey (
-          email,
-          company_name
-        )
-      `)
+      .select("id, title, material_type, delivery_deadline, customer_id")
       .eq("status", "expired")
       .eq("buyer_closure_status", "open");
 
