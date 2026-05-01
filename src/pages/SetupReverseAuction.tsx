@@ -209,7 +209,8 @@ const SetupReverseAuction = () => {
   // INTENT: same guard as starting price — preserve raw on invalid, strip on valid.
   // Empty field on focus → snapshot resets to 0 (clean override path).
   const handleMinDecrementFocus = () => {
-    if (!minDecrement) {
+    // Strict equality (see handleStartingPriceFocus rationale).
+    if (minDecrement === '') {
       minDecrementFocusSnapshotRef.current = 0;
       return;
     }
