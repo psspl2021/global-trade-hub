@@ -9,7 +9,7 @@
  *   Step 2 — Auction rules (duration / starting price / min decrement)
  *   Step 3 — Review & launch  → login gate → /buyer/create-reverse-auction
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
