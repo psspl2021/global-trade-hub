@@ -21,7 +21,6 @@ const ChooseProcurementMode = () => {
     title: 'Choose Procurement Mode — Forward Bids or Reverse Auction | ProcureSaathi',
     description: 'Pick how suppliers respond to your requirement: structured forward bids or live reverse auction. ProcureSaathi guides every procurement.',
     canonical: 'https://procuresaathi.com/choose-procurement-mode',
-    noindex: true,
   });
 
   const handleContinue = () => {
