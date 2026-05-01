@@ -508,7 +508,7 @@ function StepRules({
   startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
-  needsUnitSelection, methodSwitchNote,
+  needsUnitSelection, methodSwitchNote, unitSwitchNote,
 }: {
   duration: string;
   setDuration: (v: string) => void;
