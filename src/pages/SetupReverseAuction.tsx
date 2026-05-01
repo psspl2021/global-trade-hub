@@ -94,6 +94,7 @@ const SetupReverseAuction = () => {
         if (d.minDecrement) setMinDecrement(d.minDecrement);
         if (d.supplierMode) setSupplierMode(d.supplierMode);
         if (d.pricingMethod === 'per_unit' || d.pricingMethod === 'total') setPricingMethod(d.pricingMethod);
+        if (d.unitOverride) setUnitOverride(d.unitOverride);
       }
     } catch {}
     try {
