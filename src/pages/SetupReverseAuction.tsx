@@ -60,12 +60,17 @@ const SetupReverseAuction = () => {
   const [pricingMethod, setPricingMethod] = useState<PricingMethod>('per_unit');
   const [startingPrice, setStartingPrice] = useState('');
   const [minDecrement, setMinDecrement] = useState('');
+  // Manually-selected unit (overrides inference). Empty = use inferred or fallback.
+  const [unitOverride, setUnitOverride] = useState<string>('');
+  const [methodSwitchNote, setMethodSwitchNote] = useState(false);
 
   // When pricing method changes, reset decrement (prevent unit mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
     if (m === pricingMethod) return;
     setPricingMethod(m);
     setMinDecrement('');
+    setMethodSwitchNote(true);
+    window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
   // Validation
@@ -89,6 +94,7 @@ const SetupReverseAuction = () => {
         if (d.minDecrement) setMinDecrement(d.minDecrement);
         if (d.supplierMode) setSupplierMode(d.supplierMode);
         if (d.pricingMethod === 'per_unit' || d.pricingMethod === 'total') setPricingMethod(d.pricingMethod);
+        if (d.unitOverride) setUnitOverride(d.unitOverride);
       }
     } catch {}
     try {
@@ -100,10 +106,12 @@ const SetupReverseAuction = () => {
   const canNextStep1 = requirement.trim().length >= 6;
   const canNextStep2 = !!duration && !decrementError;
 
-  // Infer unit context from requirement text (e.g. "ton", "kg", "piece", "litre", "metre")
-  const unitHint = useMemo(() => {
+  // Infer unit context from requirement text. Two-pass:
+  //   1) Explicit unit token in text  → high confidence
+  //   2) Category keyword (steel/tiles/cement…) → default unit + alternates
+  const unitInference = useMemo(() => {
     const text = requirement.toLowerCase();
-    const units: Array<{ match: RegExp; label: string }> = [
+    const explicit: Array<{ match: RegExp; label: string }> = [
       { match: /\btons?\b|\bmt\b|\btonnes?\b/, label: 'ton' },
       { match: /\bkgs?\b|\bkilograms?\b/, label: 'kg' },
       { match: /\bpcs?\b|\bpieces?\b|\bunits?\b|\bnos?\b/, label: 'piece' },
@@ -113,9 +121,28 @@ const SetupReverseAuction = () => {
       { match: /\bbox(es)?\b/, label: 'box' },
       { match: /\bdrums?\b/, label: 'drum' },
     ];
-    for (const u of units) if (u.match.test(text)) return u.label;
-    return '';
+    for (const u of explicit) if (u.match.test(text)) {
+      // Allowed alternates by category
+      if (u.label === 'ton' || u.label === 'kg') return { unit: u.label, allowed: ['ton', 'kg'], confidence: 'high' as const };
+      return { unit: u.label, allowed: [u.label], confidence: 'high' as const };
+    }
+    // Category keywords (no explicit unit)
+    const categories: Array<{ match: RegExp; unit: string; allowed: string[] }> = [
+      { match: /\b(steel|tmt|rebar|rod|rods|iron)\b/, unit: 'ton', allowed: ['ton', 'kg'] },
+      { match: /\b(cement)\b/, unit: 'bag', allowed: ['bag'] },
+      { match: /\b(tiles?|bricks?|blocks?)\b/, unit: 'piece', allowed: ['piece'] },
+      { match: /\b(pipes?)\b/, unit: 'metre', allowed: ['metre'] },
+      { match: /\b(chemicals?|acid|solvent)\b/, unit: 'litre', allowed: ['litre', 'kg'] },
+    ];
+    for (const c of categories) if (c.match.test(text)) {
+      return { unit: c.unit, allowed: c.allowed, confidence: 'medium' as const };
+    }
+    return { unit: '', allowed: ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'], confidence: 'low' as const };
   }, [requirement]);
+
+  const effectiveUnit = unitOverride || unitInference.unit;
+  const unitHint = effectiveUnit; // backward compat for downstream
+  const needsUnitSelection = pricingMethod === 'per_unit' && !effectiveUnit;
 
   // Next valid bid preview
   const nextValidBid = useMemo(() => {
@@ -138,6 +165,7 @@ const SetupReverseAuction = () => {
       pricingMethod,
       startingPrice,
       minDecrement,
+      unitOverride,
       ts: Date.now(),
     };
     try {
@@ -179,11 +207,11 @@ const SetupReverseAuction = () => {
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
             <span>
-              <span className="font-semibold text-foreground">Notifications:</span>
+              <span className="font-semibold text-foreground">Notifications (RFQ alerts):</span>
               <span className="ml-1.5">2 free/day</span>
-              <span className="text-border mx-1.5">·</span>
+              <span className="text-border mx-1.5">•</span>
               <span>₹500 = 200 emails</span>
-              <span className="text-border mx-1.5">·</span>
+              <span className="text-border mx-1.5">•</span>
               <span>No expiry</span>
             </span>
           </div>
@@ -237,6 +265,13 @@ const SetupReverseAuction = () => {
               decrementError={decrementError}
               unitHint={unitHint}
               nextValidBid={nextValidBid}
+              unitOverride={unitOverride}
+              setUnitOverride={setUnitOverride}
+              allowedUnits={unitInference.allowed}
+              inferredUnit={unitInference.unit}
+              inferenceConfidence={unitInference.confidence}
+              needsUnitSelection={needsUnitSelection}
+              methodSwitchNote={methodSwitchNote}
             />
           )}
           {step === 3 && (
@@ -270,7 +305,7 @@ const SetupReverseAuction = () => {
               <Button
                 size="lg"
                 className="gap-1.5"
-                disabled={(step === 1 && !canNextStep1) || (step === 2 && !canNextStep2)}
+                disabled={(step === 1 && !canNextStep1) || (step === 2 && (!canNextStep2 || needsUnitSelection))}
                 onClick={() => {
                   persistDraft();
                   setStep((s) => (s + 1) as 2 | 3);
@@ -396,7 +431,7 @@ function StepSuppliers({
           onClick={() => setSupplierMode('manual')}
           icon={Users}
           title="Select suppliers manually"
-          description="Choose from your saved supplier list after login."
+          description="Select from your supplier list after login."
         />
       </div>
 
@@ -458,6 +493,8 @@ function StepRules({
   duration, setDuration, pricingMethod, setPricingMethod,
   startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
   unitHint, nextValidBid,
+  unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
+  needsUnitSelection, methodSwitchNote,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -470,23 +507,37 @@ function StepRules({
   decrementError: string;
   unitHint: string;
   nextValidBid: string;
+  unitOverride: string;
+  setUnitOverride: (v: string) => void;
+  allowedUnits: string[];
+  inferredUnit: string;
+  inferenceConfidence: 'high' | 'medium' | 'low';
+  needsUnitSelection: boolean;
+  methodSwitchNote: boolean;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
-  const unitFallbackNote = !unitHint;
   const startLabel = isPerUnit
     ? `Starting Price (per ${unitWord})`
     : 'Starting Price (total order value)';
   const startPlaceholder = isPerUnit ? `e.g. 50,000 per ${unitWord}` : 'e.g. 25,00,000 total';
   const startHelper = startingPrice
-    ? 'Auction starts from your defined price.'
-    : 'Optional — leave blank and the auction will start from supplier bids.';
+    ? 'You control the opening price. Auction begins from this value.'
+    : 'Optional — leave blank and suppliers will set the first price.';
   const decLabel = isPerUnit ? `Minimum Decrement (per ${unitWord})` : 'Minimum Decrement (total value)';
   const decPlaceholder = isPerUnit ? '500' : '10,000';
   const decHelper = isPerUnit
     ? `Each new bid must be lower by at least this amount per ${unitWord}.`
     : 'Each new bid must reduce total order value by at least this amount.';
   const pricingBadge = isPerUnit ? `₹ per ${unitWord}` : '₹ total';
+
+  // Unit selector visibility:
+  //   - always show when per-unit AND no inferred unit (mandatory)
+  //   - show as "change" affordance when inferred but allowedUnits has alternates
+  const showMandatoryUnitSelector = isPerUnit && !inferredUnit && !unitOverride;
+  const hasAlternates = isPerUnit && inferredUnit && allowedUnits.length > 1;
+
+  const fallbackUnits = ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'];
 
   return (
     <div className="space-y-5">
@@ -524,10 +575,75 @@ function StepRules({
             sub="₹ total"
           />
         </div>
-        {isPerUnit && unitFallbackNote && (
-          <p className="text-[11px] text-muted-foreground">
-            Tip: mention a unit (e.g. ton, piece, kg) in your requirement to lock units across all bids.
+
+        {methodSwitchNote && (
+          <p className="text-[11px] text-primary flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Pricing method changed. Decrement reset to match pricing type.
           </p>
+        )}
+
+        {/* Mandatory unit fallback selector (per-unit + no inference) */}
+        {showMandatoryUnitSelector && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Select unit for pricing</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Required so all suppliers bid on the same unit. No free text — pick one.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {fallbackUnits.map((u) => (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => setUnitOverride(u)}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-xs font-medium border transition-colors',
+                    unitOverride === u
+                      ? 'border-gold bg-gold/15 text-foreground'
+                      : 'border-border bg-background hover:border-primary/40'
+                  )}
+                >
+                  {u}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Soft unit affordance when inferred + alternates exist */}
+        {isPerUnit && unitHint && (hasAlternates || unitOverride) && (
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <span className="text-muted-foreground">
+              Pricing unit: <span className="font-semibold text-foreground">{unitWord}</span>
+              {inferenceConfidence !== 'high' && !unitOverride && (
+                <span className="ml-1 text-[10px] text-muted-foreground">(suggested)</span>
+              )}
+            </span>
+            {hasAlternates && (
+              <div className="flex gap-1">
+                {allowedUnits.map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    onClick={() => setUnitOverride(u === inferredUnit ? '' : u)}
+                    className={cn(
+                      'px-2 py-0.5 rounded text-[11px] border transition-colors',
+                      unitWord === u
+                        ? 'border-gold bg-gold/10 text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/40'
+                    )}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -567,6 +683,7 @@ function StepRules({
                 onChange={(e) => setStartingPrice(e.target.value)}
                 placeholder={startPlaceholder}
                 className="pl-7"
+                disabled={needsUnitSelection}
               />
             </div>
             <p className="text-xs text-muted-foreground">{startHelper}</p>
@@ -590,22 +707,56 @@ function StepRules({
                 onChange={(e) => setMinDecrement(e.target.value)}
                 placeholder={decPlaceholder}
                 className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
+                disabled={needsUnitSelection}
               />
             </div>
             {decrementError ? (
               <p className="text-xs text-destructive flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" /> {decrementError}
               </p>
-            ) : nextValidBid ? (
-              <p className="text-xs text-primary flex items-center gap-1 font-medium">
-                <TrendingDown className="h-3 w-3" />
-                Next valid bid: {nextValidBid} {isPerUnit ? `per ${unitWord}` : '(total)'}
-              </p>
             ) : (
               <p className="text-xs text-muted-foreground">{decHelper}</p>
             )}
           </div>
         </div>
+
+        {/* Visual Next-Valid-Bid box (live feedback) */}
+        {nextValidBid && !decrementError && (
+          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
+                  Next valid bid
+                </p>
+                <p className="text-2xl font-bold text-primary mt-0.5 leading-none">
+                  {nextValidBid}
+                  <span className="text-xs font-medium text-muted-foreground ml-1.5">
+                    {isPerUnit ? `per ${unitWord}` : '(total)'}
+                  </span>
+                </p>
+              </div>
+              <TrendingDown className="h-8 w-8 text-primary/40" />
+            </div>
+
+            {/* Mini static auction preview */}
+            <div className="mt-3 pt-3 border-t border-primary/15 space-y-1.5">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                Live preview
+              </p>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Current price</span>
+                <span className="font-semibold text-foreground">
+                  ₹{Number(startingPrice).toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div className="flex items-center justify-center text-muted-foreground">↓</div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Next bid</span>
+                <span className="font-bold text-primary">{nextValidBid}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
@@ -653,7 +804,11 @@ function StepReview({
 }) {
   const supplierLabel = supplierMode === 'ai'
     ? `AI-matched (~${supplierCount} suppliers)`
-    : 'Manual selection (after login)';
+    : 'Select from your supplier list (after login)';
+
+  const behaviorLine = pricingMethod === 'per_unit'
+    ? 'Suppliers will bid per unit. Total order value will vary with quantity.'
+    : 'Suppliers will bid on total order value.';
 
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -704,6 +859,17 @@ function StepReview({
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
+
+      {/* Behavior interpretation line — closes the gap on what selection means */}
+      <div className="rounded-lg border-2 border-primary/25 bg-primary/5 px-3.5 py-3 flex items-start gap-2">
+        <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-[11px] uppercase font-semibold tracking-wide text-primary/80">
+            Auction behavior
+          </p>
+          <p className="text-xs text-foreground/85 mt-0.5">{behaviorLine}</p>
+        </div>
+      </div>
 
       <div className="rounded-lg border border-gold/30 bg-gold/5 px-3 py-2.5 flex items-start gap-2">
         <Sparkles className="h-4 w-4 text-gold mt-0.5 flex-shrink-0" />
