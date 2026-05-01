@@ -1199,8 +1199,11 @@ function StepRules({
             (hasStartingPrice && hasMinDecrement && no errors), not from the
             derived `nextValidBid` string — prevents derived-state inconsistencies
             and rendering lag edge cases when inputs change rapidly. */}
-        {hasStartingPrice && hasMinDecrement && !decrementError && !startingPriceError && nextValidBid && (
-          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
+        {/* Single source of truth: gate on INPUT existence + effectiveError (the
+            same source CTA uses). Avoids dependence on the derived `nextValidBid`
+            string for visibility — derived state never controls base rendering. */}
+        {hasStartingPrice && hasMinDecrement && !effectiveError && nextValidBid && (
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>{/* duration-200 = ANIMATION_BASE_MS */}
             {/* ── Block A — Core math ── */}
             <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
               <div className="flex items-start justify-between gap-3">
