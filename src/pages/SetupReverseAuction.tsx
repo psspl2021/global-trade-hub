@@ -578,7 +578,7 @@ const SetupReverseAuction = () => {
               decrementMissing={decrementMissing}
               suggestedDecrement={suggestedDecrement}
               applySuggestedDecrement={() =>
-                setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
+                setMinDecrement(formatINR(suggestedDecrement))
               }
               effectiveError={effectiveError}
               truncationWarning={truncationWarning}
