@@ -264,6 +264,7 @@ const BotAwareRouter = () => {
         <Route path="/requirements" element={<Requirements />} />
         <Route path="/rfq/:id" element={<RFQDetail />} />
         <Route path="/post-rfq" element={<PostRFQ />} />
+        <Route path="/choose-procurement-mode" element={<ChooseProcurementMode />} />
         <Route path="/seller" element={<Seller />} />
         <Route path="/buyer" element={<Buyer />} />
         <Route path="/buyer/create-reverse-auction" element={<CreateReverseAuctionPage />} />
