@@ -568,6 +568,7 @@ const SetupReverseAuction = () => {
               applySuggestedDecrement={() =>
                 setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
               }
+              effectiveError={effectiveError}
             />
           )}
           {step === 3 && (
