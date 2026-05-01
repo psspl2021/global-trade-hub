@@ -520,6 +520,7 @@ const SetupReverseAuction = () => {
               quantityInfo={quantityInfo}
               quantityMismatch={quantityMismatch}
               startingPriceNum={startingPriceNum}
+              suggestedDecrement={suggestedDecrement}
             />
           )}
           {step === 3 && (
