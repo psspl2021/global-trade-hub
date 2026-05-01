@@ -114,6 +114,10 @@ const SetupReverseAuction = () => {
   };
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
+  // INTENT: Only update if sanitization yields a valid numeric string.
+  // If empty/invalid, preserve the raw input — never destructively wipe the field
+  // on focus (would surprise the user mid-edit). Future "optimizations" must keep
+  // this guard or they will reintroduce a destructive UX regression.
   const handleStartingPriceFocus = () => {
     if (!startingPrice) return;
     const cleaned = sanitizeCurrencyInput(startingPrice);
