@@ -827,6 +827,24 @@ function StepRules({
           </Select>
         </div>
 
+        {/* Unit conversion preview (briefly shown when switching units before reset) */}
+        {unitConvertPreview && (
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+            <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="text-xs">
+              <p className="font-semibold text-foreground">Unit changed — equivalent price</p>
+              <p className="text-muted-foreground mt-0.5">
+                Previous: ₹{unitConvertPreview.fromPrice.toLocaleString('en-IN')} per {unitConvertPreview.fromUnit}
+                {' · '}
+                Equivalent: ₹{unitConvertPreview.toPrice.toLocaleString('en-IN')} per {unitConvertPreview.toUnit}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Pricing fields reset — re-enter to confirm in the new unit.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -840,16 +858,23 @@ function StepRules({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
-                type="number"
-                inputMode="numeric"
+                type="text"
+                inputMode="decimal"
                 value={startingPrice}
                 onChange={(e) => setStartingPrice(e.target.value)}
+                onBlur={onStartingPriceBlur}
                 placeholder={startPlaceholder}
-                className="pl-7"
+                className={cn('pl-7', startingPriceError && 'border-destructive focus-visible:ring-destructive/50')}
                 disabled={needsUnitSelection}
               />
             </div>
-            <p className="text-xs text-muted-foreground">{startHelper}</p>
+            {startingPriceError ? (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {startingPriceError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{startHelper}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -864,10 +889,11 @@ function StepRules({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
-                type="number"
-                inputMode="numeric"
+                type="text"
+                inputMode="decimal"
                 value={minDecrement}
                 onChange={(e) => setMinDecrement(e.target.value)}
+                onBlur={onMinDecrementBlur}
                 placeholder={decPlaceholder}
                 className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
                 disabled={needsUnitSelection}
@@ -883,9 +909,12 @@ function StepRules({
           </div>
         </div>
 
-        {/* Visual Next-Valid-Bid box (live feedback) — value-dominant hierarchy */}
-        {nextValidBid && !decrementError && (
-          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+        {/* Visual Next-Valid-Bid box — strict guarded render */}
+        {nextValidBid && !decrementError && !startingPriceError && (
+          <div
+            key={nextValidBid}
+            className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5 animate-in fade-in zoom-in-95 duration-200"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
@@ -901,7 +930,6 @@ function StepRules({
               <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
             </div>
 
-            {/* Mini static auction preview — stacked layout */}
             <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
               <div className="space-y-0.5">
                 <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
@@ -918,9 +946,20 @@ function StepRules({
                 <p className="text-base font-bold text-primary">{nextValidBid}</p>
               </div>
             </div>
+
+            {/* Total estimate — bridges per-unit pricing → business decision */}
+            {isPerUnit && totalEstimate && quantityInfo && (
+              <div className="mt-3 pt-3 border-t border-primary/15 flex items-center justify-between gap-3 text-xs">
+                <span className="text-muted-foreground">
+                  Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
+                </span>
+                <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
+
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
         <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
