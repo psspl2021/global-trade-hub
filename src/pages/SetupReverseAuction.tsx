@@ -113,6 +113,13 @@ const SetupReverseAuction = () => {
     setStartingPrice(raw);
   };
 
+  // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
+  const handleStartingPriceFocus = () => {
+    if (!startingPrice) return;
+    const cleaned = sanitizeCurrencyInput(startingPrice);
+    if (cleaned) setStartingPrice(cleaned);
+  };
+
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
     // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
@@ -121,6 +128,12 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementChange = (raw: string) => {
     setMinDecrement(raw);
+  };
+
+  const handleMinDecrementFocus = () => {
+    if (!minDecrement) return;
+    const cleaned = sanitizeCurrencyInput(minDecrement);
+    if (cleaned) setMinDecrement(cleaned);
   };
 
   const handleMinDecrementBlur = () => {
@@ -145,24 +158,30 @@ const SetupReverseAuction = () => {
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
-  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
+  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent.
+  // Strategy: SHOW conversion preview first, then reset fields ~1.5s later so the user can
+  // actually read the equivalence before values disappear (avoids "flash confusion").
   const handleUnitOverrideChange = (u: string) => {
-    const prevUnit = unitOverride || ''; // we may not know inferred here; capture before override
+    const prevUnit = unitOverride || '';
     const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
-      // Build conversion preview (ton↔kg only — only deterministic conversion we support)
+      let previewShown = false;
       if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
         const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
+          previewShown = true;
           window.setTimeout(() => setUnitConvertPreview(null), 5000);
         }
       }
-      setStartingPrice('');
-      setMinDecrement('');
-      setUnitSwitchNote(true);
-      window.setTimeout(() => setUnitSwitchNote(false), 4000);
+      const resetDelay = previewShown ? 1500 : 0;
+      window.setTimeout(() => {
+        setStartingPrice('');
+        setMinDecrement('');
+        setUnitSwitchNote(true);
+        window.setTimeout(() => setUnitSwitchNote(false), 4000);
+      }, resetDelay);
     }
   };
 
@@ -263,25 +282,33 @@ const SetupReverseAuction = () => {
   // Quantity inference (for total-order estimate when per-unit pricing).
   // Pragmatic V1: extract FIRST valid number+unit pair. Ignores ranges (uses lower bound),
   // tolerates "approx", "around", "~", and MT/monthly/per-day suffixes.
+  // Quantity inference — DECOUPLED parsing.
+  // Step 1: extract first plausible number (handles "approx 25", "~25", "25-30" → 25, "25,000").
+  // Step 2: independently detect a unit token anywhere in the text.
+  // This is more robust than coupling number+unit in one regex (which breaks on
+  // natural variations like "25 - 30 tons", "approx 25 MT", "~25 tons monthly").
   const quantityInfo = useMemo(() => {
     if (!requirement) return null;
-    const cleaned = requirement.replace(/[~]/g, ' ');
-    const m = cleaned.match(
-      /(\d[\d,]*\.?\d*)\s*(?:-|to|–)?\s*\d*[\d,]*\.?\d*\s*(tons?|tonnes?|mt|kgs?|kilograms?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?|ltrs?)/i
-    );
-    if (!m) return null;
-    const qty = Number(m[1].replace(/,/g, ''));
+    const cleaned = requirement.replace(/[~]/g, ' ').toLowerCase();
+    // Step 1 — first numeric token (allow commas/decimals; takes lower bound of any range).
+    const numberMatch = cleaned.match(/\d[\d,]*(?:\.\d+)?/);
+    if (!numberMatch) return null;
+    const qty = Number(numberMatch[0].replace(/,/g, ''));
     if (!Number.isFinite(qty) || qty <= 0) return null;
-    let unit = m[2].toLowerCase();
-    if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
-    else if (/kgs?|kilograms?/.test(unit)) unit = 'kg';
-    else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
-    else if (/bags?/.test(unit)) unit = 'bag';
-    else if (/boxes?/.test(unit)) unit = 'box';
-    else if (/drums?/.test(unit)) unit = 'drum';
-    else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
-    else if (/litres?|liters?|ltrs?/.test(unit)) unit = 'litre';
-    return { qty, unit };
+    // Step 2 — unit detection (independent scan).
+    const unitPatterns: Array<{ rx: RegExp; unit: string }> = [
+      { rx: /\b(tons?|tonnes?|mt)\b/, unit: 'ton' },
+      { rx: /\b(kgs?|kilograms?)\b/, unit: 'kg' },
+      { rx: /\b(pcs?|pieces?|nos?|units?)\b/, unit: 'piece' },
+      { rx: /\b(bags?)\b/, unit: 'bag' },
+      { rx: /\b(boxes?|box)\b/, unit: 'box' },
+      { rx: /\b(drums?)\b/, unit: 'drum' },
+      { rx: /\b(metres?|meters?|mtrs?)\b/, unit: 'metre' },
+      { rx: /\b(litres?|liters?|ltrs?)\b/, unit: 'litre' },
+    ];
+    const matched = unitPatterns.find((p) => p.rx.test(cleaned));
+    if (!matched) return null;
+    return { qty, unit: matched.unit };
   }, [requirement]);
 
   // Quantity-vs-pricing-unit mismatch (silent failure surface)
@@ -404,9 +431,11 @@ const SetupReverseAuction = () => {
               setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
               setStartingPrice={handleStartingPriceChange}
+              onStartingPriceFocus={handleStartingPriceFocus}
               onStartingPriceBlur={handleStartingPriceBlur}
               minDecrement={minDecrement}
               setMinDecrement={handleMinDecrementChange}
+              onMinDecrementFocus={handleMinDecrementFocus}
               onMinDecrementBlur={handleMinDecrementBlur}
               decrementError={decrementError}
               startingPriceError={startingPriceError}
@@ -457,18 +486,40 @@ const SetupReverseAuction = () => {
             </Button>
 
             {step < 3 ? (
-              <Button
-                size="lg"
-                className="gap-1.5"
-                disabled={(step === 1 && !canNextStep1) || (step === 2 && (!canNextStep2 || needsUnitSelection))}
-                onClick={() => {
-                  persistDraft();
-                  setStep((s) => (s + 1) as 2 | 3);
-                }}
-              >
-                {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              (() => {
+                // CTA disabled-state hierarchy → matches inline error priority.
+                const ctaBlocked =
+                  (step === 1 && !canNextStep1) ||
+                  (step === 2 && (!canNextStep2 || needsUnitSelection));
+                let blockReason = '';
+                if (step === 2 && ctaBlocked) {
+                  if (needsUnitSelection) blockReason = 'Select a unit to continue';
+                  else if (startingPriceError) blockReason = 'Enter a valid starting price to continue';
+                  else if (decrementError) blockReason = 'Fix the minimum decrement to continue';
+                  else if (!duration) blockReason = 'Select an auction duration to continue';
+                } else if (step === 1 && ctaBlocked) {
+                  blockReason = 'Describe your requirement to continue';
+                }
+                return (
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Button
+                      size="lg"
+                      className="gap-1.5"
+                      disabled={ctaBlocked}
+                      onClick={() => {
+                        persistDraft();
+                        setStep((s) => (s + 1) as 2 | 3);
+                      }}
+                    >
+                      {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    {blockReason && (
+                      <p className="text-[11px] text-muted-foreground">{blockReason}</p>
+                    )}
+                  </div>
+                );
+              })()
             ) : (
               <Button
                 size="lg"
@@ -646,8 +697,8 @@ function SupplierOption({
 
 function StepRules({
   duration, setDuration, pricingMethod, setPricingMethod,
-  startingPrice, setStartingPrice, onStartingPriceBlur,
-  minDecrement, setMinDecrement, onMinDecrementBlur,
+  startingPrice, setStartingPrice, onStartingPriceFocus, onStartingPriceBlur,
+  minDecrement, setMinDecrement, onMinDecrementFocus, onMinDecrementBlur,
   decrementError, startingPriceError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
@@ -661,9 +712,11 @@ function StepRules({
   setPricingMethod: (m: PricingMethod) => void;
   startingPrice: string;
   setStartingPrice: (v: string) => void;
+  onStartingPriceFocus: () => void;
   onStartingPriceBlur: () => void;
   minDecrement: string;
   setMinDecrement: (v: string) => void;
+  onMinDecrementFocus: () => void;
   onMinDecrementBlur: () => void;
   decrementError: string;
   startingPriceError: string;
@@ -868,121 +921,137 @@ function StepRules({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-sm font-semibold">
-                {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Badge variant="secondary" className="text-[10px]">
-                {pricingBadge}
-              </Badge>
-            </div>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={startingPrice}
-                onChange={(e) => setStartingPrice(e.target.value)}
-                onBlur={onStartingPriceBlur}
-                placeholder={startPlaceholder}
-                className={cn('pl-7', startingPriceError && 'border-destructive focus-visible:ring-destructive/50')}
-                disabled={needsUnitSelection}
-              />
-            </div>
-            {startingPriceError ? (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> {startingPriceError}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">{startHelper}</p>
-            )}
-          </div>
+        {/* Strict error priority — only the highest-priority issue is shown at a time
+            to prevent cognitive overload. Order: unit > starting price > decrement. */}
+        {(() => {
+          const priorityError = needsUnitSelection
+            ? ''
+            : startingPriceError || decrementError;
+          // (Unit-missing surfaces via field-disable + CTA microcopy below, not as inline error.)
+          const showStartingError = !!startingPriceError && !needsUnitSelection;
+          const showDecrementError = !!decrementError && !startingPriceError && !needsUnitSelection;
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-sm font-semibold">
+                    {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+                  </Label>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {pricingBadge}
+                  </Badge>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={startingPrice}
+                    onChange={(e) => setStartingPrice(e.target.value)}
+                    onFocus={onStartingPriceFocus}
+                    onBlur={onStartingPriceBlur}
+                    placeholder={startPlaceholder}
+                    className={cn('pl-7', showStartingError && 'border-destructive focus-visible:ring-destructive/50')}
+                    disabled={needsUnitSelection}
+                  />
+                </div>
+                {showStartingError ? (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {startingPriceError}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{startHelper}</p>
+                )}
+              </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-sm font-semibold">
-                {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Badge variant="secondary" className="text-[10px]">
-                {pricingBadge}
-              </Badge>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-sm font-semibold">
+                    {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+                  </Label>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {pricingBadge}
+                  </Badge>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={minDecrement}
+                    onChange={(e) => setMinDecrement(e.target.value)}
+                    onFocus={onMinDecrementFocus}
+                    onBlur={onMinDecrementBlur}
+                    placeholder={decPlaceholder}
+                    className={cn('pl-7', showDecrementError && 'border-destructive focus-visible:ring-destructive/50')}
+                    disabled={needsUnitSelection}
+                  />
+                </div>
+                {showDecrementError ? (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {decrementError}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{decHelper}</p>
+                )}
+              </div>
             </div>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={minDecrement}
-                onChange={(e) => setMinDecrement(e.target.value)}
-                onBlur={onMinDecrementBlur}
-                placeholder={decPlaceholder}
-                className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
-                disabled={needsUnitSelection}
-              />
-            </div>
-            {decrementError ? (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> {decrementError}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">{decHelper}</p>
-            )}
-          </div>
-        </div>
+          );
+        })()}
 
-        {/* Visual Next-Valid-Bid box — strict guarded render */}
+        {/* Bid math + interpretation — split into Block A (math) and Block B (context)
+            to reduce cognitive load. Block A is always shown when valid; Block B only
+            renders if there's interpretive content (estimate or mismatch). */}
         {nextValidBid && !decrementError && !startingPriceError && (
-          <div
-            key={nextValidBid}
-            className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5 animate-in fade-in zoom-in-95 duration-200"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
-                  Next valid bid
-                </p>
-                <p className="text-4xl font-bold text-primary leading-none tracking-tight">
-                  {nextValidBid}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground">
-                  {isPerUnit ? `per ${unitWord}` : 'total order value'}
-                </p>
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
+            {/* ── Block A — Core math ── */}
+            <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
+                    Next valid bid
+                  </p>
+                  <p className="text-4xl font-bold text-primary leading-none tracking-tight">
+                    {nextValidBid}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {isPerUnit ? `per ${unitWord}` : 'total order value'}
+                  </p>
+                </div>
+                <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
               </div>
-              <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
+
+              <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                    Current price
+                  </p>
+                  <p className="text-base font-semibold text-foreground">
+                    ₹{startingPriceNum.toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
+                    Next bid
+                  </p>
+                  <p className="text-base font-bold text-primary">{nextValidBid}</p>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
-              <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                  Current price
-                </p>
-                <p className="text-base font-semibold text-foreground">
-                  ₹{startingPriceNum.toLocaleString('en-IN')}
-                </p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
-                  Next bid
-                </p>
-                <p className="text-base font-bold text-primary">{nextValidBid}</p>
-              </div>
-            </div>
-
-            {/* Total estimate — bridges per-unit pricing → business decision */}
+            {/* ── Block B — Interpretation (estimate OR mismatch) ── */}
             {isPerUnit && totalEstimate && quantityInfo && (
-              <div className="mt-3 pt-3 border-t border-primary/15 flex items-center justify-between gap-3 text-xs">
+              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 flex items-center justify-between gap-3 text-xs">
                 <span className="text-muted-foreground">
-                  Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
+                  Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
+                  {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
                 </span>
                 <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
               </div>
             )}
 
-            {/* Surface why estimate is missing — never silent */}
             {isPerUnit && quantityMismatch && (
-              <div className="mt-3 pt-3 border-t border-primary/15 flex items-start gap-2 text-[11px] text-muted-foreground">
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-2 text-[11px] text-muted-foreground">
                 <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-amber-600" />
                 <span>
                   Total estimate unavailable — requirement mentions{' '}
@@ -996,6 +1065,11 @@ function StepRules({
           </div>
         )}
       </div>
+
+      {/* System rule (contract definition, not UI) */}
+      <p className="text-[11px] text-muted-foreground text-center px-2">
+        All suppliers bid using the same pricing method and unit. This cannot change during the auction.
+      </p>
 
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
@@ -1106,7 +1180,7 @@ function StepReview({
         {isPerUnit && totalEstimate && quantityInfo && (
           <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
             <span className="text-muted-foreground flex-shrink-0">
-              Estimated total
+              Estimated total <span className="text-[10px] font-normal text-muted-foreground/70">(approx)</span>
               <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
                 ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit} × starting price)
               </span>
