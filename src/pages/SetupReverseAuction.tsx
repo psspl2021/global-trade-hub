@@ -9,7 +9,7 @@
  *   Step 2 — Auction rules (duration / starting price / min decrement)
  *   Step 3 — Review & launch  → login gate → /buyer/create-reverse-auction
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -161,10 +161,25 @@ const SetupReverseAuction = () => {
   // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent.
   // Strategy: SHOW conversion preview first, then reset fields ~1.5s later so the user can
   // actually read the equivalence before values disappear (avoids "flash confusion").
+  // Timeout refs prevent overlapping/stale resets if user toggles units rapidly.
+  const resetTimeoutRef = useRef<number | null>(null);
+  const previewTimeoutRef = useRef<number | null>(null);
+
   const handleUnitOverrideChange = (u: string) => {
     const prevUnit = unitOverride || '';
     const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
+
+    // Cancel any pending reset/preview from a previous switch (race-safe).
+    if (resetTimeoutRef.current) {
+      window.clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+    if (previewTimeoutRef.current) {
+      window.clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
       let previewShown = false;
       if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
@@ -172,24 +187,44 @@ const SetupReverseAuction = () => {
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
           previewShown = true;
-          window.setTimeout(() => setUnitConvertPreview(null), 5000);
+          previewTimeoutRef.current = window.setTimeout(() => {
+            setUnitConvertPreview(null);
+            previewTimeoutRef.current = null;
+          }, 5000);
         }
       }
       const resetDelay = previewShown ? 1500 : 0;
-      window.setTimeout(() => {
+      resetTimeoutRef.current = window.setTimeout(() => {
         setStartingPrice('');
         setMinDecrement('');
         setUnitSwitchNote(true);
         window.setTimeout(() => setUnitSwitchNote(false), 4000);
+        resetTimeoutRef.current = null;
       }, resetDelay);
     }
   };
+
+  // Cleanup on unmount — never let a stale timer fire on an unmounted tree.
+  useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current);
+      if (previewTimeoutRef.current) window.clearTimeout(previewTimeoutRef.current);
+    };
+  }, []);
 
   // Deterministic unit conversion for known pairs (ton ↔ kg). Returns null if not convertible.
   function convertUnitPrice(price: number, from: string, to: string): number | null {
     if (!from || !to || from === to) return null;
     if (from === 'ton' && to === 'kg') return Math.round((price / 1000) * 100) / 100;
     if (from === 'kg' && to === 'ton') return Math.round(price * 1000);
+    return null;
+  }
+
+  // Quantity conversion (ton ↔ kg). Returns equivalent quantity in `to` unit, or null.
+  function convertQuantity(qty: number, from: string, to: string): number | null {
+    if (!from || !to || from === to) return null;
+    if (from === 'ton' && to === 'kg') return qty * 1000;
+    if (from === 'kg' && to === 'ton') return qty / 1000;
     return null;
   }
 
@@ -230,7 +265,6 @@ const SetupReverseAuction = () => {
 
   const supplierCount = supplierMode === 'ai' ? 8 : 0; // illustrative for review screen
   const canNextStep1 = requirement.trim().length >= 6;
-  const canNextStep2 = !!duration && !decrementError && !startingPriceError;
 
   // Infer unit context from requirement text. Two-pass:
   //   1) Explicit unit token in text  → high confidence
@@ -311,19 +345,51 @@ const SetupReverseAuction = () => {
     return { qty, unit: matched.unit };
   }, [requirement]);
 
-  // Quantity-vs-pricing-unit mismatch (silent failure surface)
+  // Quantity-vs-pricing-unit mismatch surface.
+  // A "true mismatch" means the units differ AND we cannot deterministically convert
+  // (e.g. requirement in `bag`, pricing in `ton`). When convertible (ton ↔ kg) we
+  // silently use the converted quantity for estimate — no warning shown.
+  const quantityConverted = useMemo(() => {
+    if (!quantityInfo || !effectiveUnit) return null;
+    if (quantityInfo.unit === effectiveUnit) return quantityInfo.qty;
+    const c = convertQuantity(quantityInfo.qty, quantityInfo.unit, effectiveUnit);
+    return c != null && c > 0 ? c : null;
+  }, [quantityInfo, effectiveUnit]);
+
   const quantityMismatch =
     pricingMethod === 'per_unit' &&
-    !!quantityInfo && !!effectiveUnit && quantityInfo.unit !== effectiveUnit;
+    !!quantityInfo && !!effectiveUnit &&
+    quantityInfo.unit !== effectiveUnit &&
+    quantityConverted == null; // only "true mismatch" when no conversion path exists
 
-  // Total estimate (per-unit pricing only, when quantity inferred + units match)
+  // Total estimate (per-unit pricing only). Uses converted quantity when units differ
+  // but a deterministic conversion (ton ↔ kg) exists.
   const totalEstimate = useMemo(() => {
     if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
-    if (quantityMismatch) return '';
-    const total = quantityInfo.qty * startingPriceNum;
+    const qty = quantityConverted;
+    if (qty == null) return '';
+    const total = qty * startingPriceNum;
     if (!Number.isFinite(total) || total <= 0) return '';
     return `₹${Math.round(total).toLocaleString('en-IN')}`;
-  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityMismatch]);
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityConverted]);
+
+  // Suggested decrement = 1% of starting price (used when user leaves it blank).
+  // Removes ambiguous bidding behavior: "what's the smallest legal step?"
+  const suggestedDecrement = useMemo(() => {
+    if (!hasStartingPrice) return 0;
+    const sug = Math.max(1, Math.round(startingPriceNum * 0.01));
+    return sug < startingPriceNum ? sug : 0;
+  }, [hasStartingPrice, startingPriceNum]);
+
+  // Single source of truth for step-2 validity → UI + CTA share this.
+  // Priority: unit > starting price > decrement > duration. First failure wins.
+  const effectiveError: 'unit' | 'starting' | 'decrement' | 'duration' | null =
+    needsUnitSelection ? 'unit'
+    : startingPriceError ? 'starting'
+    : decrementError ? 'decrement'
+    : !duration ? 'duration'
+    : null;
+  const canNextStep2 = effectiveError == null;
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -454,6 +520,7 @@ const SetupReverseAuction = () => {
               quantityInfo={quantityInfo}
               quantityMismatch={quantityMismatch}
               startingPriceNum={startingPriceNum}
+              suggestedDecrement={suggestedDecrement}
             />
           )}
           {step === 3 && (
@@ -487,16 +554,19 @@ const SetupReverseAuction = () => {
 
             {step < 3 ? (
               (() => {
-                // CTA disabled-state hierarchy → matches inline error priority.
+                // CTA disabled state derives from the SAME source as inline error logic
+                // (`effectiveError`) so UI and gating can never disagree.
                 const ctaBlocked =
                   (step === 1 && !canNextStep1) ||
-                  (step === 2 && (!canNextStep2 || needsUnitSelection));
+                  (step === 2 && !canNextStep2);
                 let blockReason = '';
                 if (step === 2 && ctaBlocked) {
-                  if (needsUnitSelection) blockReason = 'Select a unit to continue';
-                  else if (startingPriceError) blockReason = 'Enter a valid starting price to continue';
-                  else if (decrementError) blockReason = 'Fix the minimum decrement to continue';
-                  else if (!duration) blockReason = 'Select an auction duration to continue';
+                  switch (effectiveError) {
+                    case 'unit': blockReason = 'Select a unit to continue'; break;
+                    case 'starting': blockReason = 'Enter a valid starting price to continue'; break;
+                    case 'decrement': blockReason = 'Fix the minimum decrement to continue'; break;
+                    case 'duration': blockReason = 'Select an auction duration to continue'; break;
+                  }
                 } else if (step === 1 && ctaBlocked) {
                   blockReason = 'Describe your requirement to continue';
                 }
@@ -511,12 +581,10 @@ const SetupReverseAuction = () => {
                         setStep((s) => (s + 1) as 2 | 3);
                       }}
                     >
-                      {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
+                      {step === 2 && effectiveError === 'unit' ? 'Select unit to continue' : 'Continue'}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
-                    {blockReason && (
-                      <p className="text-[11px] text-muted-foreground">{blockReason}</p>
-                    )}
+                    <StickyBlockReason reason={blockReason} />
                   </div>
                 );
               })()
@@ -704,7 +772,7 @@ function StepRules({
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
   needsUnitSelection, methodSwitchNote, unitSwitchNote,
   unitConvertPreview, totalEstimate, quantityInfo,
-  quantityMismatch, startingPriceNum,
+  quantityMismatch, startingPriceNum, suggestedDecrement,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -735,6 +803,7 @@ function StepRules({
   quantityInfo: { qty: number; unit: string } | null;
   quantityMismatch: boolean;
   startingPriceNum: number;
+  suggestedDecrement: number;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -884,6 +953,12 @@ function StepRules({
             )}
           </div>
         )}
+
+        {/* System contract rule — placed where the decision is made (pricing method),
+            not at the bottom of the form, so users see it BEFORE filling fields. */}
+        <p className="text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
+          All suppliers bid using the same pricing method and unit. This cannot change once the auction begins.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -1066,18 +1141,20 @@ function StepRules({
         )}
       </div>
 
-      {/* System rule (contract definition, not UI) */}
-      <p className="text-[11px] text-muted-foreground text-center px-2">
-        All suppliers bid using the same pricing method and unit. This cannot change during the auction.
-      </p>
-
-
-      <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
-        <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-foreground/80">
-          Pricing applies consistently across bids. If you set price per unit, all bids and decrements follow per unit.
-        </p>
-      </div>
+      {/* Default-decrement disclosure — removes ambiguity when the user leaves
+          the decrement blank. Auction will fall back to a deterministic 1% step. */}
+      {suggestedDecrement > 0 && !minDecrement && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
+          <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-foreground/80">
+            No minimum decrement set — auction will use a default of{' '}
+            <span className="font-semibold text-foreground">
+              ₹{suggestedDecrement.toLocaleString('en-IN')}
+            </span>{' '}
+            (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -1100,6 +1177,45 @@ function PricingPill({
   );
 }
 
+/**
+ * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms
+ * after the underlying issue clears. Prevents the message from vanishing
+ * the instant the user fixes the field, which feels jarring/unstable.
+ */
+function StickyBlockReason({ reason }: { reason: string }) {
+  const [shown, setShown] = useState(reason);
+  const [visible, setVisible] = useState(!!reason);
+  const fadeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (reason) {
+      if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
+      setShown(reason);
+      setVisible(true);
+    } else if (visible) {
+      // Fade out after a short grace period so feedback feels continuous.
+      fadeRef.current = window.setTimeout(() => {
+        setVisible(false);
+        fadeRef.current = null;
+      }, 400);
+    }
+    return () => {
+      if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
+    };
+  }, [reason]);
+
+  if (!shown) return null;
+  return (
+    <p
+      className={cn(
+        'text-[11px] text-muted-foreground transition-opacity duration-300',
+        visible ? 'opacity-100' : 'opacity-0'
+      )}
+    >
+      {shown}
+    </p>
+  );
+}
 
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
