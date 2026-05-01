@@ -865,6 +865,7 @@ function StepRules({
   quantityMismatch, quantityWasConverted,
   startingPriceNum, hasStartingPrice, hasMinDecrement,
   decrementMissing, suggestedDecrement, applySuggestedDecrement,
+  effectiveError,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -902,6 +903,7 @@ function StepRules({
   decrementMissing: boolean;
   suggestedDecrement: number;
   applySuggestedDecrement: () => void;
+  effectiveError: 'unit' | 'starting' | 'decrement' | 'duration' | null;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
