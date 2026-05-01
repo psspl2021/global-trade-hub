@@ -64,6 +64,12 @@ const SetupReverseAuction = () => {
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
   const [unitSwitchNote, setUnitSwitchNote] = useState(false);
+  // Anchored "Switching unit…" indicator shown during the 1.5s reset window so
+  // users have explicit context for *why* fields are about to clear.
+  const [isUnitSwitching, setIsUnitSwitching] = useState(false);
+  // Confirmation gate when proceeding to review with no decrement set
+  // (system will fall back to 1% default — financial commitment must be explicit).
+  const [showDecrementConfirm, setShowDecrementConfirm] = useState(false);
   // Equivalence preview shown briefly before reset on unit switch (per-unit only).
   const [unitConvertPreview, setUnitConvertPreview] = useState<{
     fromUnit: string; toUnit: string; fromPrice: number; toPrice: number;
