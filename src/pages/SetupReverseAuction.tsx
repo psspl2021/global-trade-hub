@@ -424,15 +424,31 @@ function SupplierOption({
 /* ──────────────────────────  STEP 2  ────────────────────────── */
 
 function StepRules({
-  duration, setDuration, startingPrice, setStartingPrice, minDecrement, setMinDecrement,
+  duration, setDuration, pricingMethod, setPricingMethod,
+  startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
 }: {
   duration: string;
   setDuration: (v: string) => void;
+  pricingMethod: PricingMethod;
+  setPricingMethod: (m: PricingMethod) => void;
   startingPrice: string;
   setStartingPrice: (v: string) => void;
   minDecrement: string;
   setMinDecrement: (v: string) => void;
+  decrementError: string;
 }) {
+  const isPerUnit = pricingMethod === 'per_unit';
+  const startLabel = isPerUnit ? 'Starting Price (per unit)' : 'Starting Price (total order value)';
+  const startPlaceholder = isPerUnit ? '50,000 per ton' : '25,00,000 total';
+  const startHelper = isPerUnit
+    ? 'Suppliers will bid price per unit.'
+    : 'Suppliers will bid on total order value.';
+  const decLabel = isPerUnit ? 'Minimum Decrement (per unit)' : 'Minimum Decrement (total value)';
+  const decPlaceholder = isPerUnit ? '500' : '10,000';
+  const decHelper = isPerUnit
+    ? 'Each new bid must be lower per unit.'
+    : 'Each new bid must reduce total order value.';
+
   return (
     <div className="space-y-5">
       <div>
@@ -443,6 +459,25 @@ function StepRules({
       </div>
 
       <div className="space-y-4">
+        {/* Pricing method (mandatory, first field) */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Pricing Method</Label>
+          <div className="grid grid-cols-2 gap-2 max-w-md">
+            <PricingPill
+              active={isPerUnit}
+              onClick={() => setPricingMethod('per_unit')}
+              title="Per Unit Price"
+              sub="₹ / unit"
+            />
+            <PricingPill
+              active={!isPerUnit}
+              onClick={() => setPricingMethod('total')}
+              title="Total Order Value"
+              sub="₹ total"
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Duration</Label>
           <Select value={duration} onValueChange={setDuration}>
@@ -460,10 +495,15 @@ function StepRules({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">
-              Starting Price <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-sm font-semibold">
+                {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Badge variant="secondary" className="text-[10px]">
+                {isPerUnit ? 'Per Unit' : 'Total'}
+              </Badge>
+            </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
@@ -471,16 +511,22 @@ function StepRules({
                 inputMode="numeric"
                 value={startingPrice}
                 onChange={(e) => setStartingPrice(e.target.value)}
-                placeholder="50,000"
+                placeholder={startPlaceholder}
                 className="pl-7"
               />
             </div>
+            <p className="text-xs text-muted-foreground">{startHelper}</p>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">
-              Minimum Decrement <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-sm font-semibold">
+                {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Badge variant="secondary" className="text-[10px]">
+                {isPerUnit ? 'Per Unit' : 'Total'}
+              </Badge>
+            </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
@@ -488,10 +534,17 @@ function StepRules({
                 inputMode="numeric"
                 value={minDecrement}
                 onChange={(e) => setMinDecrement(e.target.value)}
-                placeholder="500"
-                className="pl-7"
+                placeholder={decPlaceholder}
+                className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
               />
             </div>
+            {decrementError ? (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {decrementError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{decHelper}</p>
+            )}
           </div>
         </div>
       </div>
@@ -499,12 +552,31 @@ function StepRules({
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
         <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
         <p className="text-xs text-foreground/80">
-          Each new bid must be lower than the current best price by at least the decrement.
+          Pricing applies consistently across bids. If you set price per unit, all bids and decrements follow per unit.
         </p>
       </div>
     </div>
   );
 }
+
+function PricingPill({
+  active, onClick, title, sub,
+}: { active: boolean; onClick: () => void; title: string; sub: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'text-left p-3 rounded-lg border-2 transition-all',
+        active ? 'border-gold bg-gold/5' : 'border-border hover:border-primary/40'
+      )}
+    >
+      <p className={cn('text-sm font-semibold', active ? 'text-foreground' : 'text-foreground/80')}>{title}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+    </button>
+  );
+}
+
 
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
