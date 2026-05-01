@@ -100,16 +100,23 @@ const SetupReverseAuction = () => {
     return String(Math.round(n));
   };
 
+  // Format a sanitized numeric string with Indian commas. Empty stays empty.
+  const formatINRDisplay = (cleaned: string): string => {
+    if (!cleaned) return '';
+    const n = Number(cleaned);
+    if (!Number.isFinite(n) || n <= 0) return '';
+    return n.toLocaleString('en-IN');
+  };
+
   const handleStartingPriceChange = (raw: string) => {
-    // Allow user to type freely; sanitize only when they leave or paste formatted text.
-    // We store the raw string to allow intermediate typing, but downstream logic uses the
-    // numeric guards below.
+    // Free typing — never overwrite mid-keystroke (prevents cursor jump).
     setStartingPrice(raw);
   };
 
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
-    setStartingPrice(cleaned);
+    // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
+    setStartingPrice(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
   const handleMinDecrementChange = (raw: string) => {
@@ -118,7 +125,7 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementBlur = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
-    setMinDecrement(cleaned);
+    setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
   // Numeric guards used everywhere downstream (parses sanitized OR raw)
