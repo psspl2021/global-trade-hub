@@ -431,9 +431,11 @@ const SetupReverseAuction = () => {
               setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
               setStartingPrice={handleStartingPriceChange}
+              onStartingPriceFocus={handleStartingPriceFocus}
               onStartingPriceBlur={handleStartingPriceBlur}
               minDecrement={minDecrement}
               setMinDecrement={handleMinDecrementChange}
+              onMinDecrementFocus={handleMinDecrementFocus}
               onMinDecrementBlur={handleMinDecrementBlur}
               decrementError={decrementError}
               startingPriceError={startingPriceError}
