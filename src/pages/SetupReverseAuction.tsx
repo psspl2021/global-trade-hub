@@ -553,16 +553,19 @@ const SetupReverseAuction = () => {
 
             {step < 3 ? (
               (() => {
-                // CTA disabled-state hierarchy → matches inline error priority.
+                // CTA disabled state derives from the SAME source as inline error logic
+                // (`effectiveError`) so UI and gating can never disagree.
                 const ctaBlocked =
                   (step === 1 && !canNextStep1) ||
-                  (step === 2 && (!canNextStep2 || needsUnitSelection));
+                  (step === 2 && !canNextStep2);
                 let blockReason = '';
                 if (step === 2 && ctaBlocked) {
-                  if (needsUnitSelection) blockReason = 'Select a unit to continue';
-                  else if (startingPriceError) blockReason = 'Enter a valid starting price to continue';
-                  else if (decrementError) blockReason = 'Fix the minimum decrement to continue';
-                  else if (!duration) blockReason = 'Select an auction duration to continue';
+                  switch (effectiveError) {
+                    case 'unit': blockReason = 'Select a unit to continue'; break;
+                    case 'starting': blockReason = 'Enter a valid starting price to continue'; break;
+                    case 'decrement': blockReason = 'Fix the minimum decrement to continue'; break;
+                    case 'duration': blockReason = 'Select an auction duration to continue'; break;
+                  }
                 } else if (step === 1 && ctaBlocked) {
                   blockReason = 'Describe your requirement to continue';
                 }
@@ -577,12 +580,10 @@ const SetupReverseAuction = () => {
                         setStep((s) => (s + 1) as 2 | 3);
                       }}
                     >
-                      {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
+                      {step === 2 && effectiveError === 'unit' ? 'Select unit to continue' : 'Continue'}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
-                    {blockReason && (
-                      <p className="text-[11px] text-muted-foreground">{blockReason}</p>
-                    )}
+                    <StickyBlockReason reason={blockReason} />
                   </div>
                 );
               })()
