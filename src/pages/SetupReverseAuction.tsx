@@ -852,7 +852,7 @@ function StepRules({
 
         {/* Unit conversion preview (briefly shown when switching units before reset) */}
         {unitConvertPreview && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
             <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <div className="text-xs">
               <p className="font-semibold text-foreground">Unit changed — equivalent price</p>
@@ -862,7 +862,7 @@ function StepRules({
                 Equivalent: ₹{unitConvertPreview.toPrice.toLocaleString('en-IN')} per {unitConvertPreview.toUnit}
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Pricing fields reset — re-enter to confirm in the new unit.
+                Auto-conversion is supported only for ton ↔ kg. Pricing fields reset — re-enter to confirm in the new unit.
               </p>
             </div>
           </div>
