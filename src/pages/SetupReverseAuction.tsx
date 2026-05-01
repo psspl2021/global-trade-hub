@@ -156,10 +156,16 @@ const SetupReverseAuction = () => {
   // Uses log10 magnitude (base-agnostic, mathematically stable) instead of
   // string-length comparison. Explicit zero-guard prevents log10(0) = -Infinity.
   const isAccidentalTruncation = (snap: number, next: number): boolean => {
+    // Defensive: reject NaN / Infinity before any math runs.
+    if (!Number.isFinite(snap) || !Number.isFinite(next)) return false;
     if (snap <= 0 || next <= 0) return false;
-    const orderDrop = next * 10 <= snap;
-    const magnitudeDrop = Math.floor(Math.log10(snap)) - Math.floor(Math.log10(next)) >= 2;
-    return orderDrop && magnitudeDrop;
+    // Epsilon guards against floating-point flicker at exact powers of 10
+    // (e.g. log10(1000) producing 2.9999... on some runtimes).
+    // A magnitude drop of >= 2 already implies a ~100x collapse, so the
+    // explicit 10x check is redundant — kept logic minimal and equivalent.
+    const snapMag = Math.floor(Math.log10(snap + 1e-9));
+    const nextMag = Math.floor(Math.log10(next + 1e-9));
+    return snapMag - nextMag >= 2;
   };
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
@@ -1233,7 +1239,7 @@ function StepRules({
                 ) : truncationWarning === 'starting' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
+                    Value reduced significantly — previous value restored. Clear the field to enter a new value.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{startHelper}</p>
@@ -1270,7 +1276,7 @@ function StepRules({
                 ) : truncationWarning === 'decrement' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
+                    Value reduced significantly — previous value restored. Clear the field to enter a new value.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{decHelper}</p>
