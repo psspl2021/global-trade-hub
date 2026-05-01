@@ -25,10 +25,12 @@ const ChooseProcurementMode = () => {
 
   const handleContinue = () => {
     trackEvent('procurement_mode_selected', { mode });
+    try { localStorage.setItem('lastMode', mode); } catch {}
     if (mode === 'forward') {
       navigate('/post-rfq?mode=forward');
     } else {
-      navigate('/buyer/create-reverse-auction');
+      // Pre-login lightweight bridge — full setup happens after login
+      navigate('/setup-reverse-auction');
     }
   };
 
