@@ -953,6 +953,12 @@ function StepRules({
             )}
           </div>
         )}
+
+        {/* System contract rule — placed where the decision is made (pricing method),
+            not at the bottom of the form, so users see it BEFORE filling fields. */}
+        <p className="text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
+          All suppliers bid using the same pricing method and unit. This cannot change once the auction begins.
+        </p>
       </div>
 
       <div className="space-y-4">
