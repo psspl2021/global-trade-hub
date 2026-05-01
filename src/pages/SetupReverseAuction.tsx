@@ -165,6 +165,7 @@ const SetupReverseAuction = () => {
       pricingMethod,
       startingPrice,
       minDecrement,
+      unitOverride,
       ts: Date.now(),
     };
     try {
