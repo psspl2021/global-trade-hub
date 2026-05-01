@@ -601,7 +601,13 @@ function StepRules({
         {methodSwitchNote && (
           <p className="text-[11px] text-primary flex items-center gap-1">
             <AlertCircle className="h-3 w-3" />
-            Pricing method changed. Decrement reset to match pricing type.
+            Pricing method changed. Starting price and decrement reset to match.
+          </p>
+        )}
+        {unitSwitchNote && (
+          <p className="text-[11px] text-primary flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Unit changed. Pricing reset to maintain consistency.
           </p>
         )}
 
