@@ -64,6 +64,68 @@ const SetupReverseAuction = () => {
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
   const [unitSwitchNote, setUnitSwitchNote] = useState(false);
+  // Equivalence preview shown briefly before reset on unit switch (per-unit only).
+  const [unitConvertPreview, setUnitConvertPreview] = useState<{
+    fromUnit: string; toUnit: string; fromPrice: number; toPrice: number;
+  } | null>(null);
+
+  // ── Currency input sanitization ─────────────────────────────────
+  // Accepts: "65,000", "65000", "65k", "65K", "₹65000", " 65 000 "
+  // Rejects (returns ''): empty, NaN, negatives, zero
+  const sanitizeCurrencyInput = (raw: string): string => {
+    if (raw == null) return '';
+    let s = String(raw).trim();
+    if (!s) return '';
+    // Strip currency symbol, commas, whitespace, and stray non-numeric punctuation (keep digits, dot, k/K)
+    s = s.replace(/[₹$€£¥,\s]/g, '');
+    // Reject explicit negatives
+    if (s.startsWith('-')) return '';
+    // Handle k/K shorthand → multiply by 1000
+    let multiplier = 1;
+    if (/[kK]$/.test(s)) {
+      multiplier = 1000;
+      s = s.slice(0, -1);
+    } else if (/[lL]$/.test(s)) {
+      multiplier = 100000;
+      s = s.slice(0, -1);
+    } else if (/(cr|CR|Cr)$/.test(s)) {
+      multiplier = 10000000;
+      s = s.replace(/(cr|CR|Cr)$/, '');
+    }
+    if (!s || !/^\d*\.?\d*$/.test(s)) return '';
+    const n = Number(s) * multiplier;
+    if (!Number.isFinite(n) || n <= 0) return '';
+    // Hard upper sanity cap (₹999 Cr) to prevent garbage huge values
+    if (n > 9_990_000_000) return '';
+    return String(Math.round(n));
+  };
+
+  const handleStartingPriceChange = (raw: string) => {
+    // Allow user to type freely; sanitize only when they leave or paste formatted text.
+    // We store the raw string to allow intermediate typing, but downstream logic uses the
+    // numeric guards below.
+    setStartingPrice(raw);
+  };
+
+  const handleStartingPriceBlur = () => {
+    const cleaned = sanitizeCurrencyInput(startingPrice);
+    setStartingPrice(cleaned);
+  };
+
+  const handleMinDecrementChange = (raw: string) => {
+    setMinDecrement(raw);
+  };
+
+  const handleMinDecrementBlur = () => {
+    const cleaned = sanitizeCurrencyInput(minDecrement);
+    setMinDecrement(cleaned);
+  };
+
+  // Numeric guards used everywhere downstream (parses sanitized OR raw)
+  const parseSafe = (v: string): number => {
+    const cleaned = sanitizeCurrencyInput(v);
+    return cleaned ? Number(cleaned) : NaN;
+  };
 
   // When pricing method changes, reset BOTH starting price + decrement (prevent unit/scale mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
@@ -71,14 +133,25 @@ const SetupReverseAuction = () => {
     setPricingMethod(m);
     setStartingPrice('');
     setMinDecrement('');
+    setUnitConvertPreview(null);
     setMethodSwitchNote(true);
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
   // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
   const handleUnitOverrideChange = (u: string) => {
+    const prevUnit = unitOverride || ''; // we may not know inferred here; capture before override
+    const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
+      // Build conversion preview (ton↔kg only — only deterministic conversion we support)
+      if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
+        const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
+        if (conv != null) {
+          setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
+          window.setTimeout(() => setUnitConvertPreview(null), 5000);
+        }
+      }
       setStartingPrice('');
       setMinDecrement('');
       setUnitSwitchNote(true);
@@ -86,14 +159,28 @@ const SetupReverseAuction = () => {
     }
   };
 
-  // Validation
-  const startingPriceNum = Number(startingPrice);
-  const minDecrementNum = Number(minDecrement);
-  const decrementError =
-    minDecrement && startingPrice && Number.isFinite(startingPriceNum) && Number.isFinite(minDecrementNum)
-      && minDecrementNum > startingPriceNum
-        ? 'Minimum decrement cannot exceed starting price'
-        : '';
+  // Deterministic unit conversion for known pairs (ton ↔ kg). Returns null if not convertible.
+  function convertUnitPrice(price: number, from: string, to: string): number | null {
+    if (!from || !to || from === to) return null;
+    if (from === 'ton' && to === 'kg') return Math.round((price / 1000) * 100) / 100;
+    if (from === 'kg' && to === 'ton') return Math.round(price * 1000);
+    return null;
+  }
+
+  // Validation — uses sanitized values
+  const startingPriceNum = parseSafe(startingPrice);
+  const minDecrementNum = parseSafe(minDecrement);
+  const hasStartingPrice = Number.isFinite(startingPriceNum) && startingPriceNum > 0;
+  const hasMinDecrement = Number.isFinite(minDecrementNum) && minDecrementNum > 0;
+
+  let decrementError = '';
+  if (minDecrement && !hasMinDecrement) {
+    decrementError = 'Enter a valid amount greater than zero';
+  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum > startingPriceNum) {
+    decrementError = 'Minimum decrement cannot exceed starting price';
+  }
+  const startingPriceError =
+    startingPrice && !hasStartingPrice ? 'Enter a valid amount greater than zero' : '';
 
   // Restore any prior draft
   useEffect(() => {
