@@ -899,121 +899,137 @@ function StepRules({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-sm font-semibold">
-                {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Badge variant="secondary" className="text-[10px]">
-                {pricingBadge}
-              </Badge>
-            </div>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={startingPrice}
-                onChange={(e) => setStartingPrice(e.target.value)}
-                onBlur={onStartingPriceBlur}
-                placeholder={startPlaceholder}
-                className={cn('pl-7', startingPriceError && 'border-destructive focus-visible:ring-destructive/50')}
-                disabled={needsUnitSelection}
-              />
-            </div>
-            {startingPriceError ? (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> {startingPriceError}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">{startHelper}</p>
-            )}
-          </div>
+        {/* Strict error priority — only the highest-priority issue is shown at a time
+            to prevent cognitive overload. Order: unit > starting price > decrement. */}
+        {(() => {
+          const priorityError = needsUnitSelection
+            ? ''
+            : startingPriceError || decrementError;
+          // (Unit-missing surfaces via field-disable + CTA microcopy below, not as inline error.)
+          const showStartingError = !!startingPriceError && !needsUnitSelection;
+          const showDecrementError = !!decrementError && !startingPriceError && !needsUnitSelection;
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-sm font-semibold">
+                    {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+                  </Label>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {pricingBadge}
+                  </Badge>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={startingPrice}
+                    onChange={(e) => setStartingPrice(e.target.value)}
+                    onFocus={onStartingPriceFocus}
+                    onBlur={onStartingPriceBlur}
+                    placeholder={startPlaceholder}
+                    className={cn('pl-7', showStartingError && 'border-destructive focus-visible:ring-destructive/50')}
+                    disabled={needsUnitSelection}
+                  />
+                </div>
+                {showStartingError ? (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {startingPriceError}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{startHelper}</p>
+                )}
+              </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-sm font-semibold">
-                {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <Badge variant="secondary" className="text-[10px]">
-                {pricingBadge}
-              </Badge>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-sm font-semibold">
+                    {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+                  </Label>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {pricingBadge}
+                  </Badge>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={minDecrement}
+                    onChange={(e) => setMinDecrement(e.target.value)}
+                    onFocus={onMinDecrementFocus}
+                    onBlur={onMinDecrementBlur}
+                    placeholder={decPlaceholder}
+                    className={cn('pl-7', showDecrementError && 'border-destructive focus-visible:ring-destructive/50')}
+                    disabled={needsUnitSelection}
+                  />
+                </div>
+                {showDecrementError ? (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {decrementError}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{decHelper}</p>
+                )}
+              </div>
             </div>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={minDecrement}
-                onChange={(e) => setMinDecrement(e.target.value)}
-                onBlur={onMinDecrementBlur}
-                placeholder={decPlaceholder}
-                className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
-                disabled={needsUnitSelection}
-              />
-            </div>
-            {decrementError ? (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> {decrementError}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">{decHelper}</p>
-            )}
-          </div>
-        </div>
+          );
+        })()}
 
-        {/* Visual Next-Valid-Bid box — strict guarded render */}
+        {/* Bid math + interpretation — split into Block A (math) and Block B (context)
+            to reduce cognitive load. Block A is always shown when valid; Block B only
+            renders if there's interpretive content (estimate or mismatch). */}
         {nextValidBid && !decrementError && !startingPriceError && (
-          <div
-            key={nextValidBid}
-            className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5 animate-in fade-in zoom-in-95 duration-200"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
-                  Next valid bid
-                </p>
-                <p className="text-4xl font-bold text-primary leading-none tracking-tight">
-                  {nextValidBid}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground">
-                  {isPerUnit ? `per ${unitWord}` : 'total order value'}
-                </p>
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
+            {/* ── Block A — Core math ── */}
+            <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
+                    Next valid bid
+                  </p>
+                  <p className="text-4xl font-bold text-primary leading-none tracking-tight">
+                    {nextValidBid}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {isPerUnit ? `per ${unitWord}` : 'total order value'}
+                  </p>
+                </div>
+                <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
               </div>
-              <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
+
+              <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                    Current price
+                  </p>
+                  <p className="text-base font-semibold text-foreground">
+                    ₹{startingPriceNum.toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
+                    Next bid
+                  </p>
+                  <p className="text-base font-bold text-primary">{nextValidBid}</p>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
-              <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                  Current price
-                </p>
-                <p className="text-base font-semibold text-foreground">
-                  ₹{startingPriceNum.toLocaleString('en-IN')}
-                </p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
-                  Next bid
-                </p>
-                <p className="text-base font-bold text-primary">{nextValidBid}</p>
-              </div>
-            </div>
-
-            {/* Total estimate — bridges per-unit pricing → business decision */}
+            {/* ── Block B — Interpretation (estimate OR mismatch) ── */}
             {isPerUnit && totalEstimate && quantityInfo && (
-              <div className="mt-3 pt-3 border-t border-primary/15 flex items-center justify-between gap-3 text-xs">
+              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 flex items-center justify-between gap-3 text-xs">
                 <span className="text-muted-foreground">
-                  Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
+                  Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
+                  {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
                 </span>
                 <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
               </div>
             )}
 
-            {/* Surface why estimate is missing — never silent */}
             {isPerUnit && quantityMismatch && (
-              <div className="mt-3 pt-3 border-t border-primary/15 flex items-start gap-2 text-[11px] text-muted-foreground">
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-2 text-[11px] text-muted-foreground">
                 <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-amber-600" />
                 <span>
                   Total estimate unavailable — requirement mentions{' '}
@@ -1027,6 +1043,11 @@ function StepRules({
           </div>
         )}
       </div>
+
+      {/* System rule (contract definition, not UI) */}
+      <p className="text-[11px] text-muted-foreground text-center px-2">
+        All suppliers bid using the same pricing method and unit. This cannot change during the auction.
+      </p>
 
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
