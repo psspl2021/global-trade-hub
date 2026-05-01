@@ -1141,18 +1141,20 @@ function StepRules({
         )}
       </div>
 
-      {/* System rule (contract definition, not UI) */}
-      <p className="text-[11px] text-muted-foreground text-center px-2">
-        All suppliers bid using the same pricing method and unit. This cannot change during the auction.
-      </p>
-
-
-      <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
-        <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-foreground/80">
-          Pricing applies consistently across bids. If you set price per unit, all bids and decrements follow per unit.
-        </p>
-      </div>
+      {/* Default-decrement disclosure — removes ambiguity when the user leaves
+          the decrement blank. Auction will fall back to a deterministic 1% step. */}
+      {suggestedDecrement > 0 && !minDecrement && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
+          <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-foreground/80">
+            No minimum decrement set — auction will use a default of{' '}
+            <span className="font-semibold text-foreground">
+              ₹{suggestedDecrement.toLocaleString('en-IN')}
+            </span>{' '}
+            (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
