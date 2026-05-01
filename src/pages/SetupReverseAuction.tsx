@@ -190,6 +190,14 @@ const SetupReverseAuction = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
     // Same guard as starting price — preserve raw on invalid so error surfaces.
     if (!cleaned && /\d/.test(minDecrement || '')) return;
+    // Order-of-magnitude truncation guard (mirror of starting price).
+    const snap = minDecrementFocusSnapshotRef.current;
+    const next = cleaned ? Number(cleaned) : 0;
+    if (snap > 0 && next > 0 && next * 10 <= snap) {
+      setMinDecrement(formatINRDisplay(String(snap)));
+      flashTruncationWarning('decrement');
+      return;
+    }
     setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
