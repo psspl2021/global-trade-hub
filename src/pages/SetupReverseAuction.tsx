@@ -528,6 +528,7 @@ function StepRules({
   inferenceConfidence: 'high' | 'medium' | 'low';
   needsUnitSelection: boolean;
   methodSwitchNote: boolean;
+  unitSwitchNote: boolean;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -551,7 +552,14 @@ function StepRules({
   const showMandatoryUnitSelector = isPerUnit && !inferredUnit && !unitOverride;
   const hasAlternates = isPerUnit && inferredUnit && allowedUnits.length > 1;
 
-  const fallbackUnits = ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'];
+  // When category is inferred (allowedUnits scoped to category), use that.
+  // Otherwise fall back to broader generic list.
+  const fallbackUnits = allowedUnits.length > 1 || allowedUnits[0] !== 'ton'
+    ? allowedUnits
+    : ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'];
+  // Actually: when no inference (low confidence), allowedUnits already = full generic list per inference logic.
+  // When category inferred, allowedUnits is narrow. So just use allowedUnits directly:
+  const mandatorySelectorUnits = allowedUnits;
 
   return (
     <div className="space-y-5">
