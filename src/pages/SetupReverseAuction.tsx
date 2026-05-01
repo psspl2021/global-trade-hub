@@ -672,6 +672,38 @@ const SetupReverseAuction = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Decrement-default confirmation — explicit financial-commitment gate.
+          Without this, users could silently launch with an implicit 1% step. */}
+      <Dialog open={showDecrementConfirm} onOpenChange={setShowDecrementConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Use default minimum decrement?</DialogTitle>
+            <DialogDescription>
+              You haven't set a minimum decrement. The auction will use a default
+              of <span className="font-semibold text-foreground">
+                ₹{suggestedDecrement.toLocaleString('en-IN')}
+              </span> (1% of starting price)
+              {pricingMethod === 'per_unit' ? ` per ${unitHint || 'unit'}` : ' on total order value'}.
+              Each new bid must be lower by at least this amount.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowDecrementConfirm(false)}>
+              Set my own
+            </Button>
+            <Button
+              onClick={() => {
+                setShowDecrementConfirm(false);
+                persistDraft();
+                setStep((s) => (s + 1) as 2 | 3);
+              }}
+            >
+              Use default & continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
