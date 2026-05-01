@@ -282,25 +282,33 @@ const SetupReverseAuction = () => {
   // Quantity inference (for total-order estimate when per-unit pricing).
   // Pragmatic V1: extract FIRST valid number+unit pair. Ignores ranges (uses lower bound),
   // tolerates "approx", "around", "~", and MT/monthly/per-day suffixes.
+  // Quantity inference — DECOUPLED parsing.
+  // Step 1: extract first plausible number (handles "approx 25", "~25", "25-30" → 25, "25,000").
+  // Step 2: independently detect a unit token anywhere in the text.
+  // This is more robust than coupling number+unit in one regex (which breaks on
+  // natural variations like "25 - 30 tons", "approx 25 MT", "~25 tons monthly").
   const quantityInfo = useMemo(() => {
     if (!requirement) return null;
-    const cleaned = requirement.replace(/[~]/g, ' ');
-    const m = cleaned.match(
-      /(\d[\d,]*\.?\d*)\s*(?:-|to|–)?\s*\d*[\d,]*\.?\d*\s*(tons?|tonnes?|mt|kgs?|kilograms?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?|ltrs?)/i
-    );
-    if (!m) return null;
-    const qty = Number(m[1].replace(/,/g, ''));
+    const cleaned = requirement.replace(/[~]/g, ' ').toLowerCase();
+    // Step 1 — first numeric token (allow commas/decimals; takes lower bound of any range).
+    const numberMatch = cleaned.match(/\d[\d,]*(?:\.\d+)?/);
+    if (!numberMatch) return null;
+    const qty = Number(numberMatch[0].replace(/,/g, ''));
     if (!Number.isFinite(qty) || qty <= 0) return null;
-    let unit = m[2].toLowerCase();
-    if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
-    else if (/kgs?|kilograms?/.test(unit)) unit = 'kg';
-    else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
-    else if (/bags?/.test(unit)) unit = 'bag';
-    else if (/boxes?/.test(unit)) unit = 'box';
-    else if (/drums?/.test(unit)) unit = 'drum';
-    else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
-    else if (/litres?|liters?|ltrs?/.test(unit)) unit = 'litre';
-    return { qty, unit };
+    // Step 2 — unit detection (independent scan).
+    const unitPatterns: Array<{ rx: RegExp; unit: string }> = [
+      { rx: /\b(tons?|tonnes?|mt)\b/, unit: 'ton' },
+      { rx: /\b(kgs?|kilograms?)\b/, unit: 'kg' },
+      { rx: /\b(pcs?|pieces?|nos?|units?)\b/, unit: 'piece' },
+      { rx: /\b(bags?)\b/, unit: 'bag' },
+      { rx: /\b(boxes?|box)\b/, unit: 'box' },
+      { rx: /\b(drums?)\b/, unit: 'drum' },
+      { rx: /\b(metres?|meters?|mtrs?)\b/, unit: 'metre' },
+      { rx: /\b(litres?|liters?|ltrs?)\b/, unit: 'litre' },
+    ];
+    const matched = unitPatterns.find((p) => p.rx.test(cleaned));
+    if (!matched) return null;
+    return { qty, unit: matched.unit };
   }, [requirement]);
 
   // Quantity-vs-pricing-unit mismatch (silent failure surface)
