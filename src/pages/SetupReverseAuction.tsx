@@ -265,7 +265,6 @@ const SetupReverseAuction = () => {
 
   const supplierCount = supplierMode === 'ai' ? 8 : 0; // illustrative for review screen
   const canNextStep1 = requirement.trim().length >= 6;
-  const canNextStep2 = !!duration && !decrementError && !startingPriceError;
 
   // Infer unit context from requirement text. Two-pass:
   //   1) Explicit unit token in text  → high confidence
