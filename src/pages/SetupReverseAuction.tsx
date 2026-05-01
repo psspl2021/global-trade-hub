@@ -38,6 +38,11 @@ type PricingMethod = 'per_unit' | 'total';
 
 const DRAFT_KEY = 'reverse_auction_pre_login_draft';
 
+// Standardized animation timings — adjacent UI blocks must use the same
+// duration to prevent perceptible jitter when they appear/disappear together.
+const ANIMATION_FAST_MS = 150;
+const ANIMATION_BASE_MS = 200;
+
 const SetupReverseAuction = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
