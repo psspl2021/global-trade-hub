@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   ArrowLeft, ArrowRight, Gavel, Sparkles, Users, CheckCircle2, Clock,
-  TrendingDown, Mail,
+  TrendingDown, Mail, AlertCircle,
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useSEO } from '@/hooks/useSEO';
@@ -34,6 +34,7 @@ import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 type SupplierMode = 'ai' | 'manual';
+type PricingMethod = 'per_unit' | 'total';
 
 const DRAFT_KEY = 'reverse_auction_pre_login_draft';
 
@@ -56,8 +57,25 @@ const SetupReverseAuction = () => {
 
   // Step 2
   const [duration, setDuration] = useState('30');
+  const [pricingMethod, setPricingMethod] = useState<PricingMethod>('per_unit');
   const [startingPrice, setStartingPrice] = useState('');
   const [minDecrement, setMinDecrement] = useState('');
+
+  // When pricing method changes, reset decrement (prevent unit mismatch)
+  const handlePricingMethodChange = (m: PricingMethod) => {
+    if (m === pricingMethod) return;
+    setPricingMethod(m);
+    setMinDecrement('');
+  };
+
+  // Validation
+  const startingPriceNum = Number(startingPrice);
+  const minDecrementNum = Number(minDecrement);
+  const decrementError =
+    minDecrement && startingPrice && Number.isFinite(startingPriceNum) && Number.isFinite(minDecrementNum)
+      && minDecrementNum > startingPriceNum
+        ? 'Minimum decrement cannot exceed starting price'
+        : '';
 
   // Restore any prior draft
   useEffect(() => {
@@ -70,6 +88,7 @@ const SetupReverseAuction = () => {
         if (d.startingPrice) setStartingPrice(d.startingPrice);
         if (d.minDecrement) setMinDecrement(d.minDecrement);
         if (d.supplierMode) setSupplierMode(d.supplierMode);
+        if (d.pricingMethod === 'per_unit' || d.pricingMethod === 'total') setPricingMethod(d.pricingMethod);
       }
     } catch {}
     try {
@@ -79,7 +98,7 @@ const SetupReverseAuction = () => {
 
   const supplierCount = supplierMode === 'ai' ? 8 : 0; // illustrative for review screen
   const canNextStep1 = requirement.trim().length >= 6;
-  const canNextStep2 = !!duration;
+  const canNextStep2 = !!duration && !decrementError;
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -89,6 +108,7 @@ const SetupReverseAuction = () => {
       requirement,
       supplierMode,
       duration,
+      pricingMethod,
       startingPrice,
       minDecrement,
       ts: Date.now(),
