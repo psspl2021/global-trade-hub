@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   ArrowLeft, ArrowRight, Gavel, Sparkles, Users, CheckCircle2, Clock,
-  TrendingDown, Mail,
+  TrendingDown, Mail, AlertCircle,
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { useSEO } from '@/hooks/useSEO';
@@ -34,6 +34,7 @@ import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 type SupplierMode = 'ai' | 'manual';
+type PricingMethod = 'per_unit' | 'total';
 
 const DRAFT_KEY = 'reverse_auction_pre_login_draft';
 
@@ -56,8 +57,25 @@ const SetupReverseAuction = () => {
 
   // Step 2
   const [duration, setDuration] = useState('30');
+  const [pricingMethod, setPricingMethod] = useState<PricingMethod>('per_unit');
   const [startingPrice, setStartingPrice] = useState('');
   const [minDecrement, setMinDecrement] = useState('');
+
+  // When pricing method changes, reset decrement (prevent unit mismatch)
+  const handlePricingMethodChange = (m: PricingMethod) => {
+    if (m === pricingMethod) return;
+    setPricingMethod(m);
+    setMinDecrement('');
+  };
+
+  // Validation
+  const startingPriceNum = Number(startingPrice);
+  const minDecrementNum = Number(minDecrement);
+  const decrementError =
+    minDecrement && startingPrice && Number.isFinite(startingPriceNum) && Number.isFinite(minDecrementNum)
+      && minDecrementNum > startingPriceNum
+        ? 'Minimum decrement cannot exceed starting price'
+        : '';
 
   // Restore any prior draft
   useEffect(() => {
@@ -70,6 +88,7 @@ const SetupReverseAuction = () => {
         if (d.startingPrice) setStartingPrice(d.startingPrice);
         if (d.minDecrement) setMinDecrement(d.minDecrement);
         if (d.supplierMode) setSupplierMode(d.supplierMode);
+        if (d.pricingMethod === 'per_unit' || d.pricingMethod === 'total') setPricingMethod(d.pricingMethod);
       }
     } catch {}
     try {
@@ -79,7 +98,7 @@ const SetupReverseAuction = () => {
 
   const supplierCount = supplierMode === 'ai' ? 8 : 0; // illustrative for review screen
   const canNextStep1 = requirement.trim().length >= 6;
-  const canNextStep2 = !!duration;
+  const canNextStep2 = !!duration && !decrementError;
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -89,6 +108,7 @@ const SetupReverseAuction = () => {
       requirement,
       supplierMode,
       duration,
+      pricingMethod,
       startingPrice,
       minDecrement,
       ts: Date.now(),
@@ -129,11 +149,15 @@ const SetupReverseAuction = () => {
           </button>
 
           {/* Email quota chip */}
-          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
-            <span><span className="font-semibold text-foreground">2 / 2</span> free today</span>
-            <span className="text-border">·</span>
-            <span>Pack <span className="font-semibold text-foreground">200</span> available</span>
+            <span>
+              <span className="font-semibold text-foreground">2 free emails/day</span>
+              <span className="text-border mx-1.5">·</span>
+              <span className="font-semibold text-foreground">₹500 = 200 emails</span>
+              <span className="text-border mx-1.5">·</span>
+              <span>No expiry</span>
+            </span>
           </div>
         </div>
       </header>
@@ -176,10 +200,13 @@ const SetupReverseAuction = () => {
             <StepRules
               duration={duration}
               setDuration={setDuration}
+              pricingMethod={pricingMethod}
+              setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
               setStartingPrice={setStartingPrice}
               minDecrement={minDecrement}
               setMinDecrement={setMinDecrement}
+              decrementError={decrementError}
             />
           )}
           {step === 3 && (
@@ -188,6 +215,7 @@ const SetupReverseAuction = () => {
               supplierCount={supplierCount}
               requirement={requirement}
               duration={duration}
+              pricingMethod={pricingMethod}
               startingPrice={startingPrice}
               minDecrement={minDecrement}
             />
@@ -396,15 +424,31 @@ function SupplierOption({
 /* ──────────────────────────  STEP 2  ────────────────────────── */
 
 function StepRules({
-  duration, setDuration, startingPrice, setStartingPrice, minDecrement, setMinDecrement,
+  duration, setDuration, pricingMethod, setPricingMethod,
+  startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
 }: {
   duration: string;
   setDuration: (v: string) => void;
+  pricingMethod: PricingMethod;
+  setPricingMethod: (m: PricingMethod) => void;
   startingPrice: string;
   setStartingPrice: (v: string) => void;
   minDecrement: string;
   setMinDecrement: (v: string) => void;
+  decrementError: string;
 }) {
+  const isPerUnit = pricingMethod === 'per_unit';
+  const startLabel = isPerUnit ? 'Starting Price (per unit)' : 'Starting Price (total order value)';
+  const startPlaceholder = isPerUnit ? '50,000 per ton' : '25,00,000 total';
+  const startHelper = isPerUnit
+    ? 'Suppliers will bid price per unit.'
+    : 'Suppliers will bid on total order value.';
+  const decLabel = isPerUnit ? 'Minimum Decrement (per unit)' : 'Minimum Decrement (total value)';
+  const decPlaceholder = isPerUnit ? '500' : '10,000';
+  const decHelper = isPerUnit
+    ? 'Each new bid must be lower per unit.'
+    : 'Each new bid must reduce total order value.';
+
   return (
     <div className="space-y-5">
       <div>
@@ -415,6 +459,25 @@ function StepRules({
       </div>
 
       <div className="space-y-4">
+        {/* Pricing method (mandatory, first field) */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Pricing Method</Label>
+          <div className="grid grid-cols-2 gap-2 max-w-md">
+            <PricingPill
+              active={isPerUnit}
+              onClick={() => setPricingMethod('per_unit')}
+              title="Per Unit Price"
+              sub="₹ / unit"
+            />
+            <PricingPill
+              active={!isPerUnit}
+              onClick={() => setPricingMethod('total')}
+              title="Total Order Value"
+              sub="₹ total"
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Duration</Label>
           <Select value={duration} onValueChange={setDuration}>
@@ -432,10 +495,15 @@ function StepRules({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">
-              Starting Price <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-sm font-semibold">
+                {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Badge variant="secondary" className="text-[10px]">
+                {isPerUnit ? 'Per Unit' : 'Total'}
+              </Badge>
+            </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
@@ -443,16 +511,22 @@ function StepRules({
                 inputMode="numeric"
                 value={startingPrice}
                 onChange={(e) => setStartingPrice(e.target.value)}
-                placeholder="50,000"
+                placeholder={startPlaceholder}
                 className="pl-7"
               />
             </div>
+            <p className="text-xs text-muted-foreground">{startHelper}</p>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">
-              Minimum Decrement <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-sm font-semibold">
+                {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Badge variant="secondary" className="text-[10px]">
+                {isPerUnit ? 'Per Unit' : 'Total'}
+              </Badge>
+            </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
@@ -460,10 +534,17 @@ function StepRules({
                 inputMode="numeric"
                 value={minDecrement}
                 onChange={(e) => setMinDecrement(e.target.value)}
-                placeholder="500"
-                className="pl-7"
+                placeholder={decPlaceholder}
+                className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
               />
             </div>
+            {decrementError ? (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {decrementError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{decHelper}</p>
+            )}
           </div>
         </div>
       </div>
@@ -471,22 +552,42 @@ function StepRules({
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
         <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
         <p className="text-xs text-foreground/80">
-          Each new bid must be lower than the current best price by at least the decrement.
+          Pricing applies consistently across bids. If you set price per unit, all bids and decrements follow per unit.
         </p>
       </div>
     </div>
   );
 }
 
+function PricingPill({
+  active, onClick, title, sub,
+}: { active: boolean; onClick: () => void; title: string; sub: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'text-left p-3 rounded-lg border-2 transition-all',
+        active ? 'border-gold bg-gold/5' : 'border-border hover:border-primary/40'
+      )}
+    >
+      <p className={cn('text-sm font-semibold', active ? 'text-foreground' : 'text-foreground/80')}>{title}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+    </button>
+  );
+}
+
+
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
 function StepReview({
-  supplierMode, supplierCount, requirement, duration, startingPrice, minDecrement,
+  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement,
 }: {
   supplierMode: SupplierMode;
   supplierCount: number;
   requirement: string;
   duration: string;
+  pricingMethod: PricingMethod;
   startingPrice: string;
   minDecrement: string;
 }) {
@@ -494,11 +595,15 @@ function StepReview({
     ? `AI-matched (~${supplierCount} suppliers)`
     : 'Manual selection (after login)';
 
-  const formatINR = (v: string) => {
+  const isPerUnit = pricingMethod === 'per_unit';
+  const priceSuffix = isPerUnit ? 'per unit' : '(total order)';
+  const decSuffix = isPerUnit ? 'per unit' : '(total)';
+
+  const formatINR = (v: string, suffix?: string) => {
     if (!v) return '—';
     const n = Number(v);
     if (!Number.isFinite(n)) return '—';
-    return `₹${n.toLocaleString('en-IN')}`;
+    return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
   };
 
   const durationLabel = duration === '60' ? '1 hour'
@@ -519,8 +624,12 @@ function StepReview({
         <ReviewRow label="Requirement" value={requirement || '—'} />
         <ReviewRow label="Suppliers" value={supplierLabel} />
         <ReviewRow label="Duration" value={durationLabel} />
-        <ReviewRow label="Starting price" value={formatINR(startingPrice)} />
-        <ReviewRow label="Minimum decrement" value={formatINR(minDecrement)} />
+        <ReviewRow
+          label="Pricing method"
+          value={isPerUnit ? 'Per Unit Price' : 'Total Order Value'}
+        />
+        <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
+        <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
 
       <div className="rounded-lg border border-gold/30 bg-gold/5 px-3 py-2.5 flex items-start gap-2">
