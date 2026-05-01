@@ -1016,7 +1016,7 @@ function StepRules({
                 )}
               </span>
               <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                Locked across all bids
+                Locked for entire auction
               </Badge>
             </div>
             {hasAlternates && (
