@@ -152,6 +152,8 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementBlur = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
+    // Same guard as starting price — preserve raw on invalid so error surfaces.
+    if (!cleaned && /\d/.test(minDecrement || '')) return;
     setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
