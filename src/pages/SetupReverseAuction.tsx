@@ -1043,9 +1043,14 @@ function StepRules({
 
         {/* System contract rule — placed where the decision is made (pricing method),
             not at the bottom of the form, so users see it BEFORE filling fields. */}
-        <p className="text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
-          All suppliers bid using the same pricing method and unit. This cannot change once the auction begins.
-        </p>
+        <div className="border-t border-border/40 pt-2.5 mt-1 flex items-center gap-2">
+          <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20 font-semibold uppercase tracking-wide">
+            Locked for entire auction
+          </Badge>
+          <p className="text-[11px] text-muted-foreground">
+            All suppliers bid using the same pricing method and unit.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-4">
