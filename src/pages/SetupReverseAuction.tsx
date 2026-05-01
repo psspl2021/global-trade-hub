@@ -244,15 +244,41 @@ const SetupReverseAuction = () => {
   const unitHint = effectiveUnit; // backward compat for downstream
   const needsUnitSelection = pricingMethod === 'per_unit' && !effectiveUnit;
 
-  // Next valid bid preview
+  // Next valid bid preview — strict guard against stale/invalid state
   const nextValidBid = useMemo(() => {
-    if (!startingPrice || !minDecrement) return '';
-    const sp = Number(startingPrice);
-    const md = Number(minDecrement);
-    if (!Number.isFinite(sp) || !Number.isFinite(md) || md <= 0 || md > sp) return '';
-    const next = sp - md;
+    if (!hasStartingPrice || !hasMinDecrement) return '';
+    if (minDecrementNum > startingPriceNum) return '';
+    const next = startingPriceNum - minDecrementNum;
+    if (next <= 0) return '';
     return `₹${next.toLocaleString('en-IN')}`;
-  }, [startingPrice, minDecrement]);
+  }, [hasStartingPrice, hasMinDecrement, startingPriceNum, minDecrementNum]);
+
+  // Quantity inference (for total-order estimate when per-unit pricing)
+  const quantityInfo = useMemo(() => {
+    const m = requirement.match(/(\d[\d,]*\.?\d*)\s*(tons?|tonnes?|mt|kgs?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?)/i);
+    if (!m) return null;
+    const qty = Number(m[1].replace(/,/g, ''));
+    if (!Number.isFinite(qty) || qty <= 0) return null;
+    let unit = m[2].toLowerCase();
+    if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
+    else if (/kgs?/.test(unit)) unit = 'kg';
+    else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
+    else if (/bags?/.test(unit)) unit = 'bag';
+    else if (/boxes?/.test(unit)) unit = 'box';
+    else if (/drums?/.test(unit)) unit = 'drum';
+    else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
+    else if (/litres?|liters?/.test(unit)) unit = 'litre';
+    return { qty, unit };
+  }, [requirement]);
+
+  // Total estimate (per-unit pricing only, when quantity inferred + units match)
+  const totalEstimate = useMemo(() => {
+    if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
+    if (effectiveUnit && quantityInfo.unit !== effectiveUnit) return '';
+    const total = quantityInfo.qty * startingPriceNum;
+    if (!Number.isFinite(total) || total <= 0) return '';
+    return `₹${Math.round(total).toLocaleString('en-IN')}`;
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, effectiveUnit]);
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
