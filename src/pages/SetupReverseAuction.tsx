@@ -640,7 +640,7 @@ function PricingPill({
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
 function StepReview({
-  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement,
+  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement, unitHint,
 }: {
   supplierMode: SupplierMode;
   supplierCount: number;
@@ -649,14 +649,16 @@ function StepReview({
   pricingMethod: PricingMethod;
   startingPrice: string;
   minDecrement: string;
+  unitHint: string;
 }) {
   const supplierLabel = supplierMode === 'ai'
     ? `AI-matched (~${supplierCount} suppliers)`
     : 'Manual selection (after login)';
 
   const isPerUnit = pricingMethod === 'per_unit';
-  const priceSuffix = isPerUnit ? 'per unit' : '(total order)';
-  const decSuffix = isPerUnit ? 'per unit' : '(total)';
+  const unitWord = unitHint || 'unit';
+  const priceSuffix = isPerUnit ? `per ${unitWord}` : '(total order)';
+  const decSuffix = isPerUnit ? `per ${unitWord}` : '(total)';
 
   const formatINR = (v: string, suffix?: string) => {
     if (!v) return '—';
@@ -669,6 +671,15 @@ function StepReview({
     : duration === '120' ? '2 hours'
     : duration === '240' ? '4 hours'
     : `${duration} minutes`;
+
+  const pricingBadge = (
+    <Badge className={cn(
+      'text-[10px] font-semibold',
+      isPerUnit ? 'bg-gold text-gold-foreground' : 'bg-primary text-primary-foreground'
+    )}>
+      {isPerUnit ? 'Per Unit' : 'Total Order'}
+    </Badge>
+  );
 
   return (
     <div className="space-y-5">
@@ -683,10 +694,13 @@ function StepReview({
         <ReviewRow label="Requirement" value={requirement || '—'} />
         <ReviewRow label="Suppliers" value={supplierLabel} />
         <ReviewRow label="Duration" value={durationLabel} />
-        <ReviewRow
-          label="Pricing method"
-          value={isPerUnit ? 'Per Unit Price' : 'Total Order Value'}
-        />
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground flex-shrink-0">Pricing method</span>
+          <span className="flex items-center gap-2 font-semibold text-foreground text-right">
+            {isPerUnit ? 'Per Unit Price' : 'Total Order Value'}
+            {pricingBadge}
+          </span>
+        </div>
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
