@@ -753,39 +753,39 @@ function StepRules({
           </div>
         </div>
 
-        {/* Visual Next-Valid-Bid box (live feedback) */}
+        {/* Visual Next-Valid-Bid box (live feedback) — value-dominant hierarchy */}
         {nextValidBid && !decrementError && (
-          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
+          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
                   Next valid bid
                 </p>
-                <p className="text-2xl font-bold text-primary mt-0.5 leading-none">
+                <p className="text-4xl font-bold text-primary leading-none tracking-tight">
                   {nextValidBid}
-                  <span className="text-xs font-medium text-muted-foreground ml-1.5">
-                    {isPerUnit ? `per ${unitWord}` : '(total)'}
-                  </span>
+                </p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {isPerUnit ? `per ${unitWord}` : 'total order value'}
                 </p>
               </div>
-              <TrendingDown className="h-8 w-8 text-primary/40" />
+              <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
             </div>
 
-            {/* Mini static auction preview */}
-            <div className="mt-3 pt-3 border-t border-primary/15 space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                Live preview
-              </p>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Current price</span>
-                <span className="font-semibold text-foreground">
+            {/* Mini static auction preview — stacked layout */}
+            <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                  Current price
+                </p>
+                <p className="text-base font-semibold text-foreground">
                   ₹{Number(startingPrice).toLocaleString('en-IN')}
-                </span>
+                </p>
               </div>
-              <div className="flex items-center justify-center text-muted-foreground">↓</div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Next bid</span>
-                <span className="font-bold text-primary">{nextValidBid}</span>
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
+                  Next bid
+                </p>
+                <p className="text-base font-bold text-primary">{nextValidBid}</p>
               </div>
             </div>
           </div>
