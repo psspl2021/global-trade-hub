@@ -205,9 +205,13 @@ const SetupReverseAuction = () => {
         }
       }
       const resetDelay = previewShown ? 1500 : 0;
+      // Show "Switching unit…" anchor during the delay window so the upcoming
+      // reset has explicit context (prevents "why did my values disappear?" confusion).
+      if (resetDelay > 0) setIsUnitSwitching(true);
       resetTimeoutRef.current = window.setTimeout(() => {
         setStartingPrice('');
         setMinDecrement('');
+        setIsUnitSwitching(false);
         setUnitSwitchNote(true);
         window.setTimeout(() => setUnitSwitchNote(false), 4000);
         resetTimeoutRef.current = null;
