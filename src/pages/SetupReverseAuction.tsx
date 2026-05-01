@@ -303,7 +303,7 @@ const SetupReverseAuction = () => {
               <Button
                 size="lg"
                 className="gap-1.5"
-                disabled={(step === 1 && !canNextStep1) || (step === 2 && !canNextStep2)}
+                disabled={(step === 1 && !canNextStep1) || (step === 2 && (!canNextStep2 || needsUnitSelection))}
                 onClick={() => {
                   persistDraft();
                   setStep((s) => (s + 1) as 2 | 3);
