@@ -423,6 +423,8 @@ const SetupReverseAuction = () => {
               unitConvertPreview={unitConvertPreview}
               totalEstimate={totalEstimate}
               quantityInfo={quantityInfo}
+              quantityMismatch={quantityMismatch}
+              startingPriceNum={startingPriceNum}
             />
           )}
           {step === 3 && (
