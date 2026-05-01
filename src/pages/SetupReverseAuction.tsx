@@ -279,7 +279,7 @@ const SetupReverseAuction = () => {
               unitHint={unitHint}
               nextValidBid={nextValidBid}
               unitOverride={unitOverride}
-              setUnitOverride={setUnitOverride}
+              setUnitOverride={handleUnitOverrideChange}
               allowedUnits={unitInference.allowed}
               inferredUnit={unitInference.unit}
               inferenceConfidence={unitInference.confidence}
