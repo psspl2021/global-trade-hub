@@ -907,6 +907,7 @@ function StepRules({
   startingPriceNum, hasStartingPrice, hasMinDecrement,
   decrementMissing, suggestedDecrement, applySuggestedDecrement,
   effectiveError,
+  truncationWarning,
 }: {
   duration: string;
   setDuration: (v: string) => void;
