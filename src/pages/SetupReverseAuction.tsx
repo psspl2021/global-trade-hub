@@ -1088,6 +1088,21 @@ function StepRules({
           </div>
         )}
 
+        {/* Visual anchor during the 1.5s pre-reset window so users have explicit
+            context for *why* their values are about to clear. Prevents the
+            "why did my values disappear?" confusion. */}
+        {isUnitSwitching && !unitConvertPreview && (
+          <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2 animate-in fade-in duration-150">
+            <Clock className="h-3.5 w-3.5 animate-pulse" />
+            Switching unit…
+          </div>
+        )}
+        {isUnitSwitching && unitConvertPreview && (
+          <p className="text-[11px] text-muted-foreground -mt-2 ml-1">
+            Switching unit… pricing fields will reset shortly.
+          </p>
+        )}
+
         {/* Strict error priority — only the highest-priority issue is shown at a time
             to prevent cognitive overload. Order: unit > starting price > decrement. */}
         {(() => {
