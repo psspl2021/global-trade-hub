@@ -1234,6 +1234,11 @@ function StepRules({
                   <p className="text-xs text-destructive flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> {decrementError}
                   </p>
+                ) : truncationWarning === 'decrement' ? (
+                  <p className="text-xs text-amber-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    Edit looked unintentional — restored prior value. Clear the field to enter a new amount.
+                  </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{decHelper}</p>
                 )}
