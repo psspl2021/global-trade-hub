@@ -849,9 +849,11 @@ function StepRules({
   decrementError, startingPriceError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
-  needsUnitSelection, methodSwitchNote, unitSwitchNote,
+  needsUnitSelection, methodSwitchNote, unitSwitchNote, isUnitSwitching,
   unitConvertPreview, totalEstimate, quantityInfo,
-  quantityMismatch, startingPriceNum, suggestedDecrement,
+  quantityMismatch, quantityWasConverted,
+  startingPriceNum, hasStartingPrice, hasMinDecrement,
+  decrementMissing, suggestedDecrement, applySuggestedDecrement,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -877,12 +879,18 @@ function StepRules({
   needsUnitSelection: boolean;
   methodSwitchNote: boolean;
   unitSwitchNote: boolean;
+  isUnitSwitching: boolean;
   unitConvertPreview: { fromUnit: string; toUnit: string; fromPrice: number; toPrice: number } | null;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
   quantityMismatch: boolean;
+  quantityWasConverted: boolean;
   startingPriceNum: number;
+  hasStartingPrice: boolean;
+  hasMinDecrement: boolean;
+  decrementMissing: boolean;
   suggestedDecrement: number;
+  applySuggestedDecrement: () => void;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
