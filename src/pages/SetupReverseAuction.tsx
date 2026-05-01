@@ -266,8 +266,8 @@ const SetupReverseAuction = () => {
   }
 
   // Validation — uses sanitized values
-  const startingPriceNum = parseSafe(startingPrice);
-  const minDecrementNum = parseSafe(minDecrement);
+  const startingPriceNum = sanitizeCurrencyStrict(startingPrice) ?? NaN;
+  const minDecrementNum = sanitizeCurrencyStrict(minDecrement) ?? NaN;
   const hasStartingPrice = Number.isFinite(startingPriceNum) && startingPriceNum > 0;
   const hasMinDecrement = Number.isFinite(minDecrementNum) && minDecrementNum > 0;
 
