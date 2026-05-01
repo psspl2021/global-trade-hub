@@ -113,6 +113,13 @@ const SetupReverseAuction = () => {
     setStartingPrice(raw);
   };
 
+  // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
+  const handleStartingPriceFocus = () => {
+    if (!startingPrice) return;
+    const cleaned = sanitizeCurrencyInput(startingPrice);
+    if (cleaned) setStartingPrice(cleaned);
+  };
+
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
     // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
@@ -121,6 +128,12 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementChange = (raw: string) => {
     setMinDecrement(raw);
+  };
+
+  const handleMinDecrementFocus = () => {
+    if (!minDecrement) return;
+    const cleaned = sanitizeCurrencyInput(minDecrement);
+    if (cleaned) setMinDecrement(cleaned);
   };
 
   const handleMinDecrementBlur = () => {
