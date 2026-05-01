@@ -486,18 +486,40 @@ const SetupReverseAuction = () => {
             </Button>
 
             {step < 3 ? (
-              <Button
-                size="lg"
-                className="gap-1.5"
-                disabled={(step === 1 && !canNextStep1) || (step === 2 && (!canNextStep2 || needsUnitSelection))}
-                onClick={() => {
-                  persistDraft();
-                  setStep((s) => (s + 1) as 2 | 3);
-                }}
-              >
-                {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              (() => {
+                // CTA disabled-state hierarchy → matches inline error priority.
+                const ctaBlocked =
+                  (step === 1 && !canNextStep1) ||
+                  (step === 2 && (!canNextStep2 || needsUnitSelection));
+                let blockReason = '';
+                if (step === 2 && ctaBlocked) {
+                  if (needsUnitSelection) blockReason = 'Select a unit to continue';
+                  else if (startingPriceError) blockReason = 'Enter a valid starting price to continue';
+                  else if (decrementError) blockReason = 'Fix the minimum decrement to continue';
+                  else if (!duration) blockReason = 'Select an auction duration to continue';
+                } else if (step === 1 && ctaBlocked) {
+                  blockReason = 'Describe your requirement to continue';
+                }
+                return (
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Button
+                      size="lg"
+                      className="gap-1.5"
+                      disabled={ctaBlocked}
+                      onClick={() => {
+                        persistDraft();
+                        setStep((s) => (s + 1) as 2 | 3);
+                      }}
+                    >
+                      {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    {blockReason && (
+                      <p className="text-[11px] text-muted-foreground">{blockReason}</p>
+                    )}
+                  </div>
+                );
+              })()
             ) : (
               <Button
                 size="lg"
