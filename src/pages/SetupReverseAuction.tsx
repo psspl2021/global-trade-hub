@@ -994,6 +994,7 @@ function PricingPill({
 
 function StepReview({
   supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement, unitHint,
+  totalEstimate, quantityInfo,
 }: {
   supplierMode: SupplierMode;
   supplierCount: number;
@@ -1003,6 +1004,8 @@ function StepReview({
   startingPrice: string;
   minDecrement: string;
   unitHint: string;
+  totalEstimate: string;
+  quantityInfo: { qty: number; unit: string } | null;
 }) {
   const supplierLabel = supplierMode === 'ai'
     ? `AI-matched (~${supplierCount} suppliers)`
@@ -1020,7 +1023,7 @@ function StepReview({
   const formatINR = (v: string, suffix?: string) => {
     if (!v) return '—';
     const n = Number(v);
-    if (!Number.isFinite(n)) return '—';
+    if (!Number.isFinite(n) || n <= 0) return '—';
     return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
   };
 
@@ -1063,7 +1066,19 @@ function StepReview({
         )}
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
+        {isPerUnit && totalEstimate && quantityInfo && (
+          <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
+            <span className="text-muted-foreground flex-shrink-0">
+              Estimated total
+              <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
+                ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit} × starting price)
+              </span>
+            </span>
+            <span className="font-bold text-foreground text-right">{totalEstimate}</span>
+          </div>
+        )}
       </Card>
+
 
       {/* Behavior interpretation line — closes the gap on what selection means */}
       <div className="rounded-lg border-2 border-primary/25 bg-primary/5 px-3.5 py-3 flex items-start gap-2">
