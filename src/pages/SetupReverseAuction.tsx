@@ -100,16 +100,23 @@ const SetupReverseAuction = () => {
     return String(Math.round(n));
   };
 
+  // Format a sanitized numeric string with Indian commas. Empty stays empty.
+  const formatINRDisplay = (cleaned: string): string => {
+    if (!cleaned) return '';
+    const n = Number(cleaned);
+    if (!Number.isFinite(n) || n <= 0) return '';
+    return n.toLocaleString('en-IN');
+  };
+
   const handleStartingPriceChange = (raw: string) => {
-    // Allow user to type freely; sanitize only when they leave or paste formatted text.
-    // We store the raw string to allow intermediate typing, but downstream logic uses the
-    // numeric guards below.
+    // Free typing — never overwrite mid-keystroke (prevents cursor jump).
     setStartingPrice(raw);
   };
 
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
-    setStartingPrice(cleaned);
+    // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
+    setStartingPrice(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
   const handleMinDecrementChange = (raw: string) => {
@@ -118,7 +125,7 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementBlur = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
-    setMinDecrement(cleaned);
+    setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
   // Numeric guards used everywhere downstream (parses sanitized OR raw)
@@ -176,8 +183,8 @@ const SetupReverseAuction = () => {
   let decrementError = '';
   if (minDecrement && !hasMinDecrement) {
     decrementError = 'Enter a valid amount greater than zero';
-  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum > startingPriceNum) {
-    decrementError = 'Minimum decrement cannot exceed starting price';
+  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum >= startingPriceNum) {
+    decrementError = 'Decrement too large — resulting bid must be greater than zero';
   }
   const startingPriceError =
     startingPrice && !hasStartingPrice ? 'Enter a valid amount greater than zero' : '';
@@ -253,32 +260,43 @@ const SetupReverseAuction = () => {
     return `₹${next.toLocaleString('en-IN')}`;
   }, [hasStartingPrice, hasMinDecrement, startingPriceNum, minDecrementNum]);
 
-  // Quantity inference (for total-order estimate when per-unit pricing)
+  // Quantity inference (for total-order estimate when per-unit pricing).
+  // Pragmatic V1: extract FIRST valid number+unit pair. Ignores ranges (uses lower bound),
+  // tolerates "approx", "around", "~", and MT/monthly/per-day suffixes.
   const quantityInfo = useMemo(() => {
-    const m = requirement.match(/(\d[\d,]*\.?\d*)\s*(tons?|tonnes?|mt|kgs?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?)/i);
+    if (!requirement) return null;
+    const cleaned = requirement.replace(/[~]/g, ' ');
+    const m = cleaned.match(
+      /(\d[\d,]*\.?\d*)\s*(?:-|to|–)?\s*\d*[\d,]*\.?\d*\s*(tons?|tonnes?|mt|kgs?|kilograms?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?|ltrs?)/i
+    );
     if (!m) return null;
     const qty = Number(m[1].replace(/,/g, ''));
     if (!Number.isFinite(qty) || qty <= 0) return null;
     let unit = m[2].toLowerCase();
     if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
-    else if (/kgs?/.test(unit)) unit = 'kg';
+    else if (/kgs?|kilograms?/.test(unit)) unit = 'kg';
     else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
     else if (/bags?/.test(unit)) unit = 'bag';
     else if (/boxes?/.test(unit)) unit = 'box';
     else if (/drums?/.test(unit)) unit = 'drum';
     else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
-    else if (/litres?|liters?/.test(unit)) unit = 'litre';
+    else if (/litres?|liters?|ltrs?/.test(unit)) unit = 'litre';
     return { qty, unit };
   }, [requirement]);
+
+  // Quantity-vs-pricing-unit mismatch (silent failure surface)
+  const quantityMismatch =
+    pricingMethod === 'per_unit' &&
+    !!quantityInfo && !!effectiveUnit && quantityInfo.unit !== effectiveUnit;
 
   // Total estimate (per-unit pricing only, when quantity inferred + units match)
   const totalEstimate = useMemo(() => {
     if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
-    if (effectiveUnit && quantityInfo.unit !== effectiveUnit) return '';
+    if (quantityMismatch) return '';
     const total = quantityInfo.qty * startingPriceNum;
     if (!Number.isFinite(total) || total <= 0) return '';
     return `₹${Math.round(total).toLocaleString('en-IN')}`;
-  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, effectiveUnit]);
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityMismatch]);
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -405,6 +423,8 @@ const SetupReverseAuction = () => {
               unitConvertPreview={unitConvertPreview}
               totalEstimate={totalEstimate}
               quantityInfo={quantityInfo}
+              quantityMismatch={quantityMismatch}
+              startingPriceNum={startingPriceNum}
             />
           )}
           {step === 3 && (
@@ -633,6 +653,7 @@ function StepRules({
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
   needsUnitSelection, methodSwitchNote, unitSwitchNote,
   unitConvertPreview, totalEstimate, quantityInfo,
+  quantityMismatch, startingPriceNum,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -659,6 +680,8 @@ function StepRules({
   unitConvertPreview: { fromUnit: string; toUnit: string; fromPrice: number; toPrice: number } | null;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
+  quantityMismatch: boolean;
+  startingPriceNum: number;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -829,7 +852,7 @@ function StepRules({
 
         {/* Unit conversion preview (briefly shown when switching units before reset) */}
         {unitConvertPreview && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
             <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <div className="text-xs">
               <p className="font-semibold text-foreground">Unit changed — equivalent price</p>
@@ -839,7 +862,7 @@ function StepRules({
                 Equivalent: ₹{unitConvertPreview.toPrice.toLocaleString('en-IN')} per {unitConvertPreview.toUnit}
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Pricing fields reset — re-enter to confirm in the new unit.
+                Auto-conversion is supported only for ton ↔ kg. Pricing fields reset — re-enter to confirm in the new unit.
               </p>
             </div>
           </div>
@@ -936,7 +959,7 @@ function StepRules({
                   Current price
                 </p>
                 <p className="text-base font-semibold text-foreground">
-                  ₹{Number(startingPrice).toLocaleString('en-IN')}
+                  ₹{startingPriceNum.toLocaleString('en-IN')}
                 </p>
               </div>
               <div className="space-y-0.5">
@@ -954,6 +977,20 @@ function StepRules({
                   Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
                 </span>
                 <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              </div>
+            )}
+
+            {/* Surface why estimate is missing — never silent */}
+            {isPerUnit && quantityMismatch && (
+              <div className="mt-3 pt-3 border-t border-primary/15 flex items-start gap-2 text-[11px] text-muted-foreground">
+                <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-amber-600" />
+                <span>
+                  Total estimate unavailable — requirement mentions{' '}
+                  <span className="font-semibold text-foreground">{quantityInfo!.unit}</span>
+                  {' '}but pricing unit is{' '}
+                  <span className="font-semibold text-foreground">{unitWord}</span>.
+                  Switch unit to match, or proceed without estimate.
+                </span>
               </div>
             )}
           </div>
