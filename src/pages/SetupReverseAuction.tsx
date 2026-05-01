@@ -284,14 +284,19 @@ const SetupReverseAuction = () => {
     return { qty, unit };
   }, [requirement]);
 
+  // Quantity-vs-pricing-unit mismatch (silent failure surface)
+  const quantityMismatch =
+    pricingMethod === 'per_unit' &&
+    !!quantityInfo && !!effectiveUnit && quantityInfo.unit !== effectiveUnit;
+
   // Total estimate (per-unit pricing only, when quantity inferred + units match)
   const totalEstimate = useMemo(() => {
     if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
-    if (effectiveUnit && quantityInfo.unit !== effectiveUnit) return '';
+    if (quantityMismatch) return '';
     const total = quantityInfo.qty * startingPriceNum;
     if (!Number.isFinite(total) || total <= 0) return '';
     return `₹${Math.round(total).toLocaleString('en-IN')}`;
-  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, effectiveUnit]);
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityMismatch]);
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
