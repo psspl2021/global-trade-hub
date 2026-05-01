@@ -262,13 +262,33 @@ const PostRFQ = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Persistent Mode Strip */}
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Badge variant="secondary" className="font-semibold">
+              <FileText className="h-3 w-3 mr-1" /> Mode: Forward
+            </Badge>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+              Suppliers will submit structured quotes for your requirement
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs shrink-0"
+            onClick={() => navigate('/choose-procurement-mode')}
+          >
+            Switch mode
+          </Button>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center space-y-4 mb-8">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-            Post Your RFQ. Get Multiple Quotes.
+            Post Requirement — Receive Supplier Bids
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Connect with verified Indian suppliers in minutes. Free, fast, and secure.
+            Suppliers submit structured quotes for comparison. Free, fast, and secure.
           </p>
         </div>
 
