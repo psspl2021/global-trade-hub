@@ -325,7 +325,7 @@ const SetupReverseAuction = () => {
                   setStep((s) => (s + 1) as 2 | 3);
                 }}
               >
-                Continue
+                {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
