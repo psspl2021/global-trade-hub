@@ -385,10 +385,13 @@ const SetupReverseAuction = () => {
               pricingMethod={pricingMethod}
               setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
-              setStartingPrice={setStartingPrice}
+              setStartingPrice={handleStartingPriceChange}
+              onStartingPriceBlur={handleStartingPriceBlur}
               minDecrement={minDecrement}
-              setMinDecrement={setMinDecrement}
+              setMinDecrement={handleMinDecrementChange}
+              onMinDecrementBlur={handleMinDecrementBlur}
               decrementError={decrementError}
+              startingPriceError={startingPriceError}
               unitHint={unitHint}
               nextValidBid={nextValidBid}
               unitOverride={unitOverride}
@@ -399,6 +402,9 @@ const SetupReverseAuction = () => {
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
               unitSwitchNote={unitSwitchNote}
+              unitConvertPreview={unitConvertPreview}
+              totalEstimate={totalEstimate}
+              quantityInfo={quantityInfo}
             />
           )}
           {step === 3 && (
@@ -411,6 +417,8 @@ const SetupReverseAuction = () => {
               startingPrice={startingPrice}
               minDecrement={minDecrement}
               unitHint={unitHint}
+              totalEstimate={totalEstimate}
+              quantityInfo={quantityInfo}
             />
           )}
 
