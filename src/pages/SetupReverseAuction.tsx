@@ -378,7 +378,7 @@ function StepSuppliers({
       <div>
         <h2 className="text-xl font-bold text-foreground">Select suppliers for this auction</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          We invite suppliers — they bid live to win your order.
+          We invite suppliers — they compete live to win your order.
         </p>
       </div>
 
