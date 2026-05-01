@@ -128,9 +128,17 @@ const SetupReverseAuction = () => {
   // Real-world failure: user has "65,000", focuses, deletes a few chars,
   // leaves field at "65," → sanitize yields 65. We auto-format to "65".
   // The user thinks they still have 65,000. Catastrophic in pricing.
+  //
   // Strategy: snapshot the committed value on focus; on blur, if the new
-  // value collapsed by ≥10×, revert to the snapshot and surface a warning.
-  // (Genuine downward edits are still possible — user can simply re-edit.)
+  // value collapsed by ≥10× AND lost ≥2 digits of length, treat as accidental
+  // truncation — revert to snapshot and surface a neutral notice.
+  //
+  // Stricter than 10× alone:
+  //   65,000 → 5,000  (13× smaller, only 1 digit lost)  → ALLOWED (intentional)
+  //   65,000 → 65     (1000× smaller, 3 digits lost)    → REVERT (accidental)
+  //
+  // Override path: clearing the field resets the snapshot (see focus handler),
+  // so users can always commit a new lower value by clearing first.
   const startingPriceFocusSnapshotRef = useRef<number>(0);
   const minDecrementFocusSnapshotRef = useRef<number>(0);
   const [truncationWarning, setTruncationWarning] = useState<'starting' | 'decrement' | null>(null);
@@ -144,15 +152,29 @@ const SetupReverseAuction = () => {
     }, 4000);
   };
 
+  // Pure predicate so the rule can be unit-tested / reused without re-deriving.
+  const isAccidentalTruncation = (snap: number, next: number): boolean => {
+    if (!(snap > 0 && next > 0)) return false;
+    const orderDrop = next * 10 <= snap;
+    const digitDrop = String(Math.round(snap)).length - String(Math.round(next)).length >= 2;
+    return orderDrop && digitDrop;
+  };
+
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
   // INTENT: Only update if sanitization yields a valid numeric string.
   // If empty/invalid, preserve the raw input — never destructively wipe the field
   // on focus (would surprise the user mid-edit). Future "optimizations" must keep
   // this guard or they will reintroduce a destructive UX regression.
+  //
+  // SNAPSHOT RULE: if the field is empty, snapshot is 0 — guarantees the next
+  // edit is treated as fresh input (explicit override path for the user).
   const handleStartingPriceFocus = () => {
+    if (!startingPrice) {
+      startingPriceFocusSnapshotRef.current = 0;
+      return;
+    }
     const cleaned = sanitizeCurrencyInput(startingPrice);
     startingPriceFocusSnapshotRef.current = cleaned ? Number(cleaned) : 0;
-    if (!startingPrice) return;
     if (cleaned) setStartingPrice(cleaned);
   };
 
@@ -162,11 +184,11 @@ const SetupReverseAuction = () => {
     // "-50"), preserve the raw input so the validation error surfaces. Silently
     // clearing would make the user think the value was accepted.
     if (!cleaned && /\d/.test(startingPrice || '')) return;
-    // Order-of-magnitude truncation guard: revert + warn instead of silently
-    // accepting a value 10× smaller than what the user had committed.
+    // Truncation guard: revert + warn instead of silently accepting a value
+    // that lost ≥1 order of magnitude AND ≥2 digits of length.
     const snap = startingPriceFocusSnapshotRef.current;
     const next = cleaned ? Number(cleaned) : 0;
-    if (snap > 0 && next > 0 && next * 10 <= snap) {
+    if (isAccidentalTruncation(snap, next)) {
       setStartingPrice(formatINRDisplay(String(snap)));
       flashTruncationWarning('starting');
       return;
@@ -179,10 +201,14 @@ const SetupReverseAuction = () => {
   };
 
   // INTENT: same guard as starting price — preserve raw on invalid, strip on valid.
+  // Empty field on focus → snapshot resets to 0 (clean override path).
   const handleMinDecrementFocus = () => {
+    if (!minDecrement) {
+      minDecrementFocusSnapshotRef.current = 0;
+      return;
+    }
     const cleaned = sanitizeCurrencyInput(minDecrement);
     minDecrementFocusSnapshotRef.current = cleaned ? Number(cleaned) : 0;
-    if (!minDecrement) return;
     if (cleaned) setMinDecrement(cleaned);
   };
 
@@ -190,10 +216,10 @@ const SetupReverseAuction = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
     // Same guard as starting price — preserve raw on invalid so error surfaces.
     if (!cleaned && /\d/.test(minDecrement || '')) return;
-    // Order-of-magnitude truncation guard (mirror of starting price).
+    // Truncation guard (mirror of starting price).
     const snap = minDecrementFocusSnapshotRef.current;
     const next = cleaned ? Number(cleaned) : 0;
-    if (snap > 0 && next > 0 && next * 10 <= snap) {
+    if (isAccidentalTruncation(snap, next)) {
       setMinDecrement(formatINRDisplay(String(snap)));
       flashTruncationWarning('decrement');
       return;
@@ -1200,7 +1226,7 @@ function StepRules({
                 ) : truncationWarning === 'starting' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Edit looked unintentional — restored prior value. Clear the field to enter a new amount.
+                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{startHelper}</p>
@@ -1237,7 +1263,7 @@ function StepRules({
                 ) : truncationWarning === 'decrement' ? (
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    Edit looked unintentional — restored prior value. Clear the field to enter a new amount.
+                    Value changed significantly — previous value restored. Clear the field to enter a new amount.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{decHelper}</p>
