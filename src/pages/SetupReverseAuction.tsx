@@ -63,14 +63,27 @@ const SetupReverseAuction = () => {
   // Manually-selected unit (overrides inference). Empty = use inferred or fallback.
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
+  const [unitSwitchNote, setUnitSwitchNote] = useState(false);
 
-  // When pricing method changes, reset decrement (prevent unit mismatch)
+  // When pricing method changes, reset BOTH starting price + decrement (prevent unit/scale mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
     if (m === pricingMethod) return;
     setPricingMethod(m);
+    setStartingPrice('');
     setMinDecrement('');
     setMethodSwitchNote(true);
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
+  };
+
+  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
+  const handleUnitOverrideChange = (u: string) => {
+    setUnitOverride(u);
+    if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
+      setStartingPrice('');
+      setMinDecrement('');
+      setUnitSwitchNote(true);
+      window.setTimeout(() => setUnitSwitchNote(false), 4000);
+    }
   };
 
   // Validation
@@ -207,7 +220,7 @@ const SetupReverseAuction = () => {
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
             <span>
-              <span className="font-semibold text-foreground">Notifications (RFQ alerts):</span>
+              <span className="font-semibold text-foreground">Notifications (RFQ alerts only):</span>
               <span className="ml-1.5">2 free/day</span>
               <span className="text-border mx-1.5">•</span>
               <span>₹500 = 200 emails</span>
@@ -266,12 +279,13 @@ const SetupReverseAuction = () => {
               unitHint={unitHint}
               nextValidBid={nextValidBid}
               unitOverride={unitOverride}
-              setUnitOverride={setUnitOverride}
+              setUnitOverride={handleUnitOverrideChange}
               allowedUnits={unitInference.allowed}
               inferredUnit={unitInference.unit}
               inferenceConfidence={unitInference.confidence}
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
+              unitSwitchNote={unitSwitchNote}
             />
           )}
           {step === 3 && (
@@ -311,7 +325,7 @@ const SetupReverseAuction = () => {
                   setStep((s) => (s + 1) as 2 | 3);
                 }}
               >
-                Continue
+                {step === 2 && needsUnitSelection ? 'Select unit to continue' : 'Continue'}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
@@ -494,7 +508,7 @@ function StepRules({
   startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
-  needsUnitSelection, methodSwitchNote,
+  needsUnitSelection, methodSwitchNote, unitSwitchNote,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -514,6 +528,7 @@ function StepRules({
   inferenceConfidence: 'high' | 'medium' | 'low';
   needsUnitSelection: boolean;
   methodSwitchNote: boolean;
+  unitSwitchNote: boolean;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -537,7 +552,14 @@ function StepRules({
   const showMandatoryUnitSelector = isPerUnit && !inferredUnit && !unitOverride;
   const hasAlternates = isPerUnit && inferredUnit && allowedUnits.length > 1;
 
-  const fallbackUnits = ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'];
+  // When category is inferred (allowedUnits scoped to category), use that.
+  // Otherwise fall back to broader generic list.
+  const fallbackUnits = allowedUnits.length > 1 || allowedUnits[0] !== 'ton'
+    ? allowedUnits
+    : ['ton', 'kg', 'piece', 'bag', 'metre', 'litre'];
+  // Actually: when no inference (low confidence), allowedUnits already = full generic list per inference logic.
+  // When category inferred, allowedUnits is narrow. So just use allowedUnits directly:
+  const mandatorySelectorUnits = allowedUnits;
 
   return (
     <div className="space-y-5">
@@ -579,7 +601,13 @@ function StepRules({
         {methodSwitchNote && (
           <p className="text-[11px] text-primary flex items-center gap-1">
             <AlertCircle className="h-3 w-3" />
-            Pricing method changed. Decrement reset to match pricing type.
+            Pricing method changed. Starting price and decrement reset to match.
+          </p>
+        )}
+        {unitSwitchNote && (
+          <p className="text-[11px] text-primary flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Unit changed. Pricing reset to maintain consistency.
           </p>
         )}
 
@@ -596,7 +624,7 @@ function StepRules({
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {fallbackUnits.map((u) => (
+              {mandatorySelectorUnits.map((u) => (
                 <button
                   key={u}
                   type="button"
@@ -617,13 +645,18 @@ function StepRules({
 
         {/* Soft unit affordance when inferred + alternates exist */}
         {isPerUnit && unitHint && (hasAlternates || unitOverride) && (
-          <div className="flex items-center justify-between gap-2 text-xs">
-            <span className="text-muted-foreground">
-              Pricing unit: <span className="font-semibold text-foreground">{unitWord}</span>
-              {inferenceConfidence !== 'high' && !unitOverride && (
-                <span className="ml-1 text-[10px] text-muted-foreground">(suggested)</span>
-              )}
-            </span>
+          <div className="flex items-center justify-between gap-2 text-xs flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">
+                Pricing unit: <span className="font-semibold text-foreground">{unitWord}</span>
+                {inferenceConfidence !== 'high' && !unitOverride && (
+                  <span className="ml-1 text-[10px] text-muted-foreground">(suggested)</span>
+                )}
+              </span>
+              <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                Locked across all bids
+              </Badge>
+            </div>
             {hasAlternates && (
               <div className="flex gap-1">
                 {allowedUnits.map((u) => (
@@ -720,39 +753,39 @@ function StepRules({
           </div>
         </div>
 
-        {/* Visual Next-Valid-Bid box (live feedback) */}
+        {/* Visual Next-Valid-Bid box (live feedback) — value-dominant hierarchy */}
         {nextValidBid && !decrementError && (
-          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
+          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
                   Next valid bid
                 </p>
-                <p className="text-2xl font-bold text-primary mt-0.5 leading-none">
+                <p className="text-4xl font-bold text-primary leading-none tracking-tight">
                   {nextValidBid}
-                  <span className="text-xs font-medium text-muted-foreground ml-1.5">
-                    {isPerUnit ? `per ${unitWord}` : '(total)'}
-                  </span>
+                </p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {isPerUnit ? `per ${unitWord}` : 'total order value'}
                 </p>
               </div>
-              <TrendingDown className="h-8 w-8 text-primary/40" />
+              <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
             </div>
 
-            {/* Mini static auction preview */}
-            <div className="mt-3 pt-3 border-t border-primary/15 space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                Live preview
-              </p>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Current price</span>
-                <span className="font-semibold text-foreground">
+            {/* Mini static auction preview — stacked layout */}
+            <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                  Current price
+                </p>
+                <p className="text-base font-semibold text-foreground">
                   ₹{Number(startingPrice).toLocaleString('en-IN')}
-                </span>
+                </p>
               </div>
-              <div className="flex items-center justify-center text-muted-foreground">↓</div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Next bid</span>
-                <span className="font-bold text-primary">{nextValidBid}</span>
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase tracking-wide text-primary/80 font-semibold">
+                  Next bid
+                </p>
+                <p className="text-base font-bold text-primary">{nextValidBid}</p>
               </div>
             </div>
           </div>
@@ -856,6 +889,9 @@ function StepReview({
             {pricingBadge}
           </span>
         </div>
+        {isPerUnit && unitHint && (
+          <ReviewRow label="Unit" value={unitHint} />
+        )}
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
