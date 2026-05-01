@@ -28,6 +28,7 @@ import {
   TrendingDown, Mail, AlertCircle,
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
+import { sanitizeCurrencyStrict, formatINR } from '@/lib/currency';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/hooks/useAuth';
 import { trackEvent } from '@/lib/analytics';
