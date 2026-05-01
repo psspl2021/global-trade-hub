@@ -263,6 +263,13 @@ const SetupReverseAuction = () => {
               decrementError={decrementError}
               unitHint={unitHint}
               nextValidBid={nextValidBid}
+              unitOverride={unitOverride}
+              setUnitOverride={setUnitOverride}
+              allowedUnits={unitInference.allowed}
+              inferredUnit={unitInference.unit}
+              inferenceConfidence={unitInference.confidence}
+              needsUnitSelection={needsUnitSelection}
+              methodSwitchNote={methodSwitchNote}
             />
           )}
           {step === 3 && (
