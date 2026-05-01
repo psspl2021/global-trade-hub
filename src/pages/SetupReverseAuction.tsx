@@ -544,12 +544,20 @@ const SetupReverseAuction = () => {
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
               unitSwitchNote={unitSwitchNote}
+              isUnitSwitching={isUnitSwitching}
               unitConvertPreview={unitConvertPreview}
               totalEstimate={totalEstimate}
               quantityInfo={quantityInfo}
               quantityMismatch={quantityMismatch}
+              quantityWasConverted={quantityWasConverted}
               startingPriceNum={startingPriceNum}
+              hasStartingPrice={hasStartingPrice}
+              hasMinDecrement={hasMinDecrement}
+              decrementMissing={decrementMissing}
               suggestedDecrement={suggestedDecrement}
+              applySuggestedDecrement={() =>
+                setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
+              }
             />
           )}
           {step === 3 && (
