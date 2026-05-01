@@ -134,6 +134,7 @@ const SetupReverseAuction = () => {
     setMinDecrement(raw);
   };
 
+  // INTENT: same guard as starting price — preserve raw on invalid, strip on valid.
   const handleMinDecrementFocus = () => {
     if (!minDecrement) return;
     const cleaned = sanitizeCurrencyInput(minDecrement);
