@@ -431,7 +431,7 @@ function StepSuppliers({
           onClick={() => setSupplierMode('manual')}
           icon={Users}
           title="Select suppliers manually"
-          description="Choose from your saved supplier list after login."
+          description="Select from your supplier list after login."
         />
       </div>
 
