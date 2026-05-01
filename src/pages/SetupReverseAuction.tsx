@@ -675,8 +675,8 @@ function SupplierOption({
 
 function StepRules({
   duration, setDuration, pricingMethod, setPricingMethod,
-  startingPrice, setStartingPrice, onStartingPriceBlur,
-  minDecrement, setMinDecrement, onMinDecrementBlur,
+  startingPrice, setStartingPrice, onStartingPriceFocus, onStartingPriceBlur,
+  minDecrement, setMinDecrement, onMinDecrementFocus, onMinDecrementBlur,
   decrementError, startingPriceError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
@@ -690,9 +690,11 @@ function StepRules({
   setPricingMethod: (m: PricingMethod) => void;
   startingPrice: string;
   setStartingPrice: (v: string) => void;
+  onStartingPriceFocus: () => void;
   onStartingPriceBlur: () => void;
   minDecrement: string;
   setMinDecrement: (v: string) => void;
+  onMinDecrementFocus: () => void;
   onMinDecrementBlur: () => void;
   decrementError: string;
   startingPriceError: string;
