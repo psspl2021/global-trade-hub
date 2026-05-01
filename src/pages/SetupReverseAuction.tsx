@@ -260,21 +260,27 @@ const SetupReverseAuction = () => {
     return `₹${next.toLocaleString('en-IN')}`;
   }, [hasStartingPrice, hasMinDecrement, startingPriceNum, minDecrementNum]);
 
-  // Quantity inference (for total-order estimate when per-unit pricing)
+  // Quantity inference (for total-order estimate when per-unit pricing).
+  // Pragmatic V1: extract FIRST valid number+unit pair. Ignores ranges (uses lower bound),
+  // tolerates "approx", "around", "~", and MT/monthly/per-day suffixes.
   const quantityInfo = useMemo(() => {
-    const m = requirement.match(/(\d[\d,]*\.?\d*)\s*(tons?|tonnes?|mt|kgs?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?)/i);
+    if (!requirement) return null;
+    const cleaned = requirement.replace(/[~]/g, ' ');
+    const m = cleaned.match(
+      /(\d[\d,]*\.?\d*)\s*(?:-|to|–)?\s*\d*[\d,]*\.?\d*\s*(tons?|tonnes?|mt|kgs?|kilograms?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?|ltrs?)/i
+    );
     if (!m) return null;
     const qty = Number(m[1].replace(/,/g, ''));
     if (!Number.isFinite(qty) || qty <= 0) return null;
     let unit = m[2].toLowerCase();
     if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
-    else if (/kgs?/.test(unit)) unit = 'kg';
+    else if (/kgs?|kilograms?/.test(unit)) unit = 'kg';
     else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
     else if (/bags?/.test(unit)) unit = 'bag';
     else if (/boxes?/.test(unit)) unit = 'box';
     else if (/drums?/.test(unit)) unit = 'drum';
     else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
-    else if (/litres?|liters?/.test(unit)) unit = 'litre';
+    else if (/litres?|liters?|ltrs?/.test(unit)) unit = 'litre';
     return { qty, unit };
   }, [requirement]);
 
