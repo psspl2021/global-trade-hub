@@ -81,44 +81,10 @@ const SetupReverseAuction = () => {
     fromUnit: string; toUnit: string; fromPrice: number; toPrice: number;
   } | null>(null);
 
-  // ── Currency input sanitization ─────────────────────────────────
-  // Accepts: "65,000", "65000", "65k", "65K", "₹65000", " 65 000 "
-  // Rejects (returns ''): empty, NaN, negatives, zero
-  const sanitizeCurrencyInput = (raw: string): string => {
-    if (raw == null) return '';
-    let s = String(raw).trim();
-    if (!s) return '';
-    // Strip currency symbol, commas, whitespace, and stray non-numeric punctuation (keep digits, dot, k/K)
-    s = s.replace(/[₹$€£¥,\s]/g, '');
-    // Reject explicit negatives
-    if (s.startsWith('-')) return '';
-    // Handle k/K shorthand → multiply by 1000
-    let multiplier = 1;
-    if (/[kK]$/.test(s)) {
-      multiplier = 1000;
-      s = s.slice(0, -1);
-    } else if (/[lL]$/.test(s)) {
-      multiplier = 100000;
-      s = s.slice(0, -1);
-    } else if (/(cr|CR|Cr)$/.test(s)) {
-      multiplier = 10000000;
-      s = s.replace(/(cr|CR|Cr)$/, '');
-    }
-    if (!s || !/^\d*\.?\d*$/.test(s)) return '';
-    const n = Number(s) * multiplier;
-    if (!Number.isFinite(n) || n <= 0) return '';
-    // Hard upper sanity cap (₹999 Cr) to prevent garbage huge values
-    if (n > 9_990_000_000) return '';
-    return String(Math.round(n));
-  };
-
-  // Format a sanitized numeric string with Indian commas. Empty stays empty.
-  const formatINRDisplay = (cleaned: string): string => {
-    if (!cleaned) return '';
-    const n = Number(cleaned);
-    if (!Number.isFinite(n) || n <= 0) return '';
-    return n.toLocaleString('en-IN');
-  };
+  // ── Currency input handling ─────────────────────────────────────
+  // Parsing + formatting is delegated to the shared single-source-of-truth
+  // module at @/lib/currency (sanitizeCurrencyStrict, formatINR). This keeps
+  // client / server / tests in lockstep — do NOT reintroduce local parsing.
 
   const handleStartingPriceChange = (raw: string) => {
     // Free typing — never overwrite mid-keystroke (prevents cursor jump).
@@ -131,12 +97,8 @@ const SetupReverseAuction = () => {
   // The user thinks they still have 65,000. Catastrophic in pricing.
   //
   // Strategy: snapshot the committed value on focus; on blur, if the new
-  // value collapsed by ≥10× AND lost ≥2 digits of length, treat as accidental
+  // value collapsed by ≥100× (≥2 orders of magnitude), treat as accidental
   // truncation — revert to snapshot and surface a neutral notice.
-  //
-  // Stricter than 10× alone:
-  //   65,000 → 5,000  (13× smaller, only 1 digit lost)  → ALLOWED (intentional)
-  //   65,000 → 65     (1000× smaller, 3 digits lost)    → REVERT (accidental)
   //
   // Override path: clearing the field resets the snapshot (see focus handler),
   // so users can always commit a new lower value by clearing first.
@@ -153,99 +115,69 @@ const SetupReverseAuction = () => {
     }, 2500);
   };
 
-  // Pure predicate so the rule can be unit-tested / reused without re-deriving.
-  // Uses log10 magnitude (base-agnostic, mathematically stable) instead of
-  // string-length comparison. Explicit zero-guard prevents log10(0) = -Infinity.
+  // Pure predicate — uses log10 magnitude (base-agnostic, mathematically stable).
+  // Epsilon guards against floating-point flicker at exact powers of 10.
   const isAccidentalTruncation = (snap: number, next: number): boolean => {
-    // Defensive: reject NaN / Infinity before any math runs.
     if (!Number.isFinite(snap) || !Number.isFinite(next)) return false;
     if (snap <= 0 || next <= 0) return false;
-    // Epsilon guards against floating-point flicker at exact powers of 10
-    // (e.g. log10(1000) producing 2.9999... on some runtimes).
-    // A magnitude drop of >= 2 already implies a ~100x collapse, so the
-    // explicit 10x check is redundant — kept logic minimal and equivalent.
     const snapMag = Math.floor(Math.log10(snap + 1e-9));
     const nextMag = Math.floor(Math.log10(next + 1e-9));
     return snapMag - nextMag >= 2;
   };
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
-  // INTENT: Only update if sanitization yields a valid numeric string.
-  // If empty/invalid, preserve the raw input — never destructively wipe the field
-  // on focus (would surprise the user mid-edit). Future "optimizations" must keep
-  // this guard or they will reintroduce a destructive UX regression.
-  //
   // SNAPSHOT RULE: if the field is empty, snapshot is 0 — guarantees the next
   // edit is treated as fresh input (explicit override path for the user).
   const handleStartingPriceFocus = () => {
-    // Strict equality: only an explicitly cleared field resets the snapshot.
-    // Falsy-but-non-empty states (shouldn't happen for strings, but guards
-    // against future refactors using number/null) keep the prior snapshot so
-    // truncation protection isn't unintentionally disabled.
     if (startingPrice === '') {
       startingPriceFocusSnapshotRef.current = 0;
       return;
     }
-    const cleaned = sanitizeCurrencyInput(startingPrice);
-    startingPriceFocusSnapshotRef.current = cleaned ? Number(cleaned) : 0;
-    if (cleaned) setStartingPrice(cleaned);
+    const num = sanitizeCurrencyStrict(startingPrice);
+    startingPriceFocusSnapshotRef.current = num ?? 0;
+    if (num != null) setStartingPrice(String(num));
   };
 
   const handleStartingPriceBlur = () => {
-    const cleaned = sanitizeCurrencyInput(startingPrice);
-    // CRITICAL: if raw had digits but sanitization yielded empty (e.g. "0", "000",
-    // "-50"), preserve the raw input so the validation error surfaces. Silently
-    // clearing would make the user think the value was accepted.
-    if (!cleaned && /\d/.test(startingPrice || '')) return;
-    // Truncation guard: revert + warn instead of silently accepting a value
-    // that lost ≥1 order of magnitude AND ≥2 digits of length.
+    const num = sanitizeCurrencyStrict(startingPrice);
+    // CRITICAL: if raw had digits but sanitization yielded null (e.g. "0", "000",
+    // "-50"), preserve the raw input so the validation error surfaces.
+    if (num == null && /\d/.test(startingPrice || '')) return;
     const snap = startingPriceFocusSnapshotRef.current;
-    const next = cleaned ? Number(cleaned) : 0;
-    if (isAccidentalTruncation(snap, next)) {
-      setStartingPrice(formatINRDisplay(String(snap)));
+    if (isAccidentalTruncation(snap, num ?? 0)) {
+      setStartingPrice(formatINR(snap));
       flashTruncationWarning('starting');
       return;
     }
-    setStartingPrice(cleaned ? formatINRDisplay(cleaned) : '');
+    setStartingPrice(num != null ? formatINR(num) : '');
   };
 
   const handleMinDecrementChange = (raw: string) => {
     setMinDecrement(raw);
   };
 
-  // INTENT: same guard as starting price — preserve raw on invalid, strip on valid.
-  // Empty field on focus → snapshot resets to 0 (clean override path).
   const handleMinDecrementFocus = () => {
-    // Strict equality (see handleStartingPriceFocus rationale).
     if (minDecrement === '') {
       minDecrementFocusSnapshotRef.current = 0;
       return;
     }
-    const cleaned = sanitizeCurrencyInput(minDecrement);
-    minDecrementFocusSnapshotRef.current = cleaned ? Number(cleaned) : 0;
-    if (cleaned) setMinDecrement(cleaned);
+    const num = sanitizeCurrencyStrict(minDecrement);
+    minDecrementFocusSnapshotRef.current = num ?? 0;
+    if (num != null) setMinDecrement(String(num));
   };
 
   const handleMinDecrementBlur = () => {
-    const cleaned = sanitizeCurrencyInput(minDecrement);
-    // Same guard as starting price — preserve raw on invalid so error surfaces.
-    if (!cleaned && /\d/.test(minDecrement || '')) return;
-    // Truncation guard (mirror of starting price).
+    const num = sanitizeCurrencyStrict(minDecrement);
+    if (num == null && /\d/.test(minDecrement || '')) return;
     const snap = minDecrementFocusSnapshotRef.current;
-    const next = cleaned ? Number(cleaned) : 0;
-    if (isAccidentalTruncation(snap, next)) {
-      setMinDecrement(formatINRDisplay(String(snap)));
+    if (isAccidentalTruncation(snap, num ?? 0)) {
+      setMinDecrement(formatINR(snap));
       flashTruncationWarning('decrement');
       return;
     }
-    setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
+    setMinDecrement(num != null ? formatINR(num) : '');
   };
 
-  // Numeric guards used everywhere downstream (parses sanitized OR raw)
-  const parseSafe = (v: string): number => {
-    const cleaned = sanitizeCurrencyInput(v);
-    return cleaned ? Number(cleaned) : NaN;
-  };
 
   // When pricing method changes, reset BOTH starting price + decrement (prevent unit/scale mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
