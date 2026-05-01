@@ -889,6 +889,9 @@ function StepReview({
             {pricingBadge}
           </span>
         </div>
+        {isPerUnit && unitHint && (
+          <ReviewRow label="Unit" value={unitHint} />
+        )}
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
