@@ -103,6 +103,7 @@ const ManagedVsMarketplace = lazy(() => import("./pages/comparisons/ManagedVsMar
 const ReverseAuctionSEOPage = lazy(() => import("./pages/ReverseAuctionSEOPage"));
 const ReverseAuction = lazy(() => import("./pages/ReverseAuction"));
 const CreateReverseAuctionPage = lazy(() => import("./pages/CreateReverseAuctionPage"));
+const ChooseProcurementMode = lazy(() => import("./pages/ChooseProcurementMode"));
 const TransporterPage = lazy(() => import("./pages/TransporterPage"));
 const BusinessCreditPage = lazy(() => import("./pages/BusinessCredit"));
 
