@@ -38,6 +38,11 @@ type PricingMethod = 'per_unit' | 'total';
 
 const DRAFT_KEY = 'reverse_auction_pre_login_draft';
 
+// Standardized animation timings — adjacent UI blocks must use the same
+// duration to prevent perceptible jitter when they appear/disappear together.
+const ANIMATION_FAST_MS = 150;
+const ANIMATION_BASE_MS = 200;
+
 const SetupReverseAuction = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -132,7 +137,10 @@ const SetupReverseAuction = () => {
 
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
-    // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
+    // CRITICAL: if raw had digits but sanitization yielded empty (e.g. "0", "000",
+    // "-50"), preserve the raw input so the validation error surfaces. Silently
+    // clearing would make the user think the value was accepted.
+    if (!cleaned && /\d/.test(startingPrice || '')) return;
     setStartingPrice(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
@@ -149,6 +157,8 @@ const SetupReverseAuction = () => {
 
   const handleMinDecrementBlur = () => {
     const cleaned = sanitizeCurrencyInput(minDecrement);
+    // Same guard as starting price — preserve raw on invalid so error surfaces.
+    if (!cleaned && /\d/.test(minDecrement || '')) return;
     setMinDecrement(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
@@ -558,6 +568,7 @@ const SetupReverseAuction = () => {
               applySuggestedDecrement={() =>
                 setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
               }
+              effectiveError={effectiveError}
             />
           )}
           {step === 3 && (
@@ -854,6 +865,7 @@ function StepRules({
   quantityMismatch, quantityWasConverted,
   startingPriceNum, hasStartingPrice, hasMinDecrement,
   decrementMissing, suggestedDecrement, applySuggestedDecrement,
+  effectiveError,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -891,6 +903,7 @@ function StepRules({
   decrementMissing: boolean;
   suggestedDecrement: number;
   applySuggestedDecrement: () => void;
+  effectiveError: 'unit' | 'starting' | 'decrement' | 'duration' | null;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -1186,8 +1199,11 @@ function StepRules({
             (hasStartingPrice && hasMinDecrement && no errors), not from the
             derived `nextValidBid` string — prevents derived-state inconsistencies
             and rendering lag edge cases when inputs change rapidly. */}
-        {hasStartingPrice && hasMinDecrement && !decrementError && !startingPriceError && nextValidBid && (
-          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
+        {/* Single source of truth: gate on INPUT existence + effectiveError (the
+            same source CTA uses). Avoids dependence on the derived `nextValidBid`
+            string for visibility — derived state never controls base rendering. */}
+        {hasStartingPrice && hasMinDecrement && !effectiveError && nextValidBid && (
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>{/* duration-200 = ANIMATION_BASE_MS */}
             {/* ── Block A — Core math ── */}
             <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
               <div className="flex items-start justify-between gap-3">
