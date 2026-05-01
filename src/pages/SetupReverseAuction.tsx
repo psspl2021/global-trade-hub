@@ -1167,6 +1167,45 @@ function PricingPill({
   );
 }
 
+/**
+ * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms
+ * after the underlying issue clears. Prevents the message from vanishing
+ * the instant the user fixes the field, which feels jarring/unstable.
+ */
+function StickyBlockReason({ reason }: { reason: string }) {
+  const [shown, setShown] = useState(reason);
+  const [visible, setVisible] = useState(!!reason);
+  const fadeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (reason) {
+      if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
+      setShown(reason);
+      setVisible(true);
+    } else if (visible) {
+      // Fade out after a short grace period so feedback feels continuous.
+      fadeRef.current = window.setTimeout(() => {
+        setVisible(false);
+        fadeRef.current = null;
+      }, 400);
+    }
+    return () => {
+      if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
+    };
+  }, [reason]);
+
+  if (!shown) return null;
+  return (
+    <p
+      className={cn(
+        'text-[11px] text-muted-foreground transition-opacity duration-300',
+        visible ? 'opacity-100' : 'opacity-0'
+      )}
+    >
+      {shown}
+    </p>
+  );
+}
 
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
