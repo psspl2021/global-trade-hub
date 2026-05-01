@@ -653,6 +653,7 @@ function StepRules({
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
   needsUnitSelection, methodSwitchNote, unitSwitchNote,
   unitConvertPreview, totalEstimate, quantityInfo,
+  quantityMismatch, startingPriceNum,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -679,6 +680,8 @@ function StepRules({
   unitConvertPreview: { fromUnit: string; toUnit: string; fromPrice: number; toPrice: number } | null;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
+  quantityMismatch: boolean;
+  startingPriceNum: number;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
