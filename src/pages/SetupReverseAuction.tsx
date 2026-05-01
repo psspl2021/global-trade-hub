@@ -149,15 +149,17 @@ const SetupReverseAuction = () => {
     truncationWarningTimerRef.current = window.setTimeout(() => {
       setTruncationWarning(null);
       truncationWarningTimerRef.current = null;
-    }, 4000);
+    }, 2500);
   };
 
   // Pure predicate so the rule can be unit-tested / reused without re-deriving.
+  // Uses log10 magnitude (base-agnostic, mathematically stable) instead of
+  // string-length comparison. Explicit zero-guard prevents log10(0) = -Infinity.
   const isAccidentalTruncation = (snap: number, next: number): boolean => {
-    if (!(snap > 0 && next > 0)) return false;
+    if (snap <= 0 || next <= 0) return false;
     const orderDrop = next * 10 <= snap;
-    const digitDrop = String(Math.round(snap)).length - String(Math.round(next)).length >= 2;
-    return orderDrop && digitDrop;
+    const magnitudeDrop = Math.floor(Math.log10(snap)) - Math.floor(Math.log10(next)) >= 2;
+    return orderDrop && magnitudeDrop;
   };
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
