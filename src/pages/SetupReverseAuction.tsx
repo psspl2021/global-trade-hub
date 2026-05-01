@@ -345,19 +345,51 @@ const SetupReverseAuction = () => {
     return { qty, unit: matched.unit };
   }, [requirement]);
 
-  // Quantity-vs-pricing-unit mismatch (silent failure surface)
+  // Quantity-vs-pricing-unit mismatch surface.
+  // A "true mismatch" means the units differ AND we cannot deterministically convert
+  // (e.g. requirement in `bag`, pricing in `ton`). When convertible (ton ↔ kg) we
+  // silently use the converted quantity for estimate — no warning shown.
+  const quantityConverted = useMemo(() => {
+    if (!quantityInfo || !effectiveUnit) return null;
+    if (quantityInfo.unit === effectiveUnit) return quantityInfo.qty;
+    const c = convertQuantity(quantityInfo.qty, quantityInfo.unit, effectiveUnit);
+    return c != null && c > 0 ? c : null;
+  }, [quantityInfo, effectiveUnit]);
+
   const quantityMismatch =
     pricingMethod === 'per_unit' &&
-    !!quantityInfo && !!effectiveUnit && quantityInfo.unit !== effectiveUnit;
+    !!quantityInfo && !!effectiveUnit &&
+    quantityInfo.unit !== effectiveUnit &&
+    quantityConverted == null; // only "true mismatch" when no conversion path exists
 
-  // Total estimate (per-unit pricing only, when quantity inferred + units match)
+  // Total estimate (per-unit pricing only). Uses converted quantity when units differ
+  // but a deterministic conversion (ton ↔ kg) exists.
   const totalEstimate = useMemo(() => {
     if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
-    if (quantityMismatch) return '';
-    const total = quantityInfo.qty * startingPriceNum;
+    const qty = quantityConverted;
+    if (qty == null) return '';
+    const total = qty * startingPriceNum;
     if (!Number.isFinite(total) || total <= 0) return '';
     return `₹${Math.round(total).toLocaleString('en-IN')}`;
-  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityMismatch]);
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, quantityConverted]);
+
+  // Suggested decrement = 1% of starting price (used when user leaves it blank).
+  // Removes ambiguous bidding behavior: "what's the smallest legal step?"
+  const suggestedDecrement = useMemo(() => {
+    if (!hasStartingPrice) return 0;
+    const sug = Math.max(1, Math.round(startingPriceNum * 0.01));
+    return sug < startingPriceNum ? sug : 0;
+  }, [hasStartingPrice, startingPriceNum]);
+
+  // Single source of truth for step-2 validity → UI + CTA share this.
+  // Priority: unit > starting price > decrement > duration. First failure wins.
+  const effectiveError: 'unit' | 'starting' | 'decrement' | 'duration' | null =
+    needsUnitSelection ? 'unit'
+    : startingPriceError ? 'starting'
+    : decrementError ? 'decrement'
+    : !duration ? 'duration'
+    : null;
+  const canNextStep2 = effectiveError == null;
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
