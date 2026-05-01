@@ -1180,7 +1180,7 @@ function StepReview({
         {isPerUnit && totalEstimate && quantityInfo && (
           <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
             <span className="text-muted-foreground flex-shrink-0">
-              Estimated total
+              Estimated total <span className="text-[10px] font-normal text-muted-foreground/70">(approx)</span>
               <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
                 ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit} × starting price)
               </span>
