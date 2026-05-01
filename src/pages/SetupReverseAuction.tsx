@@ -609,6 +609,7 @@ const SetupReverseAuction = () => {
                 setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
               }
               effectiveError={effectiveError}
+              truncationWarning={truncationWarning}
             />
           )}
           {step === 3 && (
