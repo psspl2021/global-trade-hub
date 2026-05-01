@@ -183,8 +183,8 @@ const SetupReverseAuction = () => {
   let decrementError = '';
   if (minDecrement && !hasMinDecrement) {
     decrementError = 'Enter a valid amount greater than zero';
-  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum > startingPriceNum) {
-    decrementError = 'Minimum decrement cannot exceed starting price';
+  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum >= startingPriceNum) {
+    decrementError = 'Decrement too large — resulting bid must be greater than zero';
   }
   const startingPriceError =
     startingPrice && !hasStartingPrice ? 'Enter a valid amount greater than zero' : '';
