@@ -235,6 +235,8 @@ const SetupReverseAuction = () => {
               minDecrement={minDecrement}
               setMinDecrement={setMinDecrement}
               decrementError={decrementError}
+              unitHint={unitHint}
+              nextValidBid={nextValidBid}
             />
           )}
           {step === 3 && (
