@@ -132,7 +132,10 @@ const SetupReverseAuction = () => {
 
   const handleStartingPriceBlur = () => {
     const cleaned = sanitizeCurrencyInput(startingPrice);
-    // On blur, swap to formatted display (e.g. 65000 → 65,000) for financial clarity.
+    // CRITICAL: if raw had digits but sanitization yielded empty (e.g. "0", "000",
+    // "-50"), preserve the raw input so the validation error surfaces. Silently
+    // clearing would make the user think the value was accepted.
+    if (!cleaned && /\d/.test(startingPrice || '')) return;
     setStartingPrice(cleaned ? formatINRDisplay(cleaned) : '');
   };
 
