@@ -457,6 +457,7 @@ function SupplierOption({
 function StepRules({
   duration, setDuration, pricingMethod, setPricingMethod,
   startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
+  unitHint, nextValidBid,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -467,18 +468,25 @@ function StepRules({
   minDecrement: string;
   setMinDecrement: (v: string) => void;
   decrementError: string;
+  unitHint: string;
+  nextValidBid: string;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
-  const startLabel = isPerUnit ? 'Starting Price (per unit)' : 'Starting Price (total order value)';
-  const startPlaceholder = isPerUnit ? '50,000 per ton' : '25,00,000 total';
-  const startHelper = isPerUnit
-    ? 'Suppliers will bid price per unit.'
-    : 'Suppliers will bid on total order value.';
-  const decLabel = isPerUnit ? 'Minimum Decrement (per unit)' : 'Minimum Decrement (total value)';
+  const unitWord = unitHint || 'unit';
+  const unitFallbackNote = !unitHint;
+  const startLabel = isPerUnit
+    ? `Starting Price (per ${unitWord})`
+    : 'Starting Price (total order value)';
+  const startPlaceholder = isPerUnit ? `e.g. 50,000 per ${unitWord}` : 'e.g. 25,00,000 total';
+  const startHelper = startingPrice
+    ? 'Auction starts from your defined price.'
+    : 'Optional — leave blank and the auction will start from supplier bids.';
+  const decLabel = isPerUnit ? `Minimum Decrement (per ${unitWord})` : 'Minimum Decrement (total value)';
   const decPlaceholder = isPerUnit ? '500' : '10,000';
   const decHelper = isPerUnit
-    ? 'Each new bid must be lower per unit.'
-    : 'Each new bid must reduce total order value.';
+    ? `Each new bid must be lower by at least this amount per ${unitWord}.`
+    : 'Each new bid must reduce total order value by at least this amount.';
+  const pricingBadge = isPerUnit ? `₹ per ${unitWord}` : '₹ total';
 
   return (
     <div className="space-y-5">
@@ -489,26 +497,41 @@ function StepRules({
         </p>
       </div>
 
-      <div className="space-y-4">
-        {/* Pricing method (mandatory, first field) */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Pricing Method</Label>
-          <div className="grid grid-cols-2 gap-2 max-w-md">
-            <PricingPill
-              active={isPerUnit}
-              onClick={() => setPricingMethod('per_unit')}
-              title="Per Unit Price"
-              sub="₹ / unit"
-            />
-            <PricingPill
-              active={!isPerUnit}
-              onClick={() => setPricingMethod('total')}
-              title="Total Order Value"
-              sub="₹ total"
-            />
+      {/* Pricing method — primary, elevated section */}
+      <div className="rounded-xl border-2 border-gold/30 bg-gold/[0.04] p-4 sm:p-5 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+              How suppliers will bid
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Choose how pricing will be compared across all bids.
+            </p>
           </div>
+          <Badge className="bg-gold text-gold-foreground text-[10px] flex-shrink-0">Required</Badge>
         </div>
+        <div className="grid grid-cols-2 gap-2">
+          <PricingPill
+            active={isPerUnit}
+            onClick={() => setPricingMethod('per_unit')}
+            title="Per Unit Price"
+            sub={`₹ per ${unitWord}`}
+          />
+          <PricingPill
+            active={!isPerUnit}
+            onClick={() => setPricingMethod('total')}
+            title="Total Order Value"
+            sub="₹ total"
+          />
+        </div>
+        {isPerUnit && unitFallbackNote && (
+          <p className="text-[11px] text-muted-foreground">
+            Tip: mention a unit (e.g. ton, piece, kg) in your requirement to lock units across all bids.
+          </p>
+        )}
+      </div>
 
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Duration</Label>
           <Select value={duration} onValueChange={setDuration}>
@@ -532,7 +555,7 @@ function StepRules({
                 {startLabel} <span className="text-muted-foreground font-normal">(optional)</span>
               </Label>
               <Badge variant="secondary" className="text-[10px]">
-                {isPerUnit ? 'Per Unit' : 'Total'}
+                {pricingBadge}
               </Badge>
             </div>
             <div className="relative">
@@ -555,7 +578,7 @@ function StepRules({
                 {decLabel} <span className="text-muted-foreground font-normal">(optional)</span>
               </Label>
               <Badge variant="secondary" className="text-[10px]">
-                {isPerUnit ? 'Per Unit' : 'Total'}
+                {pricingBadge}
               </Badge>
             </div>
             <div className="relative">
@@ -572,6 +595,11 @@ function StepRules({
             {decrementError ? (
               <p className="text-xs text-destructive flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" /> {decrementError}
+              </p>
+            ) : nextValidBid ? (
+              <p className="text-xs text-primary flex items-center gap-1 font-medium">
+                <TrendingDown className="h-3 w-3" />
+                Next valid bid: {nextValidBid} {isPerUnit ? `per ${unitWord}` : '(total)'}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">{decHelper}</p>
