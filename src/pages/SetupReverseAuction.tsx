@@ -286,7 +286,7 @@ const SetupReverseAuction = () => {
                 onClick={handleLaunch}
               >
                 <Gavel className="h-4 w-4" />
-                Start Reverse Auction
+                Launch Reverse Auction
               </Button>
             )}
           </div>
