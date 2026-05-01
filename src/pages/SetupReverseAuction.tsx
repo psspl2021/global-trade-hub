@@ -803,6 +803,7 @@ function StepRules({
   quantityInfo: { qty: number; unit: string } | null;
   quantityMismatch: boolean;
   startingPriceNum: number;
+  suggestedDecrement: number;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
