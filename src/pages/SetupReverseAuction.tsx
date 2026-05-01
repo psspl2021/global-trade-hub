@@ -64,6 +64,12 @@ const SetupReverseAuction = () => {
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
   const [unitSwitchNote, setUnitSwitchNote] = useState(false);
+  // Anchored "Switching unit…" indicator shown during the 1.5s reset window so
+  // users have explicit context for *why* fields are about to clear.
+  const [isUnitSwitching, setIsUnitSwitching] = useState(false);
+  // Confirmation gate when proceeding to review with no decrement set
+  // (system will fall back to 1% default — financial commitment must be explicit).
+  const [showDecrementConfirm, setShowDecrementConfirm] = useState(false);
   // Equivalence preview shown briefly before reset on unit switch (per-unit only).
   const [unitConvertPreview, setUnitConvertPreview] = useState<{
     fromUnit: string; toUnit: string; fromPrice: number; toPrice: number;
@@ -114,6 +120,10 @@ const SetupReverseAuction = () => {
   };
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
+  // INTENT: Only update if sanitization yields a valid numeric string.
+  // If empty/invalid, preserve the raw input — never destructively wipe the field
+  // on focus (would surprise the user mid-edit). Future "optimizations" must keep
+  // this guard or they will reintroduce a destructive UX regression.
   const handleStartingPriceFocus = () => {
     if (!startingPrice) return;
     const cleaned = sanitizeCurrencyInput(startingPrice);
@@ -130,6 +140,7 @@ const SetupReverseAuction = () => {
     setMinDecrement(raw);
   };
 
+  // INTENT: same guard as starting price — preserve raw on invalid, strip on valid.
   const handleMinDecrementFocus = () => {
     if (!minDecrement) return;
     const cleaned = sanitizeCurrencyInput(minDecrement);
@@ -194,9 +205,13 @@ const SetupReverseAuction = () => {
         }
       }
       const resetDelay = previewShown ? 1500 : 0;
+      // Show "Switching unit…" anchor during the delay window so the upcoming
+      // reset has explicit context (prevents "why did my values disappear?" confusion).
+      if (resetDelay > 0) setIsUnitSwitching(true);
       resetTimeoutRef.current = window.setTimeout(() => {
         setStartingPrice('');
         setMinDecrement('');
+        setIsUnitSwitching(false);
         setUnitSwitchNote(true);
         window.setTimeout(() => setUnitSwitchNote(false), 4000);
         resetTimeoutRef.current = null;
@@ -362,6 +377,15 @@ const SetupReverseAuction = () => {
     quantityInfo.unit !== effectiveUnit &&
     quantityConverted == null; // only "true mismatch" when no conversion path exists
 
+  // Transparency flag: did we silently convert the requirement quantity into
+  // the pricing unit to compute the estimate? If yes, surface a tiny hint near
+  // the estimate so users understand WHERE the number came from.
+  const quantityWasConverted =
+    pricingMethod === 'per_unit' &&
+    !!quantityInfo && !!effectiveUnit &&
+    quantityInfo.unit !== effectiveUnit &&
+    quantityConverted != null;
+
   // Total estimate (per-unit pricing only). Uses converted quantity when units differ
   // but a deterministic conversion (ton ↔ kg) exists.
   const totalEstimate = useMemo(() => {
@@ -390,6 +414,11 @@ const SetupReverseAuction = () => {
     : !duration ? 'duration'
     : null;
   const canNextStep2 = effectiveError == null;
+
+  // Stateful (non-blocking) condition: starting price set but decrement is empty.
+  // System will use a default (1%), but this is *explicit* state — surfaced via
+  // the disclosure block below — not an implicit assumption. Does not block CTA.
+  const decrementMissing = hasStartingPrice && !minDecrement && !decrementError;
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -515,12 +544,20 @@ const SetupReverseAuction = () => {
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
               unitSwitchNote={unitSwitchNote}
+              isUnitSwitching={isUnitSwitching}
               unitConvertPreview={unitConvertPreview}
               totalEstimate={totalEstimate}
               quantityInfo={quantityInfo}
               quantityMismatch={quantityMismatch}
+              quantityWasConverted={quantityWasConverted}
               startingPriceNum={startingPriceNum}
+              hasStartingPrice={hasStartingPrice}
+              hasMinDecrement={hasMinDecrement}
+              decrementMissing={decrementMissing}
               suggestedDecrement={suggestedDecrement}
+              applySuggestedDecrement={() =>
+                setMinDecrement(formatINRDisplay(String(suggestedDecrement)))
+              }
             />
           )}
           {step === 3 && (
@@ -570,6 +607,10 @@ const SetupReverseAuction = () => {
                 } else if (step === 1 && ctaBlocked) {
                   blockReason = 'Describe your requirement to continue';
                 }
+                const proceed = () => {
+                  persistDraft();
+                  setStep((s) => (s + 1) as 2 | 3);
+                };
                 return (
                   <div className="flex flex-col items-end gap-1.5">
                     <Button
@@ -577,8 +618,14 @@ const SetupReverseAuction = () => {
                       className="gap-1.5"
                       disabled={ctaBlocked}
                       onClick={() => {
-                        persistDraft();
-                        setStep((s) => (s + 1) as 2 | 3);
+                        // Financial-commitment confirmation: if user is leaving
+                        // decrement blank, the system will fall back to a 1% default.
+                        // Make this explicit before transitioning to review.
+                        if (step === 2 && decrementMissing && suggestedDecrement > 0) {
+                          setShowDecrementConfirm(true);
+                          return;
+                        }
+                        proceed();
                       }}
                     >
                       {step === 2 && effectiveError === 'unit' ? 'Select unit to continue' : 'Continue'}
@@ -622,6 +669,38 @@ const SetupReverseAuction = () => {
               Cancel
             </Button>
             <Button onClick={confirmSwitch}>Continue</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Decrement-default confirmation — explicit financial-commitment gate.
+          Without this, users could silently launch with an implicit 1% step. */}
+      <Dialog open={showDecrementConfirm} onOpenChange={setShowDecrementConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Use default minimum decrement?</DialogTitle>
+            <DialogDescription>
+              You haven't set a minimum decrement. The auction will use a default
+              of <span className="font-semibold text-foreground">
+                ₹{suggestedDecrement.toLocaleString('en-IN')}
+              </span> (1% of starting price)
+              {pricingMethod === 'per_unit' ? ` per ${unitHint || 'unit'}` : ' on total order value'}.
+              Each new bid must be lower by at least this amount.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowDecrementConfirm(false)}>
+              Set my own
+            </Button>
+            <Button
+              onClick={() => {
+                setShowDecrementConfirm(false);
+                persistDraft();
+                setStep((s) => (s + 1) as 2 | 3);
+              }}
+            >
+              Use default & continue
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -770,9 +849,11 @@ function StepRules({
   decrementError, startingPriceError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
-  needsUnitSelection, methodSwitchNote, unitSwitchNote,
+  needsUnitSelection, methodSwitchNote, unitSwitchNote, isUnitSwitching,
   unitConvertPreview, totalEstimate, quantityInfo,
-  quantityMismatch, startingPriceNum, suggestedDecrement,
+  quantityMismatch, quantityWasConverted,
+  startingPriceNum, hasStartingPrice, hasMinDecrement,
+  decrementMissing, suggestedDecrement, applySuggestedDecrement,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -798,12 +879,18 @@ function StepRules({
   needsUnitSelection: boolean;
   methodSwitchNote: boolean;
   unitSwitchNote: boolean;
+  isUnitSwitching: boolean;
   unitConvertPreview: { fromUnit: string; toUnit: string; fromPrice: number; toPrice: number } | null;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
   quantityMismatch: boolean;
+  quantityWasConverted: boolean;
   startingPriceNum: number;
+  hasStartingPrice: boolean;
+  hasMinDecrement: boolean;
+  decrementMissing: boolean;
   suggestedDecrement: number;
+  applySuggestedDecrement: () => void;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -929,7 +1016,7 @@ function StepRules({
                 )}
               </span>
               <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                Locked across all bids
+                Locked for entire auction
               </Badge>
             </div>
             {hasAlternates && (
@@ -956,9 +1043,14 @@ function StepRules({
 
         {/* System contract rule — placed where the decision is made (pricing method),
             not at the bottom of the form, so users see it BEFORE filling fields. */}
-        <p className="text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
-          All suppliers bid using the same pricing method and unit. This cannot change once the auction begins.
-        </p>
+        <div className="border-t border-border/40 pt-2.5 mt-1 flex items-center gap-2">
+          <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20 font-semibold uppercase tracking-wide">
+            Locked for entire auction
+          </Badge>
+          <p className="text-[11px] text-muted-foreground">
+            All suppliers bid using the same pricing method and unit.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -994,6 +1086,21 @@ function StepRules({
               </p>
             </div>
           </div>
+        )}
+
+        {/* Visual anchor during the 1.5s pre-reset window so users have explicit
+            context for *why* their values are about to clear. Prevents the
+            "why did my values disappear?" confusion. */}
+        {isUnitSwitching && !unitConvertPreview && (
+          <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground flex items-center gap-2 animate-in fade-in duration-150">
+            <Clock className="h-3.5 w-3.5 animate-pulse" />
+            Switching unit…
+          </div>
+        )}
+        {isUnitSwitching && unitConvertPreview && (
+          <p className="text-[11px] text-muted-foreground -mt-2 ml-1">
+            Switching unit… pricing fields will reset shortly.
+          </p>
         )}
 
         {/* Strict error priority — only the highest-priority issue is shown at a time
@@ -1075,9 +1182,11 @@ function StepRules({
         })()}
 
         {/* Bid math + interpretation — split into Block A (math) and Block B (context)
-            to reduce cognitive load. Block A is always shown when valid; Block B only
-            renders if there's interpretive content (estimate or mismatch). */}
-        {nextValidBid && !decrementError && !startingPriceError && (
+            to reduce cognitive load. Block A renders strictly from INPUT state
+            (hasStartingPrice && hasMinDecrement && no errors), not from the
+            derived `nextValidBid` string — prevents derived-state inconsistencies
+            and rendering lag edge cases when inputs change rapidly. */}
+        {hasStartingPrice && hasMinDecrement && !decrementError && !startingPriceError && nextValidBid && (
           <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
             {/* ── Block A — Core math ── */}
             <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
@@ -1116,12 +1225,22 @@ function StepRules({
 
             {/* ── Block B — Interpretation (estimate OR mismatch) ── */}
             {isPerUnit && totalEstimate && quantityInfo && (
-              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-                <span className="text-muted-foreground">
-                  Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
-                  {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
-                </span>
-                <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 space-y-1 text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
+                    {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
+                  </span>
+                  <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+                </div>
+                {/* Transparency: surface that we converted units to compute this estimate. */}
+                {quantityWasConverted && (
+                  <p className="text-[10px] text-muted-foreground/80">
+                    Quantity converted from{' '}
+                    <span className="font-semibold">{quantityInfo.unit}</span> to{' '}
+                    <span className="font-semibold">{unitWord}</span> for estimate.
+                  </p>
+                )}
               </div>
             )}
 
@@ -1142,17 +1261,28 @@ function StepRules({
       </div>
 
       {/* Default-decrement disclosure — removes ambiguity when the user leaves
-          the decrement blank. Auction will fall back to a deterministic 1% step. */}
-      {suggestedDecrement > 0 && !minDecrement && (
+          the decrement blank. Auction will fall back to a deterministic 1% step.
+          Driven by `decrementMissing` (explicit non-blocking state) so the
+          implicit assumption becomes a visible, acknowledgeable condition. */}
+      {decrementMissing && suggestedDecrement > 0 && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
           <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-foreground/80">
-            No minimum decrement set — auction will use a default of{' '}
-            <span className="font-semibold text-foreground">
-              ₹{suggestedDecrement.toLocaleString('en-IN')}
-            </span>{' '}
-            (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
-          </p>
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <p className="text-xs text-foreground/80">
+              No minimum decrement set — auction will use a default of{' '}
+              <span className="font-semibold text-foreground">
+                ₹{suggestedDecrement.toLocaleString('en-IN')}
+              </span>{' '}
+              (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
+            </p>
+            <button
+              type="button"
+              onClick={applySuggestedDecrement}
+              className="text-[11px] font-semibold text-primary hover:underline focus:outline-none focus-visible:underline"
+            >
+              Use default (₹{suggestedDecrement.toLocaleString('en-IN')})
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -1178,22 +1308,27 @@ function PricingPill({
 }
 
 /**
- * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms
- * after the underlying issue clears. Prevents the message from vanishing
- * the instant the user fixes the field, which feels jarring/unstable.
+ * StickyBlockReason — keeps the disabled-CTA reason visible for ~400ms after
+ * the underlying issue clears so the user has time to read it.
+ *
+ * Anti-flicker design: rendered text comes from `lastReasonRef`, NOT a transient
+ * `shown` state. When the user rapidly toggles inputs across multiple errors,
+ * the last non-empty reason is preserved through the fade-out window — the
+ * message can never go blank or revert to a stale value mid-transition.
  */
 function StickyBlockReason({ reason }: { reason: string }) {
-  const [shown, setShown] = useState(reason);
+  const lastReasonRef = useRef<string>(reason);
+  const [, force] = useState(0);
   const [visible, setVisible] = useState(!!reason);
   const fadeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (reason) {
       if (fadeRef.current) { window.clearTimeout(fadeRef.current); fadeRef.current = null; }
-      setShown(reason);
+      lastReasonRef.current = reason; // capture latest reason explicitly
       setVisible(true);
+      force((n) => n + 1); // re-render with new ref content
     } else if (visible) {
-      // Fade out after a short grace period so feedback feels continuous.
       fadeRef.current = window.setTimeout(() => {
         setVisible(false);
         fadeRef.current = null;
@@ -1204,7 +1339,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
     };
   }, [reason]);
 
-  if (!shown) return null;
+  if (!lastReasonRef.current) return null;
   return (
     <p
       className={cn(
@@ -1212,7 +1347,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
         visible ? 'opacity-100' : 'opacity-0'
       )}
     >
-      {shown}
+      {lastReasonRef.current}
     </p>
   );
 }
