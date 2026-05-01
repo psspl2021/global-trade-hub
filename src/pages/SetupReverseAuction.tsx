@@ -581,12 +581,13 @@ function PricingPill({
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
 function StepReview({
-  supplierMode, supplierCount, requirement, duration, startingPrice, minDecrement,
+  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement,
 }: {
   supplierMode: SupplierMode;
   supplierCount: number;
   requirement: string;
   duration: string;
+  pricingMethod: PricingMethod;
   startingPrice: string;
   minDecrement: string;
 }) {
@@ -594,11 +595,15 @@ function StepReview({
     ? `AI-matched (~${supplierCount} suppliers)`
     : 'Manual selection (after login)';
 
-  const formatINR = (v: string) => {
+  const isPerUnit = pricingMethod === 'per_unit';
+  const priceSuffix = isPerUnit ? 'per unit' : '(total order)';
+  const decSuffix = isPerUnit ? 'per unit' : '(total)';
+
+  const formatINR = (v: string, suffix?: string) => {
     if (!v) return '—';
     const n = Number(v);
     if (!Number.isFinite(n)) return '—';
-    return `₹${n.toLocaleString('en-IN')}`;
+    return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
   };
 
   const durationLabel = duration === '60' ? '1 hour'
@@ -619,8 +624,12 @@ function StepReview({
         <ReviewRow label="Requirement" value={requirement || '—'} />
         <ReviewRow label="Suppliers" value={supplierLabel} />
         <ReviewRow label="Duration" value={durationLabel} />
-        <ReviewRow label="Starting price" value={formatINR(startingPrice)} />
-        <ReviewRow label="Minimum decrement" value={formatINR(minDecrement)} />
+        <ReviewRow
+          label="Pricing method"
+          value={isPerUnit ? 'Per Unit Price' : 'Total Order Value'}
+        />
+        <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
+        <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
 
       <div className="rounded-lg border border-gold/30 bg-gold/5 px-3 py-2.5 flex items-start gap-2">
