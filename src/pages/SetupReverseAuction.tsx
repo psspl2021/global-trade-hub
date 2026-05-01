@@ -149,11 +149,15 @@ const SetupReverseAuction = () => {
           </button>
 
           {/* Email quota chip */}
-          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
-            <span><span className="font-semibold text-foreground">2 / 2</span> free today</span>
-            <span className="text-border">·</span>
-            <span>Pack <span className="font-semibold text-foreground">200</span> available</span>
+            <span>
+              <span className="font-semibold text-foreground">2 free emails/day</span>
+              <span className="text-border mx-1.5">·</span>
+              <span className="font-semibold text-foreground">₹500 = 200 emails</span>
+              <span className="text-border mx-1.5">·</span>
+              <span>No expiry</span>
+            </span>
           </div>
         </div>
       </header>
@@ -196,10 +200,13 @@ const SetupReverseAuction = () => {
             <StepRules
               duration={duration}
               setDuration={setDuration}
+              pricingMethod={pricingMethod}
+              setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
               setStartingPrice={setStartingPrice}
               minDecrement={minDecrement}
               setMinDecrement={setMinDecrement}
+              decrementError={decrementError}
             />
           )}
           {step === 3 && (
@@ -208,6 +215,7 @@ const SetupReverseAuction = () => {
               supplierCount={supplierCount}
               requirement={requirement}
               duration={duration}
+              pricingMethod={pricingMethod}
               startingPrice={startingPrice}
               minDecrement={minDecrement}
             />
