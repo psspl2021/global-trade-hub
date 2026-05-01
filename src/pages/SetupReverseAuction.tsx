@@ -100,6 +100,33 @@ const SetupReverseAuction = () => {
   const canNextStep1 = requirement.trim().length >= 6;
   const canNextStep2 = !!duration && !decrementError;
 
+  // Infer unit context from requirement text (e.g. "ton", "kg", "piece", "litre", "metre")
+  const unitHint = useMemo(() => {
+    const text = requirement.toLowerCase();
+    const units: Array<{ match: RegExp; label: string }> = [
+      { match: /\btons?\b|\bmt\b|\btonnes?\b/, label: 'ton' },
+      { match: /\bkgs?\b|\bkilograms?\b/, label: 'kg' },
+      { match: /\bpcs?\b|\bpieces?\b|\bunits?\b|\bnos?\b/, label: 'piece' },
+      { match: /\blitres?\b|\bliters?\b|\bltrs?\b/, label: 'litre' },
+      { match: /\bmetres?\b|\bmeters?\b|\bmtrs?\b/, label: 'metre' },
+      { match: /\bbags?\b/, label: 'bag' },
+      { match: /\bbox(es)?\b/, label: 'box' },
+      { match: /\bdrums?\b/, label: 'drum' },
+    ];
+    for (const u of units) if (u.match.test(text)) return u.label;
+    return '';
+  }, [requirement]);
+
+  // Next valid bid preview
+  const nextValidBid = useMemo(() => {
+    if (!startingPrice || !minDecrement) return '';
+    const sp = Number(startingPrice);
+    const md = Number(minDecrement);
+    if (!Number.isFinite(sp) || !Number.isFinite(md) || md <= 0 || md > sp) return '';
+    const next = sp - md;
+    return `₹${next.toLocaleString('en-IN')}`;
+  }, [startingPrice, minDecrement]);
+
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
   const persistDraft = () => {
