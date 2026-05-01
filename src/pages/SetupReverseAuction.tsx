@@ -804,7 +804,11 @@ function StepReview({
 }) {
   const supplierLabel = supplierMode === 'ai'
     ? `AI-matched (~${supplierCount} suppliers)`
-    : 'Manual selection (after login)';
+    : 'Select from your supplier list (after login)';
+
+  const behaviorLine = pricingMethod === 'per_unit'
+    ? 'Suppliers will bid per unit. Total order value will vary with quantity.'
+    : 'Suppliers will bid on total order value.';
 
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
