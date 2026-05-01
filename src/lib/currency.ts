@@ -3,6 +3,53 @@
  * Used across the global reverse auction system
  */
 
+// ── Strict INR Currency Input Sanitization ────────────────────────
+// Single source of truth for parsing user-entered currency strings.
+// Accepts: "65,000", "65000", "65k", "65K", "65l", "1.2cr", "₹65000", " 65 000 "
+// Rejects (returns null): empty, NaN, negatives, zero, garbage, > ₹999 Cr cap.
+//
+// Used by:
+//   - SetupReverseAuction.tsx (client input handling)
+//   - Future: server-side edge function validation
+//   - Future: pricing test suite
+//
+// Keep this function pure + deterministic. Do NOT add locale/UI side effects.
+export function sanitizeCurrencyStrict(raw: string | number | null | undefined): number | null {
+  if (raw == null) return null;
+  let s = String(raw).replace(/[₹$€£¥,\s]/g, '').toLowerCase().trim();
+  if (!s || s.startsWith('-')) return null;
+
+  let multiplier = 1;
+  if (s.endsWith('cr')) {
+    multiplier = 10_000_000;
+    s = s.slice(0, -2);
+  } else if (s.endsWith('k')) {
+    multiplier = 1_000;
+    s = s.slice(0, -1);
+  } else if (s.endsWith('l')) {
+    multiplier = 100_000;
+    s = s.slice(0, -1);
+  }
+
+  if (!s || !/^\d*\.?\d*$/.test(s)) return null;
+  const n = Number(s) * multiplier;
+  if (!Number.isFinite(n) || n <= 0) return null;
+  // Hard sanity cap: ₹999 Cr — anything above is almost certainly garbage.
+  if (n > 9_990_000_000) return null;
+  return Math.round(n);
+}
+
+/**
+ * Format a number with Indian (lakh/crore) comma grouping.
+ * Returns '' for null / non-finite / non-positive input.
+ * No currency symbol — caller adds ₹ if needed.
+ */
+export function formatINR(n: number | null | undefined): string {
+  if (n == null || !Number.isFinite(n) || n <= 0) return '';
+  return n.toLocaleString('en-IN');
+}
+
+
 // Country to default currency mapping
 const COUNTRY_CURRENCY_MAP: Record<string, string> = {
   india: 'INR', in: 'INR', ind: 'INR',
