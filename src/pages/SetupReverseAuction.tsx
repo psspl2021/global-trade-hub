@@ -333,7 +333,7 @@ const SetupReverseAuction = () => {
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
             <span>
-              <span className="font-semibold text-foreground">Notifications (RFQ alerts only):</span>
+              <span className="font-semibold text-foreground">Notifications (RFQ alerts only — not bidding):</span>
               <span className="ml-1.5">2 free/day</span>
               <span className="text-border mx-1.5">•</span>
               <span>₹500 = 200 emails</span>
