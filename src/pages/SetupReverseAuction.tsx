@@ -273,6 +273,7 @@ const SetupReverseAuction = () => {
     return () => {
       if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current);
       if (previewTimeoutRef.current) window.clearTimeout(previewTimeoutRef.current);
+      if (truncationWarningTimerRef.current) window.clearTimeout(truncationWarningTimerRef.current);
     };
   }, []);
 
