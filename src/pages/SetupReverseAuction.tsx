@@ -860,6 +860,17 @@ function StepReview({
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
       </Card>
 
+      {/* Behavior interpretation line — closes the gap on what selection means */}
+      <div className="rounded-lg border-2 border-primary/25 bg-primary/5 px-3.5 py-3 flex items-start gap-2">
+        <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-[11px] uppercase font-semibold tracking-wide text-primary/80">
+            Auction behavior
+          </p>
+          <p className="text-xs text-foreground/85 mt-0.5">{behaviorLine}</p>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-gold/30 bg-gold/5 px-3 py-2.5 flex items-start gap-2">
         <Sparkles className="h-4 w-4 text-gold mt-0.5 flex-shrink-0" />
         <p className="text-xs text-foreground/80">
