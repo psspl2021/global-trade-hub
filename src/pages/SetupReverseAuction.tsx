@@ -607,6 +607,10 @@ const SetupReverseAuction = () => {
                 } else if (step === 1 && ctaBlocked) {
                   blockReason = 'Describe your requirement to continue';
                 }
+                const proceed = () => {
+                  persistDraft();
+                  setStep((s) => (s + 1) as 2 | 3);
+                };
                 return (
                   <div className="flex flex-col items-end gap-1.5">
                     <Button
@@ -614,8 +618,14 @@ const SetupReverseAuction = () => {
                       className="gap-1.5"
                       disabled={ctaBlocked}
                       onClick={() => {
-                        persistDraft();
-                        setStep((s) => (s + 1) as 2 | 3);
+                        // Financial-commitment confirmation: if user is leaving
+                        // decrement blank, the system will fall back to a 1% default.
+                        // Make this explicit before transitioning to review.
+                        if (step === 2 && decrementMissing && suggestedDecrement > 0) {
+                          setShowDecrementConfirm(true);
+                          return;
+                        }
+                        proceed();
                       }}
                     >
                       {step === 2 && effectiveError === 'unit' ? 'Select unit to continue' : 'Continue'}
