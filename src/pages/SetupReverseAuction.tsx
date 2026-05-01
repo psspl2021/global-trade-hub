@@ -959,7 +959,7 @@ function StepRules({
                   Current price
                 </p>
                 <p className="text-base font-semibold text-foreground">
-                  ₹{Number(startingPrice).toLocaleString('en-IN')}
+                  ₹{startingPriceNum.toLocaleString('en-IN')}
                 </p>
               </div>
               <div className="space-y-0.5">
@@ -977,6 +977,20 @@ function StepRules({
                   Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
                 </span>
                 <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              </div>
+            )}
+
+            {/* Surface why estimate is missing — never silent */}
+            {isPerUnit && quantityMismatch && (
+              <div className="mt-3 pt-3 border-t border-primary/15 flex items-start gap-2 text-[11px] text-muted-foreground">
+                <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-amber-600" />
+                <span>
+                  Total estimate unavailable — requirement mentions{' '}
+                  <span className="font-semibold text-foreground">{quantityInfo!.unit}</span>
+                  {' '}but pricing unit is{' '}
+                  <span className="font-semibold text-foreground">{unitWord}</span>.
+                  Switch unit to match, or proceed without estimate.
+                </span>
               </div>
             )}
           </div>
