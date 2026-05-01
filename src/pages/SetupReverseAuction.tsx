@@ -64,6 +64,68 @@ const SetupReverseAuction = () => {
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
   const [unitSwitchNote, setUnitSwitchNote] = useState(false);
+  // Equivalence preview shown briefly before reset on unit switch (per-unit only).
+  const [unitConvertPreview, setUnitConvertPreview] = useState<{
+    fromUnit: string; toUnit: string; fromPrice: number; toPrice: number;
+  } | null>(null);
+
+  // ── Currency input sanitization ─────────────────────────────────
+  // Accepts: "65,000", "65000", "65k", "65K", "₹65000", " 65 000 "
+  // Rejects (returns ''): empty, NaN, negatives, zero
+  const sanitizeCurrencyInput = (raw: string): string => {
+    if (raw == null) return '';
+    let s = String(raw).trim();
+    if (!s) return '';
+    // Strip currency symbol, commas, whitespace, and stray non-numeric punctuation (keep digits, dot, k/K)
+    s = s.replace(/[₹$€£¥,\s]/g, '');
+    // Reject explicit negatives
+    if (s.startsWith('-')) return '';
+    // Handle k/K shorthand → multiply by 1000
+    let multiplier = 1;
+    if (/[kK]$/.test(s)) {
+      multiplier = 1000;
+      s = s.slice(0, -1);
+    } else if (/[lL]$/.test(s)) {
+      multiplier = 100000;
+      s = s.slice(0, -1);
+    } else if (/(cr|CR|Cr)$/.test(s)) {
+      multiplier = 10000000;
+      s = s.replace(/(cr|CR|Cr)$/, '');
+    }
+    if (!s || !/^\d*\.?\d*$/.test(s)) return '';
+    const n = Number(s) * multiplier;
+    if (!Number.isFinite(n) || n <= 0) return '';
+    // Hard upper sanity cap (₹999 Cr) to prevent garbage huge values
+    if (n > 9_990_000_000) return '';
+    return String(Math.round(n));
+  };
+
+  const handleStartingPriceChange = (raw: string) => {
+    // Allow user to type freely; sanitize only when they leave or paste formatted text.
+    // We store the raw string to allow intermediate typing, but downstream logic uses the
+    // numeric guards below.
+    setStartingPrice(raw);
+  };
+
+  const handleStartingPriceBlur = () => {
+    const cleaned = sanitizeCurrencyInput(startingPrice);
+    setStartingPrice(cleaned);
+  };
+
+  const handleMinDecrementChange = (raw: string) => {
+    setMinDecrement(raw);
+  };
+
+  const handleMinDecrementBlur = () => {
+    const cleaned = sanitizeCurrencyInput(minDecrement);
+    setMinDecrement(cleaned);
+  };
+
+  // Numeric guards used everywhere downstream (parses sanitized OR raw)
+  const parseSafe = (v: string): number => {
+    const cleaned = sanitizeCurrencyInput(v);
+    return cleaned ? Number(cleaned) : NaN;
+  };
 
   // When pricing method changes, reset BOTH starting price + decrement (prevent unit/scale mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
@@ -71,14 +133,25 @@ const SetupReverseAuction = () => {
     setPricingMethod(m);
     setStartingPrice('');
     setMinDecrement('');
+    setUnitConvertPreview(null);
     setMethodSwitchNote(true);
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
   // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
   const handleUnitOverrideChange = (u: string) => {
+    const prevUnit = unitOverride || ''; // we may not know inferred here; capture before override
+    const prevPriceNum = parseSafe(startingPrice);
     setUnitOverride(u);
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
+      // Build conversion preview (ton↔kg only — only deterministic conversion we support)
+      if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
+        const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
+        if (conv != null) {
+          setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
+          window.setTimeout(() => setUnitConvertPreview(null), 5000);
+        }
+      }
       setStartingPrice('');
       setMinDecrement('');
       setUnitSwitchNote(true);
@@ -86,14 +159,28 @@ const SetupReverseAuction = () => {
     }
   };
 
-  // Validation
-  const startingPriceNum = Number(startingPrice);
-  const minDecrementNum = Number(minDecrement);
-  const decrementError =
-    minDecrement && startingPrice && Number.isFinite(startingPriceNum) && Number.isFinite(minDecrementNum)
-      && minDecrementNum > startingPriceNum
-        ? 'Minimum decrement cannot exceed starting price'
-        : '';
+  // Deterministic unit conversion for known pairs (ton ↔ kg). Returns null if not convertible.
+  function convertUnitPrice(price: number, from: string, to: string): number | null {
+    if (!from || !to || from === to) return null;
+    if (from === 'ton' && to === 'kg') return Math.round((price / 1000) * 100) / 100;
+    if (from === 'kg' && to === 'ton') return Math.round(price * 1000);
+    return null;
+  }
+
+  // Validation — uses sanitized values
+  const startingPriceNum = parseSafe(startingPrice);
+  const minDecrementNum = parseSafe(minDecrement);
+  const hasStartingPrice = Number.isFinite(startingPriceNum) && startingPriceNum > 0;
+  const hasMinDecrement = Number.isFinite(minDecrementNum) && minDecrementNum > 0;
+
+  let decrementError = '';
+  if (minDecrement && !hasMinDecrement) {
+    decrementError = 'Enter a valid amount greater than zero';
+  } else if (hasStartingPrice && hasMinDecrement && minDecrementNum > startingPriceNum) {
+    decrementError = 'Minimum decrement cannot exceed starting price';
+  }
+  const startingPriceError =
+    startingPrice && !hasStartingPrice ? 'Enter a valid amount greater than zero' : '';
 
   // Restore any prior draft
   useEffect(() => {
@@ -117,7 +204,7 @@ const SetupReverseAuction = () => {
 
   const supplierCount = supplierMode === 'ai' ? 8 : 0; // illustrative for review screen
   const canNextStep1 = requirement.trim().length >= 6;
-  const canNextStep2 = !!duration && !decrementError;
+  const canNextStep2 = !!duration && !decrementError && !startingPriceError;
 
   // Infer unit context from requirement text. Two-pass:
   //   1) Explicit unit token in text  → high confidence
@@ -157,15 +244,41 @@ const SetupReverseAuction = () => {
   const unitHint = effectiveUnit; // backward compat for downstream
   const needsUnitSelection = pricingMethod === 'per_unit' && !effectiveUnit;
 
-  // Next valid bid preview
+  // Next valid bid preview — strict guard against stale/invalid state
   const nextValidBid = useMemo(() => {
-    if (!startingPrice || !minDecrement) return '';
-    const sp = Number(startingPrice);
-    const md = Number(minDecrement);
-    if (!Number.isFinite(sp) || !Number.isFinite(md) || md <= 0 || md > sp) return '';
-    const next = sp - md;
+    if (!hasStartingPrice || !hasMinDecrement) return '';
+    if (minDecrementNum > startingPriceNum) return '';
+    const next = startingPriceNum - minDecrementNum;
+    if (next <= 0) return '';
     return `₹${next.toLocaleString('en-IN')}`;
-  }, [startingPrice, minDecrement]);
+  }, [hasStartingPrice, hasMinDecrement, startingPriceNum, minDecrementNum]);
+
+  // Quantity inference (for total-order estimate when per-unit pricing)
+  const quantityInfo = useMemo(() => {
+    const m = requirement.match(/(\d[\d,]*\.?\d*)\s*(tons?|tonnes?|mt|kgs?|pcs?|pieces?|nos?|units?|bags?|boxes?|drums?|metres?|meters?|mtrs?|litres?|liters?)/i);
+    if (!m) return null;
+    const qty = Number(m[1].replace(/,/g, ''));
+    if (!Number.isFinite(qty) || qty <= 0) return null;
+    let unit = m[2].toLowerCase();
+    if (/tons?|tonnes?|mt/.test(unit)) unit = 'ton';
+    else if (/kgs?/.test(unit)) unit = 'kg';
+    else if (/pcs?|pieces?|nos?|units?/.test(unit)) unit = 'piece';
+    else if (/bags?/.test(unit)) unit = 'bag';
+    else if (/boxes?/.test(unit)) unit = 'box';
+    else if (/drums?/.test(unit)) unit = 'drum';
+    else if (/metres?|meters?|mtrs?/.test(unit)) unit = 'metre';
+    else if (/litres?|liters?/.test(unit)) unit = 'litre';
+    return { qty, unit };
+  }, [requirement]);
+
+  // Total estimate (per-unit pricing only, when quantity inferred + units match)
+  const totalEstimate = useMemo(() => {
+    if (pricingMethod !== 'per_unit' || !hasStartingPrice || !quantityInfo) return '';
+    if (effectiveUnit && quantityInfo.unit !== effectiveUnit) return '';
+    const total = quantityInfo.qty * startingPriceNum;
+    if (!Number.isFinite(total) || total <= 0) return '';
+    return `₹${Math.round(total).toLocaleString('en-IN')}`;
+  }, [pricingMethod, hasStartingPrice, startingPriceNum, quantityInfo, effectiveUnit]);
 
   const stepProgress = useMemo(() => ((step / 3) * 100).toFixed(0), [step]);
 
@@ -220,7 +333,7 @@ const SetupReverseAuction = () => {
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
             <span>
-              <span className="font-semibold text-foreground">Notifications (RFQ alerts only):</span>
+              <span className="font-semibold text-foreground">Notifications (RFQ alerts only — not bidding):</span>
               <span className="ml-1.5">2 free/day</span>
               <span className="text-border mx-1.5">•</span>
               <span>₹500 = 200 emails</span>
@@ -272,10 +385,13 @@ const SetupReverseAuction = () => {
               pricingMethod={pricingMethod}
               setPricingMethod={handlePricingMethodChange}
               startingPrice={startingPrice}
-              setStartingPrice={setStartingPrice}
+              setStartingPrice={handleStartingPriceChange}
+              onStartingPriceBlur={handleStartingPriceBlur}
               minDecrement={minDecrement}
-              setMinDecrement={setMinDecrement}
+              setMinDecrement={handleMinDecrementChange}
+              onMinDecrementBlur={handleMinDecrementBlur}
               decrementError={decrementError}
+              startingPriceError={startingPriceError}
               unitHint={unitHint}
               nextValidBid={nextValidBid}
               unitOverride={unitOverride}
@@ -286,6 +402,9 @@ const SetupReverseAuction = () => {
               needsUnitSelection={needsUnitSelection}
               methodSwitchNote={methodSwitchNote}
               unitSwitchNote={unitSwitchNote}
+              unitConvertPreview={unitConvertPreview}
+              totalEstimate={totalEstimate}
+              quantityInfo={quantityInfo}
             />
           )}
           {step === 3 && (
@@ -298,6 +417,8 @@ const SetupReverseAuction = () => {
               startingPrice={startingPrice}
               minDecrement={minDecrement}
               unitHint={unitHint}
+              totalEstimate={totalEstimate}
+              quantityInfo={quantityInfo}
             />
           )}
 
@@ -505,10 +626,13 @@ function SupplierOption({
 
 function StepRules({
   duration, setDuration, pricingMethod, setPricingMethod,
-  startingPrice, setStartingPrice, minDecrement, setMinDecrement, decrementError,
+  startingPrice, setStartingPrice, onStartingPriceBlur,
+  minDecrement, setMinDecrement, onMinDecrementBlur,
+  decrementError, startingPriceError,
   unitHint, nextValidBid,
   unitOverride, setUnitOverride, allowedUnits, inferredUnit, inferenceConfidence,
   needsUnitSelection, methodSwitchNote, unitSwitchNote,
+  unitConvertPreview, totalEstimate, quantityInfo,
 }: {
   duration: string;
   setDuration: (v: string) => void;
@@ -516,9 +640,12 @@ function StepRules({
   setPricingMethod: (m: PricingMethod) => void;
   startingPrice: string;
   setStartingPrice: (v: string) => void;
+  onStartingPriceBlur: () => void;
   minDecrement: string;
   setMinDecrement: (v: string) => void;
+  onMinDecrementBlur: () => void;
   decrementError: string;
+  startingPriceError: string;
   unitHint: string;
   nextValidBid: string;
   unitOverride: string;
@@ -529,6 +656,9 @@ function StepRules({
   needsUnitSelection: boolean;
   methodSwitchNote: boolean;
   unitSwitchNote: boolean;
+  unitConvertPreview: { fromUnit: string; toUnit: string; fromPrice: number; toPrice: number } | null;
+  totalEstimate: string;
+  quantityInfo: { qty: number; unit: string } | null;
 }) {
   const isPerUnit = pricingMethod === 'per_unit';
   const unitWord = unitHint || 'unit';
@@ -697,6 +827,24 @@ function StepRules({
           </Select>
         </div>
 
+        {/* Unit conversion preview (briefly shown when switching units before reset) */}
+        {unitConvertPreview && (
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+            <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="text-xs">
+              <p className="font-semibold text-foreground">Unit changed — equivalent price</p>
+              <p className="text-muted-foreground mt-0.5">
+                Previous: ₹{unitConvertPreview.fromPrice.toLocaleString('en-IN')} per {unitConvertPreview.fromUnit}
+                {' · '}
+                Equivalent: ₹{unitConvertPreview.toPrice.toLocaleString('en-IN')} per {unitConvertPreview.toUnit}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Pricing fields reset — re-enter to confirm in the new unit.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -710,16 +858,23 @@ function StepRules({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
-                type="number"
-                inputMode="numeric"
+                type="text"
+                inputMode="decimal"
                 value={startingPrice}
                 onChange={(e) => setStartingPrice(e.target.value)}
+                onBlur={onStartingPriceBlur}
                 placeholder={startPlaceholder}
-                className="pl-7"
+                className={cn('pl-7', startingPriceError && 'border-destructive focus-visible:ring-destructive/50')}
                 disabled={needsUnitSelection}
               />
             </div>
-            <p className="text-xs text-muted-foreground">{startHelper}</p>
+            {startingPriceError ? (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {startingPriceError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{startHelper}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -734,10 +889,11 @@ function StepRules({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
               <Input
-                type="number"
-                inputMode="numeric"
+                type="text"
+                inputMode="decimal"
                 value={minDecrement}
                 onChange={(e) => setMinDecrement(e.target.value)}
+                onBlur={onMinDecrementBlur}
                 placeholder={decPlaceholder}
                 className={cn('pl-7', decrementError && 'border-destructive focus-visible:ring-destructive/50')}
                 disabled={needsUnitSelection}
@@ -753,9 +909,12 @@ function StepRules({
           </div>
         </div>
 
-        {/* Visual Next-Valid-Bid box (live feedback) — value-dominant hierarchy */}
-        {nextValidBid && !decrementError && (
-          <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
+        {/* Visual Next-Valid-Bid box — strict guarded render */}
+        {nextValidBid && !decrementError && !startingPriceError && (
+          <div
+            key={nextValidBid}
+            className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5 animate-in fade-in zoom-in-95 duration-200"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">
@@ -771,7 +930,6 @@ function StepRules({
               <TrendingDown className="h-9 w-9 text-primary/40 flex-shrink-0" />
             </div>
 
-            {/* Mini static auction preview — stacked layout */}
             <div className="mt-4 pt-4 border-t border-primary/15 grid grid-cols-2 gap-4">
               <div className="space-y-0.5">
                 <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
@@ -788,9 +946,20 @@ function StepRules({
                 <p className="text-base font-bold text-primary">{nextValidBid}</p>
               </div>
             </div>
+
+            {/* Total estimate — bridges per-unit pricing → business decision */}
+            {isPerUnit && totalEstimate && quantityInfo && (
+              <div className="mt-3 pt-3 border-t border-primary/15 flex items-center justify-between gap-3 text-xs">
+                <span className="text-muted-foreground">
+                  Estimated total ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit})
+                </span>
+                <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
+
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
         <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -825,6 +994,7 @@ function PricingPill({
 
 function StepReview({
   supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement, unitHint,
+  totalEstimate, quantityInfo,
 }: {
   supplierMode: SupplierMode;
   supplierCount: number;
@@ -834,6 +1004,8 @@ function StepReview({
   startingPrice: string;
   minDecrement: string;
   unitHint: string;
+  totalEstimate: string;
+  quantityInfo: { qty: number; unit: string } | null;
 }) {
   const supplierLabel = supplierMode === 'ai'
     ? `AI-matched (~${supplierCount} suppliers)`
@@ -851,7 +1023,7 @@ function StepReview({
   const formatINR = (v: string, suffix?: string) => {
     if (!v) return '—';
     const n = Number(v);
-    if (!Number.isFinite(n)) return '—';
+    if (!Number.isFinite(n) || n <= 0) return '—';
     return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
   };
 
@@ -894,7 +1066,19 @@ function StepReview({
         )}
         <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
         <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
+        {isPerUnit && totalEstimate && quantityInfo && (
+          <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
+            <span className="text-muted-foreground flex-shrink-0">
+              Estimated total
+              <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
+                ({quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit} × starting price)
+              </span>
+            </span>
+            <span className="font-bold text-foreground text-right">{totalEstimate}</span>
+          </div>
+        )}
       </Card>
+
 
       {/* Behavior interpretation line — closes the gap on what selection means */}
       <div className="rounded-lg border-2 border-primary/25 bg-primary/5 px-3.5 py-3 flex items-start gap-2">
