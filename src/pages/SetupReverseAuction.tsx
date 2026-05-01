@@ -60,12 +60,17 @@ const SetupReverseAuction = () => {
   const [pricingMethod, setPricingMethod] = useState<PricingMethod>('per_unit');
   const [startingPrice, setStartingPrice] = useState('');
   const [minDecrement, setMinDecrement] = useState('');
+  // Manually-selected unit (overrides inference). Empty = use inferred or fallback.
+  const [unitOverride, setUnitOverride] = useState<string>('');
+  const [methodSwitchNote, setMethodSwitchNote] = useState(false);
 
   // When pricing method changes, reset decrement (prevent unit mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
     if (m === pricingMethod) return;
     setPricingMethod(m);
     setMinDecrement('');
+    setMethodSwitchNote(true);
+    window.setTimeout(() => setMethodSwitchNote(false), 4000);
   };
 
   // Validation
