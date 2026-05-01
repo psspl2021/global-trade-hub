@@ -1182,9 +1182,11 @@ function StepRules({
         })()}
 
         {/* Bid math + interpretation — split into Block A (math) and Block B (context)
-            to reduce cognitive load. Block A is always shown when valid; Block B only
-            renders if there's interpretive content (estimate or mismatch). */}
-        {nextValidBid && !decrementError && !startingPriceError && (
+            to reduce cognitive load. Block A renders strictly from INPUT state
+            (hasStartingPrice && hasMinDecrement && no errors), not from the
+            derived `nextValidBid` string — prevents derived-state inconsistencies
+            and rendering lag edge cases when inputs change rapidly. */}
+        {hasStartingPrice && hasMinDecrement && !decrementError && !startingPriceError && nextValidBid && (
           <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200" key={nextValidBid}>
             {/* ── Block A — Core math ── */}
             <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/[0.02] p-5">
@@ -1223,12 +1225,22 @@ function StepRules({
 
             {/* ── Block B — Interpretation (estimate OR mismatch) ── */}
             {isPerUnit && totalEstimate && quantityInfo && (
-              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-                <span className="text-muted-foreground">
-                  Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
-                  {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
-                </span>
-                <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+              <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 space-y-1 text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    Estimated total <span className="text-[10px] uppercase tracking-wide">(approx)</span>
+                    {' · '}{quantityInfo.qty.toLocaleString('en-IN')} {quantityInfo.unit}
+                  </span>
+                  <span className="font-bold text-foreground text-sm">{totalEstimate}</span>
+                </div>
+                {/* Transparency: surface that we converted units to compute this estimate. */}
+                {quantityWasConverted && (
+                  <p className="text-[10px] text-muted-foreground/80">
+                    Quantity converted from{' '}
+                    <span className="font-semibold">{quantityInfo.unit}</span> to{' '}
+                    <span className="font-semibold">{unitWord}</span> for estimate.
+                  </p>
+                )}
               </div>
             )}
 
@@ -1249,17 +1261,28 @@ function StepRules({
       </div>
 
       {/* Default-decrement disclosure — removes ambiguity when the user leaves
-          the decrement blank. Auction will fall back to a deterministic 1% step. */}
-      {suggestedDecrement > 0 && !minDecrement && (
+          the decrement blank. Auction will fall back to a deterministic 1% step.
+          Driven by `decrementMissing` (explicit non-blocking state) so the
+          implicit assumption becomes a visible, acknowledgeable condition. */}
+      {decrementMissing && suggestedDecrement > 0 && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 flex items-start gap-2">
           <TrendingDown className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-foreground/80">
-            No minimum decrement set — auction will use a default of{' '}
-            <span className="font-semibold text-foreground">
-              ₹{suggestedDecrement.toLocaleString('en-IN')}
-            </span>{' '}
-            (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
-          </p>
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <p className="text-xs text-foreground/80">
+              No minimum decrement set — auction will use a default of{' '}
+              <span className="font-semibold text-foreground">
+                ₹{suggestedDecrement.toLocaleString('en-IN')}
+              </span>{' '}
+              (1% of starting price) {isPerUnit ? `per ${unitWord}` : 'on total order value'}.
+            </p>
+            <button
+              type="button"
+              onClick={applySuggestedDecrement}
+              className="text-[11px] font-semibold text-primary hover:underline focus:outline-none focus-visible:underline"
+            >
+              Use default (₹{suggestedDecrement.toLocaleString('en-IN')})
+            </button>
+          </div>
         </div>
       )}
     </div>
