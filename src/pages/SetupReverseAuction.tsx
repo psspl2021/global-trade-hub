@@ -63,14 +63,27 @@ const SetupReverseAuction = () => {
   // Manually-selected unit (overrides inference). Empty = use inferred or fallback.
   const [unitOverride, setUnitOverride] = useState<string>('');
   const [methodSwitchNote, setMethodSwitchNote] = useState(false);
+  const [unitSwitchNote, setUnitSwitchNote] = useState(false);
 
-  // When pricing method changes, reset decrement (prevent unit mismatch)
+  // When pricing method changes, reset BOTH starting price + decrement (prevent unit/scale mismatch)
   const handlePricingMethodChange = (m: PricingMethod) => {
     if (m === pricingMethod) return;
     setPricingMethod(m);
+    setStartingPrice('');
     setMinDecrement('');
     setMethodSwitchNote(true);
     window.setTimeout(() => setMethodSwitchNote(false), 4000);
+  };
+
+  // When unit changes (per-unit mode), reset pricing fields to keep semantic meaning consistent
+  const handleUnitOverrideChange = (u: string) => {
+    setUnitOverride(u);
+    if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
+      setStartingPrice('');
+      setMinDecrement('');
+      setUnitSwitchNote(true);
+      window.setTimeout(() => setUnitSwitchNote(false), 4000);
+    }
   };
 
   // Validation
