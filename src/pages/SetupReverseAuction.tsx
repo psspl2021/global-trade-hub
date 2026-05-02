@@ -115,15 +115,8 @@ const SetupReverseAuction = () => {
     }, 2500);
   };
 
-  // Pure predicate — uses log10 magnitude (base-agnostic, mathematically stable).
-  // Epsilon guards against floating-point flicker at exact powers of 10.
-  const isAccidentalTruncation = (snap: number, next: number): boolean => {
-    if (!Number.isFinite(snap) || !Number.isFinite(next)) return false;
-    if (snap <= 0 || next <= 0) return false;
-    const snapMag = Math.floor(Math.log10(snap + 1e-9));
-    const nextMag = Math.floor(Math.log10(next + 1e-9));
-    return snapMag - nextMag >= 2;
-  };
+  // Truncation predicate is now imported from `@/lib/pricing` so it can be
+  // unit-tested in isolation and reused by server-side validation.
 
   // On focus: strip commas → user edits clean numeric string (banking/ERP pattern).
   // SNAPSHOT RULE: if the field is empty, snapshot is 0 — guarantees the next
