@@ -690,8 +690,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           p_credit_id: buyerCredits!.id,
         });
         if (creditError) {
-          console.error('Credit consumption failed:', creditError);
-          toast.error('Credit deduction failed. Please contact support.');
+          console.error('credit_deduction_failed', creditError);
+          // Recover UX — reopen credits modal instead of silent failure
+          setResumeAfterPurchase(false);
+          setShowCreditsModal(true);
+          toast.error('Credit deduction failed. Please pick a pack to continue.');
         }
 
         if (paymentId) {
@@ -1418,7 +1421,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             disabled={isSubmitting}
             className="w-full"
           >
-            {isSubmitting ? 'Creating Auction...' : 'Start Auction'}
+            {isSubmitting
+              ? 'Creating Auction...'
+              : hasCredits
+                ? 'Use 1 Credit & Create Auction'
+                : 'Start Auction'}
           </Button>
     </div>
   );
