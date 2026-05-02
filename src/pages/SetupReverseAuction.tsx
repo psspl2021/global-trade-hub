@@ -199,7 +199,7 @@ const SetupReverseAuction = () => {
 
   const handleUnitOverrideChange = (u: string) => {
     const prevUnit = unitOverride || '';
-    const prevPriceNum = sanitizeCurrencyStrict(startingPrice) ?? NaN;
+    const prevPriceNum = sanitizeCurrencyStrict(startingPrice) ?? 0;
     setUnitOverride(u);
 
     // Cancel any pending reset/preview from a previous switch (race-safe).
