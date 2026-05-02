@@ -175,13 +175,18 @@ const SetupReverseAuction = () => {
   const handleMinDecrementBlur = () => {
     const num = sanitizeCurrencyStrict(minDecrement);
     if (num == null && /\d/.test(minDecrement || '')) return;
+    const next = num ?? 0;
+    if (next === 0) {
+      setMinDecrement('');
+      return;
+    }
     const snap = minDecrementFocusSnapshotRef.current;
-    if (isAccidentalTruncation(snap, num ?? 0)) {
+    if (isAccidentalTruncation(snap, next)) {
       setMinDecrement(formatINR(snap));
       flashTruncationWarning('decrement');
       return;
     }
-    setMinDecrement(num != null ? formatINR(num) : '');
+    setMinDecrement(formatINR(next));
   };
 
 
