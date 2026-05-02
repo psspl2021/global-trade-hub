@@ -1426,11 +1426,13 @@ function StepReview({
   const priceSuffix = isPerUnit ? `per ${unitWord}` : '(total order)';
   const decSuffix = isPerUnit ? `per ${unitWord}` : '(total)';
 
-  const formatINR = (v: string, suffix?: string) => {
-    if (!v) return '—';
-    const n = Number(v);
-    if (!Number.isFinite(n) || n <= 0) return '—';
-    return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
+  // Renamed to avoid shadowing the shared `formatINR` import. Delegates to the
+  // shared sanitize+format pipeline so review display can never drift from
+  // input parsing rules. Single source of truth: @/lib/currency.
+  const formatINRDisplayReview = (v: string, suffix?: string) => {
+    const n = sanitizeCurrencyStrict(v);
+    if (n == null) return '—';
+    return `₹${formatINR(n)}${suffix ? ` ${suffix}` : ''}`;
   };
 
   const durationLabel = duration === '60' ? '1 hour'
