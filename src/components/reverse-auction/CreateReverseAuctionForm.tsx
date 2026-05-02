@@ -1410,19 +1410,52 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     </div>
   );
 
+  const creditsModalEl = (
+    <Dialog
+      open={showCreditsModal}
+      onOpenChange={(o) => {
+        setShowCreditsModal(o);
+        if (!o) setResumeAfterPurchase(false);
+      }}
+    >
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-primary" />
+            Buy Auction Credits
+          </DialogTitle>
+          <DialogDescription>
+            Pick a pack to continue. Your auction draft is preserved — we'll resume right after activation.
+          </DialogDescription>
+        </DialogHeader>
+        <AuctionCreditsPurchase
+          onCreditsUpdated={async () => {
+            await fetchCredits();
+            setShowCreditsModal(false);
+            if (resumeAfterPurchase) {
+              setResumeAfterPurchase(false);
+              setTimeout(() => handleSubmit(), 100);
+            }
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+
   if (mode === 'page') {
     return (
       <>
         {formContent}
+        {creditsModalEl}
         {showPaywallGate && (
           <AuctionPaywallGate
             onActivate={() => {
               setShowPaywallGate(false);
-              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+              setShowCreditsModal(true);
             }}
             onViewDetails={() => {
               setShowPaywallGate(false);
-              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+              setShowCreditsModal(true);
             }}
           />
         )}
