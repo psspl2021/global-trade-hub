@@ -67,7 +67,7 @@ type ValidationResultWithUnit =
       normalized: {
         startingPrice: number;
         minDecrement: number;
-        unit?: string;
+        unit: string | null;
       };
     }
   | { ok: false; error: string };
@@ -85,8 +85,18 @@ function validatePricing(input: PricingInput): ValidationResultWithUnit {
     return { ok: false, error: "invalid_pricing_method" };
   }
 
-  const startingPrice = sanitizeCurrencyStrict(input.startingPrice) ?? 0;
-  const minDecrement = sanitizeCurrencyStrict(input.minDecrement) ?? 0;
+  // Defensive trim before sanitize — keeps behavior stable even if sanitizer changes
+  const trimmedStarting =
+    typeof input.startingPrice === "string"
+      ? input.startingPrice.trim()
+      : input.startingPrice;
+  const trimmedDecrement =
+    typeof input.minDecrement === "string"
+      ? input.minDecrement.trim()
+      : input.minDecrement;
+
+  const startingPrice = sanitizeCurrencyStrict(trimmedStarting) ?? 0;
+  const minDecrement = sanitizeCurrencyStrict(trimmedDecrement) ?? 0;
 
   // Normalize unit (lowercase) before validation to avoid case-sensitivity bugs
   const unit =
@@ -116,7 +126,7 @@ function validatePricing(input: PricingInput): ValidationResultWithUnit {
     normalized: {
       startingPrice,
       minDecrement,
-      ...(input.pricingMethod === "per_unit" ? { unit } : {}),
+      unit: input.pricingMethod === "per_unit" ? unit : null,
     },
   };
 }
