@@ -10,7 +10,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
