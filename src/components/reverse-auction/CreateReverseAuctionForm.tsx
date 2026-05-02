@@ -7,7 +7,7 @@
  * 4) Industry templates + Historical price intelligence
  * 5) Guided wizard: AI Input → Review Items → Suppliers → Pricing → Launch
  */
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
