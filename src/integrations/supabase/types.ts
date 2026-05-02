@@ -1067,6 +1067,38 @@ export type Database = {
           },
         ]
       }
+      auction_credit_logs: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          credit_id: string
+          id: string
+          idempotency_key: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          credit_id: string
+          id?: string
+          idempotency_key: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          credit_id?: string
+          id?: string
+          idempotency_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_credit_logs_credit_id_fkey"
+            columns: ["credit_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_auction_credits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auction_credit_payments: {
         Row: {
           amount: number
@@ -13133,10 +13165,12 @@ export type Database = {
         }
         Returns: boolean
       }
-      consume_auction_credit: {
-        Args: { p_credit_id: string }
-        Returns: undefined
-      }
+      consume_auction_credit:
+        | { Args: { p_credit_id: string }; Returns: undefined }
+        | {
+            Args: { p_credit_id: string; p_idempotency_key?: string }
+            Returns: undefined
+          }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
       create_auction_with_limit_check:
         | {
