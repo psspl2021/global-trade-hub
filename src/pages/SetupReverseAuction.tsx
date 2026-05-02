@@ -266,10 +266,13 @@ const SetupReverseAuction = () => {
   }
 
   // Validation — uses sanitized values
-  const startingPriceNum = sanitizeCurrencyStrict(startingPrice) ?? NaN;
-  const minDecrementNum = sanitizeCurrencyStrict(minDecrement) ?? NaN;
-  const hasStartingPrice = Number.isFinite(startingPriceNum) && startingPriceNum > 0;
-  const hasMinDecrement = Number.isFinite(minDecrementNum) && minDecrementNum > 0;
+  // Normalize null → 0 so downstream math is unambiguous (no NaN propagation,
+  // no implicit reliance on Number.isFinite(null) === false). hasX flags are
+  // the single source of truth for "user has entered a valid value".
+  const startingPriceNum = sanitizeCurrencyStrict(startingPrice) ?? 0;
+  const minDecrementNum = sanitizeCurrencyStrict(minDecrement) ?? 0;
+  const hasStartingPrice = startingPriceNum > 0;
+  const hasMinDecrement = minDecrementNum > 0;
 
   let decrementError = '';
   if (minDecrement && !hasMinDecrement) {
