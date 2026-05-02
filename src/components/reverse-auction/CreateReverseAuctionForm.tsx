@@ -93,6 +93,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [resumeAfterPurchase, setResumeAfterPurchase] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const [wizardStep, setWizardStep] = useState(0);
   const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
 
@@ -578,6 +579,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
 
     try {
       const isTrial = buyerCredits?.isTrial && remainingCredits > 0;
@@ -688,7 +694,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       if (result) {
         const { error: creditError } = await supabase.rpc('consume_auction_credit', {
           p_credit_id: buyerCredits!.id,
-        });
+          p_idempotency_key: idempotencyKeyRef.current,
+        } as any);
         if (creditError) {
           console.error('credit_deduction_failed', creditError);
           // Recover UX — reopen credits modal instead of silent failure
@@ -722,6 +729,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);
+      idempotencyKeyRef.current = null;
     }
   };
 
