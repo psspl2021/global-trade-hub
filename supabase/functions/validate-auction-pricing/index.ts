@@ -50,13 +50,33 @@ type ValidationResult =
   | { ok: true; normalized: { startingPrice: number; minDecrement: number } }
   | { ok: false; error: string };
 
+const ALLOWED_UNITS = [
+  "ton",
+  "kg",
+  "piece",
+  "bag",
+  "box",
+  "drum",
+  "metre",
+  "litre",
+];
+
 function validatePricing(input: PricingInput): ValidationResult {
+  if (typeof input !== "object" || input === null) {
+    return { ok: false, error: "invalid_payload" };
+  }
+
   const startingPrice = sanitizeCurrencyStrict(input.startingPrice) ?? 0;
   const minDecrement = sanitizeCurrencyStrict(input.minDecrement) ?? 0;
 
   // Priority: unit → starting → decrement → relational
-  if (input.pricingMethod === "per_unit" && !input.unit) {
-    return { ok: false, error: "unit_required" };
+  if (input.pricingMethod === "per_unit") {
+    if (!input.unit) {
+      return { ok: false, error: "unit_required" };
+    }
+    if (!ALLOWED_UNITS.includes(input.unit)) {
+      return { ok: false, error: "invalid_unit" };
+    }
   }
   if (startingPrice <= 0) {
     return { ok: false, error: "invalid_starting_price" };
