@@ -1421,7 +1421,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             disabled={isSubmitting}
             className="w-full"
           >
-            {isSubmitting ? 'Creating Auction...' : 'Start Auction'}
+            {isSubmitting
+              ? 'Creating Auction...'
+              : hasCredits
+                ? 'Use 1 Credit & Create Auction'
+                : 'Start Auction'}
           </Button>
     </div>
   );
