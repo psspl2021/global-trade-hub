@@ -694,7 +694,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       if (result) {
         const { error: creditError } = await supabase.rpc('consume_auction_credit', {
           p_credit_id: buyerCredits!.id,
-        });
+          p_idempotency_key: idempotencyKeyRef.current,
+        } as any);
         if (creditError) {
           console.error('credit_deduction_failed', creditError);
           // Recover UX — reopen credits modal instead of silent failure
