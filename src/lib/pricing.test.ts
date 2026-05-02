@@ -73,5 +73,12 @@ describe('isAccidentalTruncation', () => {
       // 10000 → 1000 = exactly 1 order → allowed
       expect(isAccidentalTruncation(10000, 1000)).toBe(false);
     });
+
+    it('respects exact boundary between 1 and 2 orders', () => {
+      // 100 → 10 = exactly 1 order → allowed
+      expect(isAccidentalTruncation(100, 10)).toBe(false);
+      // 100 → 9 = crosses into 2 orders → blocked
+      expect(isAccidentalTruncation(100, 9)).toBe(true);
+    });
   });
 });
