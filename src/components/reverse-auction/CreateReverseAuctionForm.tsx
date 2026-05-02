@@ -706,8 +706,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         onCreated?.();
       }
     } catch (err: any) {
-      toast.error('Failed: ' + err.message);
+      const msg = String(err?.message || '');
+      // Server rejected because credits ran out between client check and RPC.
+      // Re-open the credits modal and resume after purchase.
+      if (/no_credits|insufficient_credits|no.?credit/i.test(msg)) {
+        setResumeAfterPurchase(true);
+        setShowCreditsModal(true);
+        toast.error('Out of credits. Pick a pack to continue.');
+      } else {
+        toast.error('Failed: ' + msg);
+      }
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
