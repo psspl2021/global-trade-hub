@@ -1445,10 +1445,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           onCreditsUpdated={async () => {
             await fetchCredits();
             setShowCreditsModal(false);
-            if (resumeAfterPurchase) {
-              setResumeAfterPurchase(false);
-              setTimeout(() => handleSubmit(), 100);
-            }
+            if (!resumeAfterPurchase) return;
+            setResumeAfterPurchase(false);
+            // Allow React state flush before re-entering handleSubmit (ref guard prevents double-submit)
+            await new Promise((r) => setTimeout(r, 50));
+            handleSubmit();
           }}
         />
       </DialogContent>
