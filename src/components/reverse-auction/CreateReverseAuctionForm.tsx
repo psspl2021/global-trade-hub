@@ -485,7 +485,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     // Double-submit protection (state + ref guard against rapid re-entry)
     if (isSubmittingRef.current) return;
     if (isSubmitting) return;
-    isSubmittingRef.current = true;
+
     // ── Active Auction Limit Check (server-enforced) ──
     if (user) {
       const limitCheck = await checkActiveAuctionLimit(user.id);
