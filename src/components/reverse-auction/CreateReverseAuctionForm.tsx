@@ -7,7 +7,7 @@
  * 4) Industry templates + Historical price intelligence
  * 5) Guided wizard: AI Input → Review Items → Suppliers → Pricing → Launch
  */
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -92,6 +92,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [resumeAfterPurchase, setResumeAfterPurchase] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [wizardStep, setWizardStep] = useState(0);
   const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
 
@@ -481,7 +482,8 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   }, [remainingCredits, buyerCredits]);
 
   const handleSubmit = async () => {
-    // Double-click protection
+    // Double-submit protection (state + ref guard against rapid re-entry)
+    if (isSubmittingRef.current) return;
     if (isSubmitting) return;
 
     // ── Active Auction Limit Check (server-enforced) ──
@@ -574,6 +576,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -703,8 +706,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
         onCreated?.();
       }
     } catch (err: any) {
-      toast.error('Failed: ' + err.message);
+      const msg = String(err?.message || '');
+      // Server rejected because credits ran out between client check and RPC.
+      // Re-open the credits modal and resume after purchase.
+      if (/no_credits|insufficient_credits|no.?credit/i.test(msg)) {
+        setResumeAfterPurchase(true);
+        setShowCreditsModal(true);
+        toast.error('Out of credits. Pick a pack to continue.');
+      } else {
+        toast.error('Failed: ' + msg);
+      }
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -1432,10 +1445,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
           onCreditsUpdated={async () => {
             await fetchCredits();
             setShowCreditsModal(false);
-            if (resumeAfterPurchase) {
-              setResumeAfterPurchase(false);
-              setTimeout(() => handleSubmit(), 100);
-            }
+            if (!resumeAfterPurchase) return;
+            setResumeAfterPurchase(false);
+            // Allow React state flush before re-entering handleSubmit (ref guard prevents double-submit)
+            await new Promise((r) => setTimeout(r, 50));
+            handleSubmit();
           }}
         />
       </DialogContent>
