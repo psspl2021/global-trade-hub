@@ -1376,7 +1376,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 {buyerCredits.isTrial && hasCredits && (
                   <p className="text-xs text-muted-foreground mt-1.5">
                     You have <strong>{remainingCredits} free trial auction(s)</strong> left. Once used, choose a plan to continue.{' '}
-                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium text-primary hover:text-primary/80">
+                    <button onClick={() => setShowCreditsModal(true)} className="underline font-medium text-primary hover:text-primary/80">
                       View Plans
                     </button>
                   </p>
@@ -1384,7 +1384,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 {!hasCredits && (
                   <p className="text-xs text-destructive mt-1">
                     {buyerCredits.isTrial ? 'Your free trial is over! ' : 'No credits available. '}
-                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium hover:text-destructive/80">
+                    <button onClick={() => setShowCreditsModal(true)} className="underline font-medium hover:text-destructive/80">
                       Choose a Plan
                     </button>{' '}
                     to continue creating auctions.
@@ -1394,13 +1394,18 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </Card>
           )}
 
+          {!hasCredits && buyerCredits !== null && (
+            <p className="text-xs text-center text-muted-foreground -mt-2">
+              ⚡ Suppliers participate free • Only buyers pay per auction
+            </p>
+          )}
+
           <Button
-            onClick={hasCredits ? handleSubmit : () => navigateToCredits('/buyer?tab=auctions&buy_credits=true')}
+            onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-full"
-            variant={hasCredits ? 'default' : 'destructive'}
           >
-            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : '🛒 Buy Credits to Continue'}
+            {isSubmitting ? 'Creating Auction...' : 'Start Auction'}
           </Button>
     </div>
   );
