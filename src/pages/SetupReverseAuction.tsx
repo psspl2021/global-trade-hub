@@ -143,13 +143,19 @@ const SetupReverseAuction = () => {
     // CRITICAL: if raw had digits but sanitization yielded null (e.g. "0", "000",
     // "-50"), preserve the raw input so the validation error surfaces.
     if (num == null && /\d/.test(startingPrice || '')) return;
+    const next = num ?? 0;
+    // Explicit zero gate — avoids "0 in limbo" (not valid, not truncation, not reset).
+    if (next === 0) {
+      setStartingPrice('');
+      return;
+    }
     const snap = startingPriceFocusSnapshotRef.current;
-    if (isAccidentalTruncation(snap, num ?? 0)) {
+    if (isAccidentalTruncation(snap, next)) {
       setStartingPrice(formatINR(snap));
       flashTruncationWarning('starting');
       return;
     }
-    setStartingPrice(num != null ? formatINR(num) : '');
+    setStartingPrice(formatINR(next));
   };
 
   const handleMinDecrementChange = (raw: string) => {
@@ -169,13 +175,18 @@ const SetupReverseAuction = () => {
   const handleMinDecrementBlur = () => {
     const num = sanitizeCurrencyStrict(minDecrement);
     if (num == null && /\d/.test(minDecrement || '')) return;
+    const next = num ?? 0;
+    if (next === 0) {
+      setMinDecrement('');
+      return;
+    }
     const snap = minDecrementFocusSnapshotRef.current;
-    if (isAccidentalTruncation(snap, num ?? 0)) {
+    if (isAccidentalTruncation(snap, next)) {
       setMinDecrement(formatINR(snap));
       flashTruncationWarning('decrement');
       return;
     }
-    setMinDecrement(num != null ? formatINR(num) : '');
+    setMinDecrement(formatINR(next));
   };
 
 
@@ -200,6 +211,7 @@ const SetupReverseAuction = () => {
   const handleUnitOverrideChange = (u: string) => {
     const prevUnit = unitOverride || '';
     const prevPriceNum = sanitizeCurrencyStrict(startingPrice) ?? 0;
+    const hasPrevPrice = prevPriceNum > 0;
     setUnitOverride(u);
 
     // Cancel any pending reset/preview from a previous switch (race-safe).
@@ -214,7 +226,7 @@ const SetupReverseAuction = () => {
 
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
       let previewShown = false;
-      if (prevPriceNum > 0) {
+      if (hasPrevPrice) {
         const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
@@ -594,8 +606,8 @@ const SetupReverseAuction = () => {
               requirement={requirement}
               duration={duration}
               pricingMethod={pricingMethod}
-              startingPrice={startingPrice}
-              minDecrement={minDecrement}
+              startingPriceNum={startingPriceNum}
+              minDecrementNum={minDecrementNum}
               unitHint={unitHint}
               totalEstimate={totalEstimate}
               quantityInfo={quantityInfo}
@@ -1399,7 +1411,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
 function StepReview({
-  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement, unitHint,
+  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPriceNum, minDecrementNum, unitHint,
   totalEstimate, quantityInfo,
 }: {
   supplierMode: SupplierMode;
@@ -1407,8 +1419,8 @@ function StepReview({
   requirement: string;
   duration: string;
   pricingMethod: PricingMethod;
-  startingPrice: string;
-  minDecrement: string;
+  startingPriceNum: number;
+  minDecrementNum: number;
   unitHint: string;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
@@ -1426,12 +1438,11 @@ function StepReview({
   const priceSuffix = isPerUnit ? `per ${unitWord}` : '(total order)';
   const decSuffix = isPerUnit ? `per ${unitWord}` : '(total)';
 
-  // Renamed to avoid shadowing the shared `formatINR` import. Delegates to the
-  // shared sanitize+format pipeline so review display can never drift from
-  // input parsing rules. Single source of truth: @/lib/currency.
-  const formatINRDisplayReview = (v: string, suffix?: string) => {
-    const n = sanitizeCurrencyStrict(v);
-    if (n == null) return '—';
+  // Pure number → display formatter. Inputs are already validated upstream
+  // (state holds either a clean numeric value or 0). Single source of
+  // truth for INR formatting: @/lib/currency.
+  const formatINRDisplayReview = (n: number, suffix?: string) => {
+    if (n <= 0) return '—';
     return `₹${formatINR(n)}${suffix ? ` ${suffix}` : ''}`;
   };
 
@@ -1472,8 +1483,8 @@ function StepReview({
         {isPerUnit && unitHint && (
           <ReviewRow label="Unit" value={unitHint} />
         )}
-        <ReviewRow label="Starting price" value={formatINRDisplayReview(startingPrice, priceSuffix)} />
-        <ReviewRow label="Minimum decrement" value={formatINRDisplayReview(minDecrement, decSuffix)} />
+        <ReviewRow label="Starting price" value={formatINRDisplayReview(startingPriceNum, priceSuffix)} />
+        <ReviewRow label="Minimum decrement" value={formatINRDisplayReview(minDecrementNum, decSuffix)} />
         {isPerUnit && totalEstimate && quantityInfo && (
           <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
             <span className="text-muted-foreground flex-shrink-0">
