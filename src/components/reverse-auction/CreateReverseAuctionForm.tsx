@@ -692,12 +692,20 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
       // Step 3: AFTER SUCCESS — consume 1 credit and link payment
       if (result) {
+        const requestId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const { error: creditError } = await supabase.rpc('consume_auction_credit', {
           p_credit_id: buyerCredits!.id,
           p_idempotency_key: idempotencyKeyRef.current,
+          p_request_id: requestId,
         } as any);
         if (creditError) {
-          console.error('credit_deduction_failed', creditError);
+          console.error('credit_deduction_failed', {
+            requestId,
+            idempotencyKey: idempotencyKeyRef.current,
+            error: creditError,
+          });
           // Recover UX — reopen credits modal instead of silent failure
           setResumeAfterPurchase(false);
           setShowCreditsModal(true);
