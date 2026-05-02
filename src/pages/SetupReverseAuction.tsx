@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import procureSaathiLogo from '@/assets/procuresaathi-logo.png';
 import { sanitizeCurrencyStrict, formatINR } from '@/lib/currency';
+import { isAccidentalTruncation } from '@/lib/pricing';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/hooks/useAuth';
 import { trackEvent } from '@/lib/analytics';
