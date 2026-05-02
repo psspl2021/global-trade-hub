@@ -1074,6 +1074,7 @@ export type Database = {
           credit_id: string
           id: string
           idempotency_key: string
+          request_id: string | null
         }
         Insert: {
           buyer_id: string
@@ -1081,6 +1082,7 @@ export type Database = {
           credit_id: string
           id?: string
           idempotency_key: string
+          request_id?: string | null
         }
         Update: {
           buyer_id?: string
@@ -1088,6 +1090,7 @@ export type Database = {
           credit_id?: string
           id?: string
           idempotency_key?: string
+          request_id?: string | null
         }
         Relationships: [
           {
@@ -13169,6 +13172,14 @@ export type Database = {
         | { Args: { p_credit_id: string }; Returns: undefined }
         | {
             Args: { p_credit_id: string; p_idempotency_key?: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_credit_id: string
+              p_idempotency_key?: string
+              p_request_id?: string
+            }
             Returns: undefined
           }
       consume_backup_code: { Args: { p_code: string }; Returns: boolean }
