@@ -579,6 +579,11 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
 
     try {
       const isTrial = buyerCredits?.isTrial && remainingCredits > 0;
