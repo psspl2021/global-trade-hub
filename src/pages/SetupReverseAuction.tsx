@@ -1411,7 +1411,7 @@ function StickyBlockReason({ reason }: { reason: string }) {
 /* ──────────────────────────  STEP 3  ────────────────────────── */
 
 function StepReview({
-  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPrice, minDecrement, unitHint,
+  supplierMode, supplierCount, requirement, duration, pricingMethod, startingPriceNum, minDecrementNum, unitHint,
   totalEstimate, quantityInfo,
 }: {
   supplierMode: SupplierMode;
@@ -1419,8 +1419,8 @@ function StepReview({
   requirement: string;
   duration: string;
   pricingMethod: PricingMethod;
-  startingPrice: string;
-  minDecrement: string;
+  startingPriceNum: number;
+  minDecrementNum: number;
   unitHint: string;
   totalEstimate: string;
   quantityInfo: { qty: number; unit: string } | null;
@@ -1438,12 +1438,11 @@ function StepReview({
   const priceSuffix = isPerUnit ? `per ${unitWord}` : '(total order)';
   const decSuffix = isPerUnit ? `per ${unitWord}` : '(total)';
 
-  // Renamed to avoid shadowing the shared `formatINR` import. Delegates to the
-  // shared sanitize+format pipeline so review display can never drift from
-  // input parsing rules. Single source of truth: @/lib/currency.
-  const formatINRDisplayReview = (v: string, suffix?: string) => {
-    const n = sanitizeCurrencyStrict(v);
-    if (n == null) return '—';
+  // Pure number → display formatter. Inputs are already validated upstream
+  // (state holds either a clean numeric value or 0). Single source of
+  // truth for INR formatting: @/lib/currency.
+  const formatINRDisplayReview = (n: number, suffix?: string) => {
+    if (n <= 0) return '—';
     return `₹${formatINR(n)}${suffix ? ` ${suffix}` : ''}`;
   };
 
