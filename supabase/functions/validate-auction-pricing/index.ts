@@ -107,8 +107,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    const body = (await req.json()) as PricingInput;
-    const result = validatePricing(body);
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ ok: false, error: "invalid_payload" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+    const result = validatePricing(body as PricingInput);
 
     return new Response(JSON.stringify(result), {
       status: result.ok ? 200 : 400,
