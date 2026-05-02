@@ -199,7 +199,7 @@ const SetupReverseAuction = () => {
 
   const handleUnitOverrideChange = (u: string) => {
     const prevUnit = unitOverride || '';
-    const prevPriceNum = sanitizeCurrencyStrict(startingPrice) ?? NaN;
+    const prevPriceNum = sanitizeCurrencyStrict(startingPrice) ?? 0;
     setUnitOverride(u);
 
     // Cancel any pending reset/preview from a previous switch (race-safe).
@@ -214,7 +214,7 @@ const SetupReverseAuction = () => {
 
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
       let previewShown = false;
-      if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
+      if (prevPriceNum > 0) {
         const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
@@ -266,10 +266,13 @@ const SetupReverseAuction = () => {
   }
 
   // Validation — uses sanitized values
-  const startingPriceNum = sanitizeCurrencyStrict(startingPrice) ?? NaN;
-  const minDecrementNum = sanitizeCurrencyStrict(minDecrement) ?? NaN;
-  const hasStartingPrice = Number.isFinite(startingPriceNum) && startingPriceNum > 0;
-  const hasMinDecrement = Number.isFinite(minDecrementNum) && minDecrementNum > 0;
+  // Normalize null → 0 so downstream math is unambiguous (no NaN propagation,
+  // no implicit reliance on Number.isFinite(null) === false). hasX flags are
+  // the single source of truth for "user has entered a valid value".
+  const startingPriceNum = sanitizeCurrencyStrict(startingPrice) ?? 0;
+  const minDecrementNum = sanitizeCurrencyStrict(minDecrement) ?? 0;
+  const hasStartingPrice = startingPriceNum > 0;
+  const hasMinDecrement = minDecrementNum > 0;
 
   let decrementError = '';
   if (minDecrement && !hasMinDecrement) {
@@ -1423,11 +1426,13 @@ function StepReview({
   const priceSuffix = isPerUnit ? `per ${unitWord}` : '(total order)';
   const decSuffix = isPerUnit ? `per ${unitWord}` : '(total)';
 
-  const formatINR = (v: string, suffix?: string) => {
-    if (!v) return '—';
-    const n = Number(v);
-    if (!Number.isFinite(n) || n <= 0) return '—';
-    return `₹${n.toLocaleString('en-IN')}${suffix ? ` ${suffix}` : ''}`;
+  // Renamed to avoid shadowing the shared `formatINR` import. Delegates to the
+  // shared sanitize+format pipeline so review display can never drift from
+  // input parsing rules. Single source of truth: @/lib/currency.
+  const formatINRDisplayReview = (v: string, suffix?: string) => {
+    const n = sanitizeCurrencyStrict(v);
+    if (n == null) return '—';
+    return `₹${formatINR(n)}${suffix ? ` ${suffix}` : ''}`;
   };
 
   const durationLabel = duration === '60' ? '1 hour'
@@ -1467,8 +1472,8 @@ function StepReview({
         {isPerUnit && unitHint && (
           <ReviewRow label="Unit" value={unitHint} />
         )}
-        <ReviewRow label="Starting price" value={formatINR(startingPrice, priceSuffix)} />
-        <ReviewRow label="Minimum decrement" value={formatINR(minDecrement, decSuffix)} />
+        <ReviewRow label="Starting price" value={formatINRDisplayReview(startingPrice, priceSuffix)} />
+        <ReviewRow label="Minimum decrement" value={formatINRDisplayReview(minDecrement, decSuffix)} />
         {isPerUnit && totalEstimate && quantityInfo && (
           <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
             <span className="text-muted-foreground flex-shrink-0">
