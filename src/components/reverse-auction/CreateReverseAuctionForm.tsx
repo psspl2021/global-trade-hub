@@ -10,7 +10,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +34,8 @@ import { PriceIntelligencePanel } from './PriceIntelligencePanel';
 import { RfqTemplateSelector } from './RfqTemplateSelector';
 import { AiRfqPreview } from './AiRfqPreview';
 import { AuctionPaywallGate } from './AuctionPaywallGate';
+import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
+import { DialogDescription } from '@/components/ui/dialog';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
@@ -84,9 +86,11 @@ interface CreateReverseAuctionFormProps {
 export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
-  const navigateToCredits = useNavigate();
+  // navigation reserved for future use; credit purchases handled inline via modal
   const [open, setOpen] = useState(false);
   const [showPaywallGate, setShowPaywallGate] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [resumeAfterPurchase, setResumeAfterPurchase] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
   const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
@@ -450,20 +454,21 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   // ── Buyer Auction Credits ──
   const [buyerCredits, setBuyerCredits] = useState<{ id: string; total: number; used: number; isTrial: boolean } | null>(null);
 
-  useEffect(() => {
+  const fetchCredits = useCallback(async () => {
     if (!user) return;
-    const fetchCredits = async () => {
-      const { data } = await supabase
-        .from('buyer_auction_credits')
-        .select('id, total_credits, used_credits, plan_id')
-        .eq('buyer_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits, isTrial: !(data as any).plan_id && (data as any).total_credits === 5 });
-    };
-    fetchCredits();
+    const { data } = await supabase
+      .from('buyer_auction_credits')
+      .select('id, total_credits, used_credits, plan_id')
+      .eq('buyer_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (data) setBuyerCredits({ id: (data as any).id, total: (data as any).total_credits, used: (data as any).used_credits, isTrial: !(data as any).plan_id && (data as any).total_credits === 5 });
   }, [user]);
+
+  useEffect(() => {
+    fetchCredits();
+  }, [fetchCredits]);
 
   const remainingCredits = buyerCredits ? buyerCredits.total - buyerCredits.used : 0;
   const hasCredits = remainingCredits > 0;
@@ -562,9 +567,10 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    // Check for credits — show paywall gate
+    // Check for credits — open inline credits modal and resume after purchase
     if (!hasCredits) {
-      setShowPaywallGate(true);
+      setResumeAfterPurchase(true);
+      setShowCreditsModal(true);
       return;
     }
 
@@ -1370,7 +1376,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 {buyerCredits.isTrial && hasCredits && (
                   <p className="text-xs text-muted-foreground mt-1.5">
                     You have <strong>{remainingCredits} free trial auction(s)</strong> left. Once used, choose a plan to continue.{' '}
-                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium text-primary hover:text-primary/80">
+                    <button onClick={() => setShowCreditsModal(true)} className="underline font-medium text-primary hover:text-primary/80">
                       View Plans
                     </button>
                   </p>
@@ -1378,7 +1384,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
                 {!hasCredits && (
                   <p className="text-xs text-destructive mt-1">
                     {buyerCredits.isTrial ? 'Your free trial is over! ' : 'No credits available. '}
-                    <button onClick={() => navigateToCredits('/buyer?tab=auctions&buy_credits=true')} className="underline font-medium hover:text-destructive/80">
+                    <button onClick={() => setShowCreditsModal(true)} className="underline font-medium hover:text-destructive/80">
                       Choose a Plan
                     </button>{' '}
                     to continue creating auctions.
@@ -1388,30 +1394,68 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
             </Card>
           )}
 
+          {!hasCredits && buyerCredits !== null && (
+            <p className="text-xs text-center text-muted-foreground -mt-2">
+              ⚡ Suppliers participate free • Only buyers pay per auction
+            </p>
+          )}
+
           <Button
-            onClick={hasCredits ? handleSubmit : () => navigateToCredits('/buyer?tab=auctions&buy_credits=true')}
+            onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-full"
-            variant={hasCredits ? 'default' : 'destructive'}
           >
-            {isSubmitting ? 'Creating Auction...' : hasCredits ? `Use 1 Credit & Create Auction` : '🛒 Buy Credits to Continue'}
+            {isSubmitting ? 'Creating Auction...' : 'Start Auction'}
           </Button>
     </div>
+  );
+
+  const creditsModalEl = (
+    <Dialog
+      open={showCreditsModal}
+      onOpenChange={(o) => {
+        setShowCreditsModal(o);
+        if (!o) setResumeAfterPurchase(false);
+      }}
+    >
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-primary" />
+            Buy Auction Credits
+          </DialogTitle>
+          <DialogDescription>
+            Pick a pack to continue. Your auction draft is preserved — we'll resume right after activation.
+          </DialogDescription>
+        </DialogHeader>
+        <AuctionCreditsPurchase
+          onCreditsUpdated={async () => {
+            await fetchCredits();
+            setShowCreditsModal(false);
+            if (resumeAfterPurchase) {
+              setResumeAfterPurchase(false);
+              setTimeout(() => handleSubmit(), 100);
+            }
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 
   if (mode === 'page') {
     return (
       <>
         {formContent}
+        {creditsModalEl}
         {showPaywallGate && (
           <AuctionPaywallGate
             onActivate={() => {
               setShowPaywallGate(false);
-              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+              setShowCreditsModal(true);
             }}
             onViewDetails={() => {
               setShowPaywallGate(false);
-              navigateToCredits('/buyer?tab=auctions&buy_credits=true');
+              setShowCreditsModal(true);
             }}
           />
         )}
@@ -1420,22 +1464,25 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
-          <Gavel className="w-4 h-4" />
-          Create Reverse Auction
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Gavel className="w-5 h-5 text-amber-600" />
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
+            <Gavel className="w-4 h-4" />
             Create Reverse Auction
-          </DialogTitle>
-        </DialogHeader>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gavel className="w-5 h-5 text-amber-600" />
+              Create Reverse Auction
+            </DialogTitle>
+          </DialogHeader>
+          {formContent}
+        </DialogContent>
+      </Dialog>
+      {creditsModalEl}
+    </>
   );
 }
