@@ -50,7 +50,7 @@ type ValidationResult =
   | { ok: true; normalized: { startingPrice: number; minDecrement: number } }
   | { ok: false; error: string };
 
-const ALLOWED_UNITS = [
+const ALLOWED_UNITS = Object.freeze([
   "ton",
   "kg",
   "piece",
@@ -59,22 +59,45 @@ const ALLOWED_UNITS = [
   "drum",
   "metre",
   "litre",
-];
+]);
 
-function validatePricing(input: PricingInput): ValidationResult {
+type ValidationResultWithUnit =
+  | {
+      ok: true;
+      normalized: {
+        startingPrice: number;
+        minDecrement: number;
+        unit?: string;
+      };
+    }
+  | { ok: false; error: string };
+
+function validatePricing(input: PricingInput): ValidationResultWithUnit {
   if (typeof input !== "object" || input === null) {
     return { ok: false, error: "invalid_payload" };
+  }
+
+  // Validate pricingMethod explicitly — prevents bypass via unknown values
+  if (
+    input.pricingMethod !== "per_unit" &&
+    input.pricingMethod !== "total"
+  ) {
+    return { ok: false, error: "invalid_pricing_method" };
   }
 
   const startingPrice = sanitizeCurrencyStrict(input.startingPrice) ?? 0;
   const minDecrement = sanitizeCurrencyStrict(input.minDecrement) ?? 0;
 
+  // Normalize unit (lowercase) before validation to avoid case-sensitivity bugs
+  const unit =
+    typeof input.unit === "string" ? input.unit.toLowerCase().trim() : "";
+
   // Priority: unit → starting → decrement → relational
   if (input.pricingMethod === "per_unit") {
-    if (!input.unit) {
+    if (!unit) {
       return { ok: false, error: "unit_required" };
     }
-    if (!ALLOWED_UNITS.includes(input.unit)) {
+    if (!ALLOWED_UNITS.includes(unit)) {
       return { ok: false, error: "invalid_unit" };
     }
   }
@@ -88,7 +111,14 @@ function validatePricing(input: PricingInput): ValidationResult {
     return { ok: false, error: "decrement_too_large" };
   }
 
-  return { ok: true, normalized: { startingPrice, minDecrement } };
+  return {
+    ok: true,
+    normalized: {
+      startingPrice,
+      minDecrement,
+      ...(input.pricingMethod === "per_unit" ? { unit } : {}),
+    },
+  };
 }
 
 Deno.serve(async (req) => {
@@ -112,7 +142,7 @@ Deno.serve(async (req) => {
       body = await req.json();
     } catch {
       return new Response(
-        JSON.stringify({ ok: false, error: "invalid_payload" }),
+        JSON.stringify({ ok: false, error: "invalid_json" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
