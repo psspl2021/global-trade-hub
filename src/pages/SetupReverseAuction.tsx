@@ -214,7 +214,7 @@ const SetupReverseAuction = () => {
 
     if (pricingMethod === 'per_unit' && (startingPrice || minDecrement)) {
       let previewShown = false;
-      if (Number.isFinite(prevPriceNum) && prevPriceNum > 0) {
+      if (prevPriceNum > 0) {
         const conv = convertUnitPrice(prevPriceNum, prevUnit, u);
         if (conv != null) {
           setUnitConvertPreview({ fromUnit: prevUnit || '—', toUnit: u, fromPrice: prevPriceNum, toPrice: conv });
