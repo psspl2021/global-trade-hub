@@ -35,7 +35,7 @@ import { RfqTemplateSelector } from './RfqTemplateSelector';
 import { AiRfqPreview } from './AiRfqPreview';
 import { AuctionPaywallGate } from './AuctionPaywallGate';
 import { AuctionCreditsPurchase } from './AuctionCreditsPurchase';
-import { Dialog as CreditsDialog, DialogContent as CreditsDialogContent, DialogHeader as CreditsDialogHeader, DialogTitle as CreditsDialogTitle, DialogDescription as CreditsDialogDescription } from '@/components/ui/dialog';
+import { DialogDescription } from '@/components/ui/dialog';
 
 const CATEGORIES = [
   'Metals - Ferrous', 'Metals - Non Ferrous', 'Polymers & Plastics',
