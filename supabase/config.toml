@@ -134,3 +134,6 @@ verify_jwt = false
 
 [functions.wire-payment-submit]
 verify_jwt = false
+
+[functions.validate-auction-pricing]
+verify_jwt = false
