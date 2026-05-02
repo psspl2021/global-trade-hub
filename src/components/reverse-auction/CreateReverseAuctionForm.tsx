@@ -729,6 +729,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);
+      idempotencyKeyRef.current = null;
     }
   };
 
