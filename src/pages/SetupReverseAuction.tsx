@@ -1483,8 +1483,8 @@ function StepReview({
         {isPerUnit && unitHint && (
           <ReviewRow label="Unit" value={unitHint} />
         )}
-        <ReviewRow label="Starting price" value={formatINRDisplayReview(startingPrice, priceSuffix)} />
-        <ReviewRow label="Minimum decrement" value={formatINRDisplayReview(minDecrement, decSuffix)} />
+        <ReviewRow label="Starting price" value={formatINRDisplayReview(startingPriceNum, priceSuffix)} />
+        <ReviewRow label="Minimum decrement" value={formatINRDisplayReview(minDecrementNum, decSuffix)} />
         {isPerUnit && totalEstimate && quantityInfo && (
           <div className="flex items-start justify-between gap-4 text-sm pt-2 border-t border-border/60">
             <span className="text-muted-foreground flex-shrink-0">
