@@ -402,7 +402,7 @@ async function sendDemandSignal(params: {
   const normalizedIntent = params.intentScore / 10;
   
   await supabase.rpc('record_demand_signal', {
-    p_signal_source: `seo_${params.pageType.toLowerCase()}`,
+    p_signal_source: 'seo',
     p_category: params.category,
     p_country: (params.countryCode || 'GLOBAL').toUpperCase(),
     p_buyer_type: 'unknown_external',
