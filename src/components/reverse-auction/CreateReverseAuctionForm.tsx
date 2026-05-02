@@ -567,9 +567,10 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
       return;
     }
 
-    // Check for credits — show paywall gate
+    // Check for credits — open inline credits modal and resume after purchase
     if (!hasCredits) {
-      setShowPaywallGate(true);
+      setResumeAfterPurchase(true);
+      setShowCreditsModal(true);
       return;
     }
 
