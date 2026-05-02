@@ -86,7 +86,7 @@ interface CreateReverseAuctionFormProps {
 export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dialog' }: CreateReverseAuctionFormProps) {
   const { createAuction } = useReverseAuction();
   const { user } = useAuth();
-  const navigateToCredits = useNavigate();
+  // navigation reserved for future use; credit purchases handled inline via modal
   const [open, setOpen] = useState(false);
   const [showPaywallGate, setShowPaywallGate] = useState(false);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
