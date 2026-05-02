@@ -92,6 +92,7 @@ export function CreateReverseAuctionForm({ onCreated, onDraftSaved, mode = 'dial
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [resumeAfterPurchase, setResumeAfterPurchase] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [wizardStep, setWizardStep] = useState(0);
   const WIZARD_STEPS = ['AI Input', 'Review Items', 'Suppliers', 'Pricing & Details', 'Launch'];
 
