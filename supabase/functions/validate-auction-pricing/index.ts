@@ -150,13 +150,17 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const baseHeaders = {
+    ...corsHeaders,
+    "Content-Type": "application/json",
+    "x-request-id": requestId,
+  };
+
   if (req.method !== "POST") {
     return new Response(
-      JSON.stringify({ ok: false, error: "method_not_allowed" }),
-      {
-        status: 405,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      JSON.stringify({ ok: false, error: "method_not_allowed", requestId }),
+      { status: 405, headers: baseHeaders },
     );
   }
 
@@ -164,29 +168,40 @@ Deno.serve(async (req) => {
   try {
     body = await req.json();
   } catch {
+    console.error("pricing_validation_failed", {
+      requestId,
+      error: "invalid_json",
+    });
     return new Response(
-      JSON.stringify({ ok: false, error: "invalid_json" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      JSON.stringify({ ok: false, error: "invalid_json", requestId }),
+      { status: 400, headers: baseHeaders },
     );
   }
 
   try {
     const result = validatePricing(body as PricingInput);
 
-    return new Response(JSON.stringify(result), {
+    if (!result.ok) {
+      console.error("pricing_validation_failed", {
+        requestId,
+        input: body,
+        error: result.error,
+      });
+    }
+
+    return new Response(JSON.stringify({ ...result, requestId }), {
       status: result.ok ? 200 : 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: baseHeaders,
     });
   } catch {
+    console.error("pricing_server_error", {
+      requestId,
+      input: body,
+    });
     return new Response(
-      JSON.stringify({ ok: false, error: "server_error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      JSON.stringify({ ok: false, error: "server_error", requestId }),
+      { status: 500, headers: baseHeaders },
     );
   }
 });
+
