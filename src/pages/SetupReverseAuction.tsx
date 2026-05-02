@@ -143,13 +143,19 @@ const SetupReverseAuction = () => {
     // CRITICAL: if raw had digits but sanitization yielded null (e.g. "0", "000",
     // "-50"), preserve the raw input so the validation error surfaces.
     if (num == null && /\d/.test(startingPrice || '')) return;
+    const next = num ?? 0;
+    // Explicit zero gate — avoids "0 in limbo" (not valid, not truncation, not reset).
+    if (next === 0) {
+      setStartingPrice('');
+      return;
+    }
     const snap = startingPriceFocusSnapshotRef.current;
-    if (isAccidentalTruncation(snap, num ?? 0)) {
+    if (isAccidentalTruncation(snap, next)) {
       setStartingPrice(formatINR(snap));
       flashTruncationWarning('starting');
       return;
     }
-    setStartingPrice(num != null ? formatINR(num) : '');
+    setStartingPrice(formatINR(next));
   };
 
   const handleMinDecrementChange = (raw: string) => {
