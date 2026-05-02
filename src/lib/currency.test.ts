@@ -41,6 +41,18 @@ describe('sanitizeCurrencyStrict', () => {
       expect(sanitizeCurrencyStrict('1.5CR')).toBe(15000000);
     });
 
+    it('handles mixed currency symbol + suffix + whitespace', () => {
+      expect(sanitizeCurrencyStrict('₹65k')).toBe(65000);
+      expect(sanitizeCurrencyStrict(' ₹1.5cr ')).toBe(15000000);
+      expect(sanitizeCurrencyStrict('₹ 1,00,000 ')).toBe(100000);
+    });
+
+    it('handles decimal + suffix combinations', () => {
+      expect(sanitizeCurrencyStrict('1.25k')).toBe(1250);
+      expect(sanitizeCurrencyStrict('0.5l')).toBe(50000);
+      expect(sanitizeCurrencyStrict('2.5cr')).toBe(25000000);
+    });
+
     it('accepts numbers directly', () => {
       expect(sanitizeCurrencyStrict(65000)).toBe(65000);
       expect(sanitizeCurrencyStrict(1.5)).toBe(2); // rounded
