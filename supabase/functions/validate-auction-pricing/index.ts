@@ -1,5 +1,8 @@
+// --------------------------------------------------
+// validate-auction-pricing (FINAL PRODUCTION VERSION)
 // Mirrors src/lib/currency.ts sanitizeCurrencyStrict + UI validation rules.
 // Keep logic identical — no drift allowed.
+// --------------------------------------------------
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +11,9 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// -----------------------------
+// Shared currency sanitizer
+// -----------------------------
 function sanitizeCurrencyStrict(raw: unknown): number | null {
   if (raw == null) return null;
 
@@ -30,7 +36,7 @@ function sanitizeCurrencyStrict(raw: unknown): number | null {
     s = s.slice(0, -1);
   }
 
-  if (!s || !/^\d*\.?\d*$/.test(s)) return null;
+  if (!/^\d+(\.\d+)?$/.test(s)) return null;
 
   const n = Number(s) * multiplier;
   if (!Number.isFinite(n) || n <= 0) return null;
@@ -39,6 +45,9 @@ function sanitizeCurrencyStrict(raw: unknown): number | null {
   return Math.round(n);
 }
 
+// -----------------------------
+// Types
+// -----------------------------
 type PricingInput = {
   pricingMethod: "per_unit" | "total";
   startingPrice: unknown;
@@ -47,9 +56,19 @@ type PricingInput = {
 };
 
 type ValidationResult =
-  | { ok: true; normalized: { startingPrice: number; minDecrement: number } }
+  | {
+      ok: true;
+      normalized: {
+        startingPrice: number;
+        minDecrement: number;
+        unit: string | null;
+      };
+    }
   | { ok: false; error: string };
 
+// -----------------------------
+// Constants
+// -----------------------------
 const ALLOWED_UNITS = Object.freeze([
   "ton",
   "kg",
@@ -61,23 +80,15 @@ const ALLOWED_UNITS = Object.freeze([
   "litre",
 ]);
 
-type ValidationResultWithUnit =
-  | {
-      ok: true;
-      normalized: {
-        startingPrice: number;
-        minDecrement: number;
-        unit: string | null;
-      };
-    }
-  | { ok: false; error: string };
-
-function validatePricing(input: PricingInput): ValidationResultWithUnit {
+// -----------------------------
+// Core validation
+// Priority: payload → method → unit → starting → decrement → relational
+// -----------------------------
+function validatePricing(input: PricingInput): ValidationResult {
   if (typeof input !== "object" || input === null) {
     return { ok: false, error: "invalid_payload" };
   }
 
-  // Validate pricingMethod explicitly — prevents bypass via unknown values
   if (
     input.pricingMethod !== "per_unit" &&
     input.pricingMethod !== "total"
@@ -86,23 +97,23 @@ function validatePricing(input: PricingInput): ValidationResultWithUnit {
   }
 
   // Defensive trim before sanitize — keeps behavior stable even if sanitizer changes
-  const trimmedStarting =
-    typeof input.startingPrice === "string"
-      ? input.startingPrice.trim()
-      : input.startingPrice;
-  const trimmedDecrement =
-    typeof input.minDecrement === "string"
-      ? input.minDecrement.trim()
-      : input.minDecrement;
+  const startingPrice =
+    sanitizeCurrencyStrict(
+      typeof input.startingPrice === "string"
+        ? input.startingPrice.trim()
+        : input.startingPrice,
+    ) ?? 0;
 
-  const startingPrice = sanitizeCurrencyStrict(trimmedStarting) ?? 0;
-  const minDecrement = sanitizeCurrencyStrict(trimmedDecrement) ?? 0;
+  const minDecrement =
+    sanitizeCurrencyStrict(
+      typeof input.minDecrement === "string"
+        ? input.minDecrement.trim()
+        : input.minDecrement,
+    ) ?? 0;
 
-  // Normalize unit (lowercase) before validation to avoid case-sensitivity bugs
   const unit =
     typeof input.unit === "string" ? input.unit.toLowerCase().trim() : "";
 
-  // Priority: unit → starting → decrement → relational
   if (input.pricingMethod === "per_unit") {
     if (!unit) {
       return { ok: false, error: "unit_required" };
@@ -131,34 +142,38 @@ function validatePricing(input: PricingInput): ValidationResultWithUnit {
   };
 }
 
+// -----------------------------
+// Edge handler
+// -----------------------------
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ ok: false, error: "method_not_allowed" }),
-        {
-          status: 405,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ ok: false, error: "method_not_allowed" }),
+      {
+        status: 405,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
+  }
 
-    let body: unknown;
-    try {
-      body = await req.json();
-    } catch {
-      return new Response(
-        JSON.stringify({ ok: false, error: "invalid_json" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ ok: false, error: "invalid_json" }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
+  }
+
+  try {
     const result = validatePricing(body as PricingInput);
 
     return new Response(JSON.stringify(result), {
