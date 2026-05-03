@@ -298,10 +298,10 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      // Co-owner read model: every active company member sees the full
-      // teammate list and can default to the company-wide view. The DB
-      // still stamps purchaser_id on writes, so accountability is preserved.
-      const isSelfOnlyRole = isSelfOnly;
+      // Co-owner read model (Option B): every active company member — including
+      // buyer_purchaser — sees the full teammate list and defaults to the
+      // company-wide view. The DB still stamps purchaser_id on writes, so
+      // accountability is preserved.
 
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
