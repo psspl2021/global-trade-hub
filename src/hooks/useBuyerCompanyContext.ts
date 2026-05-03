@@ -363,7 +363,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, role, ensureBuyerCompany, isSelfOnly, scopeLoading]);
+  }, [user?.id, role, ensureBuyerCompany, scopeLoading]);
 
   // Initial fetch
   useEffect(() => {
