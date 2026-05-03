@@ -105,7 +105,7 @@ export const CategoryShowcase = () => {
             <Card 
               key={category.name}
               className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              onClick={() => handleCategoryClick(category.name)}
+              onClick={() => handleCategoryClick(category.slug)}
             >
               <div className="relative h-40 overflow-hidden">
                 <img
