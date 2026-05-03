@@ -149,7 +149,7 @@ export const CategoryShowcase = () => {
           ))}
         </div>
 
-        <div className="text-center mt-8 space-y-4">
+        <div className="text-center mt-8 space-y-2">
           <p className="text-sm text-muted-foreground">
             Can't find your category?{' '}
             <a 
@@ -159,21 +159,15 @@ export const CategoryShowcase = () => {
               Let our team help →
             </a>
           </p>
-
-          <div className="pt-6 border-t border-border/50 max-w-2xl mx-auto">
-            <p className="text-xs text-muted-foreground mb-3">
-              Looking for products already listed by our verified suppliers?
-            </p>
-            <Button 
-              variant="outline"
-              size="lg" 
+          <p className="text-xs text-muted-foreground">
+            Or{' '}
+            <button
               onClick={() => navigate('/browse')}
-              className="h-11 px-6"
+              className="text-primary hover:underline font-medium"
             >
-              Explore Supplier Listings
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
+              explore supplier listings →
+            </button>
+          </p>
         </div>
       </div>
     </section>
