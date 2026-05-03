@@ -84,8 +84,7 @@ const showcaseCategories = [
 export const CategoryShowcase = () => {
   const navigate = useNavigate();
 
-  const handleCategoryClick = (categoryName: string) => {
-    const slug = categoryName.toLowerCase().replace(/[&,()]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const handleCategoryClick = (slug: string) => {
     navigate(`/category/${slug}`);
   };
 
