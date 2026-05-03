@@ -101,18 +101,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       setSelectedPurchaserIdState(null);
       return;
     }
-    if (isSelfOnly) {
-      setSelectedPurchaserIdState(user.id);
-      return;
-    }
     if (scopeLoading) return;
+    // Co-owner read model (Option B): every active company member — including
+    // buyer_purchaser — defaults to company-wide view. Saved selection still
+    // wins so an explicit "view as X" choice is honoured across refreshes.
     const saved = localStorage.getItem(purchaserStorageKey(user.id));
-    if (saved === 'ALL') {
+    if (!saved || saved === 'ALL') {
       setSelectedPurchaserIdState(null);
-    } else if (saved) {
+    } else {
       setSelectedPurchaserIdState(saved);
     }
-  }, [user?.id, isSelfOnly, scopeLoading]);
+  }, [user?.id, scopeLoading]);
 
   // Optimistic seed: as soon as we know who the user is, render a single-self
   // purchaser entry and stop the loading skeleton. The real fetchPurchasers
