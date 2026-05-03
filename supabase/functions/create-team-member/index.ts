@@ -134,6 +134,13 @@ Deno.serve(async (req) => {
     let tempPassword: string | null = null;
     let createdNew = false;
 
+    // Look up caller's company once (used both for invite + profile fallback)
+    const { data: callerCompany } = await admin
+      .from("buyer_companies")
+      .select("company_name, city, state, country")
+      .eq("id", companyId)
+      .maybeSingle();
+
     if (existing) {
       userId = existing.id;
     } else {
