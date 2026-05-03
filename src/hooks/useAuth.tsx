@@ -109,6 +109,13 @@ export const useAuth = () => {
         throw new Error(errorMessage);
       }
 
+      // Supabase returns success with an empty identities array when the
+      // email is already registered (anti-enumeration). Detect & surface it
+      // so we don't show "check your email" for a message that never arrives.
+      if (authData?.user && Array.isArray((authData.user as any).identities) && (authData.user as any).identities.length === 0) {
+        throw new Error('This email is already registered. Please try logging in instead.');
+      }
+
       // If user was created and we have a referral code, update the referral record with their ID
       if (authData?.user && referralCode) {
         await supabase
