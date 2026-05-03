@@ -7,20 +7,16 @@
  * test fails the moment a tile slug drifts from the canonical taxonomy.
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// @ts-ignore - Vite raw import
+import showcaseSource from '../CategoryShowcase.tsx?raw';
 import { categoriesData } from '@/data/categories';
 import { nameToSlug } from '@/pages/CategoryLanding';
 
 function extractTileSlugs(): string[] {
-  const src = readFileSync(
-    join(process.cwd(), 'src/components/landing/CategoryShowcase.tsx'),
-    'utf8'
-  );
   const slugs: string[] = [];
   const re = /slug:\s*'([^']+)'/g;
   let m;
-  while ((m = re.exec(src)) !== null) slugs.push(m[1]);
+  while ((m = re.exec(showcaseSource as string)) !== null) slugs.push(m[1]);
   return slugs;
 }
 
