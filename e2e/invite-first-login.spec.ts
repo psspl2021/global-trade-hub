@@ -87,14 +87,38 @@ test('invited user joins company and sees data on first login', async ({ page })
     await page.waitForURL(/\/(dashboard|onboarding|purchaser)/i, { timeout: 15_000 });
 
     // Acting Purchaser selector visible (deterministic testId).
-    await expect(page.getByTestId('acting-purchaser-selector'))
-      .toBeVisible({ timeout: 10_000 });
+    const selector = page.getByTestId('acting-purchaser-selector');
+    await expect(selector).toBeVisible({ timeout: 10_000 });
+
+    // Wait for hydration: at least 2 selectable options (self + inviter/company member).
+    // Covers both native <option> and custom listbox/menuitem patterns.
+    await expect
+      .poll(
+        async () => {
+          const native = await selector.locator('option').count();
+          if (native > 0) return native;
+          // Open custom dropdown if present, then count items.
+          const trigger = selector.locator('[role="combobox"], button').first();
+          if (await trigger.count()) {
+            await trigger.click().catch(() => {});
+          }
+          const items = await page
+            .locator('[role="option"], [role="menuitem"]')
+            .count();
+          return items;
+        },
+        { timeout: 10_000, message: 'purchaser selector should hydrate with >1 option' }
+      )
+      .toBeGreaterThan(1);
 
     // Prove no full-page reload happened — SPA navigation only.
+    // Guarded: some browsers may not populate navigation entries.
     const navEntries = await page.evaluate(() =>
-      performance.getEntriesByType('navigation').map((e: any) => e.type)
+      (performance.getEntriesByType('navigation') || []).map((e: any) => e.type)
     );
-    expect(navEntries).not.toContain('reload');
+    if (navEntries.length > 0) {
+      expect(navEntries).not.toContain('reload');
+    }
 
     // Company auctions section reachable (route + heading or empty-state).
     await page.goto(`${BASE_URL}/dashboard?view=auctions`);
