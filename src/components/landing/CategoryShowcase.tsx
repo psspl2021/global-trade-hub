@@ -149,15 +149,7 @@ export const CategoryShowcase = () => {
           ))}
         </div>
 
-        <div className="text-center mt-8 space-y-3">
-          <Button 
-            size="lg" 
-            onClick={() => navigate('/browse')}
-            className="h-12 px-8"
-          >
-            Browse Full Catalogue
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
+        <div className="text-center mt-8 space-y-4">
           <p className="text-sm text-muted-foreground">
             Can't find your category?{' '}
             <a 
@@ -167,6 +159,21 @@ export const CategoryShowcase = () => {
               Let our team help →
             </a>
           </p>
+
+          <div className="pt-6 border-t border-border/50 max-w-2xl mx-auto">
+            <p className="text-xs text-muted-foreground mb-3">
+              Looking for products already listed by our verified suppliers?
+            </p>
+            <Button 
+              variant="outline"
+              size="lg" 
+              onClick={() => navigate('/browse')}
+              className="h-11 px-6"
+            >
+              Explore Supplier Listings
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </div>
     </section>
