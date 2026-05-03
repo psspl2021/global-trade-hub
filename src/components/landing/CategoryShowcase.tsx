@@ -55,7 +55,7 @@ const showcaseCategories = [
   {
     name: 'Pharmaceuticals & Drugs',
     slug: 'pharmaceuticals-drugs',
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop',
+    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&h=300&fit=crop',
     description: 'APIs, formulations, generics & pharma raw materials',
     suppliers: '350+',
     moq: '200 pcs',
