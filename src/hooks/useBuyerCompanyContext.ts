@@ -74,7 +74,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { role } = useUserRole(user?.id);
   const { has: hasCapability } = useCapabilities();
   // get_user_scope() is the single source of truth for self-only identity.
-  const { isSelfOnly, loading: scopeLoading } = useUserScope();
+  const { loading: scopeLoading } = useUserScope();
 
   const [purchasers, setPurchasers] = useState<CompanyPurchaser[]>([]);
   const [selectedPurchaserId, setSelectedPurchaserIdState] = useState<string | null>(null);
