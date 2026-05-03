@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, ArrowRight, Users, Package } from 'lucide-react';
 
 // Category data with images and details like GlobalLinker
+// `slug` MUST match a real entry in src/data/categories.ts (via nameToSlug)
 const showcaseCategories = [
   {
     name: 'Industrial Supplies',
+    slug: 'industrial-supplies',
     image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=300&fit=crop',
     description: 'Machinery, tools, safety equipment & manufacturing essentials',
     suppliers: '500+',
@@ -16,6 +18,7 @@ const showcaseCategories = [
   },
   {
     name: 'Metals - Ferrous (Steel, Iron)',
+    slug: 'metals-ferrous-steel-iron',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     description: 'Steel, iron, TMT bars, HT Strands/LRPC, sheets & structural metals',
     suppliers: '300+',
@@ -24,6 +27,7 @@ const showcaseCategories = [
   },
   {
     name: 'Food & Beverages',
+    slug: 'food-beverages',
     image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
     description: 'Packaged foods, beverages, ingredients & bulk supplies',
     suppliers: '400+',
@@ -31,15 +35,17 @@ const showcaseCategories = [
     badges: ['FSSAI', 'Quality Assured'],
   },
   {
-    name: 'Fashion Apparel & Fabrics',
+    name: 'Textiles & Leather',
+    slug: 'textiles-leather',
     image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400&h=300&fit=crop',
-    description: 'Textiles, garments, fabrics & fashion accessories',
+    description: 'Textiles, garments, fabrics & leather goods',
     suppliers: '600+',
     moq: '100 pcs',
     badges: ['Private Label', 'Custom Made'],
   },
   {
-    name: 'Health Care Products',
+    name: 'Medical & Healthcare',
+    slug: 'medical-healthcare',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=300&fit=crop',
     description: 'Medical devices, pharmaceuticals, nutraceuticals & wellness',
     suppliers: '200+',
@@ -47,23 +53,26 @@ const showcaseCategories = [
     badges: ['FDA Approved', 'ISO Certified'],
   },
   {
-    name: 'Beauty & Personal Care',
+    name: 'Pharmaceuticals & Drugs',
+    slug: 'pharmaceuticals-drugs',
     image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop',
-    description: 'Cosmetics, skincare, haircare & personal care products',
+    description: 'APIs, formulations, generics & pharma raw materials',
     suppliers: '350+',
     moq: '200 pcs',
-    badges: ['Private Label', 'Natural'],
+    badges: ['GMP Certified', 'Export Ready'],
   },
   {
-    name: 'Consumer Electronics',
+    name: 'Electronic Components',
+    slug: 'electronic-components',
     image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop',
-    description: 'Electronic gadgets, accessories & smart devices',
+    description: 'Semiconductors, PCBs, sensors & electronic parts',
     suppliers: '250+',
     moq: '50 pcs',
-    badges: ['Certified', 'Warranty'],
+    badges: ['Certified', 'OEM Quality'],
   },
   {
     name: 'Hardware & Tools',
+    slug: 'hardware-tools',
     image: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400&h=300&fit=crop',
     description: 'Hand tools, power tools, fasteners & construction supplies',
     suppliers: '400+',
@@ -75,8 +84,7 @@ const showcaseCategories = [
 export const CategoryShowcase = () => {
   const navigate = useNavigate();
 
-  const handleCategoryClick = (categoryName: string) => {
-    const slug = categoryName.toLowerCase().replace(/[&,()]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const handleCategoryClick = (slug: string) => {
     navigate(`/category/${slug}`);
   };
 
@@ -97,7 +105,7 @@ export const CategoryShowcase = () => {
             <Card 
               key={category.name}
               className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              onClick={() => handleCategoryClick(category.name)}
+              onClick={() => handleCategoryClick(category.slug)}
             >
               <div className="relative h-40 overflow-hidden">
                 <img
