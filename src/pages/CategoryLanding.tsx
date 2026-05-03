@@ -1133,7 +1133,7 @@ const CategoryLanding = () => {
               size="lg" 
               variant="outline" 
               className="bg-white text-primary border-white hover:bg-white/90"
-              onClick={() => navigate(`/browseproducts`)}
+              onClick={() => navigate(`/browseproducts?category=${encodeURIComponent(categoryName)}${subcategoryName ? `&subcategory=${encodeURIComponent(subcategoryName)}` : ''}`)}
             >
               Browse Suppliers
             </Button>
