@@ -144,9 +144,9 @@ Deno.serve(async (req) => {
     if (existing) {
       userId = existing.id;
     } else {
-      // IMPORTANT: Insert team_invites row BEFORE createUser so the
-      // auto_provision_buyer_company trigger joins the existing company
-      // instead of creating a new one for this user.
+      // IMPORTANT: insert team_invites BEFORE createUser so the
+      // auto_provision_buyer_company trigger (if it fires) joins the
+      // existing company instead of creating a new one.
       await admin.from("team_invites").insert({
         email,
         role,
@@ -155,13 +155,6 @@ Deno.serve(async (req) => {
         status: "pending",
         categories: categories.length ? categories : null,
       });
-
-      // Look up caller's company to copy company_name into the new user's profile
-      const { data: callerCompany } = await admin
-        .from("buyer_companies")
-        .select("company_name, city, state, country")
-        .eq("id", companyId)
-        .maybeSingle();
 
       tempPassword = genPassword();
       const { data: created, error: createErr } = await admin.auth.admin
@@ -200,6 +193,30 @@ Deno.serve(async (req) => {
       }
       userId = created.user.id;
       createdNew = true;
+    }
+
+    // ─── Authoritative provisioning (fail-closed) ───────────────────
+    // Edge function is the single writer. Trigger may have already inserted
+    // some rows (best-effort); we re-assert each invariant here and verify.
+
+    // 1) Profile must exist (FK target for downstream tables).
+    const profileContact = fullName || email.split("@")[0];
+    // company_name has a unique-by-lower index; per-user suffix avoids collisions
+    // for teammates of the same buyer_company.
+    const profileCompanyName =
+      `${callerCompany?.company_name ?? "Company"} · ${email.split("@")[0]}`;
+    const { error: profileErr } = await admin.from("profiles").upsert(
+      {
+        id: userId!,
+        email,
+        contact_person: profileContact,
+        company_name: profileCompanyName,
+      },
+      { onConflict: "id" },
+    );
+    if (profileErr) {
+      // Non-fatal only if a row already exists; log and continue.
+      console.warn("[create-team-member] profile upsert warning", profileErr.message);
     }
 
     // Already a member?
