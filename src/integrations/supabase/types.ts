@@ -6796,7 +6796,7 @@ export type Database = {
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
           office_address: string | null
-          phone: string
+          phone: string | null
           preferred_locale: string | null
           referred_by_name: string | null
           referred_by_phone: string | null
@@ -6842,7 +6842,7 @@ export type Database = {
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
           office_address?: string | null
-          phone: string
+          phone?: string | null
           preferred_locale?: string | null
           referred_by_name?: string | null
           referred_by_phone?: string | null
@@ -6888,7 +6888,7 @@ export type Database = {
             | Database["public"]["Enums"]["logistics_partner_type"]
             | null
           office_address?: string | null
-          phone?: string
+          phone?: string | null
           preferred_locale?: string | null
           referred_by_name?: string | null
           referred_by_phone?: string | null
