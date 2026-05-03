@@ -80,7 +80,7 @@ export function PurchaserSelector({
 
   return (
     <>
-      <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${className}`}>
+      <div data-testid="acting-purchaser-selector" className={`flex flex-wrap items-center gap-2 sm:gap-3 ${className}`}>
         <label className="shrink-0 whitespace-nowrap text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Acting Purchaser (View as)
         </label>
