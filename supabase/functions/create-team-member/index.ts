@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
       console.warn("[create-team-member] profile upsert warning", profileErr.message);
     }
 
-    // Already a member?
+    // 2) Membership — upsert (idempotent across retries / trigger races)
     const { data: existingMember } = await admin
       .from("buyer_company_members")
       .select("id, is_active")
@@ -227,59 +227,39 @@ Deno.serve(async (req) => {
       .eq("company_id", companyId)
       .maybeSingle();
 
+    let alreadyMember = false;
     if (existingMember) {
-      if (!existingMember.is_active) {
-        await admin
-          .from("buyer_company_members")
-          .update({
-            is_active: true,
-            role,
-            assigned_categories: categories.length ? categories : null,
-          })
-          .eq("id", existingMember.id);
+      alreadyMember = true;
+      await admin
+        .from("buyer_company_members")
+        .update({
+          is_active: true,
+          role,
+          assigned_categories: categories.length ? categories : null,
+        })
+        .eq("id", existingMember.id);
+    } else {
+      const { error: memberErr } = await admin
+        .from("buyer_company_members")
+        .insert({
+          user_id: userId!,
+          company_id: companyId,
+          role,
+          assigned_categories: categories.length ? categories : null,
+          is_active: true,
+        });
+      if (memberErr) {
+        return new Response(
+          JSON.stringify({ error: memberErr.message, step: "membership_insert" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
-      return new Response(
-        JSON.stringify({
-          success: true,
-          alreadyMember: true,
-          userId,
-          tempPassword,
-          createdNew,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
     }
 
-    const { error: memberErr } = await admin
-      .from("buyer_company_members")
-      .insert({
-        user_id: userId!,
-        company_id: companyId,
-        role,
-        assigned_categories: categories.length ? categories : null,
-        is_active: true,
-      });
-    if (memberErr) {
-      return new Response(
-        JSON.stringify({ error: memberErr.message }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // Best-effort profile upsert
-    if (fullName) {
-      await admin.from("profiles").upsert(
-        { id: userId!, contact_person: fullName },
-        { onConflict: "id" },
-      );
-    }
-
-    // Assign executive role into user_roles so login auto-redirects to their dashboard view
+    // 3) Role mapping (login redirect for execs/management)
     if (EXECUTIVE_ROLES.has(role)) {
       await admin.from("user_roles").upsert(
         { user_id: userId!, role: role as any },
@@ -287,12 +267,52 @@ Deno.serve(async (req) => {
       );
     }
 
-    // SECURITY: temp passwords are returned to the creator ONCE in this response
-    // and never persisted server-side. There is no retrieval API.
+    // 4) Mark invite accepted (idempotent)
+    await admin
+      .from("team_invites")
+      .update({ status: "accepted" })
+      .eq("email", email)
+      .eq("company_id", companyId)
+      .eq("status", "pending");
+
+    // 5) FAIL-CLOSED VERIFY — never return success without confirming the row.
+    const { count: memberCount, error: verifyErr } = await admin
+      .from("buyer_company_members")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId!)
+      .eq("company_id", companyId)
+      .eq("is_active", true);
+    if (verifyErr || (memberCount ?? 0) !== 1) {
+      console.error("[create-team-member] membership_not_verified", {
+        userId,
+        companyId,
+        memberCount,
+        verifyErr: verifyErr?.message,
+      });
+      return new Response(
+        JSON.stringify({
+          error: "membership_not_created",
+          details: { memberCount, verifyErr: verifyErr?.message },
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    console.log("[create-team-member] team_member_provisioned", {
+      user_id: userId,
+      company_id: companyId,
+      role,
+      created_new: createdNew,
+      already_member: alreadyMember,
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
+        alreadyMember,
         userId,
         tempPassword,
         createdNew,
