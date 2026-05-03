@@ -58,7 +58,7 @@ test('invited user joins company and sees data on first login', async ({ page })
     createdUserId = (invokeData as any)?.user_id ?? null;
     expect(createdUserId, 'edge function must return user_id').toBeTruthy();
 
-    // DB assertion: exactly one membership row exists immediately.
+    // DB assertion: exactly one membership row exists immediately, with correct role + status.
     const { count, error: countErr } = await admin
       .from('buyer_company_members')
       .select('*', { count: 'exact', head: true })
@@ -66,6 +66,16 @@ test('invited user joins company and sees data on first login', async ({ page })
       .eq('company_id', COMPANY_ID);
     expect(countErr).toBeNull();
     expect(count).toBe(1);
+
+    const { data: membership, error: memErr } = await admin
+      .from('buyer_company_members')
+      .select('role, status')
+      .eq('user_id', createdUserId!)
+      .eq('company_id', COMPANY_ID)
+      .single();
+    expect(memErr).toBeNull();
+    expect(membership?.role).toBe('purchaser');
+    expect(membership?.status).toBe('active');
 
     // 2) Login as the invited user.
     await page.goto(`${BASE_URL}/login`);
@@ -76,9 +86,15 @@ test('invited user joins company and sees data on first login', async ({ page })
     // 3) Immediate visibility — no manual refresh.
     await page.waitForURL(/\/(dashboard|onboarding|purchaser)/i, { timeout: 15_000 });
 
-    // Acting Purchaser selector visible and populated.
-    const selector = page.getByText(/Acting Purchaser/i);
-    await expect(selector).toBeVisible({ timeout: 10_000 });
+    // Acting Purchaser selector visible (deterministic testId).
+    await expect(page.getByTestId('acting-purchaser-selector'))
+      .toBeVisible({ timeout: 10_000 });
+
+    // Prove no full-page reload happened — SPA navigation only.
+    const navEntries = await page.evaluate(() =>
+      performance.getEntriesByType('navigation').map((e: any) => e.type)
+    );
+    expect(navEntries).not.toContain('reload');
 
     // Company auctions section reachable (route + heading or empty-state).
     await page.goto(`${BASE_URL}/dashboard?view=auctions`);
