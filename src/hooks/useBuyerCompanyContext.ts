@@ -74,7 +74,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
   const { role } = useUserRole(user?.id);
   const { has: hasCapability } = useCapabilities();
   // get_user_scope() is the single source of truth for self-only identity.
-  const { isSelfOnly, loading: scopeLoading } = useUserScope();
+  const { loading: scopeLoading } = useUserScope();
 
   const [purchasers, setPurchasers] = useState<CompanyPurchaser[]>([]);
   const [selectedPurchaserId, setSelectedPurchaserIdState] = useState<string | null>(null);
@@ -101,18 +101,17 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       setSelectedPurchaserIdState(null);
       return;
     }
-    if (isSelfOnly) {
-      setSelectedPurchaserIdState(user.id);
-      return;
-    }
     if (scopeLoading) return;
+    // Co-owner read model (Option B): every active company member — including
+    // buyer_purchaser — defaults to company-wide view. Saved selection still
+    // wins so an explicit "view as X" choice is honoured across refreshes.
     const saved = localStorage.getItem(purchaserStorageKey(user.id));
-    if (saved === 'ALL') {
+    if (!saved || saved === 'ALL') {
       setSelectedPurchaserIdState(null);
-    } else if (saved) {
+    } else {
       setSelectedPurchaserIdState(saved);
     }
-  }, [user?.id, isSelfOnly, scopeLoading]);
+  }, [user?.id, scopeLoading]);
 
   // Optimistic seed: as soon as we know who the user is, render a single-self
   // purchaser entry and stop the loading skeleton. The real fetchPurchasers
@@ -299,10 +298,10 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
         return;
       }
 
-      // Co-owner read model: every active company member sees the full
-      // teammate list and can default to the company-wide view. The DB
-      // still stamps purchaser_id on writes, so accountability is preserved.
-      const isSelfOnlyRole = isSelfOnly;
+      // Co-owner read model (Option B): every active company member — including
+      // buyer_purchaser — sees the full teammate list and defaults to the
+      // company-wide view. The DB still stamps purchaser_id on writes, so
+      // accountability is preserved.
 
       // If no purchasers found, create fallback with current user
       if (purchaserList.length === 0) {
@@ -347,32 +346,15 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
 
       setPurchasers(purchaserList);
 
-      // For self-only roles, always force selection to self regardless of saved value
-      if (isSelfOnlyRole) {
-        setSelectedPurchaserIdState(user.id);
-        localStorage.setItem(purchaserStorageKey(user.id), user.id);
-      } else {
-        // Restore saved selection (per-user). For management:
-        //   - saved 'ALL' (or empty) → company-wide (null)
-        //   - saved valid user id → view-as that purchaser
-        //   - no saved value → DEFAULT to company-wide (null) so co-owners
-        //     immediately see all team data, not just their own.
-        const savedPurchaserId = localStorage.getItem(purchaserStorageKey(user.id));
+      // Option B: all company members (including buyer_purchaser) default to
+      // company-wide view. Saved selection still honoured.
+      const savedPurchaserId = localStorage.getItem(purchaserStorageKey(user.id));
 
-        if (savedPurchaserId === 'ALL') {
-          setSelectedPurchaserIdState(null);
-        } else if (savedPurchaserId) {
-          const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
-          if (validSavedSelection) {
-            setSelectedPurchaserIdState(savedPurchaserId);
-          } else {
-            // Stale id (e.g. removed teammate) → fall back to company-wide
-            setSelectedPurchaserIdState(null);
-          }
-        } else {
-          // First load for a management user → company-wide view
-          setSelectedPurchaserIdState(null);
-        }
+      if (!savedPurchaserId || savedPurchaserId === 'ALL') {
+        setSelectedPurchaserIdState(null);
+      } else {
+        const validSavedSelection = purchaserList.find(p => p.user_id === savedPurchaserId);
+        setSelectedPurchaserIdState(validSavedSelection ? savedPurchaserId : null);
       }
 
     } catch (err) {
@@ -381,7 +363,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, role, ensureBuyerCompany, isSelfOnly, scopeLoading]);
+  }, [user?.id, role, ensureBuyerCompany, scopeLoading]);
 
   // Initial fetch
   useEffect(() => {
@@ -394,10 +376,7 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
     }
   }, [fetchPurchasers, canViewManagement]);
 
-  const resolvedLoading =
-    isLoading ||
-    scopeLoading ||
-    (!!user?.id && isSelfOnly && selectedPurchaserId !== user.id);
+  const resolvedLoading = isLoading || scopeLoading;
 
   return {
     purchasers,
