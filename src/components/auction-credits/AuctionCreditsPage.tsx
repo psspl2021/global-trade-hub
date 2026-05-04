@@ -261,17 +261,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
       <div>
         <h3 className="text-base font-semibold text-foreground mb-3">Buy Auction Credits</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {plans.length === 0 && (
-            [0, 1, 2].map(i => (
-              <Card key={`skel-${i}`} className="relative border-border/40 bg-muted/20 animate-pulse">
-                <CardContent className="pt-5 pb-4 px-4 space-y-3 min-h-[420px]" />
-              </Card>
-            ))
-          )}
-          {plans.filter(p => {
-            const n = p.name.toLowerCase();
-            return !n.includes('yearly') && !(n.includes('monthly') && n.includes('unlimited'));
-          }).map((plan, index) => {
+          {creditPlans.map((plan, index) => {
             const Icon = planIcons[index] || Zap;
             const colorClass = planColors[index] || planColors[0];
             const badge = planBadges[index];
