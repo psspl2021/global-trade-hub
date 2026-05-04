@@ -233,8 +233,9 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   const planBadges = [null, 'Most Popular', 'Best Value'];
 
   const yearlyBase = 700000;
+  const yearlyOriginal = 1000000;
   const yearlyCalc = calcTotal(yearlyBase);
-  const monthlyBase = 150000;
+  const monthlyBase = 180000;
   const monthlyCalc = calcTotal(monthlyBase);
 
   return (
@@ -371,140 +372,139 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
           })}
         </div>
 
-        {/* Monthly Unlimited Plan */}
-        <div className="mt-8 pt-2">
-          <Card className="relative border-2 border-indigo-400 bg-gradient-to-br from-indigo-50/80 to-blue-50/80 dark:from-indigo-950/30 dark:to-blue-950/30 dark:border-indigo-700">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-              <Badge className="bg-indigo-600 text-white text-xs px-3 py-1">
-                ⚡ Monthly Plan
+        {/* Unlimited Plans (Monthly + Yearly) — same card style as top three */}
+        <div className="mt-8">
+          <h3 className="text-base font-semibold text-foreground mb-3">Unlimited Plans</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Monthly Unlimited */}
+            <Card className="relative border-indigo-300 bg-indigo-50/50 dark:border-indigo-800 dark:bg-indigo-950/20 transition-shadow hover:shadow-md">
+              <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs">
+                Monthly Plan
               </Badge>
-            </div>
-            <CardContent className="pt-8 pb-5 px-5">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="space-y-3 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Infinity className="w-6 h-6 text-indigo-600" />
-                    <span className="text-lg font-bold text-foreground">Monthly Unlimited Pack</span>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-foreground">₹1,50,000<span className="text-base font-normal text-muted-foreground">/month</span></p>
-                    <p className="text-xs text-muted-foreground">
-                      + GST 18% ({formatINR(monthlyCalc.gst)}) + Platform fee 1.95% ({formatINR(monthlyCalc.platformFee)})
-                    </p>
-                    <p className="text-xs font-semibold text-foreground mt-0.5">
-                      Total: {formatINR(monthlyCalc.total)} • Billed monthly
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Infinity className="w-4 h-4 text-indigo-500" />
-                      <span className="text-muted-foreground">Unlimited Auctions</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-indigo-500" />
-                      <span className="text-muted-foreground">Email Reminders</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Bot className="w-4 h-4 text-indigo-500" />
-                      <span className="text-muted-foreground">Full AI Assistance</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Crown className="w-4 h-4 text-indigo-500" />
-                      <span className="text-muted-foreground">Priority Support</span>
-                    </div>
-                  </div>
+              <CardContent className="pt-5 pb-4 px-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Infinity className="w-5 h-5 text-indigo-600" />
+                  <span className="font-bold text-foreground">Monthly Unlimited Pack</span>
                 </div>
-                <div className="flex flex-col gap-2 md:min-w-[200px]">
-                  <Button
-                    onClick={handleMonthlyUnlimitedPurchase}
-                    disabled={isLoading !== null || !cashfreeLoaded}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-                  >
-                    {isLoading === 'monthly-unlimited' ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-2" />
-                    )}
-                    {isLoading === 'monthly-unlimited' ? 'Processing...' : `Buy Now - ${formatINR(monthlyCalc.total)}`}
-                  </Button>
-                  <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
-                    <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
-                    <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
-                  </div>
-                  <p className="text-xs text-center text-muted-foreground">Cancel anytime</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Yearly Unlimited Plan */}
-        <div className="mt-6 pt-2">
-          <Card className="relative border-2 border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-700">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-              <Badge className="bg-emerald-600 text-white text-xs px-3 py-1">
-                🏆 Annual Plan
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{formatINR(monthlyBase)}<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+                  <p className="text-xs text-muted-foreground">
+                    + GST 18% ({formatINR(monthlyCalc.gst)}) + Platform fee 1.95% ({formatINR(monthlyCalc.platformFee)})
+                  </p>
+                  <p className="text-xs font-semibold text-foreground mt-0.5">
+                    Total: {formatINR(monthlyCalc.total)} • Billed monthly
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Unlimited Auctions</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Email Reminders</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Full AI Assistance</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Priority Support</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground/70 italic">* Cancel anytime</p>
+
+                <Button
+                  onClick={handleMonthlyUnlimitedPurchase}
+                  disabled={isLoading !== null || !cashfreeLoaded}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {isLoading === 'monthly-unlimited' ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <CreditCard className="w-4 h-4 mr-2" />
+                  )}
+                  {isLoading === 'monthly-unlimited' ? 'Processing...' : `Buy Now - ${formatINR(monthlyCalc.total)}`}
+                </Button>
+
+                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
+                  <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
+                  <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Yearly Unlimited */}
+            <Card className="relative border-emerald-300 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20 transition-shadow hover:shadow-md">
+              <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs">
+                Annual Plan • Save 30%
               </Badge>
-            </div>
-            <CardContent className="pt-8 pb-5 px-5">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="space-y-3 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Gem className="w-6 h-6 text-emerald-600" />
-                    <span className="text-lg font-bold text-foreground">Yearly Unlimited Pack</span>
+              <CardContent className="pt-5 pb-4 px-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Gem className="w-5 h-5 text-emerald-600" />
+                  <span className="font-bold text-foreground">Yearly Unlimited Pack</span>
+                </div>
+
+                <div>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <p className="text-2xl font-bold text-foreground">{formatINR(yearlyBase)}<span className="text-sm font-normal text-muted-foreground">/year</span></p>
+                    <span className="text-sm text-muted-foreground line-through">{formatINR(yearlyOriginal)}</span>
                   </div>
-                  <div>
-                    <p className="text-3xl font-bold text-foreground">₹7,00,000<span className="text-base font-normal text-muted-foreground">/year</span></p>
-                    <p className="text-xs text-muted-foreground">
-                      + GST 18% ({formatINR(yearlyCalc.gst)}) + Platform fee 1.95% ({formatINR(yearlyCalc.platformFee)})
-                    </p>
-                    <p className="text-xs font-semibold text-foreground mt-0.5">
-                      Total: {formatINR(yearlyCalc.total)} • Fixed annual pricing
-                    </p>
+                  <p className="text-xs text-muted-foreground">
+                    + GST 18% ({formatINR(yearlyCalc.gst)}) + Platform fee 1.95% ({formatINR(yearlyCalc.platformFee)})
+                  </p>
+                  <p className="text-xs font-semibold text-foreground mt-0.5">
+                    Total: {formatINR(yearlyCalc.total)} • Fixed annual pricing
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Unlimited Auctions</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Infinity className="w-4 h-4 text-emerald-500" />
-                      <span className="text-muted-foreground">Unlimited Auctions</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-emerald-500" />
-                      <span className="text-muted-foreground">Email Reminders</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Bot className="w-4 h-4 text-emerald-500" />
-                      <span className="text-muted-foreground">Full AI Assistance</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Crown className="w-4 h-4 text-emerald-500" />
-                      <span className="text-muted-foreground">Priority Support</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Email Reminders</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Full AI Assistance</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-muted-foreground">Priority Support</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 md:min-w-[200px]">
-                  <Button
-                    onClick={handleYearlyPurchase}
-                    disabled={isLoading !== null || !cashfreeLoaded}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    {isLoading === 'yearly' ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-2" />
-                    )}
-                    {isLoading === 'yearly' ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
-                  </Button>
-                  <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
-                    <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
-                    <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
-                  </div>
-                  <p className="text-xs text-center text-muted-foreground">Custom onboarding included</p>
+                <p className="text-[11px] text-muted-foreground/70 italic">* Custom onboarding included</p>
+
+                <Button
+                  onClick={handleYearlyPurchase}
+                  disabled={isLoading !== null || !cashfreeLoaded}
+                  className="w-full"
+                  variant="default"
+                >
+                  {isLoading === 'yearly' ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <CreditCard className="w-4 h-4 mr-2" />
+                  )}
+                  {isLoading === 'yearly' ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
+                </Button>
+
+                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
+                  <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
+                  <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
