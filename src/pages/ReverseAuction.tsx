@@ -666,7 +666,7 @@ export default function ReverseAuction() {
         <p className="text-sm text-muted-foreground mb-4">Forward RFQ or Reverse Auction — you choose</p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link
-            to="/post-rfq"
+            to="/post-rfq?mode=reverse"
             className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             Start Reverse Auction →
