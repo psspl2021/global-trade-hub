@@ -139,7 +139,7 @@ const Requirements = () => {
     canonical: 'https://www.procuresaathi.com/requirements',
     keywords: 'RFQ, buyer requirements, B2B procurement, industrial materials, steel requirements, chemical requirements, supplier bidding, tender, quotation request, live tenders India',
     ogType: 'website',
-    ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
+    ogImage: 'https://procuresaathi.com/og-main.jpg?v=2',
   });
 
   useEffect(() => {

@@ -66,7 +66,7 @@ const getB2BMarketplaceSchema = () => ({
   "description": "ProcureSaathi is an AI-powered B2B procurement and sourcing platform based in India. It helps buyers post requirements using AI RFQs, enables transparent bidding among verified suppliers, supports domestic and export–import trade, and provides free CRM, business leads, and logistics support to MSMEs, manufacturers, traders, and enterprises.",
   "url": "https://www.procuresaathi.com",
   "logo": "https://www.procuresaathi.com/procuresaathi-logo.png",
-  "image": "https://www.procuresaathi.com/og-early-adopter.png",
+  "image": "https://procuresaathi.com/og-main.jpg?v=2",
   "telephone": "+91-8368127357",
   "email": "sales@procuresaathi.com",
   "foundingDate": "2021",
