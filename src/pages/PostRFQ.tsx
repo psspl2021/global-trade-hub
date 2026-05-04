@@ -42,9 +42,16 @@ const PostRFQ = () => {
   const { user } = useAuth();
 
   // URL mode rule: /post-rfq?mode=reverse → redirect to reverse bridge
+  // Hardened: also honor sessionStorage fallback in case query param is stripped
+  // by an external/auth redirect; clear it after use to prevent sticky behaviour.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'reverse') {
+    let mode = params.get('mode');
+    if (!mode) {
+      try { mode = sessionStorage.getItem('rfq_mode'); } catch {}
+    }
+    if (mode === 'reverse') {
+      try { sessionStorage.removeItem('rfq_mode'); } catch {}
       navigate('/setup-reverse-auction', { replace: true });
     } else {
       try { localStorage.setItem('lastMode', 'forward'); } catch {}
