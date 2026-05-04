@@ -69,28 +69,48 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   }, [toast, onCreditsUpdated]);
 
-  // Fetch data
+  // Fetch data — plans load first (fast render), other data fills in progressively
   useEffect(() => {
     if (!userId) return;
 
-    const fetchData = async () => {
-      const [plansRes, creditsRes, profileRes, paymentsRes] = await Promise.all([
-        supabase.from('auction_pricing_plans').select('*').eq('is_active', true).order('sort_order'),
-        supabase.from('buyer_auction_credits').select('total_credits, used_credits').eq('buyer_id', userId).limit(1).single(),
-        supabase.from('profiles').select('contact_person, company_name, email, phone').eq('id', userId).single(),
-        supabase.from('auction_credit_payments').select('id, metadata').eq('buyer_id', userId).eq('status', 'paid'),
-      ]);
+    // Plans: highest priority, render immediately
+    supabase
+      .from('auction_pricing_plans')
+      .select('id, name, auctions_count, price, price_per_auction, gst_rate, description')
+      .eq('is_active', true)
+      .order('sort_order')
+      .then(({ data }) => {
+        if (data) setPlans(data as unknown as AuctionPlan[]);
+      });
 
-      if (plansRes.data) setPlans(plansRes.data as unknown as AuctionPlan[]);
-      if (creditsRes.data) setCredits({ total: (creditsRes.data as any).total_credits, used: (creditsRes.data as any).used_credits });
-      if (profileRes.data) setProfile(profileRes.data);
+    // Profile + credits in parallel (independent of plans)
+    supabase
+      .from('profiles')
+      .select('contact_person, company_name, email, phone')
+      .eq('id', userId)
+      .single()
+      .then(({ data }) => { if (data) setProfile(data); });
 
-      const hasStarter = paymentsRes.data?.some((p: any) =>
-        p.metadata?.plan_name?.toLowerCase().includes('starter')
-      );
-      setStarterUsed(!!hasStarter);
-    };
-    fetchData();
+    supabase
+      .from('buyer_auction_credits')
+      .select('total_credits, used_credits')
+      .eq('buyer_id', userId)
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (data) setCredits({ total: (data as any).total_credits, used: (data as any).used_credits });
+      });
+
+    // Starter-used check is non-critical — defer
+    supabase
+      .from('auction_credit_payments')
+      .select('metadata')
+      .eq('buyer_id', userId)
+      .eq('status', 'paid')
+      .then(({ data }) => {
+        const hasStarter = data?.some((p: any) => p.metadata?.plan_name?.toLowerCase().includes('starter'));
+        setStarterUsed(!!hasStarter);
+      });
   }, [userId]);
 
   const handlePurchase = async (plan: AuctionPlan) => {
