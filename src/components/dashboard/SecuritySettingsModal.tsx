@@ -161,14 +161,29 @@ export function SecuritySettingsModal({
 
           {/* CHANGE PIN */}
           <TabsContent value="pin" className="space-y-3 pt-3">
-            {!role ? (
+            {!role && (
+              <div className="space-y-1.5">
+                <Label htmlFor="role-select">Management view</Label>
+                <Select value={chosenRole ?? ''} onValueChange={(v) => setChosenRole(v as ManagementViewType)}>
+                  <SelectTrigger id="role-select">
+                    <SelectValue placeholder="Choose a view to update PIN" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {!activeRole ? (
               <p className="text-sm text-muted-foreground">
-                Select a Management View first to change its PIN.
+                Select a Management View above to change its PIN.
               </p>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">
-                  Updating PIN for <span className="font-semibold text-foreground">{roleLabel || role}</span> view.
+                  Updating PIN for <span className="font-semibold text-foreground">{activeLabel || activeRole}</span> view.
                 </p>
                 <div className="space-y-1.5">
                   <Label htmlFor="pin-pw">Account password</Label>
