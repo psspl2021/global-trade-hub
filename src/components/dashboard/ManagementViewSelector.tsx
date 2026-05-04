@@ -12,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings, ShieldAlert, Crown } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings, ShieldAlert, Crown, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { RoleVerificationModal } from './RoleVerificationModal';
+import { SecuritySettingsModal } from './SecuritySettingsModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,6 +50,7 @@ export function ManagementViewSelector({
   const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showSecuritySettings, setShowSecuritySettings] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
 
   // Check PIN states for all management views on mount
@@ -219,6 +221,19 @@ export function ManagementViewSelector({
             </SelectContent>
           </Select>
 
+          {selectedView && isCurrentViewVerified && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSecuritySettings(true)}
+              className="text-primary hover:text-primary hover:bg-primary/10"
+              title="Change PIN or password"
+            >
+              <KeyRound className="h-4 w-4 mr-1" />
+              Security
+            </Button>
+          )}
+
           {selectedView && (
             <Button
               variant="ghost"
@@ -238,6 +253,13 @@ export function ManagementViewSelector({
         onClose={handleModalClose}
         targetRole={pendingView}
         onVerified={handleVerified}
+      />
+
+      <SecuritySettingsModal
+        isOpen={showSecuritySettings}
+        onClose={() => setShowSecuritySettings(false)}
+        role={selectedView}
+        roleLabel={selectedOption?.label}
       />
     </>
   );
