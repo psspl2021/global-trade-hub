@@ -371,8 +371,76 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
           })}
         </div>
 
-        {/* Yearly Unlimited Plan */}
+        {/* Monthly Unlimited Plan */}
         <div className="mt-8 pt-2">
+          <Card className="relative border-2 border-indigo-400 bg-gradient-to-br from-indigo-50/80 to-blue-50/80 dark:from-indigo-950/30 dark:to-blue-950/30 dark:border-indigo-700">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+              <Badge className="bg-indigo-600 text-white text-xs px-3 py-1">
+                ⚡ Monthly Plan
+              </Badge>
+            </div>
+            <CardContent className="pt-8 pb-5 px-5">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Infinity className="w-6 h-6 text-indigo-600" />
+                    <span className="text-lg font-bold text-foreground">Monthly Unlimited Pack</span>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">₹1,50,000<span className="text-base font-normal text-muted-foreground">/month</span></p>
+                    <p className="text-xs text-muted-foreground">
+                      + GST 18% ({formatINR(monthlyCalc.gst)}) + Platform fee 1.95% ({formatINR(monthlyCalc.platformFee)})
+                    </p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5">
+                      Total: {formatINR(monthlyCalc.total)} • Billed monthly
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Infinity className="w-4 h-4 text-indigo-500" />
+                      <span className="text-muted-foreground">Unlimited Auctions</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="w-4 h-4 text-indigo-500" />
+                      <span className="text-muted-foreground">Email Reminders</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Bot className="w-4 h-4 text-indigo-500" />
+                      <span className="text-muted-foreground">Full AI Assistance</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Crown className="w-4 h-4 text-indigo-500" />
+                      <span className="text-muted-foreground">Priority Support</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 md:min-w-[200px]">
+                  <Button
+                    onClick={handleMonthlyUnlimitedPurchase}
+                    disabled={isLoading !== null || !cashfreeLoaded}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    {isLoading === 'monthly-unlimited' ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    {isLoading === 'monthly-unlimited' ? 'Processing...' : `Buy Now - ${formatINR(monthlyCalc.total)}`}
+                  </Button>
+                  <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Cards</span>
+                    <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> UPI</span>
+                    <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Wallet</span>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground">Cancel anytime</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Yearly Unlimited Plan */}
+        <div className="mt-6 pt-2">
           <Card className="relative border-2 border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-700">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
               <Badge className="bg-emerald-600 text-white text-xs px-3 py-1">
