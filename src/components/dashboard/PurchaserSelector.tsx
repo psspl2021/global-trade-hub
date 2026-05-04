@@ -41,6 +41,8 @@ interface PurchaserSelectorProps {
   /** Show the "All Purchasers (Company-wide)" option. Only true for management users. */
   showAllOption?: boolean;
   canAddPurchasers?: boolean;
+  /** True while the full company roster is still being fetched. */
+  isLoading?: boolean;
 }
 
 export function PurchaserSelector({
@@ -51,6 +53,7 @@ export function PurchaserSelector({
   className = '',
   canAddPurchasers = true,
   showAllOption = false,
+  isLoading = false,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPurchaser, setEditingPurchaser] = useState<CompanyPurchaser | null>(null);
@@ -157,6 +160,12 @@ export function PurchaserSelector({
                   </div>
                 </SelectItem>
               ))}
+              {isLoading && (
+                <div className="px-2 py-2 text-[11px] text-muted-foreground border-t border-border/50 mt-1 flex items-center gap-2">
+                  <span className="inline-block h-3 w-3 rounded-full border-2 border-muted-foreground/40 border-t-primary animate-spin" />
+                  Loading teammates…
+                </div>
+              )}
             </SelectContent>
           </Select>
 

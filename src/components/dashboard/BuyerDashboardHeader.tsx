@@ -247,6 +247,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               onSelect={setSelectedPurchaserId}
               disabled={false}
               showAllOption={true}
+              isLoading={isLoading && purchasers.length <= 1}
             />
           ) : isLoading ? (
             <div className="flex flex-wrap items-center gap-2 sm:gap-3" aria-busy="true">
@@ -256,17 +257,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
               <div className="h-9 w-[260px] sm:w-[300px] rounded-md bg-muted/60 animate-pulse" />
               <div className="h-9 w-9 rounded-md bg-muted/60 animate-pulse" />
             </div>
-          ) : (
-            purchasers.length > 0 && (
-              <PurchaserSelector
-                purchasers={purchasers}
-                selectedPurchaserId={selectedPurchaserId}
-                onSelect={setSelectedPurchaserId}
-                disabled={false}
-                showAllOption={true}
-              />
-            )
-          )}
+          ) : null}
 
           {/* Management View Selector - Visible to ALL buyer roles, but LOCKED for non-management */}
           <ManagementViewSelector

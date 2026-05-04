@@ -138,7 +138,9 @@ export function useBuyerCompanyContext(): BuyerCompanyContext {
       };
       return [seed];
     });
-    setIsLoading(false);
+    // NOTE: do NOT set isLoading=false here. The seed is just an optimistic
+    // placeholder; consumers rely on isLoading to know when the full company
+    // roster has actually arrived from the RPC.
   }, [user?.id]);
 
   // Keep all hook instances on the page in sync. This hook is used directly
