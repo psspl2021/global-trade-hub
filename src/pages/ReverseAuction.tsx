@@ -218,7 +218,7 @@ export default function ReverseAuction() {
           {/* Hero CTAs */}
           <div className="flex flex-wrap gap-3 mb-6">
             <Link
-              to="/post-rfq"
+              to="/post-rfq?mode=reverse"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2 shadow-sm"
             >
               <Gavel className="h-4 w-4" /> Start Reverse Auction
