@@ -26,6 +26,26 @@ interface AuctionPlan {
   description: string | null;
 }
 
+type PlanKey = 'starter' | 'pro' | 'enterprise' | 'monthlyUnlimited' | 'yearlyUnlimited';
+
+const DISPLAY_PLANS: Record<PlanKey, AuctionPlan> = {
+  starter: { id: 'starter', name: 'Starter (Launch)', auctions_count: 5, price: 12500, price_per_auction: 2500, gst_rate: 0.18, description: null },
+  pro: { id: 'pro', name: 'Pro Pack', auctions_count: 20, price: 80000, price_per_auction: 4000, gst_rate: 0.18, description: null },
+  enterprise: { id: 'enterprise', name: 'Enterprise Pack', auctions_count: 50, price: 135000, price_per_auction: 2700, gst_rate: 0.18, description: null },
+  monthlyUnlimited: { id: 'monthlyUnlimited', name: 'Monthly Unlimited Pack', auctions_count: 9999, price: 180000, price_per_auction: 0, gst_rate: 0.18, description: null },
+  yearlyUnlimited: { id: 'yearlyUnlimited', name: 'Yearly Unlimited Pack', auctions_count: 9999, price: 700000, price_per_auction: 0, gst_rate: 0.18, description: null },
+};
+
+const getPlanKey = (name: string): PlanKey | null => {
+  const n = name.toLowerCase();
+  if (n.includes('yearly') || n.includes('annual')) return 'yearlyUnlimited';
+  if (n.includes('monthly') && n.includes('unlimited')) return 'monthlyUnlimited';
+  if (n.includes('enterprise')) return 'enterprise';
+  if (n.includes('pro')) return 'pro';
+  if (n.includes('starter')) return 'starter';
+  return null;
+};
+
 interface AuctionCreditsPageProps {
   userId: string;
   onBack: () => void;
@@ -34,7 +54,7 @@ interface AuctionCreditsPageProps {
 
 export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: AuctionCreditsPageProps) {
   const { toast } = useToast();
-  const [plans, setPlans] = useState<AuctionPlan[]>([]);
+  const [dbPlanIds, setDbPlanIds] = useState<Partial<Record<PlanKey, string>>>({});
   const [credits, setCredits] = useState<{ total: number; used: number } | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
@@ -73,14 +93,20 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   useEffect(() => {
     if (!userId) return;
 
-    // Plans: highest priority, render immediately
+    // Plan IDs are only needed at checkout; cards render immediately from constants.
     supabase
       .from('auction_pricing_plans')
-      .select('id, name, auctions_count, price, price_per_auction, gst_rate, description')
+      .select('id, name')
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => {
-        if (data) setPlans(data as unknown as AuctionPlan[]);
+        if (!data) return;
+        const ids: Partial<Record<PlanKey, string>> = {};
+        data.forEach((plan) => {
+          const key = getPlanKey(plan.name);
+          if (key && !ids[key]) ids[key] = plan.id;
+        });
+        setDbPlanIds(ids);
       });
 
     // Profile + credits in parallel (independent of plans)
@@ -114,6 +140,14 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   }, [userId]);
 
   const handlePurchase = async (plan: AuctionPlan) => {
+    const key = getPlanKey(plan.name);
+    const planId = key ? dbPlanIds[key] : plan.id;
+
+    if (!planId) {
+      toast({ title: 'Please wait', description: 'Payment plan is still connecting...', variant: 'destructive' });
+      return;
+    }
+
     if (!cashfreeLoaded) {
       toast({ title: 'Please wait', description: 'Payment system loading...', variant: 'destructive' });
       return;
@@ -125,7 +159,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
       const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
         body: {
           buyer_id: userId,
-          plan_id: plan.id,
+          plan_id: planId,
           customer_email: profile.email,
           customer_phone: profile.phone || '0000000000',
           customer_name: profile.company_name || profile.contact_person || 'Buyer',
@@ -149,26 +183,15 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   };
 
-  // Find unlimited plans dynamically (yearly + monthly)
-  const yearlyPlan = plans.find(p => p.name.toLowerCase().includes('yearly'));
-  const monthlyUnlimitedPlan = plans.find(p => {
-    const n = p.name.toLowerCase();
-    return n.includes('monthly') && n.includes('unlimited');
-  });
+  const creditPlans = [DISPLAY_PLANS.starter, DISPLAY_PLANS.pro, DISPLAY_PLANS.enterprise];
+  const yearlyPlan = DISPLAY_PLANS.yearlyUnlimited;
+  const monthlyUnlimitedPlan = DISPLAY_PLANS.monthlyUnlimited;
 
   const handleYearlyPurchase = () => {
-    if (!yearlyPlan) {
-      toast({ title: 'Error', description: 'Yearly plan not found', variant: 'destructive' });
-      return;
-    }
     handlePurchase(yearlyPlan);
   };
 
   const handleMonthlyUnlimitedPurchase = () => {
-    if (!monthlyUnlimitedPlan) {
-      toast({ title: 'Coming soon', description: 'Monthly Unlimited Pack will be enabled shortly.', variant: 'destructive' });
-      return;
-    }
     handlePurchase(monthlyUnlimitedPlan);
   };
 
@@ -238,17 +261,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
       <div>
         <h3 className="text-base font-semibold text-foreground mb-3">Buy Auction Credits</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {plans.length === 0 && (
-            [0, 1, 2].map(i => (
-              <Card key={`skel-${i}`} className="relative border-border/40 bg-muted/20 animate-pulse">
-                <CardContent className="pt-5 pb-4 px-4 space-y-3 min-h-[420px]" />
-              </Card>
-            ))
-          )}
-          {plans.filter(p => {
-            const n = p.name.toLowerCase();
-            return !n.includes('yearly') && !(n.includes('monthly') && n.includes('unlimited'));
-          }).map((plan, index) => {
+          {creditPlans.map((plan, index) => {
             const Icon = planIcons[index] || Zap;
             const colorClass = planColors[index] || planColors[0];
             const badge = planBadges[index];
