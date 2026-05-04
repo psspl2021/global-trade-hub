@@ -445,12 +445,12 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   className="w-full"
                   variant="default"
                 >
-                  {isLoading === 'yearly' ? (
+                  {isLoading === yearlyPlan?.id ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <CreditCard className="w-4 h-4 mr-2" />
                   )}
-                  {isLoading === 'yearly' ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
+                  {isLoading === yearlyPlan?.id ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
                 </Button>
 
                 <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
