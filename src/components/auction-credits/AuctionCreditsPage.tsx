@@ -140,6 +140,14 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   }, [userId]);
 
   const handlePurchase = async (plan: AuctionPlan) => {
+    const key = getPlanKey(plan.name);
+    const planId = key ? dbPlanIds[key] : plan.id;
+
+    if (!planId) {
+      toast({ title: 'Please wait', description: 'Payment plan is still connecting...', variant: 'destructive' });
+      return;
+    }
+
     if (!cashfreeLoaded) {
       toast({ title: 'Please wait', description: 'Payment system loading...', variant: 'destructive' });
       return;
@@ -151,7 +159,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
       const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
         body: {
           buyer_id: userId,
-          plan_id: plan.id,
+          plan_id: planId,
           customer_email: profile.email,
           customer_phone: profile.phone || '0000000000',
           customer_name: profile.company_name || profile.contact_person || 'Buyer',
@@ -175,26 +183,15 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   };
 
-  // Find unlimited plans dynamically (yearly + monthly)
-  const yearlyPlan = plans.find(p => p.name.toLowerCase().includes('yearly'));
-  const monthlyUnlimitedPlan = plans.find(p => {
-    const n = p.name.toLowerCase();
-    return n.includes('monthly') && n.includes('unlimited');
-  });
+  const creditPlans = [DISPLAY_PLANS.starter, DISPLAY_PLANS.pro, DISPLAY_PLANS.enterprise];
+  const yearlyPlan = DISPLAY_PLANS.yearlyUnlimited;
+  const monthlyUnlimitedPlan = DISPLAY_PLANS.monthlyUnlimited;
 
   const handleYearlyPurchase = () => {
-    if (!yearlyPlan) {
-      toast({ title: 'Error', description: 'Yearly plan not found', variant: 'destructive' });
-      return;
-    }
     handlePurchase(yearlyPlan);
   };
 
   const handleMonthlyUnlimitedPurchase = () => {
-    if (!monthlyUnlimitedPlan) {
-      toast({ title: 'Coming soon', description: 'Monthly Unlimited Pack will be enabled shortly.', variant: 'destructive' });
-      return;
-    }
     handlePurchase(monthlyUnlimitedPlan);
   };
 
