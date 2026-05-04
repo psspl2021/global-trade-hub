@@ -247,6 +247,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   };
 
+  const DISPLAY_PLANS = isGlobal ? GLOBAL_PLANS : INDIA_PLANS;
   const creditPlans = [DISPLAY_PLANS.starter, DISPLAY_PLANS.pro, DISPLAY_PLANS.enterprise];
   const monthlyUnlimitedPlan = DISPLAY_PLANS.monthlyUnlimited;
   const halfYearlyPlan = DISPLAY_PLANS.halfYearlyUnlimited;
