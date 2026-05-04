@@ -12,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings, ShieldAlert, Crown } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, BarChart3, X, Lock, ShieldCheck, Settings, ShieldAlert, Crown, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { RoleVerificationModal } from './RoleVerificationModal';
+import { SecuritySettingsModal } from './SecuritySettingsModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useGlobalBuyerContext } from '@/hooks/useGlobalBuyerContext';
 import { supabase } from '@/integrations/supabase/client';
