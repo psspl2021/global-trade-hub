@@ -561,7 +561,7 @@ export default function ReverseAuction() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              to="/post-rfq"
+              to="/post-rfq?mode=reverse"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:scale-105 hover:shadow-lg"
             >
               <Gavel className="h-4 w-4" /> Start Reverse Auction
