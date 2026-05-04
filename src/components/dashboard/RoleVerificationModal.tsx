@@ -312,6 +312,88 @@ export function RoleVerificationModal({
               </Button>
             </div>
           </div>
+        ) : mode === 'change_pin' ? (
+          <div className="space-y-4 pt-2">
+            <Alert className="border-primary/20 bg-primary/5">
+              <Key className="h-4 w-4 text-primary" />
+              <AlertDescription>
+                Verify with your account password to change the PIN for {roleLabel}.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="change-pin-password">Account password</Label>
+                <Input
+                  id="change-pin-password"
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="change-new-pin">New PIN (4-8 digits)</Label>
+                <Input
+                  id="change-new-pin"
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  placeholder="Enter new PIN"
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+                  className="text-center text-lg tracking-widest"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="change-confirm-pin">Confirm new PIN</Label>
+                <Input
+                  id="change-confirm-pin"
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  placeholder="Confirm new PIN"
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                  className="text-center text-lg tracking-widest"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setMode('verify')}>
+                Back
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleChangePinWithPassword}
+                disabled={isVerifying || !password || !newPin || !confirmPin}
+              >
+                {isVerifying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="h-4 w-4 mr-2" />
+                    Change PIN
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         ) : (
           // Verification Mode
           <Tabs value={authMethod} onValueChange={(v) => setAuthMethod(v as 'pin' | 'password')} className="pt-2">
