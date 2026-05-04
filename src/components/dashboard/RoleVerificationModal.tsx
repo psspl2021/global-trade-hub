@@ -454,6 +454,25 @@ export function RoleVerificationModal({
                   )}
                 </Button>
               </div>
+
+              {hasPinSetup && (
+                <div className="text-center pt-2">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-muted-foreground"
+                    onClick={() => {
+                      setError(null);
+                      setPassword('');
+                      setNewPin('');
+                      setConfirmPin('');
+                      setMode('change_pin');
+                    }}
+                  >
+                    Change / forgot PIN?
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="password" className="space-y-4 pt-4">
