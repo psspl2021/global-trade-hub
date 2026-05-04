@@ -221,6 +221,19 @@ export function ManagementViewSelector({
             </SelectContent>
           </Select>
 
+          {selectedView && isCurrentViewVerified && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSecuritySettings(true)}
+              className="text-primary hover:text-primary hover:bg-primary/10"
+              title="Change PIN or password"
+            >
+              <KeyRound className="h-4 w-4 mr-1" />
+              Security
+            </Button>
+          )}
+
           {selectedView && (
             <Button
               variant="ghost"
@@ -240,6 +253,13 @@ export function ManagementViewSelector({
         onClose={handleModalClose}
         targetRole={pendingView}
         onVerified={handleVerified}
+      />
+
+      <SecuritySettingsModal
+        isOpen={showSecuritySettings}
+        onClose={() => setShowSecuritySettings(false)}
+        role={selectedView}
+        roleLabel={selectedOption?.label}
       />
     </>
   );
