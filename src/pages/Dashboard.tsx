@@ -430,7 +430,9 @@ const Dashboard = () => {
               Welcome back, {selectedPurchaser?.display_name || liveProfile?.contact_person || user?.user_metadata?.contact_person || 'User'}!
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
-              {liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}
+              {selectedPurchaser
+                ? <>{liveProfile?.company_name || user?.user_metadata?.company_name} • {selectedPurchaser.email || selectedPurchaser.display_name} • {(selectedPurchaser.role || role || '').toUpperCase()}</>
+                : <>{liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}</>}
             </p>
           </div>
         ) : (
