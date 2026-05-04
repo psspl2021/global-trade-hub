@@ -50,6 +50,7 @@ export function ManagementViewSelector({
   const { isRoleVerified, requiresVerification, clearVerification, hasPinConfigured } = useRoleSecurity();
   const [pendingView, setPendingView] = useState<ManagementViewType>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showSecuritySettings, setShowSecuritySettings] = useState(false);
   const [pinStates, setPinStates] = useState<Record<string, boolean | null>>({});
 
   // Check PIN states for all management views on mount
