@@ -431,8 +431,8 @@ const Dashboard = () => {
             </h1>
             <p className="text-xs sm:text-base text-muted-foreground truncate">
               {selectedPurchaser
-                ? <>{liveProfile?.company_name || user?.user_metadata?.company_name} • {selectedPurchaser.email || selectedPurchaser.display_name} • {(selectedPurchaser.role || '').toUpperCase()}</>
-                : <>{liveProfile?.company_name || user?.user_metadata?.company_name} • {role?.toUpperCase()}</>}
+                ? <>{(liveProfile?.company_name || user?.user_metadata?.company_name || '').split('·')[0].trim()} • {selectedPurchaser.display_name}{selectedPurchaser.email ? ` (${selectedPurchaser.email})` : ''} • {(selectedPurchaser.role || '').toUpperCase()}</>
+                : <>{(liveProfile?.company_name || user?.user_metadata?.company_name || '').split('·')[0].trim()} • {role?.toUpperCase()}</>}
             </p>
           </div>
         ) : (
