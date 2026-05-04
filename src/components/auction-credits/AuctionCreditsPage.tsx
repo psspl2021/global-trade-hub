@@ -233,8 +233,9 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   const planBadges = [null, 'Most Popular', 'Best Value'];
 
   const yearlyBase = 700000;
+  const yearlyOriginal = 1000000;
   const yearlyCalc = calcTotal(yearlyBase);
-  const monthlyBase = 150000;
+  const monthlyBase = 180000;
   const monthlyCalc = calcTotal(monthlyBase);
 
   return (
