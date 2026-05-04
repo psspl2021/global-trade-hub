@@ -54,7 +54,7 @@ interface AuctionCreditsPageProps {
 
 export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: AuctionCreditsPageProps) {
   const { toast } = useToast();
-  const [plans, setPlans] = useState<AuctionPlan[]>([]);
+  const [dbPlanIds, setDbPlanIds] = useState<Partial<Record<PlanKey, string>>>({});
   const [credits, setCredits] = useState<{ total: number; used: number } | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
@@ -93,14 +93,20 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   useEffect(() => {
     if (!userId) return;
 
-    // Plans: highest priority, render immediately
+    // Plan IDs are only needed at checkout; cards render immediately from constants.
     supabase
       .from('auction_pricing_plans')
-      .select('id, name, auctions_count, price, price_per_auction, gst_rate, description')
+      .select('id, name')
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => {
-        if (data) setPlans(data as unknown as AuctionPlan[]);
+        if (!data) return;
+        const ids: Partial<Record<PlanKey, string>> = {};
+        data.forEach((plan) => {
+          const key = getPlanKey(plan.name);
+          if (key && !ids[key]) ids[key] = plan.id;
+        });
+        setDbPlanIds(ids);
       });
 
     // Profile + credits in parallel (independent of plans)
