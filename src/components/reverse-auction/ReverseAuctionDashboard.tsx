@@ -30,18 +30,18 @@ interface ReverseAuctionDashboardProps {
 }
 
 export function ReverseAuctionDashboard({ isSupplier = false }: ReverseAuctionDashboardProps) {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedAuction, setSelectedAuction] = useState<ReverseAuction | null>(null);
   const [showWarRoom, setShowWarRoom] = useState(false);
-  const [showSupplierNetwork, setShowSupplierNetwork] = useState(false);
-  const [showPurchaseOrders, setShowPurchaseOrders] = useState(false);
-  const [showExecutionTracking, setShowExecutionTracking] = useState(false);
-  const [showAuctionCredits, setShowAuctionCredits] = useState(false);
-  const [showAllAuctions, setShowAllAuctions] = useState(false);
+  const [showSupplierNetwork, setShowSupplierNetwork] = useState(searchParams.get('auctionView') === 'supplier-network');
+  const [showPurchaseOrders, setShowPurchaseOrders] = useState(searchParams.get('auctionView') === 'purchase-orders');
+  const [showExecutionTracking, setShowExecutionTracking] = useState(searchParams.get('auctionView') === 'execution-tracking');
+  const [showAuctionCredits, setShowAuctionCredits] = useState(searchParams.get('auctionView') === 'auction-credits');
+  const [showAllAuctions, setShowAllAuctions] = useState(searchParams.get('auctionView') === 'all-auctions');
   const [isRestoringAuction, setIsRestoringAuction] = useState(false);
   const [isSeedingTest, setIsSeedingTest] = useState(false);
   const [auctionCountByScope, setAuctionCountByScope] = useState<Record<string, number>>({});
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const {
     selectedPurchaserId,
