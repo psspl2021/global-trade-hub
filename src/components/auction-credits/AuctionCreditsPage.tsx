@@ -29,8 +29,18 @@ interface AuctionPlan {
 
 type PlanKey = 'starter' | 'pro' | 'enterprise' | 'monthlyUnlimited' | 'halfYearlyUnlimited' | 'yearlyUnlimited';
 
-// Updated INR base prices (source of truth)
-const DISPLAY_PLANS: Record<PlanKey, AuctionPlan> = {
+// India INR base prices (original/restored)
+const INDIA_PLANS: Record<PlanKey, AuctionPlan> = {
+  starter: { id: 'starter', name: 'Starter (Launch)', auctions_count: 5, price: 12500, price_per_auction: 2500, gst_rate: 0.18, description: null },
+  pro: { id: 'pro', name: 'Pro Pack', auctions_count: 20, price: 80000, price_per_auction: 4000, gst_rate: 0.18, description: null },
+  enterprise: { id: 'enterprise', name: 'Enterprise Pack', auctions_count: 50, price: 135000, price_per_auction: 2700, gst_rate: 0.18, description: null },
+  monthlyUnlimited: { id: 'monthlyUnlimited', name: 'Monthly Unlimited Pack', auctions_count: 9999, price: 180000, price_per_auction: 0, gst_rate: 0.18, description: null },
+  halfYearlyUnlimited: { id: 'halfYearlyUnlimited', name: 'Half Yearly Unlimited Pack', auctions_count: 9999, price: 450000, price_per_auction: 0, gst_rate: 0.18, description: null },
+  yearlyUnlimited: { id: 'yearlyUnlimited', name: 'Yearly Unlimited Pack', auctions_count: 9999, price: 700000, price_per_auction: 0, gst_rate: 0.18, description: null },
+};
+
+// Global INR base prices (converted to local currency via FX)
+const GLOBAL_PLANS: Record<PlanKey, AuctionPlan> = {
   starter: { id: 'starter', name: 'Starter (Launch)', auctions_count: 5, price: 25000, price_per_auction: 5000, gst_rate: 0.18, description: null },
   pro: { id: 'pro', name: 'Pro Pack', auctions_count: 20, price: 150000, price_per_auction: 7500, gst_rate: 0.18, description: null },
   enterprise: { id: 'enterprise', name: 'Enterprise Pack', auctions_count: 50, price: 250000, price_per_auction: 5000, gst_rate: 0.18, description: null },
