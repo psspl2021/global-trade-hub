@@ -16,11 +16,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Loader2, KeyRound, Lock, ShieldCheck } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
+
+const ROLE_OPTIONS: { value: Exclude<ManagementViewType, null>; label: string }[] = [
+  { value: 'cfo', label: 'CFO View' },
+  { value: 'ceo', label: 'CEO View' },
+  { value: 'vp', label: 'VP View' },
+  { value: 'purchase_head', label: 'Head of Procurement View' },
+  { value: 'hr', label: 'HR / Management View' },
+  { value: 'manager', label: 'Manager View' },
+];
 
 interface SecuritySettingsModalProps {
   isOpen: boolean;
