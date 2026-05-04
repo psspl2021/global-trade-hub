@@ -46,6 +46,11 @@ export function SecuritySettingsModal({
   const { toast } = useToast();
   const { verifyWithPassword, setPinForRole } = useRoleSecurity();
 
+  // Allow choosing role inside modal when none was passed
+  const [chosenRole, setChosenRole] = useState<ManagementViewType>(role);
+  const activeRole = role ?? chosenRole;
+  const activeLabel = roleLabel || ROLE_OPTIONS.find(r => r.value === activeRole)?.label;
+
   // PIN tab state
   const [pinPassword, setPinPassword] = useState('');
   const [newPin, setNewPin] = useState('');
@@ -61,12 +66,13 @@ export function SecuritySettingsModal({
   const reset = () => {
     setPinPassword(''); setNewPin(''); setConfirmPin('');
     setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    setChosenRole(role);
   };
 
   const handleClose = () => { reset(); onClose(); };
 
   const handleChangePin = async () => {
-    if (!role) {
+    if (!activeRole) {
       toast({ title: 'Select a management view first', variant: 'destructive' });
       return;
     }
