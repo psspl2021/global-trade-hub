@@ -115,11 +115,13 @@ serve(async (req) => {
       }
     }
 
-    // Calculate pricing
+    // Calculate pricing — base + GST 18% + Platform fee 1.95%
+    const PLATFORM_FEE_RATE = 0.0195;
     const basePrice = Number(plan.price);
     const gstRate = Number(plan.gst_rate) || 0.18;
     const gstAmount = Math.round(basePrice * gstRate);
-    const totalAmount = basePrice + gstAmount;
+    const platformFee = Math.round(basePrice * PLATFORM_FEE_RATE);
+    const totalAmount = basePrice + gstAmount + platformFee;
 
     const orderId = `AUC_CREDIT_${Date.now()}_${buyer_id.substring(0, 8)}`;
 
@@ -144,6 +146,8 @@ serve(async (req) => {
           plan_name: plan.name,
           price_per_auction: plan.price_per_auction,
           gst_rate: gstRate,
+          platform_fee_rate: PLATFORM_FEE_RATE,
+          platform_fee: platformFee,
         },
       })
       .select()

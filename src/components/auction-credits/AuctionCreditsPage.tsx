@@ -149,91 +149,27 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
     }
   };
 
-  const handleYearlyPurchase = async () => {
-    if (!cashfreeLoaded) {
-      toast({ title: 'Please wait', description: 'Payment system loading...', variant: 'destructive' });
-      return;
-    }
-    if (!profile) return;
+  // Find unlimited plans dynamically (yearly + monthly)
+  const yearlyPlan = plans.find(p => p.name.toLowerCase().includes('yearly'));
+  const monthlyUnlimitedPlan = plans.find(p => {
+    const n = p.name.toLowerCase();
+    return n.includes('monthly') && n.includes('unlimited');
+  });
 
-    const yearlyPlan = plans.find(p => p.name.toLowerCase().includes('yearly'));
+  const handleYearlyPurchase = () => {
     if (!yearlyPlan) {
       toast({ title: 'Error', description: 'Yearly plan not found', variant: 'destructive' });
       return;
     }
-
-    setIsLoading('yearly');
-    try {
-      const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
-        body: {
-          buyer_id: userId,
-          plan_id: yearlyPlan.id,
-          customer_email: profile.email,
-          customer_phone: profile.phone || '0000000000',
-          customer_name: profile.company_name || profile.contact_person || 'Buyer',
-        },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || 'Failed to create order');
-      }
-
-      const cashfree = window.Cashfree({ mode: 'production' });
-      await cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: '_self',
-      });
-    } catch (err: any) {
-      console.error('Yearly purchase error:', err);
-      toast({ title: 'Error', description: err.message || 'Payment failed', variant: 'destructive' });
-    } finally {
-      setIsLoading(null);
-    }
+    handlePurchase(yearlyPlan);
   };
 
-  const handleMonthlyUnlimitedPurchase = async () => {
-    if (!cashfreeLoaded) {
-      toast({ title: 'Please wait', description: 'Payment system loading...', variant: 'destructive' });
+  const handleMonthlyUnlimitedPurchase = () => {
+    if (!monthlyUnlimitedPlan) {
+      toast({ title: 'Coming soon', description: 'Monthly Unlimited Pack will be enabled shortly.', variant: 'destructive' });
       return;
     }
-    if (!profile) return;
-
-    const monthlyPlan = plans.find(p => {
-      const n = p.name.toLowerCase();
-      return n.includes('monthly') && n.includes('unlimited');
-    });
-    if (!monthlyPlan) {
-      toast({ title: 'Coming soon', description: 'Monthly Unlimited Pack will be enabled shortly. Please contact support to activate.', variant: 'destructive' });
-      return;
-    }
-
-    setIsLoading('monthly-unlimited');
-    try {
-      const { data, error } = await supabase.functions.invoke('cashfree-create-auction-order', {
-        body: {
-          buyer_id: userId,
-          plan_id: monthlyPlan.id,
-          customer_email: profile.email,
-          customer_phone: profile.phone || '0000000000',
-          customer_name: profile.company_name || profile.contact_person || 'Buyer',
-        },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || 'Failed to create order');
-      }
-
-      const cashfree = window.Cashfree({ mode: 'production' });
-      await cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: '_self',
-      });
-    } catch (err: any) {
-      console.error('Monthly unlimited purchase error:', err);
-      toast({ title: 'Error', description: err.message || 'Payment failed', variant: 'destructive' });
-    } finally {
-      setIsLoading(null);
-    }
+    handlePurchase(monthlyUnlimitedPlan);
   };
 
   const calcTotal = (basePrice: number) => {
@@ -443,12 +379,12 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   className="w-full"
                   variant="outline"
                 >
-                  {isLoading === 'monthly-unlimited' ? (
+                  {isLoading === monthlyUnlimitedPlan?.id ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <CreditCard className="w-4 h-4 mr-2" />
                   )}
-                  {isLoading === 'monthly-unlimited' ? 'Processing...' : `Buy Now - ${formatINR(monthlyCalc.total)}`}
+                  {isLoading === monthlyUnlimitedPlan?.id ? 'Processing...' : `Buy Now - ${formatINR(monthlyCalc.total)}`}
                 </Button>
 
                 <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
@@ -509,12 +445,12 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                   className="w-full"
                   variant="default"
                 >
-                  {isLoading === 'yearly' ? (
+                  {isLoading === yearlyPlan?.id ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <CreditCard className="w-4 h-4 mr-2" />
                   )}
-                  {isLoading === 'yearly' ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
+                  {isLoading === yearlyPlan?.id ? 'Processing...' : `Buy Now - ${formatINR(yearlyCalc.total)}`}
                 </Button>
 
                 <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
