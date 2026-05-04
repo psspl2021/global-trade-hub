@@ -187,7 +187,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
   ];
   const planBadges = [null, 'Most Popular', 'Best Value'];
 
-  const yearlyBase = 600000;
+  const yearlyBase = 700000;
   const yearlyCalc = calcTotal(yearlyBase);
 
   return (
@@ -340,7 +340,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
                     <span className="text-lg font-bold text-foreground">Yearly Unlimited Pack</span>
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-foreground">₹6,00,000<span className="text-base font-normal text-muted-foreground">/year</span></p>
+                    <p className="text-3xl font-bold text-foreground">₹7,00,000<span className="text-base font-normal text-muted-foreground">/year</span></p>
                     <p className="text-xs text-muted-foreground">
                       + GST 18% ({formatINR(yearlyCalc.gst)}) + Platform fee 1.95% ({formatINR(yearlyCalc.platformFee)})
                     </p>
