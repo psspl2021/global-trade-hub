@@ -126,7 +126,7 @@ export function BuyerDashboardHeader({ onOpenSettings }: BuyerDashboardHeaderPro
             {/* Auction Credits Badge — compact on mobile */}
              {remainingCredits !== null && (
               <button
-                onClick={() => navigate('/auction-credits')}
+                onClick={() => navigate('/dashboard?view=reverse-auction&auctionView=auction-credits')}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${remainingCredits <= 2 ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
                 aria-label={`${remainingCredits} auction credits remaining`}
               >
