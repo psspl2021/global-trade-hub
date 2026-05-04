@@ -92,6 +92,26 @@ const Categories = () => {
           >
             Partner with Us - It's Free
           </Button>
+          <div className="mt-6 space-y-1.5">
+            <p className="text-sm text-primary-foreground/90">
+              Can't find your category?{' '}
+              <a
+                href="mailto:sales@procuresaathi.com"
+                className="text-primary-foreground underline underline-offset-4 hover:opacity-80 font-medium"
+              >
+                Let our team help →
+              </a>
+            </p>
+            <p className="text-xs text-primary-foreground/80">
+              Or{' '}
+              <button
+                onClick={() => navigate('/browse')}
+                className="text-primary-foreground underline underline-offset-4 hover:opacity-80 font-medium"
+              >
+                explore supplier listings →
+              </button>
+            </p>
+          </div>
         </div>
       </section>
 
