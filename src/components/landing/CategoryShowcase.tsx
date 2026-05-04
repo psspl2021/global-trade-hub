@@ -148,27 +148,6 @@ export const CategoryShowcase = () => {
             </Card>
           ))}
         </div>
-
-        <div className="text-center mt-8 space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Can't find your category?{' '}
-            <a 
-              href="mailto:sales@procuresaathi.com" 
-              className="text-primary hover:underline"
-            >
-              Let our team help →
-            </a>
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Or{' '}
-            <button
-              onClick={() => navigate('/browse')}
-              className="text-primary hover:underline font-medium"
-            >
-              explore supplier listings →
-            </button>
-          </p>
-        </div>
       </div>
     </section>
   );
