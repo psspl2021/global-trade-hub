@@ -271,7 +271,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
 
   const monthlyCalc = calcTotal(monthlyUnlimitedPlan.price);
   const halfYearlyCalc = calcTotal(halfYearlyPlan.price);
-  const halfYearlyOriginal = 1000000;
+  const halfYearlyOriginal = isGlobal ? 1000000 : 540000;
   const yearlyCalc = calcTotal(yearlyPlan.price);
 
   const ctaLabel = (planId: string, total: number) =>
