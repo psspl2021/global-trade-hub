@@ -41,6 +41,8 @@ interface PurchaserSelectorProps {
   /** Show the "All Purchasers (Company-wide)" option. Only true for management users. */
   showAllOption?: boolean;
   canAddPurchasers?: boolean;
+  /** True while the full company roster is still being fetched. */
+  isLoading?: boolean;
 }
 
 export function PurchaserSelector({
@@ -51,6 +53,7 @@ export function PurchaserSelector({
   className = '',
   canAddPurchasers = true,
   showAllOption = false,
+  isLoading = false,
 }: PurchaserSelectorProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPurchaser, setEditingPurchaser] = useState<CompanyPurchaser | null>(null);
