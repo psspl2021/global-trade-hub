@@ -506,4 +506,7 @@ export function AuctionCreditsPage({ userId, onBack, onCreditsUpdated }: Auction
             </Card>
           </div>
         </div>
-
+      </div>
+    </div>
+  );
+}
