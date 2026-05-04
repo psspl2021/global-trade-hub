@@ -108,7 +108,7 @@ export const EarlyAdopterBanner = () => {
         "Document Management",
         "Pipeline Analytics"
       ],
-      "screenshot": "https://procuresaathi.com/og-early-adopter.png",
+      "screenshot": "https://procuresaathi.com/og-main.jpg?v=2",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.9",

@@ -52,7 +52,7 @@ const Index = () => {
     canonical: 'https://www.procuresaathi.com/',
     keywords:
       'AI procurement platform, forward and reverse auction, B2B procurement India, RFQ software, sealed bidding',
-    ogImage: 'https://www.procuresaathi.com/og-early-adopter.png',
+    ogImage: 'https://procuresaathi.com/og-main.jpg?v=2',
     ogType: 'website',
     twitterCard: 'summary_large_image',
   });

@@ -106,7 +106,7 @@ const AffiliateSignup = () => {
       { property: 'og:description', content: 'Join ProcureSaathi affiliate program. Earn 20% commission on platform fees. Lifetime earnings, easy tracking, instant payouts.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: 'https://www.procuresaathi.com/affiliate-signup' },
-      { property: 'og:image', content: 'https://www.procuresaathi.com/og-early-adopter.png' },
+      { property: 'og:image', content: 'https://procuresaathi.com/og-main.jpg?v=2' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: 'Become an Affiliate Partner | ProcureSaathi' },
       { name: 'twitter:description', content: 'Earn 20% commission on platform fees from referral orders. Join free today!' },

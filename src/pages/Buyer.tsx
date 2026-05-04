@@ -140,7 +140,7 @@ const Buyer = () => {
     description: "Post one RFQ. Compare verified supplier quotes side-by-side — price, delivery, terms — in one structured view. Buyer details protected.",
     keywords: "AI procurement platform, B2B sourcing India, verified suppliers, RFQ platform, supplier quote comparison, managed procurement, export sourcing",
     canonical: "https://procuresaathi.com/buyer",
-    ogImage: "/og-early-adopter.png",
+    ogImage: "/og-main.jpg?v=2",
   });
 
   useEffect(() => {

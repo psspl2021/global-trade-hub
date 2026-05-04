@@ -52,7 +52,7 @@ export const useSEO = ({
   description, 
   canonical, 
   keywords,
-  ogImage = 'https://www.procuresaathi.com/og-early-adopter.png',
+  ogImage = 'https://procuresaathi.com/og-main.jpg?v=2',
   ogType = 'website',
   twitterCard = 'summary_large_image',
   ogSiteName = 'ProcureSaathi',
