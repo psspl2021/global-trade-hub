@@ -29,11 +29,11 @@ interface AuctionPlan {
 type PlanKey = 'starter' | 'pro' | 'enterprise' | 'monthlyUnlimited' | 'yearlyUnlimited';
 
 const DISPLAY_PLANS: Record<PlanKey, AuctionPlan> = {
-  starter: { id: '', name: 'Starter (Launch)', auctions_count: 5, price: 12500, price_per_auction: 2500, gst_rate: 0.18, description: null },
-  pro: { id: '', name: 'Pro Pack', auctions_count: 20, price: 80000, price_per_auction: 4000, gst_rate: 0.18, description: null },
-  enterprise: { id: '', name: 'Enterprise Pack', auctions_count: 50, price: 135000, price_per_auction: 2700, gst_rate: 0.18, description: null },
-  monthlyUnlimited: { id: '', name: 'Monthly Unlimited Pack', auctions_count: 9999, price: 180000, price_per_auction: 0, gst_rate: 0.18, description: null },
-  yearlyUnlimited: { id: '', name: 'Yearly Unlimited Pack', auctions_count: 9999, price: 700000, price_per_auction: 0, gst_rate: 0.18, description: null },
+  starter: { id: 'starter', name: 'Starter (Launch)', auctions_count: 5, price: 12500, price_per_auction: 2500, gst_rate: 0.18, description: null },
+  pro: { id: 'pro', name: 'Pro Pack', auctions_count: 20, price: 80000, price_per_auction: 4000, gst_rate: 0.18, description: null },
+  enterprise: { id: 'enterprise', name: 'Enterprise Pack', auctions_count: 50, price: 135000, price_per_auction: 2700, gst_rate: 0.18, description: null },
+  monthlyUnlimited: { id: 'monthlyUnlimited', name: 'Monthly Unlimited Pack', auctions_count: 9999, price: 180000, price_per_auction: 0, gst_rate: 0.18, description: null },
+  yearlyUnlimited: { id: 'yearlyUnlimited', name: 'Yearly Unlimited Pack', auctions_count: 9999, price: 700000, price_per_auction: 0, gst_rate: 0.18, description: null },
 };
 
 const getPlanKey = (name: string): PlanKey | null => {
