@@ -57,7 +57,7 @@ export function RoleVerificationModal({
     isVerifying,
   } = useRoleSecurity();
 
-  const [mode, setMode] = useState<'verify' | 'setup'>('verify');
+  const [mode, setMode] = useState<'verify' | 'setup' | 'change_pin'>('verify');
   const [authMethod, setAuthMethod] = useState<'pin' | 'password'>('pin');
   const [pin, setPin] = useState('');
   const [password, setPassword] = useState('');
@@ -157,6 +157,50 @@ export function RoleVerificationModal({
       }
     } else {
       setError(result.error || 'Failed to set PIN');
+    }
+  };
+
+  const handleChangePinWithPassword = async () => {
+    if (!password) {
+      setError('Account password is required');
+      return;
+    }
+
+    if (newPin.length < 4 || newPin.length > 8) {
+      setError('PIN must be 4-8 digits');
+      return;
+    }
+
+    if (!/^\d+$/.test(newPin)) {
+      setError('PIN must contain only digits');
+      return;
+    }
+
+    if (newPin !== confirmPin) {
+      setError('PINs do not match');
+      return;
+    }
+
+    setError(null);
+    const passwordResult = await verifyWithPassword(targetRole, password);
+
+    if (!passwordResult.success) {
+      setError(passwordResult.error || 'Invalid password');
+      return;
+    }
+
+    const pinResult = await setPinForRole(targetRole, newPin);
+
+    if (pinResult.success) {
+      const verifyResult = await verifyWithPin(targetRole, newPin);
+      if (verifyResult.success) {
+        onVerified();
+        onClose();
+      } else {
+        setError('PIN updated, but verification failed. Please try again.');
+      }
+    } else {
+      setError(pinResult.error || 'Failed to update PIN');
     }
   };
 
