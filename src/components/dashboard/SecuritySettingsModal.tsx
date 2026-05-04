@@ -91,17 +91,17 @@ export function SecuritySettingsModal({
 
     setPinSubmitting(true);
     try {
-      const verify = await verifyWithPassword(role, pinPassword);
+      const verify = await verifyWithPassword(activeRole, pinPassword);
       if (!verify.success) {
         toast({ title: 'Password incorrect', description: verify.error, variant: 'destructive' });
         return;
       }
-      const res = await setPinForRole(role, newPin);
+      const res = await setPinForRole(activeRole, newPin);
       if (!res.success) {
         toast({ title: 'Failed to update PIN', description: res.error, variant: 'destructive' });
         return;
       }
-      toast({ title: 'PIN updated', description: `New PIN set for ${roleLabel || role} view.` });
+      toast({ title: 'PIN updated', description: `New PIN set for ${activeLabel || activeRole} view.` });
       handleClose();
     } finally {
       setPinSubmitting(false);
