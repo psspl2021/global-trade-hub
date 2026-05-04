@@ -218,7 +218,7 @@ export default function ReverseAuction() {
           {/* Hero CTAs */}
           <div className="flex flex-wrap gap-3 mb-6">
             <Link
-              to="/post-rfq?mode=reverse"
+              to="/post-rfq?mode=reverse" onClick={() => { try { sessionStorage.setItem("rfq_mode", "reverse"); } catch {} }}
               className="bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2 shadow-sm"
             >
               <Gavel className="h-4 w-4" /> Start Reverse Auction
@@ -561,7 +561,7 @@ export default function ReverseAuction() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              to="/post-rfq?mode=reverse"
+              to="/post-rfq?mode=reverse" onClick={() => { try { sessionStorage.setItem("rfq_mode", "reverse"); } catch {} }}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:scale-105 hover:shadow-lg"
             >
               <Gavel className="h-4 w-4" /> Start Reverse Auction
@@ -666,7 +666,7 @@ export default function ReverseAuction() {
         <p className="text-sm text-muted-foreground mb-4">Forward RFQ or Reverse Auction — you choose</p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link
-            to="/post-rfq?mode=reverse"
+            to="/post-rfq?mode=reverse" onClick={() => { try { sessionStorage.setItem("rfq_mode", "reverse"); } catch {} }}
             className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             Start Reverse Auction →
