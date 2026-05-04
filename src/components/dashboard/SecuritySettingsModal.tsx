@@ -16,11 +16,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Loader2, KeyRound, Lock, ShieldCheck } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRoleSecurity } from '@/hooks/useRoleSecurity';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { ManagementViewType } from '@/hooks/useBuyerCompanyContext';
+
+const ROLE_OPTIONS: { value: Exclude<ManagementViewType, null>; label: string }[] = [
+  { value: 'cfo', label: 'CFO View' },
+  { value: 'ceo', label: 'CEO View' },
+  { value: 'vp', label: 'VP View' },
+  { value: 'purchase_head', label: 'Head of Procurement View' },
+  { value: 'hr', label: 'HR / Management View' },
+  { value: 'manager', label: 'Manager View' },
+];
 
 interface SecuritySettingsModalProps {
   isOpen: boolean;
@@ -35,6 +45,11 @@ export function SecuritySettingsModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const { verifyWithPassword, setPinForRole } = useRoleSecurity();
+
+  // Allow choosing role inside modal when none was passed
+  const [chosenRole, setChosenRole] = useState<ManagementViewType>(role);
+  const activeRole = role ?? chosenRole;
+  const activeLabel = roleLabel || ROLE_OPTIONS.find(r => r.value === activeRole)?.label;
 
   // PIN tab state
   const [pinPassword, setPinPassword] = useState('');
@@ -51,12 +66,13 @@ export function SecuritySettingsModal({
   const reset = () => {
     setPinPassword(''); setNewPin(''); setConfirmPin('');
     setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    setChosenRole(role);
   };
 
   const handleClose = () => { reset(); onClose(); };
 
   const handleChangePin = async () => {
-    if (!role) {
+    if (!activeRole) {
       toast({ title: 'Select a management view first', variant: 'destructive' });
       return;
     }
@@ -75,17 +91,17 @@ export function SecuritySettingsModal({
 
     setPinSubmitting(true);
     try {
-      const verify = await verifyWithPassword(role, pinPassword);
+      const verify = await verifyWithPassword(activeRole, pinPassword);
       if (!verify.success) {
         toast({ title: 'Password incorrect', description: verify.error, variant: 'destructive' });
         return;
       }
-      const res = await setPinForRole(role, newPin);
+      const res = await setPinForRole(activeRole, newPin);
       if (!res.success) {
         toast({ title: 'Failed to update PIN', description: res.error, variant: 'destructive' });
         return;
       }
-      toast({ title: 'PIN updated', description: `New PIN set for ${roleLabel || role} view.` });
+      toast({ title: 'PIN updated', description: `New PIN set for ${activeLabel || activeRole} view.` });
       handleClose();
     } finally {
       setPinSubmitting(false);
@@ -145,14 +161,29 @@ export function SecuritySettingsModal({
 
           {/* CHANGE PIN */}
           <TabsContent value="pin" className="space-y-3 pt-3">
-            {!role ? (
+            {!role && (
+              <div className="space-y-1.5">
+                <Label htmlFor="role-select">Management view</Label>
+                <Select value={chosenRole ?? ''} onValueChange={(v) => setChosenRole(v as ManagementViewType)}>
+                  <SelectTrigger id="role-select">
+                    <SelectValue placeholder="Choose a view to update PIN" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {!activeRole ? (
               <p className="text-sm text-muted-foreground">
-                Select a Management View first to change its PIN.
+                Select a Management View above to change its PIN.
               </p>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">
-                  Updating PIN for <span className="font-semibold text-foreground">{roleLabel || role}</span> view.
+                  Updating PIN for <span className="font-semibold text-foreground">{activeLabel || activeRole}</span> view.
                 </p>
                 <div className="space-y-1.5">
                   <Label htmlFor="pin-pw">Account password</Label>
