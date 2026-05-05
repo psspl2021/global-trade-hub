@@ -2005,6 +2005,7 @@ export type Database = {
           country: string | null
           created_at: string | null
           erp_sync_policy: string
+          forward_po_approval_required: boolean
           gstin: string | null
           id: string
           industry: string | null
@@ -2021,6 +2022,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           erp_sync_policy?: string
+          forward_po_approval_required?: boolean
           gstin?: string | null
           id?: string
           industry?: string | null
@@ -2037,6 +2039,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           erp_sync_policy?: string
+          forward_po_approval_required?: boolean
           gstin?: string | null
           id?: string
           industry?: string | null
@@ -6947,6 +6950,7 @@ export type Database = {
           auction_id: string | null
           auction_quality_score: number | null
           base_currency: string | null
+          bid_id: string | null
           budget_cap: number | null
           buyer_company_id: string | null
           ceo_override: boolean | null
@@ -7040,6 +7044,7 @@ export type Database = {
           auction_id?: string | null
           auction_quality_score?: number | null
           base_currency?: string | null
+          bid_id?: string | null
           budget_cap?: number | null
           buyer_company_id?: string | null
           ceo_override?: boolean | null
@@ -7133,6 +7138,7 @@ export type Database = {
           auction_id?: string | null
           auction_quality_score?: number | null
           base_currency?: string | null
+          bid_id?: string | null
           budget_cap?: number | null
           buyer_company_id?: string | null
           ceo_override?: boolean | null
@@ -7226,6 +7232,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "reverse_auctions"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "admin_deal_analytics"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "anonymized_supplier_quotes"
+            referencedColumns: ["bid_id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids_with_display_date"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_deal_closures"
+            referencedColumns: ["bid_id"]
           },
           {
             foreignKeyName: "purchase_orders_buyer_company_id_fkey"
@@ -12679,6 +12720,10 @@ export type Database = {
         Args: { p_auction_id: string }
         Returns: undefined
       }
+      accept_bid_and_create_po: {
+        Args: { _bid_id: string; _notes?: string }
+        Returns: Json
+      }
       activate_affiliate_fifo: {
         Args: { p_affiliate_id: string }
         Returns: string
@@ -13480,6 +13525,10 @@ export type Database = {
           state: string
         }[]
       }
+      get_buyer_company_for_user: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_buyer_dashboard_type: { Args: { _user_id: string }; Returns: string }
       get_buyer_network_supplier_ids: {
         Args: { p_buyer_id: string }
@@ -13945,6 +13994,7 @@ export type Database = {
           auction_id: string | null
           auction_quality_score: number | null
           base_currency: string | null
+          bid_id: string | null
           budget_cap: number | null
           buyer_company_id: string | null
           ceo_override: boolean | null
@@ -14047,6 +14097,7 @@ export type Database = {
           auction_id: string | null
           auction_quality_score: number | null
           base_currency: string | null
+          bid_id: string | null
           budget_cap: number | null
           buyer_company_id: string | null
           ceo_override: boolean | null
@@ -15049,7 +15100,12 @@ export type Database = {
         | "sales_manager"
         | "buyer_vp"
         | "buyer_purchase_head"
-      bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      bid_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "withdrawn"
+        | "pending_award"
       document_status:
         | "draft"
         | "sent"
@@ -15256,7 +15312,13 @@ export const Constants = {
         "buyer_vp",
         "buyer_purchase_head",
       ],
-      bid_status: ["pending", "accepted", "rejected", "withdrawn"],
+      bid_status: [
+        "pending",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "pending_award",
+      ],
       document_status: [
         "draft",
         "sent",
