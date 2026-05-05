@@ -46,11 +46,23 @@ const PostRFQ = () => {
   // by an external/auth redirect; clear it after use to prevent sticky behaviour.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    let mode = params.get('mode');
-    if (!mode) {
-      try { mode = sessionStorage.getItem('rfq_mode'); } catch {}
+    const queryMode = params.get('mode');
+    let sessionMode: string | null = null;
+    if (!queryMode) {
+      try { sessionMode = sessionStorage.getItem('rfq_mode'); } catch {}
     }
+    const mode = queryMode || sessionMode;
     if (mode === 'reverse') {
+      // Track intent resolution path for funnel integrity analytics
+      try {
+        import('@/lib/analytics').then(({ trackEvent }) => {
+          trackEvent('reverse_auction_entry', {
+            source: params.get('source') || 'cta_reverse_auction',
+            resolved_via: queryMode === 'reverse' ? 'query' : 'session_fallback',
+            landing_path: window.location.pathname,
+          });
+        }).catch(() => {});
+      } catch {}
       try { sessionStorage.removeItem('rfq_mode'); } catch {}
       navigate('/setup-reverse-auction', { replace: true });
     } else {
