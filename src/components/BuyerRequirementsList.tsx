@@ -310,31 +310,31 @@ export function BuyerRequirementsList({ userId }: BuyerRequirementsListProps) {
         }
       }
 
-      const { error: bidError } = await supabase
-        .from('bids')
-        .update({ status: 'accepted' })
-        .eq('id', bidId);
+      const { data: rpcData, error: rpcError } = await (supabase as any).rpc(
+        'accept_bid_and_create_po',
+        { _bid_id: bidId, _notes: null }
+      );
 
-      if (bidError) throw bidError;
+      if (rpcError) throw rpcError;
 
-      const { error: reqError } = await supabase
-        .from('requirements')
-        .update({ status: 'awarded' })
-        .eq('id', selectedRequirement?.id);
+      const result = rpcData as {
+        success: boolean;
+        po_number: string;
+        approval_required: boolean;
+        requirement_awarded: boolean;
+      } | null;
 
-      if (reqError) throw reqError;
-
-      await supabase
-        .from('bids')
-        .update({ status: 'rejected' })
-        .eq('requirement_id', selectedRequirement?.id)
-        .neq('id', bidId)
-        .eq('status', 'pending');
-
-      toast.success('Order completed successfully! Thank you for doing business with ProcureSaathi.', {
-        duration: 5000,
-        description: 'The supplier has been notified and will contact you shortly.',
-      });
+      if (result?.approval_required) {
+        toast.success('Bid selected — Purchase Order sent for internal approval', {
+          duration: 6000,
+          description: `PO ${result.po_number} is now pending Manager → Head of Procurement approval. The supplier will be notified once both approvals are complete.`,
+        });
+      } else {
+        toast.success('Order completed successfully! Thank you for doing business with ProcureSaathi.', {
+          duration: 5000,
+          description: `PO ${result?.po_number ?? ''} created. The supplier has been notified and will contact you shortly.`,
+        });
+      }
       fetchRequirements();
       if (selectedRequirement) {
         fetchBids(selectedRequirement.id);

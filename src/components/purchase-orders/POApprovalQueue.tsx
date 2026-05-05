@@ -50,9 +50,9 @@ export function POApprovalQueue({ stage }: Props) {
     const { data, error } = await supabase
       .from('purchase_orders')
       .select(
-        'id, po_number, vendor_name, total_amount, currency, order_date, approval_status, notes, expected_delivery_date, auction_id, created_at'
+        'id, po_number, vendor_name, total_amount, currency, order_date, approval_status, notes, expected_delivery_date, auction_id, created_at, po_source'
       )
-      .eq('po_source', 'auction')
+      .in('po_source', ['auction', 'rfq'])
       .eq('approval_status', dbStage)
       .order('created_at', { ascending: false })
       .limit(50);
