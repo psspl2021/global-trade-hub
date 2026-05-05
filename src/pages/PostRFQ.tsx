@@ -60,6 +60,7 @@ const PostRFQ = () => {
             source: params.get('source') || 'cta_reverse_auction',
             resolved_via: queryMode === 'reverse' ? 'query' : 'session_fallback',
             landing_path: window.location.pathname,
+            referrer: document.referrer || 'direct',
           });
         }).catch(() => {});
       } catch {}
